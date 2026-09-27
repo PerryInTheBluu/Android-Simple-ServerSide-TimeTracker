@@ -2,7 +2,6 @@ package com.example.util.simpletimetracker.data_sync.di
 
 import android.content.Context
 import com.example.util.simpletimetracker.data_sync.api.SyncApi
-import com.example.util.simpletimetracker.data_sync.api.SyncUrlValidator
 import com.example.util.simpletimetracker.data_sync.db.SyncConflictDao
 import com.example.util.simpletimetracker.data_sync.db.SyncDatabase
 import com.example.util.simpletimetracker.data_sync.db.SyncQueueDao
@@ -53,11 +52,13 @@ object DataSyncModule {
 
     @Provides
     @Singleton
-    fun provideSyncApiFactory(
+    fun provideRetrofit(
         moshi: Moshi,
         okHttpClient: OkHttpClient,
         credentialStore: SyncCredentialStore,
-    ): SyncApiFactory {
+    ): SyncApi {
+        val baseUrl = credentialStore.serverUrl
+            .trimEnd('/') + "/"
         val authClient = okHttpClient.newBuilder()
             .addInterceptor { chain ->
                 val token = credentialStore.apiToken
@@ -67,15 +68,11 @@ object DataSyncModule {
                 chain.proceed(request)
             }
             .build()
-        return SyncApiFactory {
-            val baseUrl = SyncUrlValidator.normalizeOrNull(credentialStore.serverUrl)
-                ?: throw IllegalArgumentException("Sync server URL is missing or invalid")
-            Retrofit.Builder()
-                .baseUrl(baseUrl)
-                .client(authClient)
-                .addConverterFactory(MoshiConverterFactory.create(moshi))
-                .build()
-                .create(SyncApi::class.java)
-        }
+        return Retrofit.Builder()
+            .baseUrl(baseUrl)
+            .client(authClient)
+            .addConverterFactory(MoshiConverterFactory.create(moshi))
+            .build()
+            .create(SyncApi::class.java)
     }
 }
