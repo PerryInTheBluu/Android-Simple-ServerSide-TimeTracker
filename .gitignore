@@ -7,3 +7,26 @@ build/
 /captures
 .externalNativeBuild
 .cxx
+
+# Build artifacts must never be committed.
+*.apk
+*.aab
+
+# Logs and crash dumps.
+*.log
+
+# Secrets and keystores.
+.env
+*.env
+*.jks
+*.keystore
+!debug.keystore.template
+
+# Local databases and extracts.
+*.db
+*.sqlite
+*.sqlite3
+
+# Python bytecode.
+__pycache__/
+*.py[cod]

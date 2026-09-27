@@ -26,19 +26,19 @@
             android:name=".recevier.ExternalNotificationReceiver"
             android:exported="true">
             <intent-filter>
-                <action android:name="com.razeeman.util.simpletimetracker.ACTION_START_ACTIVITY" />
-                <action android:name="com.razeeman.util.simpletimetracker.ACTION_STOP_ACTIVITY" />
-                <action android:name="com.razeeman.util.simpletimetracker.ACTION_STOP_ALL_ACTIVITIES" />
-                <action android:name="com.razeeman.util.simpletimetracker.ACTION_STOP_SHORTEST_ACTIVITY" />
-                <action android:name="com.razeeman.util.simpletimetracker.ACTION_STOP_LONGEST_ACTIVITY" />
-                <action android:name="com.razeeman.util.simpletimetracker.ACTION_RESTART_ACTIVITY" />
-                <action android:name="com.razeeman.util.simpletimetracker.ACTION_ADD_RECORD" />
-                <action android:name="com.razeeman.util.simpletimetracker.ACTION_CHANGE_RECORD" />
-                <action android:name="com.razeeman.util.simpletimetracker.ACTION_CREATE_TAG" />
-                <action android:name="com.razeeman.util.simpletimetracker.ACTION_EXTERNAL_AUTOMATIC_BACKUP" />
-                <action android:name="com.razeeman.util.simpletimetracker.ACTION_EXTERNAL_AUTOMATIC_EXPORT" />
-                <action android:name="com.razeeman.util.simpletimetracker.ACTION_QUERY_ACTIVITIES" />
-                <action android:name="com.razeeman.util.simpletimetracker.ACTION_QUERY_RUNNING" />
+                <action android:name="de.piusdischinger.timetracker.ACTION_START_ACTIVITY" />
+                <action android:name="de.piusdischinger.timetracker.ACTION_STOP_ACTIVITY" />
+                <action android:name="de.piusdischinger.timetracker.ACTION_STOP_ALL_ACTIVITIES" />
+                <action android:name="de.piusdischinger.timetracker.ACTION_STOP_SHORTEST_ACTIVITY" />
+                <action android:name="de.piusdischinger.timetracker.ACTION_STOP_LONGEST_ACTIVITY" />
+                <action android:name="de.piusdischinger.timetracker.ACTION_RESTART_ACTIVITY" />
+                <action android:name="de.piusdischinger.timetracker.ACTION_ADD_RECORD" />
+                <action android:name="de.piusdischinger.timetracker.ACTION_CHANGE_RECORD" />
+                <action android:name="de.piusdischinger.timetracker.ACTION_CREATE_TAG" />
+                <action android:name="de.piusdischinger.timetracker.ACTION_EXTERNAL_AUTOMATIC_BACKUP" />
+                <action android:name="de.piusdischinger.timetracker.ACTION_EXTERNAL_AUTOMATIC_EXPORT" />
+                <action android:name="de.piusdischinger.timetracker.ACTION_QUERY_ACTIVITIES" />
+                <action android:name="de.piusdischinger.timetracker.ACTION_QUERY_RUNNING" />
             </intent-filter>
         </receiver>
 
