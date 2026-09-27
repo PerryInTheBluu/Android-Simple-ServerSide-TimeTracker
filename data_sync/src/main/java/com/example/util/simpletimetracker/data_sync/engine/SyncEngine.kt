@@ -3,7 +3,6 @@ package com.example.util.simpletimetracker.data_sync.engine
 import com.example.util.simpletimetracker.data_sync.api.SyncPushItem
 import com.example.util.simpletimetracker.data_sync.api.SyncPushRequest
 import com.example.util.simpletimetracker.data_sync.api.SyncApi
-import com.example.util.simpletimetracker.data_sync.api.SyncApiFactory
 import com.example.util.simpletimetracker.data_sync.db.SyncConflictDao
 import com.example.util.simpletimetracker.data_sync.db.SyncConflictDBO
 import com.example.util.simpletimetracker.data_sync.db.SyncQueueDao
@@ -38,7 +37,7 @@ enum class SyncStatus {
  */
 @Singleton
 class SyncEngine @Inject constructor(
-    private val syncApiFactory: SyncApiFactory,
+    private val syncApi: SyncApi,
     private val credentialStore: SyncCredentialStore,
     private val recordTypeRepo: RecordTypeRepo,
     private val recordRepo: RecordRepo,
@@ -61,9 +60,8 @@ class SyncEngine @Inject constructor(
         }
         _status.value = SyncStatus.PENDING
         try {
-            val syncApi = syncApiFactory.create()
-            pushLocalState(syncApi)
-            pullServerState(syncApi)
+            pushLocalState()
+            pullServerState()
             credentialStore.lastSyncTime = System.currentTimeMillis()
             _status.value = SyncStatus.SYNCED
         } catch (e: Exception) {
@@ -72,7 +70,7 @@ class SyncEngine @Inject constructor(
         }
     }
 
-    private suspend fun pushLocalState(syncApi: SyncApi) {
+    private suspend fun pushLocalState() {
         val items = mutableListOf<SyncPushItem>()
         recordTypeRepo.getAll().forEach { type ->
             items.add(
@@ -112,7 +110,7 @@ class SyncEngine @Inject constructor(
         }
     }
 
-    private suspend fun pullServerState(syncApi: SyncApi) {
+    private suspend fun pullServerState() {
         val since = credentialStore.lastSyncTime
             .takeIf { it > 0 }
             ?.let { DateTimeFormatter.ISO_INSTANT.format(Instant.ofEpochMilli(it)) }
