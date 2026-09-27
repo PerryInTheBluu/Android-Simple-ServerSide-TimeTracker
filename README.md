@@ -92,6 +92,37 @@
 - base - F-Droid version, no google play services, no Wear OS support.
 - play - Google Play version, with google play services, Wear OS support.
 
+## Selbst-Hosting (Tailnet-Setup)
+
+Diese Variante ist für einen einzelnen Benutzer konfiguriert:
+
+- App-Sprache: Deutsch (Standard, in den Einstellungen änderbar)
+- Dark Mode: standardmäßig aktiv
+- Überlappende Timer: standardmäßig deaktiviert („Multitasking“ aus)
+- 19 deutsche Standardaktivitäten beim ersten Start (Lernen, Vorlesung, Work, Pause, Schlafen, Essen, Cooking, Chores, Commute, Sport, Stretch, Lesen, Gitarre, Tinkering, Social, Games, YouTube, Bio, Nicht kategorisiert)
+
+Der Server (`server/`) wird selbst gehostet:
+Docker-Compose + PostgreSQL hinter vorhandenem Caddy-Reverse-Proxy,
+erreichbar ausschließlich über das private Tailnet (Headscale/Tailscale),
+mit regulären Zertifikaten. Siehe [server/README.md](server/README.md).
+
+Die App synchronisiert offline-first: alle Daten bleiben lokal (Room),
+Synchronisierung läuft automatisch im Hintergrund (WorkManager) und manuell
+über *Einstellungen → Synchronisierung → Jetzt synchronisieren*.
+Server-URL, Benutzername und API-Token werden verschlüsselt im
+Android Keystore gespeichert. Konflikte werden protokolliert und sind
+in der App unter *Einstellungen → Synchronisierung* sichtbar.
+
+### Installation per adb (GrapheneOS)
+
+```bash
+./gradlew assembleBaseRelease   # oder assembleBasedebug
+adb install -r app/build/outputs/apk/base/release/app-base-release.apk
+```
+
+Auf GrapheneOS „Unbekannte Quellen“ für die Installations-App erlauben
+oder F-Droid/kompatible Signatur nutzen. Keine Google-Play-Services nötig.
+
 ## Directory structure
     .
     ├── .github                               # CI files.

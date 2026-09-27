@@ -30,7 +30,7 @@ android {
     buildTypes {
         debug {
             applicationIdSuffix = ".debug"
-            isMinifyEnabled = true
+            isMinifyEnabled = false
             isCrunchPngs = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android.txt"),
@@ -98,6 +98,7 @@ android {
 dependencies {
     implementation(project(":core"))
     implementation(project(":data_local"))
+    implementation(project(":data_sync"))
     implementation(project(":resources"))
     implementation(project(":feature_main"))
     implementation(project(":feature_running_records"))
@@ -153,6 +154,8 @@ dependencies {
     implementation(libs.google.dagger)
 
     ksp(libs.kapt.dagger)
+    implementation(libs.androidx.hiltWork)
+    ksp(libs.androidx.hiltWorkCompiler)
     kspAndroidTest(libs.kapt.dagger)
 
     androidTestImplementation(libs.uitest.junit)

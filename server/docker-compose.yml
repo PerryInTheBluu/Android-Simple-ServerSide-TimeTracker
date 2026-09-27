@@ -1,0 +1,41 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-timetracker}
+      POSTGRES_USER: ${DB_USER:-timetracker}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    # The database is only reachable by the api service, never exposed.
+    expose:
+      - "5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-timetracker}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-timetracker}
+      DB_USER: ${DB_USER:-timetracker}
+      DB_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - api_data:/data
+    # Bind only to the LAN IP of the Proxmox host / container.
+    # Caddy (already existing on the host) proxies HTTPS to this port.
+    ports:
+      - "${API_BIND_IP:-0.0.0.0}:8080:8080"
+
+volumes:
+  db_data:
+  api_data:

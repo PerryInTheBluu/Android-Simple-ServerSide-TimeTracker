@@ -256,7 +256,7 @@ class PrefsRepoImpl @Inject constructor(
     )
 
     override var allowMultitasking: Boolean by prefs.delegate(
-        KEY_ALLOW_MULTITASKING, true,
+        KEY_ALLOW_MULTITASKING, false,
     )
 
     override var showNotifications: Boolean by prefs.delegate(
@@ -336,7 +336,7 @@ class PrefsRepoImpl @Inject constructor(
     )
 
     override var darkMode: Int by prefs.delegate(
-        KEY_DARK_MODE_2, 0,
+        KEY_DARK_MODE_2, 1,
     )
 
     override var numberOfCards: Int by prefs.delegate(

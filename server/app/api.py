@@ -1,0 +1,770 @@
+"""API routes for the time tracker server."""
+import csv
+import io
+import json
+from datetime import datetime, timedelta, timezone
+from typing import Optional
+
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response
+from pydantic import BaseModel, Field
+from sqlalchemy import func
+from sqlalchemy.orm import Session
+
+from app.config import Config
+from app.db import (
+    Activity,
+    ConflictLog,
+    Goal,
+    SyncLog,
+    TimeEntry,
+    User,
+    new_id,
+    utcnow,
+)
+from app.security import (
+    create_api_token,
+    create_refresh_token,
+    get_db,
+    hash_password,
+    require_user,
+    token_hash,
+    verify_password,
+)
+
+api_router = APIRouter()
+
+
+def iso(value: Optional[datetime]) -> Optional[str]:
+    if value is None:
+        return None
+    return value.isoformat()
+
+def _aware(value):
+    if value is None:
+        return None
+    if value.tzinfo is None:
+        return value.replace(tzinfo=timezone.utc)
+    return value
+
+
+def parse_dt(value: str) -> datetime:
+    try:
+        return datetime.fromisoformat(value)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=f"Invalid datetime: {value}") from exc
+
+
+# ---------------------------------------------------------------------------
+# Auth
+# ---------------------------------------------------------------------------
+
+class LoginRequest(BaseModel):
+    username: str
+    password: str
+
+
+class TokenResponse(BaseModel):
+    access_token: str
+    refresh_token: str
+    token_type: str = "bearer"
+    expires_in: int
+
+
+@api_router.post("/auth/login", response_model=TokenResponse)
+def login(body: LoginRequest, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.username == body.username).first()
+    if user is None or not verify_password(body.password, user.password_hash):
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+    refresh = create_refresh_token(db, user.id)
+    api = create_api_token(db, user.id)
+    return TokenResponse(
+        access_token=api,
+        refresh_token=refresh,
+        expires_in=Config.API_TOKEN_TTL_DAYS * 86400,
+    )
+
+
+class RefreshRequest(BaseModel):
+    refresh_token: str
+
+
+@api_router.post("/auth/refresh", response_model=TokenResponse)
+def refresh(body: RefreshRequest, db: Session = Depends(get_db)):
+    from app.db import ApiToken, RefreshToken
+
+    hashed = token_hash(body.refresh_token)
+    token_row = (
+        db.query(RefreshToken)
+        .filter(RefreshToken.token_hash == hashed, RefreshToken.revoked.is_(False))
+        .first()
+    )
+    if token_row is None or _aware(token_row.expires_at) < utcnow():
+        raise HTTPException(status_code=401, detail="Invalid refresh token")
+    api = create_api_token(db, token_row.user_id)
+    return TokenResponse(
+        access_token=api,
+        refresh_token=body.refresh_token,
+        expires_in=Config.API_TOKEN_TTL_DAYS * 86400,
+    )
+
+
+@api_router.post("/auth/logout")
+def logout(request: Request, db: Session = Depends(get_db)):
+    from app.security import _bearer_token  # noqa: PLC2701
+
+    token = _bearer_token(request)
+    if token:
+        hashed = token_hash(token)
+        from app.db import ApiToken, RefreshToken
+
+        for table in (ApiToken, RefreshToken):
+            row = db.query(table).filter(table.token_hash == hashed).first()
+            if row is not None:
+                row.revoked = True
+                db.commit()
+    return {"ok": True}
+
+
+# ---------------------------------------------------------------------------
+# Setup (single user bootstrap; only possible when no user exists)
+# ---------------------------------------------------------------------------
+
+class SetupRequest(BaseModel):
+    username: str
+    password: str = Field(min_length=8)
+
+
+@api_router.post("/auth/setup")
+def setup(body: SetupRequest, db: Session = Depends(get_db)):
+    if db.query(User).count() > 0:
+        raise HTTPException(status_code=400, detail="User already exists")
+    user = User(
+        id=new_id(),
+        username=body.username,
+        password_hash=hash_password(body.password),
+    )
+    db.add(user)
+    db.commit()
+    return {"ok": True}
+
+
+# ---------------------------------------------------------------------------
+# Activities
+# ---------------------------------------------------------------------------
+
+class ActivityIn(BaseModel):
+    id: Optional[str] = None
+    name: str
+    color: str = ""
+    icon: str = ""
+    sort_order: int = 0
+    archived: bool = False
+    parent_activity_id: Optional[str] = None
+    category: str = ""
+    goal_seconds_per_week: Optional[int] = None
+    goal_seconds_total: Optional[int] = None
+    goal_days_per_month: Optional[int] = None
+    created_at: Optional[str] = None
+    updated_at: Optional[str] = None
+    deleted_at: Optional[str] = None
+
+
+def activity_out(a: Activity) -> dict:
+    return {
+        "id": a.id,
+        "name": a.name,
+        "color": a.color,
+        "icon": a.icon,
+        "sort_order": a.sort_order,
+        "archived": a.archived,
+        "parent_activity_id": a.parent_activity_id,
+        "category": a.category,
+        "goal_seconds_per_week": a.goal_seconds_per_week,
+        "goal_seconds_total": a.goal_seconds_total,
+        "goal_days_per_month": a.goal_days_per_month,
+        "created_at": iso(a.created_at),
+        "updated_at": iso(a.updated_at),
+        "deleted_at": iso(a.deleted_at),
+    }
+
+
+@api_router.get("/activities")
+def list_activities(
+    include_archived: bool = False,
+    db: Session = Depends(get_db),
+    user_id: str = Depends(require_user),
+):
+    query = db.query(Activity).filter(Activity.user_id == user_id)
+    if not include_archived:
+        query = query.filter(Activity.archived.is_(False), Activity.deleted_at.is_(None))
+    return [activity_out(a) for a in query.order_by(Activity.sort_order).all()]
+
+
+@api_router.post("/activities")
+def create_activity(body: ActivityIn, db: Session = Depends(get_db), user_id: str = Depends(require_user)):
+    activity = Activity(
+        id=body.id or new_id(),
+        user_id=user_id,
+        name=body.name,
+        color=body.color,
+        icon=body.icon,
+        sort_order=body.sort_order,
+        archived=body.archived,
+        parent_activity_id=body.parent_activity_id,
+        category=body.category,
+        goal_seconds_per_week=body.goal_seconds_per_week,
+        goal_seconds_total=body.goal_seconds_total,
+        goal_days_per_month=body.goal_days_per_month,
+        created_at=parse_dt(body.created_at) if body.created_at else utcnow(),
+        updated_at=parse_dt(body.updated_at) if body.updated_at else utcnow(),
+        deleted_at=parse_dt(body.deleted_at) if body.deleted_at else None,
+    )
+    db.add(activity)
+    db.commit()
+    db.add(SyncLog(id=new_id(), user_id=user_id, entity_type="activity", entity_id=activity.id, action="created"))
+    db.commit()
+    return activity_out(activity)
+
+
+@api_router.patch("/activities/{activity_id}")
+def update_activity(activity_id: str, body: ActivityIn, db: Session = Depends(get_db), user_id: str = Depends(require_user)):
+    activity = db.query(Activity).filter(Activity.id == activity_id, Activity.user_id == user_id).first()
+    if activity is None:
+        raise HTTPException(status_code=404, detail="Activity not found")
+    incoming_updated = parse_dt(body.updated_at) if body.updated_at else utcnow()
+    if incoming_updated < _aware(activity.updated_at):
+        db.add(
+            ConflictLog(
+                id=new_id(),
+                user_id=user_id,
+                entity_type="activity",
+                entity_id=activity_id,
+                resolution="server_kept_newer",
+                detail=f"server_updated_at={iso(activity.updated_at)} incoming_updated_at={body.updated_at}",
+            ),
+        )
+        db.commit()
+        return activity_out(activity)
+    for field in (
+        "name", "color", "icon", "sort_order", "archived", "parent_activity_id",
+        "category", "goal_seconds_per_week", "goal_seconds_total", "goal_days_per_month",
+    ):
+        setattr(activity, field, getattr(body, field))
+    activity.updated_at = incoming_updated
+    db.commit()
+    return activity_out(activity)
+
+
+@api_router.post("/activities/{activity_id}/archive")
+def archive_activity(activity_id: str, db: Session = Depends(get_db), user_id: str = Depends(require_user)):
+    activity = db.query(Activity).filter(Activity.id == activity_id, Activity.user_id == user_id).first()
+    if activity is None:
+        raise HTTPException(status_code=404, detail="Activity not found")
+    activity.archived = True
+    activity.updated_at = utcnow()
+    db.commit()
+    return activity_out(activity)
+
+
+@api_router.post("/activities/{activity_id}/restore")
+def restore_activity(activity_id: str, db: Session = Depends(get_db), user_id: str = Depends(require_user)):
+    activity = db.query(Activity).filter(Activity.id == activity_id, Activity.user_id == user_id).first()
+    if activity is None:
+        raise HTTPException(status_code=404, detail="Activity not found")
+    activity.archived = False
+    activity.updated_at = utcnow()
+    db.commit()
+    return activity_out(activity)
+
+
+# ---------------------------------------------------------------------------
+# Time entries
+# ---------------------------------------------------------------------------
+
+class TimeEntryIn(BaseModel):
+    id: Optional[str] = None
+    activity_id: str
+    parent_activity_ids: str = ""
+    started_at: str
+    ended_at: Optional[str] = None
+    duration_seconds: int = 0
+    comment: str = ""
+    tags: str = ""
+    created_at: Optional[str] = None
+    updated_at: Optional[str] = None
+    deleted_at: Optional[str] = None
+
+
+def entry_out(e: TimeEntry) -> dict:
+    return {
+        "id": e.id,
+        "activity_id": e.activity_id,
+        "parent_activity_ids": e.parent_activity_ids,
+        "started_at": iso(e.started_at),
+        "ended_at": iso(e.ended_at),
+        "duration_seconds": e.duration_seconds,
+        "comment": e.comment,
+        "tags": e.tags,
+        "created_at": iso(e.created_at),
+        "updated_at": iso(e.updated_at),
+        "sync_status": e.sync_status,
+        "deleted_at": iso(e.deleted_at),
+    }
+
+
+@api_router.get("/time-entries")
+def list_time_entries(
+    from_: Optional[str] = Query(None, alias="from"),
+    to: Optional[str] = Query(None),
+    db: Session = Depends(get_db),
+    user_id: str = Depends(require_user),
+):
+    query = db.query(TimeEntry).filter(TimeEntry.user_id == user_id, TimeEntry.deleted_at.is_(None))
+    if from_:
+        query = query.filter(TimeEntry.started_at >= parse_dt(from_))
+    if to:
+        query = query.filter(TimeEntry.started_at < parse_dt(to))
+    return [entry_out(e) for e in query.order_by(TimeEntry.started_at).all()]
+
+
+@api_router.post("/time-entries")
+def create_time_entry(body: TimeEntryIn, db: Session = Depends(get_db), user_id: str = Depends(require_user)):
+    ended = parse_dt(body.ended_at) if body.ended_at else None
+    entry = TimeEntry(
+        id=body.id or new_id(),
+        user_id=user_id,
+        activity_id=body.activity_id,
+        parent_activity_ids=body.parent_activity_ids,
+        started_at=parse_dt(body.started_at),
+        ended_at=ended,
+        duration_seconds=body.duration_seconds,
+        comment=body.comment,
+        tags=body.tags,
+        created_at=parse_dt(body.created_at) if body.created_at else utcnow(),
+        updated_at=parse_dt(body.updated_at) if body.updated_at else utcnow(),
+        sync_status="synced",
+    )
+    db.add(entry)
+    db.commit()
+    return entry_out(entry)
+
+
+@api_router.patch("/time-entries/{entry_id}")
+def update_time_entry(entry_id: str, body: TimeEntryIn, db: Session = Depends(get_db), user_id: str = Depends(require_user)):
+    entry = db.query(TimeEntry).filter(TimeEntry.id == entry_id, TimeEntry.user_id == user_id).first()
+    if entry is None:
+        raise HTTPException(status_code=404, detail="Time entry not found")
+    incoming_updated = parse_dt(body.updated_at) if body.updated_at else utcnow()
+    if incoming_updated < _aware(entry.updated_at):
+        db.add(
+            ConflictLog(
+                id=new_id(),
+                user_id=user_id,
+                entity_type="time_entry",
+                entity_id=entry_id,
+                resolution="server_kept_newer",
+                detail=f"server_updated_at={iso(entry.updated_at)} incoming_updated_at={body.updated_at}",
+            ),
+        )
+        db.commit()
+        return entry_out(entry)
+    entry.activity_id = body.activity_id
+    entry.parent_activity_ids = body.parent_activity_ids
+    entry.started_at = parse_dt(body.started_at)
+    entry.ended_at = parse_dt(body.ended_at) if body.ended_at else None
+    entry.duration_seconds = body.duration_seconds
+    entry.comment = body.comment
+    entry.tags = body.tags
+    entry.updated_at = incoming_updated
+    entry.sync_status = "synced"
+    db.commit()
+    return entry_out(entry)
+
+
+@api_router.delete("/time-entries/{entry_id}")
+def delete_time_entry(entry_id: str, db: Session = Depends(get_db), user_id: str = Depends(require_user)):
+    entry = db.query(TimeEntry).filter(TimeEntry.id == entry_id, TimeEntry.user_id == user_id).first()
+    if entry is None:
+        raise HTTPException(status_code=404, detail="Time entry not found")
+    entry.deleted_at = utcnow()
+    entry.updated_at = utcnow()
+    entry.sync_status = "synced"
+    db.commit()
+    return {"ok": True}
+
+
+# ---------------------------------------------------------------------------
+# Dashboard
+# ---------------------------------------------------------------------------
+
+def _day_bounds(date_str: str) -> tuple:
+    day = datetime.strptime(date_str, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+    return day, day + timedelta(days=1)
+
+
+@api_router.get("/dashboard/day")
+def dashboard_day(date: str, db: Session = Depends(get_db), user_id: str = Depends(require_user)):
+    start, end = _day_bounds(date)
+    entries = (
+        db.query(TimeEntry)
+        .filter(
+            TimeEntry.user_id == user_id,
+            TimeEntry.deleted_at.is_(None),
+            TimeEntry.started_at >= start,
+            TimeEntry.started_at < end,
+        )
+        .order_by(TimeEntry.started_at)
+        .all()
+    )
+    total = sum((e.duration_seconds or 0) for e in entries)
+    return {
+        "date": date,
+        "total_seconds": total,
+        "entries": [entry_out(e) for e in entries],
+    }
+
+
+@api_router.get("/dashboard/summary")
+def dashboard_summary(
+    from_: str = Query(alias="from"),
+    to: str = Query(alias="to"),
+    group_by: str = "activity",
+    db: Session = Depends(get_db),
+    user_id: str = Depends(require_user),
+):
+    start = parse_dt(from_)
+    end = parse_dt(to)
+    entries = (
+        db.query(TimeEntry)
+        .filter(
+            TimeEntry.user_id == user_id,
+            TimeEntry.deleted_at.is_(None),
+            TimeEntry.started_at >= start,
+            TimeEntry.started_at < end,
+        )
+        .all()
+    )
+    total = sum((e.duration_seconds or 0) for e in entries)
+    buckets: dict = {}
+    for e in entries:
+        key = e.activity_id
+        current = buckets.get(key, 0)
+        buckets[key] = current + (e.duration_seconds or 0)
+    return {
+        "from": from_,
+        "to": to,
+        "total_seconds": total,
+        "by_activity": [{"activity_id": k, "seconds": v} for k, v in sorted(buckets.items())],
+    }
+
+
+@api_router.get("/dashboard/heatmap")
+def dashboard_heatmap(
+    from_: str = Query(alias="from"),
+    to: str = Query(alias="to"),
+    db: Session = Depends(get_db),
+    user_id: str = Depends(require_user),
+):
+    start = parse_dt(from_)
+    end = parse_dt(to)
+    rows = (
+        db.query(
+            func.date(TimeEntry.started_at).label("day"),
+            func.sum(TimeEntry.duration_seconds).label("seconds"),
+        )
+        .filter(
+            TimeEntry.user_id == user_id,
+            TimeEntry.deleted_at.is_(None),
+            TimeEntry.started_at >= start,
+            TimeEntry.started_at < end,
+        )
+        .group_by("day")
+        .all()
+    )
+    return {"days": [{"date": str(r.day), "seconds": int(r.seconds or 0)} for r in rows]}
+
+
+# ---------------------------------------------------------------------------
+# Goals
+# ---------------------------------------------------------------------------
+
+class GoalIn(BaseModel):
+    id: Optional[str] = None
+    activity_id: str
+    goal_type: str = "seconds_per_week"
+    goal_value: float = 0
+    updated_at: Optional[str] = None
+
+
+def goal_out(g: Goal) -> dict:
+    return {
+        "id": g.id,
+        "activity_id": g.activity_id,
+        "goal_type": g.goal_type,
+        "goal_value": g.goal_value,
+        "created_at": iso(g.created_at),
+        "updated_at": iso(g.updated_at),
+        "deleted_at": iso(g.deleted_at),
+    }
+
+
+@api_router.get("/goals")
+def list_goals(db: Session = Depends(get_db), user_id: str = Depends(require_user)):
+    goals = db.query(Goal).filter(Goal.user_id == user_id, Goal.deleted_at.is_(None)).all()
+    return [goal_out(g) for g in goals]
+
+
+@api_router.post("/goals")
+def create_goal(body: GoalIn, db: Session = Depends(get_db), user_id: str = Depends(require_user)):
+    goal = Goal(
+        id=body.id or new_id(),
+        user_id=user_id,
+        activity_id=body.activity_id,
+        goal_type=body.goal_type,
+        goal_value=body.goal_value,
+        updated_at=parse_dt(body.updated_at) if body.updated_at else utcnow(),
+    )
+    db.add(goal)
+    db.commit()
+    return goal_out(goal)
+
+
+@api_router.patch("/goals/{goal_id}")
+def update_goal(goal_id: str, body: GoalIn, db: Session = Depends(get_db), user_id: str = Depends(require_user)):
+    goal = db.query(Goal).filter(Goal.id == goal_id, Goal.user_id == user_id).first()
+    if goal is None:
+        raise HTTPException(status_code=404, detail="Goal not found")
+    goal.activity_id = body.activity_id
+    goal.goal_type = body.goal_type
+    goal.goal_value = body.goal_value
+    goal.updated_at = parse_dt(body.updated_at) if body.updated_at else utcnow()
+    db.commit()
+    return goal_out(goal)
+
+
+# ---------------------------------------------------------------------------
+# Sync
+# ---------------------------------------------------------------------------
+
+class SyncPushItem(BaseModel):
+    entity_type: str
+    data: dict
+
+
+class SyncPushRequest(BaseModel):
+    items: list[SyncPushItem]
+
+
+@api_router.post("/sync/push")
+def sync_push(body: SyncPushRequest, db: Session = Depends(get_db), user_id: str = Depends(require_user)):
+    applied = 0
+    conflicts = []
+    for item in body.items:
+        data = item.data
+        entity_type = item.entity_type
+        incoming_updated = parse_dt(data.get("updated_at")) if data.get("updated_at") else utcnow()
+        if entity_type == "activity":
+            existing = db.query(Activity).filter(Activity.id == data["id"]).first()
+            if existing is not None and existing.user_id != user_id:
+                conflicts.append({"entity_type": entity_type, "id": data["id"], "resolution": "rejected"})
+                continue
+            if existing is None:
+                db.add(
+                    Activity(
+                        id=data["id"],
+                        user_id=user_id,
+                        name=data.get("name", ""),
+                        color=data.get("color", ""),
+                        icon=data.get("icon", ""),
+                        sort_order=data.get("sort_order", 0),
+                        archived=data.get("archived", False),
+                        parent_activity_id=data.get("parent_activity_id"),
+                        category=data.get("category", ""),
+                        goal_seconds_per_week=data.get("goal_seconds_per_week"),
+                        goal_seconds_total=data.get("goal_seconds_total"),
+                        goal_days_per_month=data.get("goal_days_per_month"),
+                        created_at=parse_dt(data["created_at"]) if data.get("created_at") else utcnow(),
+                        updated_at=incoming_updated,
+                    ),
+                )
+                applied += 1
+            elif incoming_updated >= _aware(existing.updated_at):
+                existing.name = data.get("name", existing.name)
+                existing.color = data.get("color", existing.color)
+                existing.icon = data.get("icon", existing.icon)
+                existing.sort_order = data.get("sort_order", existing.sort_order)
+                existing.archived = data.get("archived", existing.archived)
+                existing.parent_activity_id = data.get("parent_activity_id")
+                existing.category = data.get("category", existing.category)
+                existing.goal_seconds_per_week = data.get("goal_seconds_per_week")
+                existing.goal_seconds_total = data.get("goal_seconds_total")
+                existing.goal_days_per_month = data.get("goal_days_per_month")
+                existing.updated_at = incoming_updated
+                applied += 1
+            else:
+                conflicts.append({"entity_type": entity_type, "id": data["id"], "resolution": "server_kept_newer"})
+        elif entity_type == "time_entry":
+            existing = db.query(TimeEntry).filter(TimeEntry.id == data["id"]).first()
+            if existing is not None and existing.user_id != user_id:
+                conflicts.append({"entity_type": entity_type, "id": data["id"], "resolution": "rejected"})
+                continue
+            if existing is None:
+                db.add(
+                    TimeEntry(
+                        id=data["id"],
+                        user_id=user_id,
+                        activity_id=data["activity_id"],
+                        parent_activity_ids=data.get("parent_activity_ids", ""),
+                        started_at=parse_dt(data["started_at"]),
+                        ended_at=parse_dt(data["ended_at"]) if data.get("ended_at") else None,
+                        duration_seconds=data.get("duration_seconds", 0),
+                        comment=data.get("comment", ""),
+                        tags=data.get("tags", ""),
+                        created_at=parse_dt(data["created_at"]) if data.get("created_at") else utcnow(),
+                        updated_at=incoming_updated,
+                        sync_status="synced",
+                    ),
+                )
+                applied += 1
+            elif incoming_updated >= _aware(existing.updated_at):
+                existing.activity_id = data["activity_id"]
+                existing.parent_activity_ids = data.get("parent_activity_ids", "")
+                existing.started_at = parse_dt(data["started_at"])
+                existing.ended_at = parse_dt(data["ended_at"]) if data.get("ended_at") else None
+                existing.duration_seconds = data.get("duration_seconds", 0)
+                existing.comment = data.get("comment", "")
+                existing.tags = data.get("tags", "")
+                existing.deleted_at = parse_dt(data["deleted_at"]) if data.get("deleted_at") else None
+                existing.updated_at = incoming_updated
+                existing.sync_status = "synced"
+                applied += 1
+            else:
+                conflicts.append({"entity_type": entity_type, "id": data["id"], "resolution": "server_kept_newer"})
+        else:
+            conflicts.append({"entity_type": entity_type, "id": data.get("id", ""), "resolution": "unknown_type"})
+    for conflict in conflicts:
+        db.add(
+            ConflictLog(
+                id=new_id(),
+                user_id=user_id,
+                entity_type=conflict["entity_type"],
+                entity_id=conflict["id"],
+                resolution=conflict["resolution"],
+            ),
+        )
+    db.commit()
+    return {"applied": applied, "conflicts": conflicts, "server_time": iso(utcnow())}
+
+
+@api_router.get("/sync/pull")
+def sync_pull(
+    since: Optional[str] = Query(None),
+    db: Session = Depends(get_db),
+    user_id: str = Depends(require_user),
+):
+    since_dt = parse_dt(since) if since else datetime(1970, 1, 1, tzinfo=timezone.utc)
+    activities = db.query(Activity).filter(Activity.user_id == user_id, Activity.updated_at > since_dt).all()
+    entries = db.query(TimeEntry).filter(TimeEntry.user_id == user_id, TimeEntry.updated_at > since_dt).all()
+    goals = db.query(Goal).filter(Goal.user_id == user_id, Goal.updated_at > since_dt).all()
+    return {
+        "activities": [activity_out(a) for a in activities],
+        "time_entries": [entry_out(e) for e in entries],
+        "goals": [goal_out(g) for g in goals],
+        "server_time": iso(utcnow()),
+    }
+
+
+@api_router.get("/sync/conflicts")
+def sync_conflicts(db: Session = Depends(get_db), user_id: str = Depends(require_user)):
+    rows = (
+        db.query(ConflictLog)
+        .filter(ConflictLog.user_id == user_id)
+        .order_by(ConflictLog.created_at.desc())
+        .limit(100)
+        .all()
+    )
+    return [
+        {
+            "id": r.id,
+            "entity_type": r.entity_type,
+            "entity_id": r.entity_id,
+            "resolution": r.resolution,
+            "detail": r.detail,
+            "created_at": iso(r.created_at),
+        }
+        for r in rows
+    ]
+
+
+# ---------------------------------------------------------------------------
+# Export / Import
+# ---------------------------------------------------------------------------
+
+@api_router.get("/export")
+def export_data(format: str = "json", db: Session = Depends(get_db), user_id: str = Depends(require_user)):
+    activities = db.query(Activity).filter(Activity.user_id == user_id).all()
+    entries = db.query(TimeEntry).filter(TimeEntry.user_id == user_id).all()
+    goals = db.query(Goal).filter(Goal.user_id == user_id).all()
+    if format == "csv":
+        output = io.StringIO()
+        writer = csv.writer(output)
+        writer.writerow(["id", "activity_id", "started_at", "ended_at", "duration_seconds", "comment", "tags"])
+        for e in entries:
+            writer.writerow([e.id, e.activity_id, iso(e.started_at), iso(e.ended_at), e.duration_seconds, e.comment, e.tags])
+        return Response(
+            content=output.getvalue(),
+            media_type="text/csv",
+            headers={"Content-Disposition": "attachment; filename=timetracker.csv"},
+        )
+    data = {
+        "activities": [activity_out(a) for a in activities],
+        "time_entries": [entry_out(e) for e in entries],
+        "goals": [goal_out(g) for g in goals],
+        "exported_at": iso(utcnow()),
+    }
+    return Response(content=json.dumps(data, indent=2), media_type="application/json")
+
+
+class SimpleTimeTrackerCsvRow(BaseModel):
+    rows: list[dict]
+
+
+@api_router.post("/import/simple-time-tracker")
+def import_simple_time_tracker(body: SimpleTimeTrackerCsvRow, db: Session = Depends(get_db), user_id: str = Depends(require_user)):
+    """Import records from the Simple Time Tracker CSV export format.
+
+    Expected columns: activity name, start time, end time (or duration), optional comment.
+    """
+    created = 0
+    for row in body.rows:
+        name = row.get("activity") or row.get("name") or ""
+        if not name:
+            continue
+        activity = db.query(Activity).filter(Activity.user_id == user_id, Activity.name == name).first()
+        if activity is None:
+            activity = Activity(id=new_id(), user_id=user_id, name=name)
+            db.add(activity)
+            db.flush()
+        started = row.get("started_at") or row.get("start")
+        ended = row.get("ended_at") or row.get("end")
+        if not started:
+            continue
+        start_dt = parse_dt(started)
+        end_dt = parse_dt(ended) if ended else None
+        duration = row.get("duration_seconds")
+        if duration is None and end_dt is not None:
+            duration = int((end_dt - start_dt).total_seconds())
+        db.add(
+            TimeEntry(
+                id=new_id(),
+                user_id=user_id,
+                activity_id=activity.id,
+                started_at=start_dt,
+                ended_at=end_dt,
+                duration_seconds=int(duration or 0),
+                comment=row.get("comment", ""),
+            ),
+        )
+        created += 1
+    db.commit()
+    return {"created": created}
