@@ -358,6 +358,11 @@
         android:label="CustomizeOptionsMenuDialogFragment"
         tools:layout="@layout/customize_options_menu_dialog_fragment" />
     <dialog
+        android:id="@+id/syncSettingsDialogFragment"
+        android:name="com.example.util.simpletimetracker.feature_settings.syncSettings.SyncSettingsDialogFragment"
+        android:label="SyncSettingsDialogFragment"
+        tools:layout="@layout/sync_settings_input_fragment" />
+    <dialog
         android:id="@+id/cardOrderDialogFragment"
         android:name="com.example.util.simpletimetracker.feature_dialogs.cardOrder.view.CardOrderDialogFragment"
         android:label="CardSizeDialogFragment"

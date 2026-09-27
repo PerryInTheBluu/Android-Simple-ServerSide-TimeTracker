@@ -20,6 +20,7 @@ import com.example.util.simpletimetracker.feature_dialogs.standard.StandardDialo
 import com.example.util.simpletimetracker.feature_dialogs.typesSelection.view.TypesSelectionDialogFragment
 import com.example.util.simpletimetracker.feature_records_filter.view.RecordsFilterFragment
 import com.example.util.simpletimetracker.feature_settings.customizeOptionsMenu.CustomizeOptionsMenuDialogFragment
+import com.example.util.simpletimetracker.feature_settings.syncSettings.SyncSettingsDialogFragment
 import com.example.util.simpletimetracker.feature_settings.partialRestoreSelection.model.PartialRestoreSelectionDialogParams
 import com.example.util.simpletimetracker.feature_settings.partialRestoreSelection.view.PartialRestoreSelectionFragment
 import com.example.util.simpletimetracker.feature_statistics_detail.settings.view.StatisticsTagValuesSettingsDialogFragment
@@ -53,6 +54,7 @@ import com.example.util.simpletimetracker.navigation.params.screen.RecordTagValu
 import com.example.util.simpletimetracker.navigation.params.screen.RecordsFilterParams
 import com.example.util.simpletimetracker.navigation.params.screen.StatisticsTagValuesSettingsParams
 import com.example.util.simpletimetracker.navigation.params.screen.StandardDialogParams
+import com.example.util.simpletimetracker.navigation.params.screen.SyncSettingsDialogParams
 import com.example.util.simpletimetracker.navigation.params.screen.SettingsOptionsParams
 import com.example.util.simpletimetracker.navigation.params.screen.TypesSelectionDialogParams
 import dagger.Module
@@ -152,6 +154,16 @@ class NavigationDialogMapModule {
         return NavigationData(
             R.id.customizeOptionsMenuDialogFragment,
             bundleCreatorDelegate(CustomizeOptionsMenuDialogFragment::createBundle),
+        )
+    }
+
+    @IntoMap
+    @Provides
+    @ScreenKey(SyncSettingsDialogParams::class)
+    fun syncSettingsDialog(): NavigationData {
+        return NavigationData(
+            R.id.syncSettingsDialogFragment,
+            bundleCreatorDelegate(SyncSettingsDialogFragment::createBundle),
         )
     }
 

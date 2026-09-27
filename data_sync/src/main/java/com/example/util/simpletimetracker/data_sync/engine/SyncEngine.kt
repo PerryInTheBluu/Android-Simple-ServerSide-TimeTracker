@@ -1,8 +1,9 @@
 package com.example.util.simpletimetracker.data_sync.engine
 
+import com.example.util.simpletimetracker.data_sync.api.SyncClient
+import com.example.util.simpletimetracker.data_sync.api.SyncNotConfiguredException
 import com.example.util.simpletimetracker.data_sync.api.SyncPushItem
 import com.example.util.simpletimetracker.data_sync.api.SyncPushRequest
-import com.example.util.simpletimetracker.data_sync.api.SyncApi
 import com.example.util.simpletimetracker.data_sync.db.SyncConflictDao
 import com.example.util.simpletimetracker.data_sync.db.SyncConflictDBO
 import com.example.util.simpletimetracker.data_sync.db.SyncQueueDao
@@ -37,7 +38,7 @@ enum class SyncStatus {
  */
 @Singleton
 class SyncEngine @Inject constructor(
-    private val syncApi: SyncApi,
+    private val syncClient: SyncClient,
     private val credentialStore: SyncCredentialStore,
     private val recordTypeRepo: RecordTypeRepo,
     private val recordRepo: RecordRepo,
@@ -64,6 +65,8 @@ class SyncEngine @Inject constructor(
             pullServerState()
             credentialStore.lastSyncTime = System.currentTimeMillis()
             _status.value = SyncStatus.SYNCED
+        } catch (e: SyncNotConfiguredException) {
+            _status.value = SyncStatus.NOT_CONFIGURED
         } catch (e: Exception) {
             val offline = e is java.io.IOException
             _status.value = if (offline) SyncStatus.OFFLINE else SyncStatus.ERROR
@@ -95,7 +98,7 @@ class SyncEngine @Inject constructor(
             )
         }
         items.chunked(PUSH_BATCH).forEach { batch ->
-            val response = syncApi.push(SyncPushRequest(items = batch))
+            val response = syncClient.push(SyncPushRequest(items = batch)).getOrThrow()
             response.conflicts.forEach { conflict ->
                 syncConflictDao.insert(
                     SyncConflictDBO(
@@ -114,7 +117,7 @@ class SyncEngine @Inject constructor(
         val since = credentialStore.lastSyncTime
             .takeIf { it > 0 }
             ?.let { DateTimeFormatter.ISO_INSTANT.format(Instant.ofEpochMilli(it)) }
-        val pulled = syncApi.pull(since)
+        val pulled = syncClient.pull(since).getOrThrow()
         // Server data is authoritative for entries not present locally.
         // Local-first: existing local records are never overwritten here,
         // because push already transferred the newer local state.

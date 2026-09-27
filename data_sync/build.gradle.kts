@@ -12,6 +12,30 @@ applyAndroidLibrary()
 
 android {
     namespace = "${Base.namespace}.data_sync"
+
+    defaultConfig {
+        // HTTP server URLs are only accepted in the debug build variant.
+        // Release builds must use HTTPS.
+        buildConfigField(
+            "boolean",
+            "ALLOW_HTTP_SERVER_URL",
+            "false",
+        )
+    }
+
+    buildFeatures {
+        buildConfig = true
+    }
+
+    buildTypes {
+        debug {
+            buildConfigField(
+                "boolean",
+                "ALLOW_HTTP_SERVER_URL",
+                "true",
+            )
+        }
+    }
 }
 
 room {
@@ -33,4 +57,9 @@ dependencies {
     implementation(libs.squareup.moshi)
     implementation(libs.androidx.security)
     ksp(libs.kapt.dagger)
+
+    testImplementation(libs.test.junit)
+    testImplementation(libs.test.mockito)
+    testImplementation(libs.test.mockitoKotlin)
+    testImplementation(libs.test.coroutines)
 }

@@ -3,6 +3,8 @@ package com.example.util.simpletimetracker.data_sync.keystore
 import android.content.Context
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
+import com.example.util.simpletimetracker.data_sync.BuildConfig
+import com.example.util.simpletimetracker.data_sync.api.ServerUrlValidator
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -47,7 +49,15 @@ class SyncCredentialStore @Inject constructor(
         set(value) = prefs.edit().putLong(KEY_LAST_SYNC, value).apply()
 
     val isConfigured: Boolean
-        get() = serverUrl.isNotEmpty() && apiToken.isNotEmpty()
+        get() = hasValidServerUrl() && apiToken.isNotEmpty()
+
+    /** True only if the stored URL is a usable absolute HTTP(S) URL. */
+    fun hasValidServerUrl(): Boolean {
+        return ServerUrlValidator.normalize(
+            raw = serverUrl,
+            allowHttp = BuildConfig.ALLOW_HTTP_SERVER_URL,
+        ) != null
+    }
 
     fun clear() {
         prefs.edit().clear().apply()
