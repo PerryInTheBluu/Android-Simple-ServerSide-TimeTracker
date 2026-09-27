@@ -355,27 +355,27 @@ class NotificationReceiver : BroadcastReceiver() {
 
     companion object {
         const val ACTION_INACTIVITY_REMINDER =
-            "com.razeeman.util.simpletimetracker.ACTION_INACTIVITY_REMINDER"
+            "de.piusdischinger.timetracker.ACTION_INACTIVITY_REMINDER"
         const val ACTION_ACTIVITY_REMINDER =
-            "com.razeeman.util.simpletimetracker.ACTION_ACTIVITY_REMINDER"
+            "de.piusdischinger.timetracker.ACTION_ACTIVITY_REMINDER"
         const val ACTION_GOAL_TIME_REMINDER_DAY_END =
-            "com.razeeman.util.simpletimetracker.ACTION_GOAL_TIME_REMINDER_DAY_END"
+            "de.piusdischinger.timetracker.ACTION_GOAL_TIME_REMINDER_DAY_END"
         const val ACTION_GOAL_TIME_REMINDER_WEEK_END =
-            "com.razeeman.util.simpletimetracker.ACTION_GOAL_TIME_REMINDER_WEEK_END"
+            "de.piusdischinger.timetracker.ACTION_GOAL_TIME_REMINDER_WEEK_END"
         const val ACTION_GOAL_TIME_REMINDER_MONTH_END =
-            "com.razeeman.util.simpletimetracker.ACTION_GOAL_TIME_REMINDER_MONTH_END"
+            "de.piusdischinger.timetracker.ACTION_GOAL_TIME_REMINDER_MONTH_END"
         const val ACTION_GOAL_TIME_REMINDER_YEAR_END =
-            "com.razeeman.util.simpletimetracker.ACTION_GOAL_TIME_REMINDER_YEAR_END"
+            "de.piusdischinger.timetracker.ACTION_GOAL_TIME_REMINDER_YEAR_END"
         const val ACTION_POMODORO_REMINDER =
-            "com.razeeman.util.simpletimetracker.ACTION_POMODORO_REMINDER"
+            "de.piusdischinger.timetracker.ACTION_POMODORO_REMINDER"
         const val ACTION_GOAL_TIME_REMINDER =
-            "com.razeeman.util.simpletimetracker.ACTION_GOAL_TIME_REMINDER_BY_ID"
+            "de.piusdischinger.timetracker.ACTION_GOAL_TIME_REMINDER_BY_ID"
         const val ACTION_AUTOMATIC_BACKUP =
-            "com.razeeman.util.simpletimetracker.ACTION_AUTOMATIC_BACKUP"
+            "de.piusdischinger.timetracker.ACTION_AUTOMATIC_BACKUP"
         const val ACTION_AUTOMATIC_EXPORT =
-            "com.razeeman.util.simpletimetracker.ACTION_AUTOMATIC_EXPORT"
+            "de.piusdischinger.timetracker.ACTION_AUTOMATIC_EXPORT"
         const val ACTION_SCHEDULED_REMINDER =
-            "com.razeeman.util.simpletimetracker.ACTION_SCHEDULED_REMINDER"
+            "de.piusdischinger.timetracker.ACTION_SCHEDULED_REMINDER"
 
         const val ACTION_QUICK_BOOT_POWER_ON = "android.intent.action.QUICKBOOT_POWERON"
         const val ACTION_HTC_QUICK_BOOT_POWER_ON = "com.htc.intent.action.QUICKBOOT_POWERON"
