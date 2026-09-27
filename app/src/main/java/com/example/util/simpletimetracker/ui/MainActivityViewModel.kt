@@ -1,6 +1,7 @@
 package com.example.util.simpletimetracker.ui
 
 import androidx.lifecycle.MediatorLiveData
+import androidx.lifecycle.viewModelScope
 import com.example.util.simpletimetracker.core.base.BaseViewModel
 import com.example.util.simpletimetracker.core.extension.set
 import com.example.util.simpletimetracker.core.repo.AutomaticBackupRepo
@@ -8,8 +9,10 @@ import com.example.util.simpletimetracker.core.repo.AutomaticExportRepo
 import com.example.util.simpletimetracker.core.repo.DataEditRepo
 import com.example.util.simpletimetracker.core.repo.FileWorkRepo
 import com.example.util.simpletimetracker.domain.extension.orFalse
+import com.example.util.simpletimetracker.domain.recordType.interactor.InitialActivitiesInteractor
 import com.example.util.simpletimetracker.feature_settings.viewModel.delegate.SettingsFileWorkDelegate
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -19,6 +22,7 @@ class MainActivityViewModel @Inject constructor(
     private val automaticExportRepo: AutomaticExportRepo,
     private val fileWorkRepo: FileWorkRepo,
     private val settingsFileWorkDelegate: SettingsFileWorkDelegate,
+    private val initialActivitiesInteractor: InitialActivitiesInteractor,
 ) : BaseViewModel() {
 
     val progressVisibility: MediatorLiveData<Boolean> = MediatorLiveData<Boolean>().apply {
@@ -26,6 +30,12 @@ class MainActivityViewModel @Inject constructor(
         addSource(automaticExportRepo.inProgress) { updateProgress() }
         addSource(dataEditRepo.inProgress) { updateProgress() }
         addSource(fileWorkRepo.inProgress) { updateProgress() }
+    }
+
+    init {
+        viewModelScope.launch {
+            initialActivitiesInteractor.executeIfEmpty()
+        }
     }
 
     fun onVisible() {

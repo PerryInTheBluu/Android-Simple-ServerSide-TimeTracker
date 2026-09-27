@@ -13,6 +13,7 @@ import com.example.util.simpletimetracker.feature_settings.viewModel.delegate.Se
 import com.example.util.simpletimetracker.feature_settings.viewModel.delegate.SettingsDisplayViewModelDelegate
 import com.example.util.simpletimetracker.feature_settings.viewModel.delegate.SettingsExportViewModelDelegate
 import com.example.util.simpletimetracker.feature_settings.viewModel.delegate.SettingsMainViewModelDelegate
+import com.example.util.simpletimetracker.feature_settings.viewModel.delegate.SettingsSyncViewModelDelegate
 import com.example.util.simpletimetracker.feature_settings.viewModel.delegate.SettingsNotificationsViewModelDelegate
 import com.example.util.simpletimetracker.feature_settings.viewModel.delegate.SettingsRatingViewModelDelegate
 import com.example.util.simpletimetracker.feature_settings.viewModel.delegate.SettingsTranslatorsViewModelDelegate
@@ -27,6 +28,7 @@ class SettingsViewModelDelegatesProvider @Inject constructor(
     notificationsDelegate: SettingsNotificationsViewModelDelegate,
     displayDelegate: SettingsDisplayViewModelDelegate,
     backupDelegate: SettingsBackupViewModelDelegate,
+    syncDelegate: SettingsSyncViewModelDelegate,
     exportDelegate: SettingsExportViewModelDelegate,
     translatorsDelegate: SettingsTranslatorsViewModelDelegate,
     contributorsDelegate: SettingsContributorsViewModelDelegate,
@@ -39,6 +41,7 @@ class SettingsViewModelDelegatesProvider @Inject constructor(
         displayDelegate,
         additionalDelegate,
         backupDelegate,
+        syncDelegate,
         exportDelegate,
         translatorsDelegate,
         contributorsDelegate,

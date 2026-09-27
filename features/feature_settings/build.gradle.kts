@@ -17,6 +17,7 @@ android {
 
 dependencies {
     implementation(project(":core"))
+    implementation(project(":data_sync"))
     implementation(project(":feature_settings:api"))
     implementation(project(":feature_settings:views"))
     implementation(project(":feature_records:api"))

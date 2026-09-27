@@ -16,6 +16,7 @@ include(
     "core:common",
     "navigation",
     "data_local",
+    "data_sync",
     "resources",
     "wear",
     "wear_api",
