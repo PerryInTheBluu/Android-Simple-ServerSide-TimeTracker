@@ -6,10 +6,13 @@ import com.example.util.simpletimetracker.data_sync.keystore.SyncCredentialStore
 import com.example.util.simpletimetracker.data_sync.work.SyncScheduler
 import com.example.util.simpletimetracker.feature_settings.api.SettingsBlock
 import com.example.util.simpletimetracker.feature_settings.interactor.SettingsSyncViewDataInteractor
+import com.example.util.simpletimetracker.navigation.Router
+import com.example.util.simpletimetracker.navigation.params.screen.SyncServerDialogParams
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class SettingsSyncViewModelDelegate @Inject constructor(
+    private val router: Router,
     private val settingsSyncViewDataInteractor: SettingsSyncViewDataInteractor,
     private val syncEngine: SyncEngine,
     private val syncScheduler: SyncScheduler,
@@ -43,9 +46,23 @@ class SettingsSyncViewModelDelegate @Inject constructor(
                     parent?.updateContent()
                 }
             }
+            SettingsBlock.SyncServer -> {
+                router.navigate(
+                    SyncServerDialogParams(
+                        initialUrl = credentialStore.serverUrl,
+                    ),
+                )
+            }
             else -> {
                 // Do nothing
             }
+        }
+    }
+
+    fun onSyncServerSaved(url: String) {
+        credentialStore.serverUrl = url
+        delegateScope.launch {
+            parent?.updateContent()
         }
     }
 

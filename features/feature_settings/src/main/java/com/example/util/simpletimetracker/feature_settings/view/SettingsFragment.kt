@@ -22,6 +22,7 @@ import com.example.util.simpletimetracker.feature_base_adapter.ViewHolderType
 import com.example.util.simpletimetracker.feature_base_adapter.dayOfWeek.DayOfWeekViewData
 import com.example.util.simpletimetracker.feature_settings.api.SettingsBlock
 import com.example.util.simpletimetracker.feature_settings.model.SettingsOptionsBlockClickListener
+import com.example.util.simpletimetracker.feature_settings.syncServer.model.SyncServerDialogListener
 import com.example.util.simpletimetracker.feature_settings.viewModel.SettingsViewModel
 import com.example.util.simpletimetracker.feature_settings.views.getSettingsAdapterDelegates
 import com.example.util.simpletimetracker.navigation.params.screen.DataExportSettingsResult
@@ -39,7 +40,8 @@ class SettingsFragment :
     DataExportSettingsDialogListener,
     TypesSelectionDialogListener,
     OptionsListDialogListener,
-    SettingsOptionsBlockClickListener {
+    SettingsOptionsBlockClickListener,
+    SyncServerDialogListener {
 
     override val inflater: (LayoutInflater, ViewGroup?, Boolean) -> Binding =
         Binding::inflate
@@ -125,6 +127,10 @@ class SettingsFragment :
 
     override fun onOptionsItemClick(id: OptionsListParams.Item.Id) {
         viewModel.onOptionsItemClick(id)
+    }
+
+    override fun onSyncServerSaved(url: String) {
+        viewModel.onSyncServerSaved(url)
     }
 
     override fun getOptionsContent(): LiveData<List<ViewHolderType>> {
