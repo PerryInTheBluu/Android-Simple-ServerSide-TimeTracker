@@ -8,7 +8,9 @@ import com.example.util.simpletimetracker.feature_settings.api.SettingsBlock
 import com.example.util.simpletimetracker.feature_settings.interactor.SettingsSyncViewDataInteractor
 import com.example.util.simpletimetracker.navigation.Router
 import com.example.util.simpletimetracker.navigation.params.screen.SyncServerDialogParams
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class SettingsSyncViewModelDelegate @Inject constructor(
@@ -60,8 +62,10 @@ class SettingsSyncViewModelDelegate @Inject constructor(
     }
 
     fun onSyncServerSaved(url: String) {
-        credentialStore.serverUrl = url
         delegateScope.launch {
+            withContext(Dispatchers.IO) {
+                credentialStore.serverUrl = url
+            }
             parent?.updateContent()
         }
     }

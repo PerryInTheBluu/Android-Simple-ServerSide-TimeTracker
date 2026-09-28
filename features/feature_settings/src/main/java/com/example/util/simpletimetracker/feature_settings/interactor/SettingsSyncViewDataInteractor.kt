@@ -11,6 +11,8 @@ import com.example.util.simpletimetracker.feature_settings.views.SettingsTextCol
 import com.example.util.simpletimetracker.feature_settings.views.SettingsTextViewData
 import com.example.util.simpletimetracker.feature_settings.views.SettingsTopViewData
 import com.example.util.simpletimetracker.resources.R as resourcesR
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class SettingsSyncViewDataInteractor @Inject constructor(
@@ -18,7 +20,10 @@ class SettingsSyncViewDataInteractor @Inject constructor(
     private val credentialStore: SyncCredentialStore,
 ) {
 
-    suspend fun execute(status: SyncStatus): List<ViewHolderType> {
+    suspend fun execute(status: SyncStatus): List<ViewHolderType> = withContext(Dispatchers.IO) {
+        val serverUrl = credentialStore.serverUrl
+        val username = credentialStore.username
+        val apiToken = credentialStore.apiToken
         val result = mutableListOf<ViewHolderType>()
 
         result += SettingsTopViewData(
@@ -28,7 +33,7 @@ class SettingsSyncViewDataInteractor @Inject constructor(
         result += SettingsTextViewData(
             block = SettingsBlock.SyncServer,
             title = resourceRepo.getString(resourcesR.string.settings_sync_server),
-            subtitle = credentialStore.serverUrl.ifEmpty {
+            subtitle = serverUrl.ifEmpty {
                 resourceRepo.getString(resourcesR.string.settings_sync_server_hint)
             },
         )
@@ -36,13 +41,13 @@ class SettingsSyncViewDataInteractor @Inject constructor(
         result += SettingsTextViewData(
             block = SettingsBlock.SyncUsername,
             title = resourceRepo.getString(resourcesR.string.settings_sync_username),
-            subtitle = credentialStore.username,
+            subtitle = username,
         )
 
         result += SettingsTextViewData(
             block = SettingsBlock.SyncToken,
             title = resourceRepo.getString(resourcesR.string.settings_sync_token),
-            subtitle = if (credentialStore.apiToken.isEmpty()) "" else "••••••••",
+            subtitle = if (apiToken.isEmpty()) "" else "••••••••",
         )
 
         result += SettingsTextViewData(
@@ -74,6 +79,6 @@ class SettingsSyncViewDataInteractor @Inject constructor(
             block = SettingsBlock.SyncBottom,
         )
 
-        return result
+        result
     }
 }
