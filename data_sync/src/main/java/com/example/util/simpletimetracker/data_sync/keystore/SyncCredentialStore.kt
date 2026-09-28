@@ -47,7 +47,7 @@ class SyncCredentialStore @Inject constructor(
         set(value) = prefs.edit().putLong(KEY_LAST_SYNC, value).apply()
 
     val isConfigured: Boolean
-        get() = serverUrl.isNotEmpty() && apiToken.isNotEmpty()
+        get() = apiToken.isNotEmpty() && normalizeServerUrlOrNull(serverUrl) != null
 
     fun clear() {
         prefs.edit().clear().apply()

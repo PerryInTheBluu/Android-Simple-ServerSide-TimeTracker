@@ -6,6 +6,7 @@ import com.example.util.simpletimetracker.data_sync.db.SyncConflictDao
 import com.example.util.simpletimetracker.data_sync.db.SyncDatabase
 import com.example.util.simpletimetracker.data_sync.db.SyncQueueDao
 import com.example.util.simpletimetracker.data_sync.keystore.SyncCredentialStore
+import com.example.util.simpletimetracker.data_sync.keystore.normalizeServerUrlOrNull
 import com.squareup.moshi.Moshi
 import dagger.Module
 import dagger.Provides
@@ -57,8 +58,8 @@ object DataSyncModule {
         okHttpClient: OkHttpClient,
         credentialStore: SyncCredentialStore,
     ): SyncApi {
-        val baseUrl = credentialStore.serverUrl
-            .trimEnd('/') + "/"
+        val baseUrl = normalizeServerUrlOrNull(credentialStore.serverUrl)
+            ?: throw IllegalArgumentException("Sync server URL is missing or invalid")
         val authClient = okHttpClient.newBuilder()
             .addInterceptor { chain ->
                 val token = credentialStore.apiToken

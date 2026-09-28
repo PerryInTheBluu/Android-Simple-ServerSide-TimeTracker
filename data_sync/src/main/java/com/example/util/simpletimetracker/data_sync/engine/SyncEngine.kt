@@ -7,11 +7,13 @@ import com.example.util.simpletimetracker.data_sync.db.SyncConflictDao
 import com.example.util.simpletimetracker.data_sync.db.SyncConflictDBO
 import com.example.util.simpletimetracker.data_sync.db.SyncQueueDao
 import com.example.util.simpletimetracker.data_sync.keystore.SyncCredentialStore
+import com.example.util.simpletimetracker.data_sync.keystore.normalizeServerUrlOrNull
 import com.example.util.simpletimetracker.domain.record.model.Record
 import com.example.util.simpletimetracker.domain.record.repo.RecordRepo
 import com.example.util.simpletimetracker.domain.recordType.repo.RecordTypeRepo
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
+import dagger.Lazy
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import java.time.Instant
@@ -37,7 +39,7 @@ enum class SyncStatus {
  */
 @Singleton
 class SyncEngine @Inject constructor(
-    private val syncApi: SyncApi,
+    private val syncApi: Lazy<SyncApi>,
     private val credentialStore: SyncCredentialStore,
     private val recordTypeRepo: RecordTypeRepo,
     private val recordRepo: RecordRepo,
@@ -54,14 +56,16 @@ class SyncEngine @Inject constructor(
     )
 
     suspend fun syncNow() {
-        if (!credentialStore.isConfigured) {
+        val baseUrl = normalizeServerUrlOrNull(credentialStore.serverUrl)
+        if (!credentialStore.isConfigured || baseUrl == null) {
             _status.value = SyncStatus.NOT_CONFIGURED
             return
         }
         _status.value = SyncStatus.PENDING
         try {
-            pushLocalState()
-            pullServerState()
+            val syncApi = syncApi.get()
+            pushLocalState(syncApi)
+            pullServerState(syncApi)
             credentialStore.lastSyncTime = System.currentTimeMillis()
             _status.value = SyncStatus.SYNCED
         } catch (e: Exception) {
@@ -70,7 +74,7 @@ class SyncEngine @Inject constructor(
         }
     }
 
-    private suspend fun pushLocalState() {
+    private suspend fun pushLocalState(syncApi: SyncApi) {
         val items = mutableListOf<SyncPushItem>()
         recordTypeRepo.getAll().forEach { type ->
             items.add(
@@ -110,7 +114,7 @@ class SyncEngine @Inject constructor(
         }
     }
 
-    private suspend fun pullServerState() {
+    private suspend fun pullServerState(syncApi: SyncApi) {
         val since = credentialStore.lastSyncTime
             .takeIf { it > 0 }
             ?.let { DateTimeFormatter.ISO_INSTANT.format(Instant.ofEpochMilli(it)) }

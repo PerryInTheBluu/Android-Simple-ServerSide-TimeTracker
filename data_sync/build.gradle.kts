@@ -33,4 +33,5 @@ dependencies {
     implementation(libs.squareup.moshi)
     implementation(libs.androidx.security)
     ksp(libs.kapt.dagger)
+    testImplementation(libs.test.junit)
 }
