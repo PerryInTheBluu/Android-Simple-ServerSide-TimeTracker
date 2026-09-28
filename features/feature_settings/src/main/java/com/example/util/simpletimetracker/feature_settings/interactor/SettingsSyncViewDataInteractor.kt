@@ -22,8 +22,8 @@ class SettingsSyncViewDataInteractor @Inject constructor(
 
     suspend fun execute(status: SyncStatus): List<ViewHolderType> = withContext(Dispatchers.IO) {
         val serverUrl = credentialStore.serverUrl
-        val username = credentialStore.username
         val apiToken = credentialStore.apiToken
+        val isConfigured = credentialStore.isConfigured
         val result = mutableListOf<ViewHolderType>()
 
         result += SettingsTopViewData(
@@ -41,19 +41,28 @@ class SettingsSyncViewDataInteractor @Inject constructor(
         result += SettingsTextViewData(
             block = SettingsBlock.SyncUsername,
             title = resourceRepo.getString(resourcesR.string.settings_sync_username),
-            subtitle = username,
+            subtitle = resourceRepo.getString(resourcesR.string.settings_sync_unavailable),
+            layoutIsClickable = false,
         )
 
         result += SettingsTextViewData(
             block = SettingsBlock.SyncToken,
             title = resourceRepo.getString(resourcesR.string.settings_sync_token),
-            subtitle = if (apiToken.isEmpty()) "" else "••••••••",
+            subtitle = if (apiToken.isEmpty()) {
+                resourceRepo.getString(resourcesR.string.settings_sync_unavailable)
+            } else {
+                "••••••••"
+            },
+            layoutIsClickable = false,
         )
 
         result += SettingsTextViewData(
             block = SettingsBlock.SyncNow,
             title = resourceRepo.getString(resourcesR.string.settings_sync_now),
-            subtitle = "",
+            subtitle = if (isConfigured) "" else {
+                resourceRepo.getString(resourcesR.string.settings_sync_not_configured)
+            },
+            layoutIsClickable = isConfigured,
         )
 
         val statusTextRes = when (status) {
@@ -72,7 +81,8 @@ class SettingsSyncViewDataInteractor @Inject constructor(
         result += SettingsTextViewData(
             block = SettingsBlock.SyncConflicts,
             title = resourceRepo.getString(resourcesR.string.settings_sync_conflicts),
-            subtitle = "",
+            subtitle = resourceRepo.getString(resourcesR.string.settings_sync_conflicts_unavailable),
+            layoutIsClickable = false,
         )
 
         result += SettingsBottomViewData(

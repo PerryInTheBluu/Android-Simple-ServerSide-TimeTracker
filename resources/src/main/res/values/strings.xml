@@ -334,6 +334,9 @@ This allows you to see how much time you\'re spending on productive versus unpro
     <string name="settings_sync_status_not_configured">Nicht konfiguriert</string>
     <string name="settings_sync_conflicts">Konflikte anzeigen</string>
     <string name="settings_sync_server_invalid">Ungültige Serveradresse. Bitte eine vollständige Adresse angeben, z. B. https://example.ts.net</string>
+    <string name="settings_sync_unavailable">Noch nicht verfügbar</string>
+    <string name="settings_sync_not_configured">Server nicht konfiguriert</string>
+    <string name="settings_sync_conflicts_unavailable">Keine Konfliktansicht verfügbar</string>
     <string name="settings_export_title">Export and import</string>
     <string name="settings_sort_order">Sort activities</string>
     <string name="settings_sort_order_category">Sort categories</string>

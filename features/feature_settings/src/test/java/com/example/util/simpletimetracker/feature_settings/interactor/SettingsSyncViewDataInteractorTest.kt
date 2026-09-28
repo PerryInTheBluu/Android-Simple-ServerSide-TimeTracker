@@ -46,6 +46,10 @@ class SettingsSyncViewDataInteractorTest {
             readThreads.add(Thread.currentThread().name)
             ""
         }
+        whenever(credentialStore.isConfigured).thenAnswer {
+            readThreads.add(Thread.currentThread().name)
+            false
+        }
     }
 
     @After
@@ -73,5 +77,9 @@ class SettingsSyncViewDataInteractorTest {
         val serverBlock = data.filterIsInstance<SettingsTextViewData>()
             .first { it.block == com.example.util.simpletimetracker.feature_settings.api.SettingsBlock.SyncServer }
         assertEquals("", serverBlock.subtitle)
+
+        val syncNowBlock = data.filterIsInstance<SettingsTextViewData>()
+            .first { it.block == com.example.util.simpletimetracker.feature_settings.api.SettingsBlock.SyncNow }
+        assertEquals(false, syncNowBlock.layoutIsClickable)
     }
 }
