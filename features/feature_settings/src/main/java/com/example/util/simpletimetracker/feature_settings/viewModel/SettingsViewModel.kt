@@ -70,6 +70,14 @@ class SettingsViewModel @Inject constructor(
         syncDelegate.onSyncServerSaved(url)
     }
 
+    fun onSyncUsernameSaved(username: String) = viewModelScope.launch {
+        syncDelegate.onSyncUsernameSaved(username)
+    }
+
+    fun onSyncTokenSaved(token: String) = viewModelScope.launch {
+        syncDelegate.onSyncTokenSaved(token)
+    }
+
     fun onResetScreen() = viewModelScope.launch {
         delegatesList.collapse()
         updateContent()

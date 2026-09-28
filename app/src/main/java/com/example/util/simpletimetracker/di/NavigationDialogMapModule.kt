@@ -22,6 +22,7 @@ import com.example.util.simpletimetracker.feature_records_filter.view.RecordsFil
 import com.example.util.simpletimetracker.feature_settings.customizeOptionsMenu.CustomizeOptionsMenuDialogFragment
 import com.example.util.simpletimetracker.feature_settings.partialRestoreSelection.model.PartialRestoreSelectionDialogParams
 import com.example.util.simpletimetracker.feature_settings.partialRestoreSelection.view.PartialRestoreSelectionFragment
+import com.example.util.simpletimetracker.feature_settings.syncCredentials.view.SyncCredentialsDialogFragment
 import com.example.util.simpletimetracker.feature_settings.syncServer.view.SyncServerDialogFragment
 import com.example.util.simpletimetracker.feature_statistics_detail.settings.view.StatisticsTagValuesSettingsDialogFragment
 import com.example.util.simpletimetracker.navigation.NavigationData
@@ -54,6 +55,7 @@ import com.example.util.simpletimetracker.navigation.params.screen.RecordTagValu
 import com.example.util.simpletimetracker.navigation.params.screen.RecordsFilterParams
 import com.example.util.simpletimetracker.navigation.params.screen.StatisticsTagValuesSettingsParams
 import com.example.util.simpletimetracker.navigation.params.screen.StandardDialogParams
+import com.example.util.simpletimetracker.navigation.params.screen.SyncCredentialsDialogParams
 import com.example.util.simpletimetracker.navigation.params.screen.SyncServerDialogParams
 import com.example.util.simpletimetracker.navigation.params.screen.SettingsOptionsParams
 import com.example.util.simpletimetracker.navigation.params.screen.TypesSelectionDialogParams
@@ -84,6 +86,16 @@ class NavigationDialogMapModule {
         return NavigationData(
             R.id.syncServerDialogFragment,
             bundleCreatorDelegate(SyncServerDialogFragment::createBundle),
+        )
+    }
+
+    @IntoMap
+    @Provides
+    @ScreenKey(SyncCredentialsDialogParams::class)
+    fun syncCredentialsDialog(): NavigationData {
+        return NavigationData(
+            R.id.syncCredentialsDialogFragment,
+            bundleCreatorDelegate(SyncCredentialsDialogFragment::createBundle),
         )
     }
 
