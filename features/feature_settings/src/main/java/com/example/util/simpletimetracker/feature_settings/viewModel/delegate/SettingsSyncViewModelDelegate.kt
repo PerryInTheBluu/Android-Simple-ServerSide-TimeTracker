@@ -7,6 +7,8 @@ import com.example.util.simpletimetracker.data_sync.work.SyncScheduler
 import com.example.util.simpletimetracker.feature_settings.api.SettingsBlock
 import com.example.util.simpletimetracker.feature_settings.interactor.SettingsSyncViewDataInteractor
 import com.example.util.simpletimetracker.navigation.Router
+import com.example.util.simpletimetracker.navigation.params.screen.SyncCredentialsDialogParams
+import com.example.util.simpletimetracker.navigation.params.screen.SyncCredentialsInputType
 import com.example.util.simpletimetracker.navigation.params.screen.SyncServerDialogParams
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -49,11 +51,35 @@ class SettingsSyncViewModelDelegate @Inject constructor(
                 }
             }
             SettingsBlock.SyncServer -> {
-                router.navigate(
-                    SyncServerDialogParams(
-                        initialUrl = credentialStore.serverUrl,
-                    ),
-                )
+                delegateScope.launch {
+                    val serverUrl = withContext(Dispatchers.IO) { credentialStore.serverUrl }
+                    router.navigate(
+                        SyncServerDialogParams(
+                            initialUrl = serverUrl,
+                        ),
+                    )
+                }
+            }
+            SettingsBlock.SyncUsername -> {
+                delegateScope.launch {
+                    val username = withContext(Dispatchers.IO) { credentialStore.username }
+                    router.navigate(
+                        SyncCredentialsDialogParams(
+                            inputType = SyncCredentialsInputType.Username,
+                            initialUsername = username,
+                        ),
+                    )
+                }
+            }
+            SettingsBlock.SyncToken -> {
+                delegateScope.launch {
+                    router.navigate(
+                        SyncCredentialsDialogParams(
+                            inputType = SyncCredentialsInputType.Token,
+                            initialUsername = "",
+                        ),
+                    )
+                }
             }
             else -> {
                 // Do nothing
@@ -65,6 +91,24 @@ class SettingsSyncViewModelDelegate @Inject constructor(
         delegateScope.launch {
             withContext(Dispatchers.IO) {
                 credentialStore.serverUrl = url
+            }
+            parent?.updateContent()
+        }
+    }
+
+    fun onSyncUsernameSaved(username: String) {
+        delegateScope.launch {
+            withContext(Dispatchers.IO) {
+                credentialStore.username = username
+            }
+            parent?.updateContent()
+        }
+    }
+
+    fun onSyncTokenSaved(token: String) {
+        delegateScope.launch {
+            withContext(Dispatchers.IO) {
+                credentialStore.apiToken = token
             }
             parent?.updateContent()
         }

@@ -22,8 +22,10 @@ class SettingsSyncViewDataInteractor @Inject constructor(
 
     suspend fun execute(status: SyncStatus): List<ViewHolderType> = withContext(Dispatchers.IO) {
         val serverUrl = credentialStore.serverUrl
+        val username = credentialStore.username
         val apiToken = credentialStore.apiToken
         val isConfigured = credentialStore.isConfigured
+
         val result = mutableListOf<ViewHolderType>()
 
         result += SettingsTopViewData(
@@ -41,19 +43,19 @@ class SettingsSyncViewDataInteractor @Inject constructor(
         result += SettingsTextViewData(
             block = SettingsBlock.SyncUsername,
             title = resourceRepo.getString(resourcesR.string.settings_sync_username),
-            subtitle = resourceRepo.getString(resourcesR.string.settings_sync_unavailable),
-            layoutIsClickable = false,
+            subtitle = username.ifEmpty {
+                resourceRepo.getString(resourcesR.string.settings_sync_not_set)
+            },
         )
 
         result += SettingsTextViewData(
             block = SettingsBlock.SyncToken,
             title = resourceRepo.getString(resourcesR.string.settings_sync_token),
             subtitle = if (apiToken.isEmpty()) {
-                resourceRepo.getString(resourcesR.string.settings_sync_unavailable)
+                resourceRepo.getString(resourcesR.string.settings_sync_not_set)
             } else {
-                "••••••••"
+                resourceRepo.getString(resourcesR.string.settings_sync_token_saved)
             },
-            layoutIsClickable = false,
         )
 
         result += SettingsTextViewData(

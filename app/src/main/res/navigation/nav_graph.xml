@@ -462,6 +462,11 @@
         android:label="SyncServerDialogFragment"
         tools:layout="@layout/settings_sync_server_fragment" />
     <dialog
+        android:id="@+id/syncCredentialsDialogFragment"
+        android:name="com.example.util.simpletimetracker.feature_settings.syncCredentials.view.SyncCredentialsDialogFragment"
+        android:label="SyncCredentialsDialogFragment"
+        tools:layout="@layout/settings_sync_credentials_fragment" />
+    <dialog
         android:id="@+id/optionsListDialogFragment"
         android:name="com.example.util.simpletimetracker.feature_dialogs.optionsDialog.OptionsListDialogFragment"
         android:label="OptionsListDialogFragment"

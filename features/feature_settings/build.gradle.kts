@@ -13,6 +13,9 @@ applyAndroidLibrary()
 
 android {
     namespace = "${Base.namespace}.feature_settings"
+    testOptions {
+        unitTests.isReturnDefaultValues = true
+    }
 }
 
 dependencies {
