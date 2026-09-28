@@ -30,3 +30,6 @@ build/
 # Python bytecode.
 __pycache__/
 *.py[cod]
+
+# Lokale Build-, ADB- und Kaltstart-Logs
+/logs/
