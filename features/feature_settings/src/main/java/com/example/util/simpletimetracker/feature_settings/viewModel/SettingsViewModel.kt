@@ -34,6 +34,7 @@ class SettingsViewModel @Inject constructor(
     // Avoids declaration clash.
     private val additionalDelegate by delegatesList::additionalDelegate
     private val mainDelegate by delegatesList::mainDelegate
+    private val syncDelegate by delegatesList::syncDelegate
 
     val content: LiveData<List<ViewHolderType>> by lazySuspend { loadContent() }
     val optionsContent: LiveData<List<ViewHolderType>> = MutableLiveData()
@@ -63,6 +64,10 @@ class SettingsViewModel @Inject constructor(
 
     fun onTabReselected(tab: NavigationTab?) {
         if (tab is NavigationTab.Settings) resetScreen.set(Unit)
+    }
+
+    fun onSyncServerSaved(url: String) = viewModelScope.launch {
+        syncDelegate.onSyncServerSaved(url)
     }
 
     fun onResetScreen() = viewModelScope.launch {

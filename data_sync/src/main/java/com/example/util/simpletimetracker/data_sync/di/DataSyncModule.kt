@@ -1,7 +1,14 @@
 package com.example.util.simpletimetracker.data_sync.di
 
 import android.content.Context
+import com.example.util.simpletimetracker.data_sync.api.LoginRequest
 import com.example.util.simpletimetracker.data_sync.api.SyncApi
+import com.example.util.simpletimetracker.data_sync.api.SyncConflict
+import com.example.util.simpletimetracker.data_sync.api.SyncPullResponse
+import com.example.util.simpletimetracker.data_sync.api.SyncPushRequest
+import com.example.util.simpletimetracker.data_sync.api.SyncPushResponse
+import com.example.util.simpletimetracker.data_sync.api.SyncUrlValidator
+import com.example.util.simpletimetracker.data_sync.api.TokenResponse
 import com.example.util.simpletimetracker.data_sync.db.SyncConflictDao
 import com.example.util.simpletimetracker.data_sync.db.SyncDatabase
 import com.example.util.simpletimetracker.data_sync.db.SyncQueueDao
@@ -52,13 +59,11 @@ object DataSyncModule {
 
     @Provides
     @Singleton
-    fun provideRetrofit(
+    fun provideSyncApi(
         moshi: Moshi,
         okHttpClient: OkHttpClient,
         credentialStore: SyncCredentialStore,
     ): SyncApi {
-        val baseUrl = credentialStore.serverUrl
-            .trimEnd('/') + "/"
         val authClient = okHttpClient.newBuilder()
             .addInterceptor { chain ->
                 val token = credentialStore.apiToken
@@ -68,11 +73,44 @@ object DataSyncModule {
                 chain.proceed(request)
             }
             .build()
-        return Retrofit.Builder()
-            .baseUrl(baseUrl)
-            .client(authClient)
-            .addConverterFactory(MoshiConverterFactory.create(moshi))
-            .build()
-            .create(SyncApi::class.java)
+        return UrlSwitchingSyncApi(
+            baseUrlProvider = { credentialStore.serverUrl },
+            moshi = moshi,
+            okHttpClient = authClient,
+        )
     }
 }
+
+class UrlSwitchingSyncApi(
+    private val baseUrlProvider: () -> String,
+    moshi: Moshi,
+    private val okHttpClient: OkHttpClient,
+) : SyncApi {
+
+    private val moshiConverterFactory = MoshiConverterFactory.create(moshi)
+
+    private fun api(): SyncApi {
+        val raw = baseUrlProvider().trim()
+        if (raw.isEmpty()) throw SyncNotConfiguredException()
+        val normalized = SyncUrlValidator.normalizeOrNull(raw)
+            ?: throw SyncInvalidUrlException(raw)
+        val retrofit = Retrofit.Builder()
+            .baseUrl(normalized)
+            .client(okHttpClient)
+            .addConverterFactory(moshiConverterFactory)
+            .build()
+        return retrofit.create(SyncApi::class.java)
+    }
+
+    override suspend fun login(body: LoginRequest): TokenResponse = api().login(body)
+
+    override suspend fun push(body: SyncPushRequest): SyncPushResponse = api().push(body)
+
+    override suspend fun pull(since: String?): SyncPullResponse = api().pull(since)
+
+    override suspend fun conflicts(): List<SyncConflict> = api().conflicts()
+}
+
+class SyncNotConfiguredException : IllegalStateException("Sync server is not configured")
+
+class SyncInvalidUrlException(val url: String) : IllegalStateException("Invalid sync server URL")

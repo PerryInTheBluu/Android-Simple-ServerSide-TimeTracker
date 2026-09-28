@@ -27,4 +27,8 @@ dependencies {
     implementation(project(":feature_dialogs:api"))
     implementation(libs.google.dagger)
     ksp(libs.kapt.dagger)
+
+    testImplementation(libs.test.junit)
+    testImplementation(libs.test.mockitoKotlin)
+    testImplementation(libs.test.coroutines)
 }

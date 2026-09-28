@@ -322,6 +322,10 @@ Dies ermöglicht es dir, zu sehen, wie viel Zeit du insgesamt für produktive ve
     <string name="settings_notification_title">Benachrichtigungseinstellungen</string>
     <string name="settings_backup_title">Sicherung</string>
     <string name="settings_export_title">Export und Import</string>
+    <string name="settings_sync_server_invalid">Ungültige Serveradresse. Bitte eine vollständige Adresse angeben, z. B. https://example.ts.net</string>
+    <string name="settings_sync_unavailable">Noch nicht verfügbar</string>
+    <string name="settings_sync_not_configured">Server nicht konfiguriert</string>
+    <string name="settings_sync_conflicts_unavailable">Keine Konfliktansicht verfügbar</string>
     <string name="settings_sort_order">Aktivitäten sortieren</string>
     <string name="settings_sort_order_category">Kategorien sortieren</string>
     <string name="settings_sort_order_tag">Tags sortieren</string>
