@@ -29,8 +29,8 @@ fun getSettingsAdapterDelegates(
 ): List<RecyclerAdapterDelegate> {
     return listOf(
         createSettingsTopAdapterDelegate(),
-        createSettingsBottomAdapterDelegate(),
         createSettingsTranslatorAdapterDelegate(),
+        createSettingsBottomAdapterDelegate(),
         createSettingsHintAdapterDelegate(),
         createSettingsTextAdapterDelegate(onBlockClickedThrottled),
         createSettingsTextWithButtonAdapterDelegate(onBlockClicked),
