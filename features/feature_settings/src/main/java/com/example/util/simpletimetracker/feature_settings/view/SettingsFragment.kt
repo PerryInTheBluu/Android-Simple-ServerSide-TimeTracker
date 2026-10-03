@@ -25,6 +25,7 @@ import com.example.util.simpletimetracker.feature_settings.model.SettingsOptions
 import com.example.util.simpletimetracker.feature_settings.syncServer.model.SyncServerDialogListener
 import com.example.util.simpletimetracker.feature_settings.viewModel.SettingsViewModel
 import com.example.util.simpletimetracker.feature_settings.views.getSettingsAdapterDelegates
+import com.example.util.simpletimetracker.feature_base_adapter.commentField.createCommentFieldAdapterDelegate
 import com.example.util.simpletimetracker.navigation.params.screen.DataExportSettingsResult
 import com.example.util.simpletimetracker.navigation.params.screen.OptionsListParams
 import dagger.hilt.android.AndroidEntryPoint
@@ -57,6 +58,9 @@ class SettingsFragment :
 
     private val contentAdapter: BaseRecyclerAdapter by lazy {
         BaseRecyclerAdapter(
+            createCommentFieldAdapterDelegate(
+                afterTextChange = viewModel::onSearchTextChange,
+            ),
             *getSettingsAdapterDelegates(
                 onBlockClicked = viewModel::onBlockClicked,
                 onBlockClickedThrottled = throttle(viewModel::onBlockClicked),

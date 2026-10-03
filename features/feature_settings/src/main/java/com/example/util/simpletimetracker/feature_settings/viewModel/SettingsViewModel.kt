@@ -11,6 +11,7 @@ import com.example.util.simpletimetracker.core.model.NavigationTab
 import com.example.util.simpletimetracker.domain.darkMode.interactor.ThemeChangedInteractor
 import com.example.util.simpletimetracker.domain.statistics.interactor.SettingsDataUpdateInteractor
 import com.example.util.simpletimetracker.feature_base_adapter.ViewHolderType
+import com.example.util.simpletimetracker.feature_settings.interactor.SettingsSearchViewDataInteractor
 import com.example.util.simpletimetracker.feature_settings.interactor.SettingsViewModelDelegatesProvider
 import com.example.util.simpletimetracker.feature_settings.model.OptionsContent
 import com.example.util.simpletimetracker.feature_settings.viewModel.delegate.SettingsUiDelegated
@@ -18,6 +19,8 @@ import com.example.util.simpletimetracker.feature_settings.viewModel.delegate.Se
 import com.example.util.simpletimetracker.navigation.Router
 import com.example.util.simpletimetracker.navigation.params.screen.SettingsOptionsParams
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -27,6 +30,7 @@ class SettingsViewModel @Inject constructor(
     private val delegatesList: SettingsViewModelDelegatesProvider,
     private val settingsDataUpdateInteractor: SettingsDataUpdateInteractor,
     private val themeChangedInteractor: ThemeChangedInteractor,
+    private val settingsSearchViewDataInteractor: SettingsSearchViewDataInteractor,
 ) : BaseViewModel(),
     SettingsUiDelegated by delegatesList,
     SettingsParent {
@@ -43,6 +47,8 @@ class SettingsViewModel @Inject constructor(
     val themeChanged: SingleLiveEvent<Boolean> by mainDelegate::themeChanged
 
     private var activeOptionsContent: OptionsContent? = null
+    private var searchText: String = ""
+    private var searchJob: Job? = null
 
     init {
         delegatesList.delegates.forEach { it.init(this) }
@@ -79,6 +85,18 @@ class SettingsViewModel @Inject constructor(
         themeChangedInteractor.send()
     }
 
+    fun onSearchTextChange(text: String) {
+        if (text != searchText) {
+            searchJob?.cancel()
+            searchJob = viewModelScope.launch {
+                searchText = text
+                // Do not delay on clear.
+                if (text.isNotEmpty()) delay(SEARCH_DEBOUNCE_MS)
+                updateContent()
+            }
+        }
+    }
+
     override suspend fun updateContent() {
         content.set(loadContent())
         optionsContent.set(loadOptionsContent())
@@ -97,7 +115,17 @@ class SettingsViewModel @Inject constructor(
     }
 
     private suspend fun loadContent(): List<ViewHolderType> {
-        return delegatesList.loadContent()
+        val content = delegatesList.loadContent()
+        return if (searchText.isBlank()) {
+            listOf(settingsSearchViewDataInteractor.searchField()) + content
+        } else {
+            listOf(settingsSearchViewDataInteractor.searchField()) +
+                settingsSearchViewDataInteractor.filter(content, searchText)
+        }
+    }
+
+    private companion object {
+        private const val SEARCH_DEBOUNCE_MS = 300L
     }
 
     private suspend fun loadOptionsContent(): List<ViewHolderType> {

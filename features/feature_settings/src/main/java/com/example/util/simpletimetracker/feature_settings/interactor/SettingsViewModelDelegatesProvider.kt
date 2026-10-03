@@ -16,7 +16,6 @@ import com.example.util.simpletimetracker.feature_settings.viewModel.delegate.Se
 import com.example.util.simpletimetracker.feature_settings.viewModel.delegate.SettingsSyncViewModelDelegate
 import com.example.util.simpletimetracker.feature_settings.viewModel.delegate.SettingsNotificationsViewModelDelegate
 import com.example.util.simpletimetracker.feature_settings.viewModel.delegate.SettingsRatingViewModelDelegate
-import com.example.util.simpletimetracker.feature_settings.viewModel.delegate.SettingsTranslatorsViewModelDelegate
 import com.example.util.simpletimetracker.navigation.params.screen.DataExportSettingsResult
 import com.example.util.simpletimetracker.navigation.params.screen.OptionsListParams
 import javax.inject.Inject
@@ -30,7 +29,6 @@ class SettingsViewModelDelegatesProvider @Inject constructor(
     backupDelegate: SettingsBackupViewModelDelegate,
     val syncDelegate: SettingsSyncViewModelDelegate,
     exportDelegate: SettingsExportViewModelDelegate,
-    translatorsDelegate: SettingsTranslatorsViewModelDelegate,
     contributorsDelegate: SettingsContributorsViewModelDelegate,
 ) : SettingsUiDelegated {
 
@@ -43,7 +41,6 @@ class SettingsViewModelDelegatesProvider @Inject constructor(
         backupDelegate,
         syncDelegate,
         exportDelegate,
-        translatorsDelegate,
         contributorsDelegate,
     )
 
@@ -96,7 +93,6 @@ class SettingsViewModelDelegatesProvider @Inject constructor(
             SettingsBackupViewModelDelegate,
             SettingsSyncViewModelDelegate,
             SettingsExportViewModelDelegate,
-            SettingsTranslatorsViewModelDelegate,
             SettingsContributorsViewModelDelegate,
         )
         val viewData = delegates.map { it.getViewData() }.associateBy { it.key }

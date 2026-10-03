@@ -18,9 +18,6 @@ enum class SettingsBlock {
     SyncBottom,
 
     RatingTop,
-    RateUs,
-    SupportDevelopment,
-    Feedback,
     Version,
     DebugMenu,
     RatingBottom,
@@ -139,9 +136,6 @@ enum class SettingsBlock {
     ExportTriggerAutoBackup,
     ExportBottom,
 
-    TranslatorsTop,
-    TranslatorsTitle,
-    TranslatorsBottom,
 
     ContributorsTop,
     ContributorsTitle,
