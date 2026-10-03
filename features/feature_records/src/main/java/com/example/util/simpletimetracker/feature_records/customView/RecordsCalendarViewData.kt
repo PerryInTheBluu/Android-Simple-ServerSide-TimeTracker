@@ -18,6 +18,15 @@ data class RecordsCalendarViewData(
         val legend: String,
         val highlighted: Boolean,
         val data: List<Point>,
+        // Timetable slots of the day drawn as background bands behind the
+        // record bars; start and end are milliseconds from day start.
+        val slots: List<Slot> = emptyList(),
+    )
+
+    data class Slot(
+        val start: Long,
+        val end: Long,
+        val color: Int,
     )
 
     data class Point(

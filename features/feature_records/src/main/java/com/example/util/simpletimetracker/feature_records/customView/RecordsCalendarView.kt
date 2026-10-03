@@ -119,6 +119,8 @@ class RecordsCalendarView @JvmOverloads constructor(
     private val bounds: Rect = Rect(0, 0, 0, 0)
     private val textBounds: Rect = Rect(0, 0, 0, 0)
     private val recordBounds: RectF = RectF(0f, 0f, 0f, 0f)
+    private val slotPaint: Paint = Paint().apply { alpha = SLOT_ALPHA }
+    private val slotBounds: RectF = RectF(0f, 0f, 0f, 0f)
     private var data: List<Column> = emptyList()
     private val dataSize: Int get() = data.size.takeUnless { it == 0 } ?: 1
     private var shouldDrawTopLegends: Boolean = false
@@ -230,6 +232,11 @@ class RecordsCalendarView @JvmOverloads constructor(
         drawTopLegend(canvas)
         drawSideLegend(canvas)
         data.forEachIndexed { index, column ->
+            drawSlots(
+                canvas = canvas,
+                slots = column.slots,
+                index = index,
+            )
             drawData(
                 canvas = canvas,
                 data = column.data,
@@ -398,6 +405,46 @@ class RecordsCalendarView @JvmOverloads constructor(
         }
         chartBottomBound = h
         chartHeight = chartBottomBound - chartTopBound
+    }
+
+    /**
+     * Timetable slots are drawn as translucent bands behind the record
+     * bars: an attended lecture is covered by its record, a missed one
+     * stays visible as an empty band.
+     */
+    private fun drawSlots(
+        canvas: Canvas,
+        slots: List<RecordsCalendarViewData.Slot>,
+        index: Int,
+    ) {
+        slots.forEach { slot ->
+            val boxHeight = chartHeight * (slot.end - slot.start) / dayInMillis
+            val boxShift = chartHeight * slot.start / dayInMillis
+            val boxLeft = chartLeftBound + columnWidth * index
+            val boxRight = boxLeft + columnWidth
+            val boxBottom = if (reverseOrder) {
+                chartTopBound + (boxShift + boxHeight) * scaleFactor
+            } else {
+                chartTopBound + (chartHeight - boxShift) * scaleFactor
+            }.let { it + panFactor }
+            val boxTop = boxBottom - boxHeight * scaleFactor
+
+            slotPaint.color = slot.color
+            // setColor replaces the paint alpha; reapply the band translucency.
+            slotPaint.alpha = SLOT_ALPHA
+            slotBounds.set(
+                boxLeft + (paddingBetweenDays / 2),
+                boxTop,
+                boxRight - (paddingBetweenDays / 2),
+                boxBottom,
+            )
+            canvas.drawRoundRect(
+                slotBounds,
+                recordCornerRadius,
+                recordCornerRadius,
+                slotPaint,
+            )
+        }
     }
 
     private fun drawData(
@@ -890,6 +937,7 @@ class RecordsCalendarView @JvmOverloads constructor(
             legend = data.legend,
             highlighted = data.highlighted,
             data = res,
+            slots = data.slots,
         )
     }
 
@@ -1106,6 +1154,7 @@ class RecordsCalendarView @JvmOverloads constructor(
         val legend: String,
         val highlighted: Boolean,
         val data: List<Data>,
+        val slots: List<RecordsCalendarViewData.Slot> = emptyList(),
     )
 
     private class Data(
@@ -1135,6 +1184,7 @@ class RecordsCalendarView @JvmOverloads constructor(
     )
 
     companion object {
+        private const val SLOT_ALPHA = 60
         private const val CLICK_ANIMATION_DURATION_MS: Long = 250L
     }
 }

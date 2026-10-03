@@ -4,6 +4,7 @@ import com.example.util.simpletimetracker.core.interactor.GetRunningRecordViewDa
 import com.example.util.simpletimetracker.core.interactor.DailyRecordFilterInteractor
 import com.example.util.simpletimetracker.core.interactor.DailyRecordFilterInteractor.RecordHolder
 import com.example.util.simpletimetracker.core.mapper.CalendarToListShiftMapper
+import com.example.util.simpletimetracker.core.mapper.ColorMapper
 import com.example.util.simpletimetracker.core.mapper.RecordViewDataMapper
 import com.example.util.simpletimetracker.core.mapper.TimeMapper
 import com.example.util.simpletimetracker.domain.base.DurationFormat
@@ -35,15 +36,19 @@ import com.example.util.simpletimetracker.domain.record.interactor.RecordsContai
 import com.example.util.simpletimetracker.domain.record.model.MultiSelectedRecordId
 import com.example.util.simpletimetracker.domain.record.model.RecordBase
 import com.example.util.simpletimetracker.domain.statistics.model.ChartFilterType
+import com.example.util.simpletimetracker.domain.timetable.repo.TimetableRepo
 import com.example.util.simpletimetracker.feature_base_adapter.ViewHolderType
 import com.example.util.simpletimetracker.feature_base_adapter.record.RecordViewData
 import com.example.util.simpletimetracker.feature_base_adapter.recordSelected.RecordSelectedViewData
 import com.example.util.simpletimetracker.feature_base_adapter.runningRecord.RunningRecordViewData
 import com.example.util.simpletimetracker.feature_base_adapter.runningRecordSelected.RunningRecordSelectedViewData
+import com.example.util.simpletimetracker.feature_base_adapter.timetableEvent.TimetableViewData
 import com.example.util.simpletimetracker.feature_records.customView.RecordsCalendarViewData
 import com.example.util.simpletimetracker.feature_records.mapper.RecordsViewDataMapper
+import com.example.util.simpletimetracker.feature_records.mapper.TimetableViewDataMapper
 import com.example.util.simpletimetracker.feature_records.model.RecordsState
 import kotlinx.coroutines.Dispatchers
+import timber.log.Timber
 import kotlinx.coroutines.withContext
 import java.lang.Long.min
 import java.util.Calendar
@@ -69,6 +74,9 @@ class RecordsViewDataInteractor @Inject constructor(
     private val daysInCalendarMapper: DaysInCalendarMapper,
     private val recordsContainerMultiselectInteractor: RecordsContainerMultiselectInteractor,
     private val dailyRecordFilterInteractor: DailyRecordFilterInteractor,
+    private val timetableRepo: TimetableRepo,
+    private val timetableViewDataMapper: TimetableViewDataMapper,
+    private val colorMapper: ColorMapper,
 ) {
 
     suspend fun getViewData(
@@ -118,6 +126,7 @@ class RecordsViewDataInteractor @Inject constructor(
             val records = recordInteractor.getWithParams(GetParam.FromRange(range))
 
             val data = getRecordsViewData(
+                includeTimetable = !isCalendarView && !forSharing,
                 records = records,
                 runningRecords = runningRecords,
                 filterType = filterType,
@@ -134,11 +143,18 @@ class RecordsViewDataInteractor @Inject constructor(
                 showSeconds = showSeconds,
             )
 
+            val slots = getTimetableSlots(
+                range = range,
+                recordTypes = recordTypes,
+                isDarkTheme = isDarkTheme,
+            )
+
             ViewDataIntermediate(
                 rangeStart = range.timeStarted,
                 rangeEnd = range.timeEnded,
                 isToday = actualShift == 0,
                 records = data,
+                slots = slots,
             )
         }.let { data ->
             if (isCalendarView) {
@@ -211,6 +227,7 @@ class RecordsViewDataInteractor @Inject constructor(
                     legend = legend,
                     highlighted = column.isToday,
                     data = points,
+                    slots = column.slots,
                 )
             }
             .let { list ->
@@ -288,10 +305,12 @@ class RecordsViewDataInteractor @Inject constructor(
                     value
                 }
             }
+            is Data.TimetableEventData -> data.value
         }
     }
 
     private suspend fun getRecordsViewData(
+        includeTimetable: Boolean,
         records: List<Record>,
         runningRecords: List<RunningRecord>,
         filterType: ChartFilterType,
@@ -385,7 +404,7 @@ class RecordsViewDataInteractor @Inject constructor(
             emptyList()
         }
 
-        return dailyRecordFilterInteractor.filter(
+        val holders = dailyRecordFilterInteractor.filter(
             runningRecordsData = runningRecordsData,
             trackedRecordsData = trackedRecordsData,
             untrackedRecordsData = untrackedRecordsData,
@@ -393,6 +412,140 @@ class RecordsViewDataInteractor @Inject constructor(
             filteredIds = filteredIds,
             lazyRecordTypeCategories = recordTypeCategories,
         )
+        val timetableData = if (includeTimetable) {
+            getTimetableViewData(
+                range = range,
+                records = records,
+                runningRecords = runningRecords,
+                recordTypes = recordTypes,
+                isDarkTheme = isDarkTheme,
+                useMilitaryTime = useMilitaryTime,
+            )
+        } else {
+            emptyList()
+        }
+        return holders + timetableData
+    }
+
+    /**
+     * Timetable slots of the day as cards between the records: a slot
+     * counts as attended when a record of the linked activity overlaps
+     * the slot; slots in the past without a record show as missed.
+     */
+    private suspend fun getTimetableViewData(
+        range: Range,
+        records: List<Record>,
+        runningRecords: List<RunningRecord>,
+        recordTypes: Map<Long, RecordType>,
+        isDarkTheme: Boolean,
+        useMilitaryTime: Boolean,
+    ): List<RecordHolder<Data>> {
+        val dayTimestamp = range.timeStarted + startOfDayShiftSafe()
+        val date = timetableViewDataMapper.dateString(dayTimestamp)
+        if (timetableRepo.getDays().any { it.date == date && it.freeDay }) return emptyList()
+
+        val isoDay = timetableViewDataMapper.isoDayOfWeek(dayTimestamp)
+        val overrides = timetableRepo.getOverrides(date).associateBy { it.eventId }
+        val midnight = timetableViewDataMapper.midnightOf(dayTimestamp)
+        val now = System.currentTimeMillis()
+
+        return timetableRepo.getEvents(isoDay).mapNotNull { event ->
+            val override = overrides[event.id]
+            if (override?.cancelled == true) return@mapNotNull null
+            val startTime = override?.startTime ?: event.startTime
+            val endTime = override?.endTime ?: event.endTime
+            val slotStart = midnight + startTime * minuteInMillis
+            val slotEnd = midnight + endTime * minuteInMillis
+            val typeId = event.activityTypeId
+
+            val attended = typeId != null && (
+                records.any { record ->
+                    record.typeId == typeId &&
+                        record.timeStarted < slotEnd &&
+                        record.timeEnded > slotStart
+                } ||
+                    runningRecords.any { running ->
+                        running.id == typeId && running.timeStarted < slotEnd
+                    }
+                )
+
+            val color = typeId?.let { recordTypes[it] }?.color
+                ?.let { colorMapper.mapToColorInt(it, isDarkTheme) }
+                ?: colorMapper.mapToColorInt(
+                    com.example.util.simpletimetracker.domain.color.model.AppColor(
+                        colorId = 10,
+                        colorInt = "",
+                    ),
+                    isDarkTheme,
+                )
+
+            RecordHolder<Data>(
+                timeStartedTimestamp = slotStart,
+                typeId = typeId ?: 0L,
+                tagIds = emptyList(),
+                data = Data.TimetableEventData(
+                    timetableViewDataMapper.map(
+                        eventId = event.id,
+                        name = event.name,
+                        room = override?.room ?: event.room,
+                        comment = event.comment,
+                        slotStart = slotStart,
+                        slotEnd = slotEnd,
+                        attended = attended,
+                        color = color,
+                        useMilitaryTime = useMilitaryTime,
+                        now = now,
+                    ),
+                ),
+            )
+        }
+    }
+
+    private suspend fun startOfDayShiftSafe(): Long {
+        return prefsInteractor.getStartOfDayShift()
+    }
+
+    /**
+     * Timetable slots of the day as translucent background bands for the
+     * calendar view; free days have no slots, overrides move or cancel
+     * single slots. Start and end are milliseconds from day start.
+     */
+    private suspend fun getTimetableSlots(
+        range: Range,
+        recordTypes: Map<Long, RecordType>,
+        isDarkTheme: Boolean,
+    ): List<RecordsCalendarViewData.Slot> {
+        val dayTimestamp = range.timeStarted + startOfDayShiftSafe()
+        val date = timetableViewDataMapper.dateString(dayTimestamp)
+        if (timetableRepo.getDays().any { it.date == date && it.freeDay }) return emptyList()
+
+        val isoDay = timetableViewDataMapper.isoDayOfWeek(dayTimestamp)
+        val overrides = timetableRepo.getOverrides(date).associateBy { it.eventId }
+        Timber.d("Timetable slots for date=%s isoDay=%d events=%d", date, isoDay, timetableRepo.getEvents(isoDay).size)
+
+        return timetableRepo.getEvents(isoDay).mapNotNull { event ->
+            val override = overrides[event.id]
+            if (override?.cancelled == true) return@mapNotNull null
+            val startTime = override?.startTime ?: event.startTime
+            val endTime = override?.endTime ?: event.endTime
+
+            val color = event.activityTypeId
+                ?.let { recordTypes[it] }?.color
+                ?.let { colorMapper.mapToColorInt(it, isDarkTheme) }
+                ?: colorMapper.mapToColorInt(
+                    com.example.util.simpletimetracker.domain.color.model.AppColor(
+                        colorId = 10,
+                        colorInt = "",
+                    ),
+                    isDarkTheme,
+                )
+
+            RecordsCalendarViewData.Slot(
+                start = startTime * minuteInMillis,
+                end = endTime * minuteInMillis,
+                color = color,
+            )
+        }
     }
 
     private fun mapToCalendarPoint(
@@ -410,12 +563,17 @@ class RecordsViewDataInteractor @Inject constructor(
                 holder.timeStartedTimestamp.let { if (showSeconds) it else it.dropSeconds() }
             is Data.RunningRecordData ->
                 max(holder.timeStartedTimestamp, rangeStart)
+            // Timetable slots are never part of the calendar view data.
+            is Data.TimetableEventData ->
+                throw IllegalStateException("Timetable slots are not mapped to calendar points")
         }
         val timeEndedTimestamp = when (val data = holder.data) {
             is Data.RecordData ->
                 data.value.timeEndedTimestamp.let { if (showSeconds) it else it.dropSeconds() }
             is Data.RunningRecordData ->
                 min(System.currentTimeMillis(), rangeEnd)
+            is Data.TimetableEventData ->
+                throw IllegalStateException("Timetable slots are not mapped to calendar points")
         }
 
         val start = timeMapper.mapFromStartOfDay(
@@ -443,6 +601,8 @@ class RecordsViewDataInteractor @Inject constructor(
                 is Data.RunningRecordData -> {
                     RecordsCalendarViewData.Point.Data.RunningRecordData(data.value)
                 }
+                is Data.TimetableEventData ->
+                    throw IllegalStateException("Timetable slots are not mapped to calendar points")
             },
         )
     }
@@ -464,6 +624,9 @@ class RecordsViewDataInteractor @Inject constructor(
                 val value = data.value
                 MultiSelectedRecordId.Running(value.id)
             }
+            // Timetable cards do not take part in multiselection.
+            is Data.TimetableEventData ->
+                throw IllegalStateException("Timetable slots cannot be multiselected")
         }
     }
 
@@ -477,6 +640,10 @@ class RecordsViewDataInteractor @Inject constructor(
         data class RunningRecordData(
             override val value: RunningRecordViewData,
         ) : Data
+
+        data class TimetableEventData(
+            override val value: TimetableViewData,
+        ) : Data
     }
 
     private data class ViewDataIntermediate(
@@ -484,6 +651,7 @@ class RecordsViewDataInteractor @Inject constructor(
         val rangeEnd: Long,
         val isToday: Boolean,
         val records: List<RecordHolder<Data>>,
+        val slots: List<RecordsCalendarViewData.Slot> = emptyList(),
     )
 
     companion object {

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    android:background="?appCardBackgroundColor"
+    android:elevation="2dp"
+    android:orientation="vertical"
+    android:padding="8dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <View
+            android:id="@+id/itemTimetableEventColor"
+            android:layout_width="12dp"
+            android:layout_height="12dp"
+            android:layout_marginEnd="8dp"
+            tools:background="@color/palette_green" />
+
+        <TextView
+            android:id="@+id/itemTimetableEventName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:textColor="?appTextPrimaryColor"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            tools:text="Thermodynamik" />
+
+        <TextView
+            android:id="@+id/itemTimetableEventState"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            tools:text="verpasst" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/itemTimetableEventTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:textColor="?appTextPrimaryColor"
+        android:textSize="12sp"
+        tools:text="10:15 – 11:55" />
+
+    <TextView
+        android:id="@+id/itemTimetableEventRoom"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:textColor="?appTextPrimaryColor"
+        android:textSize="12sp"
+        tools:text="HS 2" />
+
+    <TextView
+        android:id="@+id/itemTimetableEventComment"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:ellipsize="end"
+        android:maxLines="3"
+        android:textColor="?appTextHintColor"
+        android:textSize="12sp"
+        android:visibility="gone"
+        tools:text="Klausur besprechen"
+        tools:visibility="visible" />
+
+</LinearLayout>

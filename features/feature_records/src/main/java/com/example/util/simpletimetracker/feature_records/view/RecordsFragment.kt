@@ -28,6 +28,7 @@ import com.example.util.simpletimetracker.feature_base_adapter.record.createReco
 import com.example.util.simpletimetracker.feature_base_adapter.recordSelected.createRecordSelectedAdapterDelegate
 import com.example.util.simpletimetracker.feature_base_adapter.runningRecord.createRunningRecordAdapterDelegate
 import com.example.util.simpletimetracker.feature_base_adapter.runningRecordSelected.createRunningRecordSelectedAdapterDelegate
+import com.example.util.simpletimetracker.feature_base_adapter.timetableEvent.createTimetableAdapterDelegate
 import com.example.util.simpletimetracker.feature_records.R
 import com.example.util.simpletimetracker.feature_records.databinding.RecordsFragmentShareBinding
 import com.example.util.simpletimetracker.feature_records.extra.RecordsExtra
@@ -235,6 +236,7 @@ class RecordsFragment :
             createLoaderAdapterDelegate(),
             createHintAdapterDelegate(),
             createHintBigAdapterDelegate(),
+            createTimetableAdapterDelegate(),
         )
     }
 

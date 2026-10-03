@@ -10,6 +10,10 @@ import com.example.util.simpletimetracker.data_local.activitySuggestion.Activity
 import com.example.util.simpletimetracker.data_local.database.AppDatabase
 import com.example.util.simpletimetracker.data_local.database.AppDatabaseMigrations
 import com.example.util.simpletimetracker.data_local.category.CategoryDao
+import com.example.util.simpletimetracker.data_local.timetable.TimetableDayDao
+import com.example.util.simpletimetracker.data_local.timetable.TimetableEventDao
+import com.example.util.simpletimetracker.data_local.timetable.TimetableEventOverrideDao
+import com.example.util.simpletimetracker.data_local.timetable.TimetableTodoDao
 import com.example.util.simpletimetracker.data_local.complexRule.ComplexRulesDao
 import com.example.util.simpletimetracker.data_local.favourite.FavouriteColorDao
 import com.example.util.simpletimetracker.data_local.favourite.FavouriteCommentDao
@@ -89,6 +93,26 @@ class DataLocalModule {
     @Singleton
     fun getCategoryDao(database: AppDatabase): CategoryDao {
         return database.categoryDao()
+    }
+
+    @Provides
+    fun getTimetableEventDao(database: AppDatabase): TimetableEventDao {
+        return database.timetableEventDao()
+    }
+
+    @Provides
+    fun getTimetableEventOverrideDao(database: AppDatabase): TimetableEventOverrideDao {
+        return database.timetableEventOverrideDao()
+    }
+
+    @Provides
+    fun getTimetableDayDao(database: AppDatabase): TimetableDayDao {
+        return database.timetableDayDao()
+    }
+
+    @Provides
+    fun getTimetableTodoDao(database: AppDatabase): TimetableTodoDao {
+        return database.timetableTodoDao()
     }
 
     @Provides
