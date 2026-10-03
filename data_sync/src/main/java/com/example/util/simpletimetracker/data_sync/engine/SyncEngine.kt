@@ -491,6 +491,18 @@ class SyncEngine @Inject constructor(
         val categoryIds = decodeStringList(activity.category)
             .mapNotNull { mappings.localIdOf(ENTITY_CATEGORY, it) }
         if (categoryIds.isNotEmpty()) recordTypeCategoryRepo.addCategories(localId, categoryIds)
+        insertMirror(
+            ENTITY_ACTIVITY,
+            activity.id,
+            mapOf(
+                "id" to activity.id,
+                "name" to activity.name,
+                "icon" to activity.icon,
+                "color" to activity.color,
+                "archived" to activity.archived,
+                "category" to encodeStringList(decodeStringList(activity.category).sorted()),
+            ),
+        )
     }
 
     private suspend fun applyServerEntry(

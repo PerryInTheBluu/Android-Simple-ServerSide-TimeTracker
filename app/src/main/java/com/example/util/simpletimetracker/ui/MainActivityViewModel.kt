@@ -8,6 +8,7 @@ import com.example.util.simpletimetracker.core.repo.AutomaticBackupRepo
 import com.example.util.simpletimetracker.core.repo.AutomaticExportRepo
 import com.example.util.simpletimetracker.core.repo.DataEditRepo
 import com.example.util.simpletimetracker.core.repo.FileWorkRepo
+import com.example.util.simpletimetracker.data_sync.keystore.SyncCredentialStore
 import com.example.util.simpletimetracker.domain.extension.orFalse
 import com.example.util.simpletimetracker.domain.recordType.interactor.InitialActivitiesInteractor
 import com.example.util.simpletimetracker.feature_settings.viewModel.delegate.SettingsFileWorkDelegate
@@ -23,6 +24,7 @@ class MainActivityViewModel @Inject constructor(
     private val fileWorkRepo: FileWorkRepo,
     private val settingsFileWorkDelegate: SettingsFileWorkDelegate,
     private val initialActivitiesInteractor: InitialActivitiesInteractor,
+    private val syncCredentialStore: SyncCredentialStore,
 ) : BaseViewModel() {
 
     val progressVisibility: MediatorLiveData<Boolean> = MediatorLiveData<Boolean>().apply {
@@ -34,7 +36,11 @@ class MainActivityViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            initialActivitiesInteractor.executeIfEmpty()
+            // With a configured sync server the activities arrive from the
+            // server; creating defaults here would duplicate them.
+            if (!syncCredentialStore.isConfigured) {
+                initialActivitiesInteractor.executeIfEmpty()
+            }
         }
     }
 

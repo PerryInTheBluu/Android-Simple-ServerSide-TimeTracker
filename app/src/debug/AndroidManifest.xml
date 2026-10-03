@@ -10,6 +10,7 @@
                 <action android:name="de.piusdischinger.timetracker.debug.DUMP_STATE" />
                 <action android:name="de.piusdischinger.timetracker.debug.SET_CREDENTIALS" />
                 <action android:name="de.piusdischinger.timetracker.debug.DNS_TEST" />
+                <action android:name="de.piusdischinger.timetracker.debug.WIPE_LOCAL" />
             </intent-filter>
         </receiver>
     </application>

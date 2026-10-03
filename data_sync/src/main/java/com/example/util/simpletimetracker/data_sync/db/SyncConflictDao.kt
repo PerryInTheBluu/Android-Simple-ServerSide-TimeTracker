@@ -42,6 +42,9 @@ interface SyncIdMapDao {
 
     @Query("DELETE FROM sync_id_map WHERE entity_type = :entityType AND sync_id = :syncId")
     suspend fun removeBySyncId(entityType: String, syncId: String)
+
+    @Query("DELETE FROM sync_id_map")
+    suspend fun clear()
 }
 
 @Dao

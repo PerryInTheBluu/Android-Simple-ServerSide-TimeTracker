@@ -5,6 +5,9 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import com.example.util.simpletimetracker.data_sync.db.SyncIdMapDao
+import com.example.util.simpletimetracker.domain.record.repo.RecordRepo
+import com.example.util.simpletimetracker.domain.record.repo.RunningRecordRepo
+import com.example.util.simpletimetracker.domain.recordType.repo.RecordTypeRepo
 import com.example.util.simpletimetracker.data_sync.db.SyncStateDao
 import com.example.util.simpletimetracker.data_sync.keystore.SyncCredentialStore
 import com.example.util.simpletimetracker.data_sync.work.SyncScheduler
@@ -33,6 +36,15 @@ class SyncDebugReceiver : BroadcastReceiver() {
 
     @Inject
     lateinit var syncScheduler: SyncScheduler
+
+    @Inject
+    lateinit var recordRepo: RecordRepo
+
+    @Inject
+    lateinit var runningRecordRepo: RunningRecordRepo
+
+    @Inject
+    lateinit var recordTypeRepo: RecordTypeRepo
 
     @Inject
     lateinit var syncStateDao: SyncStateDao
@@ -89,6 +101,15 @@ class SyncDebugReceiver : BroadcastReceiver() {
                             Timber.w("DebugReceiver: set credentials called with missing extras")
                         }
                     }
+                    ACTION_WIPE_LOCAL -> {
+                        Timber.i("DebugReceiver: wiping local data for a clean first sync")
+                        recordRepo.clear()
+                        runningRecordRepo.clear()
+                        recordTypeRepo.clear()
+                        syncStateDao.clear()
+                        syncIdMapDao.clear()
+                        Timber.i("DebugReceiver: local data wiped")
+                    }
                     else -> Timber.w("DebugReceiver: unknown action %s", intent.action)
                 }
             } finally {
@@ -118,6 +139,7 @@ class SyncDebugReceiver : BroadcastReceiver() {
         const val ACTION_DUMP_STATE = "de.piusdischinger.timetracker.debug.DUMP_STATE"
         const val ACTION_SET_CREDENTIALS = "de.piusdischinger.timetracker.debug.SET_CREDENTIALS"
         const val ACTION_DNS_TEST = "de.piusdischinger.timetracker.debug.DNS_TEST"
+        const val ACTION_WIPE_LOCAL = "de.piusdischinger.timetracker.debug.WIPE_LOCAL"
         const val EXTRA_URL = "url"
         const val EXTRA_USERNAME = "username"
         const val EXTRA_TOKEN = "token"
