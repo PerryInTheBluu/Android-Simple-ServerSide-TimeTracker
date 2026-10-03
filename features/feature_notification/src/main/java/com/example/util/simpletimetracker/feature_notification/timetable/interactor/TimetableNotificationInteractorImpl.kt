@@ -6,6 +6,7 @@ import com.example.util.simpletimetracker.core.repo.ResourceRepo
 import com.example.util.simpletimetracker.domain.prefs.interactor.PrefsInteractor
 import com.example.util.simpletimetracker.domain.timetable.model.TimetableEvent
 import com.example.util.simpletimetracker.domain.timetable.model.TimetableTodo
+import com.example.util.simpletimetracker.domain.notifications.interactor.LocalDataChangedBus
 import com.example.util.simpletimetracker.domain.timetable.notification.TimetableNotificationInteractor
 import com.example.util.simpletimetracker.domain.timetable.repo.TimetableRepo
 import com.example.util.simpletimetracker.feature_notification.timetable.manager.TimetableNotificationManager
@@ -117,6 +118,7 @@ class TimetableNotificationInteractorImpl @Inject constructor(
             .firstOrNull { it.date == date && it.type == type }
         if (todo != null) {
             timetableRepo.setTodoDone(todo.id, true)
+            LocalDataChangedBus.publish()
         } else {
             timetableRepo.addTodo(
                 TimetableTodo(

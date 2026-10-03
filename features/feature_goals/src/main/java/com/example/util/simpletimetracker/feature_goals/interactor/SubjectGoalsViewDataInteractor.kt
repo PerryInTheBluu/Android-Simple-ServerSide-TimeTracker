@@ -12,6 +12,7 @@ import com.example.util.simpletimetracker.domain.record.interactor.RecordInterac
 import com.example.util.simpletimetracker.domain.recordType.interactor.RecordTypeInteractor
 import com.example.util.simpletimetracker.domain.timetable.model.SubjectGoal
 import com.example.util.simpletimetracker.domain.timetable.model.SubjectGoal.Companion.ECTS_HOURS_PER_POINT
+import com.example.util.simpletimetracker.domain.notifications.interactor.LocalDataChangedBus
 import com.example.util.simpletimetracker.domain.timetable.repo.SubjectGoalRepo
 import com.example.util.simpletimetracker.feature_base_adapter.subjectGoal.SubjectGoalViewData
 import java.util.Locale
@@ -87,6 +88,7 @@ class SubjectGoalsViewDataInteractor @Inject constructor(
                 ects = ects,
             ),
         )
+        LocalDataChangedBus.publish()
     }
 
     private suspend fun trackedSeconds(typeId: Long): Long {

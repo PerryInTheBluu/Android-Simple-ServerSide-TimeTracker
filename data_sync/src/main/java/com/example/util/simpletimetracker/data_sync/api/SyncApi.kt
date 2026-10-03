@@ -76,6 +76,12 @@ data class SyncPullResponse(
     // Categories and tags sync as opaque app owned payloads.
     val categories: List<Map<String, Any?>> = emptyList(),
     val tags: List<Map<String, Any?>> = emptyList(),
+    // Timetable entities and subject hour goals sync the same way.
+    val timetable_events: List<Map<String, Any?>> = emptyList(),
+    val timetable_overrides: List<Map<String, Any?>> = emptyList(),
+    val timetable_days: List<Map<String, Any?>> = emptyList(),
+    val timetable_todos: List<Map<String, Any?>> = emptyList(),
+    val subject_goals: List<Map<String, Any?>> = emptyList(),
     val server_time: String? = null,
 )
 

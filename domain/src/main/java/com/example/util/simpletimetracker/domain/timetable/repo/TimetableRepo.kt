@@ -22,6 +22,8 @@ interface TimetableRepo {
 
     suspend fun getOverrides(date: String): List<TimetableEventOverride>
 
+    suspend fun getAllOverrides(): List<TimetableEventOverride>
+
     suspend fun addOverride(override: TimetableEventOverride): Long
 
     suspend fun removeOverride(id: Long)

@@ -425,3 +425,96 @@ def test_sync_tag_push_and_unknown_tombstone():
     )
     assert result["applied"] == 1
     assert result["conflicts"] == []
+
+
+def test_timetable_push_and_pull():
+    ensure_seed_user()
+    client = TestClient(app)
+    token = login(client)
+
+    result = push_item(
+        client,
+        token,
+        "timetable_event",
+        {"id": "evt-0001", "name": "Thermo", "day_of_week": 1, "start_time": 495,
+         "end_time": 570, "room": "H11", "type": 0, "comment": "",
+         "updated_at": "2026-01-01T00:00:00+00:00"},
+    )
+    assert result["applied"] == 1
+    result = push_item(
+        client,
+        token,
+        "subject_goal",
+        {"id": "goal-0001", "activity_sync_id": "act-1", "target_seconds": 540000,
+         "ects": 5.0, "updated_at": "2026-01-01T00:00:00+00:00"},
+    )
+    assert result["applied"] == 1
+
+    pulled = client.get("/api/sync/pull", headers=auth_headers(token)).json()
+    event = next(e for e in pulled["timetable_events"] if e["id"] == "evt-0001")
+    assert event["name"] == "Thermo"
+    goal = next(g for g in pulled["subject_goals"] if g["id"] == "goal-0001")
+    assert goal["target_seconds"] == 540000
+    assert goal["deleted_at"] is None
+
+
+def test_tombstone_not_resurrected_by_stale_push():
+    ensure_seed_user()
+    client = TestClient(app)
+    token = login(client)
+
+    # Create, then delete a category.
+    push_item(
+        client,
+        token,
+        "category",
+        {"id": "cat-res-0001", "name": "Old", "updated_at": "2026-01-01T00:00:00+00:00"},
+    )
+    push_item(
+        client,
+        token,
+        "category",
+        {"id": "cat-res-0001", "updated_at": "2026-01-02T00:00:00+00:00",
+         "deleted_at": "2026-01-02T00:00:00+00:00"},
+    )
+
+    # A stale non tombstone push with a newer timestamp must not resurrect it.
+    result = push_item(
+        client,
+        token,
+        "category",
+        {"id": "cat-res-0001", "name": "Old", "updated_at": "2026-01-03T00:00:00+00:00"},
+    )
+    assert result["conflicts"][0]["resolution"] == "tombstone_kept"
+    pulled = client.get("/api/sync/pull", headers=auth_headers(token)).json()
+    cat = next(c for c in pulled["categories"] if c["id"] == "cat-res-0001")
+    assert cat["deleted_at"] is not None
+
+    # The same guard applies to timetable entities.
+    push_item(
+        client,
+        token,
+        "timetable_todo",
+        {"id": "todo-res-0001", "event_sync_id": "evt-1", "date": "2026-01-06",
+         "text": "Vorbereitung", "done": 0, "type": 0,
+         "updated_at": "2026-01-01T00:00:00+00:00"},
+    )
+    push_item(
+        client,
+        token,
+        "timetable_todo",
+        {"id": "todo-res-0001", "updated_at": "2026-01-02T00:00:00+00:00",
+         "deleted_at": "2026-01-02T00:00:00+00:00"},
+    )
+    result = push_item(
+        client,
+        token,
+        "timetable_todo",
+        {"id": "todo-res-0001", "event_sync_id": "evt-1", "date": "2026-01-06",
+         "text": "Vorbereitung", "done": 0, "type": 0,
+         "updated_at": "2026-01-03T00:00:00+00:00"},
+    )
+    assert result["conflicts"][0]["resolution"] == "tombstone_kept"
+    pulled = client.get("/api/sync/pull", headers=auth_headers(token)).json()
+    todo = next(t for t in pulled["timetable_todos"] if t["id"] == "todo-res-0001")
+    assert todo["deleted_at"] is not None

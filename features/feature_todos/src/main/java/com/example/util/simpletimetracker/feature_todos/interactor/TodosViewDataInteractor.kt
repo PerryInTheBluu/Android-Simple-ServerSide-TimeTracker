@@ -3,6 +3,7 @@ package com.example.util.simpletimetracker.feature_todos.interactor
 import com.example.util.simpletimetracker.core.R
 import com.example.util.simpletimetracker.core.repo.ResourceRepo
 import com.example.util.simpletimetracker.domain.timetable.model.TimetableTodo
+import com.example.util.simpletimetracker.domain.notifications.interactor.LocalDataChangedBus
 import com.example.util.simpletimetracker.domain.timetable.repo.TimetableRepo
 import com.example.util.simpletimetracker.feature_base_adapter.ViewHolderType
 import com.example.util.simpletimetracker.feature_base_adapter.hintBig.HintBigViewData
@@ -58,6 +59,7 @@ class TodosViewDataInteractor @Inject constructor(
 
     suspend fun setDone(todoId: Long, done: Boolean) {
         timetableRepo.setTodoDone(todoId, done)
+        LocalDataChangedBus.publish()
     }
 
     private fun typeLabel(type: TimetableTodo.Type): String {

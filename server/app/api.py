@@ -18,6 +18,7 @@ from app.db import (
     SyncCategory,
     SyncLog,
     SyncTag,
+    SyncTimetable,
     TimeEntry,
     User,
     new_id,
@@ -560,6 +561,29 @@ class SyncPushRequest(BaseModel):
     items: list[SyncPushItem]
 
 
+TIMETABLE_TYPES = (
+    "timetable_event",
+    "timetable_override",
+    "timetable_day",
+    "timetable_todo",
+    "subject_goal",
+)
+
+
+def is_resurrection(existing, incoming_deleted) -> bool:
+    """A non tombstone push can not bring a deleted entity back.
+
+    Deletions always win: a device that has not seen the tombstone yet
+    would otherwise resurrect the entity with its next stale push.
+    Re-adding an entity creates a new id, so nothing is lost.
+    """
+    return (
+        existing is not None
+        and existing.deleted_at is not None
+        and incoming_deleted is None
+    )
+
+
 @api_router.post("/sync/push")
 def sync_push(body: SyncPushRequest, db: Session = Depends(get_db), user_id: str = Depends(require_user)):
     applied = 0
@@ -599,6 +623,8 @@ def sync_push(body: SyncPushRequest, db: Session = Depends(get_db), user_id: str
                     ),
                 )
                 applied += 1
+            elif is_resurrection(existing, incoming_deleted):
+                conflicts.append({"entity_type": entity_type, "id": data["id"], "resolution": "tombstone_kept"})
             elif incoming_updated >= _aware(existing.updated_at):
                 existing.name = data.get("name", existing.name)
                 existing.color = data.get("color", existing.color)
@@ -655,6 +681,8 @@ def sync_push(body: SyncPushRequest, db: Session = Depends(get_db), user_id: str
                     applied += 1
                 else:
                     conflicts.append({"entity_type": entity_type, "id": data["id"], "resolution": "server_kept_newer"})
+            elif is_resurrection(existing, incoming_deleted):
+                conflicts.append({"entity_type": entity_type, "id": data["id"], "resolution": "tombstone_kept"})
             elif incoming_updated >= _aware(existing.updated_at):
                 existing.activity_id = data["activity_id"]
                 existing.parent_activity_ids = data.get("parent_activity_ids", "")
@@ -691,6 +719,49 @@ def sync_push(body: SyncPushRequest, db: Session = Depends(get_db), user_id: str
                     ),
                 )
                 applied += 1
+            elif incoming_deleted is not None:
+                if incoming_updated >= _aware(existing.updated_at):
+                    existing.deleted_at = incoming_deleted
+                    existing.updated_at = incoming_updated
+                    applied += 1
+                else:
+                    conflicts.append({"entity_type": entity_type, "id": data["id"], "resolution": "server_kept_newer"})
+            elif is_resurrection(existing, incoming_deleted):
+                conflicts.append({"entity_type": entity_type, "id": data["id"], "resolution": "tombstone_kept"})
+            elif incoming_updated >= _aware(existing.updated_at):
+                existing.data = json.dumps(data)
+                existing.deleted_at = None
+                existing.updated_at = incoming_updated
+                applied += 1
+            else:
+                conflicts.append({"entity_type": entity_type, "id": data["id"], "resolution": "server_kept_newer"})
+        elif entity_type in TIMETABLE_TYPES:
+            # Generic opaque payload storage: the app owns the data layout.
+            existing = (
+                db.query(SyncTimetable)
+                .filter(SyncTimetable.id == data["id"], SyncTimetable.entity_type == entity_type)
+                .first()
+            )
+            if existing is not None and existing.user_id != user_id:
+                conflicts.append({"entity_type": entity_type, "id": data["id"], "resolution": "rejected"})
+                continue
+            if existing is None:
+                if incoming_deleted is not None:
+                    # Tombstone for an unknown entity: nothing to delete.
+                    applied += 1
+                    continue
+                db.add(
+                    SyncTimetable(
+                        id=data["id"],
+                        user_id=user_id,
+                        entity_type=entity_type,
+                        data=json.dumps(data),
+                        updated_at=incoming_updated,
+                    ),
+                )
+                applied += 1
+            elif is_resurrection(existing, incoming_deleted):
+                conflicts.append({"entity_type": entity_type, "id": data["id"], "resolution": "tombstone_kept"})
             elif incoming_deleted is not None:
                 if incoming_updated >= _aware(existing.updated_at):
                     existing.deleted_at = incoming_deleted
@@ -741,7 +812,27 @@ def sync_pull(
             "deleted_at": iso(row.deleted_at),
         }
 
+    timetable_rows = (
+        db.query(SyncTimetable)
+        .filter(SyncTimetable.user_id == user_id, SyncTimetable.updated_at > since_dt)
+        .all()
+    )
+    timetable_out: dict[str, list[dict]] = {
+        kind: [] for kind in (
+            "timetable_events",
+            "timetable_overrides",
+            "timetable_days",
+            "timetable_todos",
+            "subject_goals",
+        )
+    }
+    for row in timetable_rows:
+        kind = row.entity_type + "s"
+        if kind in timetable_out:
+            timetable_out[kind].append(generic_out(row))
+
     return {
+        **{kind: items for kind, items in timetable_out.items()},
         "activities": [activity_out(a) for a in activities],
         "time_entries": [entry_out(e) for e in entries],
         "goals": [goal_out(g) for g in goals],

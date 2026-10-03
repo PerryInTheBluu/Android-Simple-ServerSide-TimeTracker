@@ -30,6 +30,9 @@ interface TimetableEventOverrideDao {
     @Query("SELECT * FROM timetableEventOverrides WHERE date = :date")
     suspend fun getByDate(date: String): List<TimetableEventOverrideDBO>
 
+    @Query("SELECT * FROM timetableEventOverrides")
+    suspend fun getAll(): List<TimetableEventOverrideDBO>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(item: TimetableEventOverrideDBO): Long
 

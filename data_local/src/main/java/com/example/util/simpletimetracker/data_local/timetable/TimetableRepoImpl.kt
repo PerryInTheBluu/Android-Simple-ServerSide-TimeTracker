@@ -69,6 +69,11 @@ class TimetableRepoImpl @Inject constructor(
         },
     )
 
+    override suspend fun getAllOverrides(): List<TimetableEventOverride> = mutex.withLockedCache(
+        logMessage = "getAllOverrides",
+        accessSource = { overrideDao.getAll().map(mapper::map) },
+    )
+
     override suspend fun getOverrides(date: String): List<TimetableEventOverride> = mutex.withLockedCache(
         logMessage = "getOverrides",
         accessSource = { overrideDao.getByDate(date).map(mapper::map) },

@@ -13,6 +13,13 @@ import com.example.util.simpletimetracker.data_sync.db.SyncStateDBO
 import com.example.util.simpletimetracker.data_sync.db.SyncStateDao
 import com.example.util.simpletimetracker.data_sync.keystore.SyncCredentialStore
 import com.example.util.simpletimetracker.domain.category.model.Category
+import com.example.util.simpletimetracker.domain.timetable.model.SubjectGoal
+import com.example.util.simpletimetracker.domain.timetable.model.TimetableDay
+import com.example.util.simpletimetracker.domain.timetable.model.TimetableEvent
+import com.example.util.simpletimetracker.domain.timetable.model.TimetableEventOverride
+import com.example.util.simpletimetracker.domain.timetable.model.TimetableTodo
+import com.example.util.simpletimetracker.domain.timetable.repo.SubjectGoalRepo
+import com.example.util.simpletimetracker.domain.timetable.repo.TimetableRepo
 import com.example.util.simpletimetracker.domain.category.repo.CategoryRepo
 import com.example.util.simpletimetracker.domain.category.repo.RecordTypeCategoryRepo
 import com.example.util.simpletimetracker.domain.color.model.AppColor
@@ -64,6 +71,12 @@ enum class SyncStatus {
  * entities that did not change locally since the last push, and unknown
  * entities (created on the server or on another device) are imported.
  *
+ * Timetable entities (events, per date overrides, free days, todos) and
+ * subject hour goals sync as opaque app owned payloads, like categories
+ * and tags; referenced local ids (event, activity) travel as sync ids
+ * and are resolved on import. The server keeps deletions final: a
+ * tombstone is never resurrected by a stale push without a delete.
+ *
  * Running timers sync as time entries with a null end time: a timer started
  * on one device appears as running on every device, and stopping it on any
  * device removes the running entry (the stopping device pushes the finished
@@ -86,6 +99,8 @@ class SyncEngine @Inject constructor(
     private val categoryRepo: CategoryRepo,
     private val recordTypeCategoryRepo: RecordTypeCategoryRepo,
     private val recordTagRepo: RecordTagRepo,
+    private val timetableRepo: TimetableRepo,
+    private val subjectGoalRepo: SubjectGoalRepo,
     private val addRunningRecordMediator: AddRunningRecordMediator,
     private val removeRunningRecordMediator: RemoveRunningRecordMediator,
     private val syncStateDao: SyncStateDao,
@@ -294,7 +309,80 @@ class SyncEngine @Inject constructor(
                 ),
             )
         }
-        return categoryCandidates + tagCandidates + typeCandidates + recordCandidates + runningCandidates
+        val eventCandidates = timetableRepo.getAllEvents().map { event ->
+            val syncId = mappings.syncIdOf(ENTITY_TIMETABLE_EVENT, event.id)
+            SyncDeltaCalculator.Candidate(
+                entityType = ENTITY_TIMETABLE_EVENT,
+                entityId = syncId,
+                payload = timetableEventPayloadContent(
+                    syncId = syncId,
+                    event = event,
+                    activitySyncId = event.activityTypeId
+                        ?.let { mappings.existingSyncId(ENTITY_ACTIVITY, it) },
+                ),
+            )
+        }
+        val overrideCandidates = timetableRepo.getAllOverrides().mapNotNull { override ->
+            val eventSyncId = mappings.existingSyncId(ENTITY_TIMETABLE_EVENT, override.eventId)
+                ?: return@mapNotNull null.also {
+                    Timber.w("Timetable override references unknown event %s", override.eventId)
+                }
+            val syncId = mappings.syncIdOf(ENTITY_TIMETABLE_OVERRIDE, override.id)
+            SyncDeltaCalculator.Candidate(
+                entityType = ENTITY_TIMETABLE_OVERRIDE,
+                entityId = syncId,
+                payload = timetableOverridePayloadContent(
+                    syncId = syncId,
+                    override = override,
+                    eventSyncId = eventSyncId,
+                ),
+            )
+        }
+        val dayCandidates = timetableRepo.getDays().map { day ->
+            val syncId = mappings.syncIdOf(ENTITY_TIMETABLE_DAY, day.id)
+            SyncDeltaCalculator.Candidate(
+                entityType = ENTITY_TIMETABLE_DAY,
+                entityId = syncId,
+                payload = timetableDayPayloadContent(
+                    syncId = syncId,
+                    day = day,
+                ),
+            )
+        }
+        val todoCandidates = timetableRepo.getAllTodos().mapNotNull { todo ->
+            val eventSyncId = mappings.existingSyncId(ENTITY_TIMETABLE_EVENT, todo.eventId)
+                ?: return@mapNotNull null.also {
+                    Timber.w("Timetable todo references unknown event %s", todo.eventId)
+                }
+            val syncId = mappings.syncIdOf(ENTITY_TIMETABLE_TODO, todo.id)
+            SyncDeltaCalculator.Candidate(
+                entityType = ENTITY_TIMETABLE_TODO,
+                entityId = syncId,
+                payload = timetableTodoPayloadContent(
+                    syncId = syncId,
+                    todo = todo,
+                    eventSyncId = eventSyncId,
+                ),
+            )
+        }
+        val subjectGoalCandidates = subjectGoalRepo.getAll().mapNotNull { goal ->
+            val activitySyncId = mappings.existingSyncId(ENTITY_ACTIVITY, goal.activityTypeId)
+                ?: return@mapNotNull null.also {
+                    Timber.w("Subject goal references unknown activity %s", goal.activityTypeId)
+                }
+            val syncId = mappings.syncIdOf(ENTITY_SUBJECT_GOAL, goal.activityTypeId)
+            SyncDeltaCalculator.Candidate(
+                entityType = ENTITY_SUBJECT_GOAL,
+                entityId = syncId,
+                payload = subjectGoalPayloadContent(
+                    syncId = syncId,
+                    goal = goal,
+                    activitySyncId = activitySyncId,
+                ),
+            )
+        }
+        return categoryCandidates + tagCandidates + typeCandidates + recordCandidates + runningCandidates +
+            eventCandidates + overrideCandidates + dayCandidates + todoCandidates + subjectGoalCandidates
     }
 
     private suspend fun pullServerChanges() {
@@ -307,6 +395,13 @@ class SyncEngine @Inject constructor(
         // Categories and tags first: activities and entries reference them.
         pulled.categories.forEach { data -> applyServerCategory(data, mappings) }
         pulled.tags.forEach { data -> applyServerTag(data, mappings) }
+        // Timetable entities in dependency order: events before their
+        // overrides and todos, activities before subject goals.
+        pulled.timetable_events.forEach { data -> applyServerTimetableEvent(data, mappings) }
+        pulled.timetable_days.forEach { data -> applyServerTimetableDay(data, mappings) }
+        pulled.timetable_overrides.forEach { data -> applyServerTimetableOverride(data, mappings) }
+        pulled.timetable_todos.forEach { data -> applyServerTimetableTodo(data, mappings) }
+        pulled.subject_goals.forEach { data -> applyServerSubjectGoal(data, mappings) }
         pulled.activities.forEach { activity -> applyServerActivity(activity, mirror, mappings) }
         pulled.time_entries.forEach { entry -> applyServerEntry(entry, mirror, mappings) }
         credentialStore.lastSyncMarker = pulled.server_time ?: nowIso()
@@ -349,6 +444,219 @@ class SyncEngine @Inject constructor(
         )
         mappings.remember(ENTITY_CATEGORY, newLocalId, syncId)
         insertMirror(ENTITY_CATEGORY, syncId, categoryPayloadContent(syncId, name, color, colorId, note))
+    }
+
+    private suspend fun applyServerTimetableEvent(
+        data: Map<String, Any?>,
+        mappings: IdMappings,
+    ) {
+        val syncId = data["id"] as? String ?: return
+        val localId = mappings.localIdOf(ENTITY_TIMETABLE_EVENT, syncId)
+
+        if (data["deleted_at"] != null) {
+            if (localId != null) {
+                timetableRepo.removeEvent(localId)
+                mappings.forget(ENTITY_TIMETABLE_EVENT, syncId)
+                syncStateDao.remove(ENTITY_TIMETABLE_EVENT, syncId)
+            }
+            return
+        }
+
+        // Known event: the repository has no update, so the local
+        // version wins and is re-pushed on the next sync.
+        if (localId != null) return
+
+        val name = data["name"] as? String ?: return
+        val activitySyncId = data["activity_sync_id"] as? String
+        val typeOrdinal = (data["type"] as? Double)?.toInt() ?: 0
+        val type = TimetableEvent.Type.entries.getOrNull(typeOrdinal) ?: TimetableEvent.Type.LECTURE
+        Timber.i("Importing timetable event %s from sync", syncId)
+        val newLocalId = timetableRepo.addEvent(
+            TimetableEvent(
+                name = name,
+                dayOfWeek = (data["day_of_week"] as? Double)?.toInt() ?: 1,
+                startTime = (data["start_time"] as? Double)?.toInt() ?: 0,
+                endTime = (data["end_time"] as? Double)?.toInt() ?: 0,
+                room = data["room"] as? String ?: "",
+                type = type,
+                comment = data["comment"] as? String ?: "",
+                activityTypeId = activitySyncId?.let { mappings.localIdOf(ENTITY_ACTIVITY, it) },
+            ),
+        )
+        mappings.remember(ENTITY_TIMETABLE_EVENT, newLocalId, syncId)
+        insertMirror(ENTITY_TIMETABLE_EVENT, syncId, syncPayloadOf(data))
+    }
+
+    private suspend fun applyServerTimetableDay(
+        data: Map<String, Any?>,
+        mappings: IdMappings,
+    ) {
+        val syncId = data["id"] as? String ?: return
+        val localId = mappings.localIdOf(ENTITY_TIMETABLE_DAY, syncId)
+
+        if (data["deleted_at"] != null) {
+            if (localId != null) {
+                timetableRepo.removeDay(localId)
+                mappings.forget(ENTITY_TIMETABLE_DAY, syncId)
+                syncStateDao.remove(ENTITY_TIMETABLE_DAY, syncId)
+            }
+            return
+        }
+
+        if (localId != null) return
+
+        val date = data["date"] as? String ?: return
+        Timber.i("Importing timetable day %s from sync", syncId)
+        val newLocalId = timetableRepo.addDay(
+            TimetableDay(
+                date = date,
+                freeDay = data["free_day"] as? Boolean ?: false,
+                note = data["note"] as? String ?: "",
+            ),
+        )
+        mappings.remember(ENTITY_TIMETABLE_DAY, newLocalId, syncId)
+        insertMirror(ENTITY_TIMETABLE_DAY, syncId, syncPayloadOf(data))
+    }
+
+    private suspend fun applyServerTimetableOverride(
+        data: Map<String, Any?>,
+        mappings: IdMappings,
+    ) {
+        val syncId = data["id"] as? String ?: return
+        val localId = mappings.localIdOf(ENTITY_TIMETABLE_OVERRIDE, syncId)
+
+        if (data["deleted_at"] != null) {
+            if (localId != null) {
+                timetableRepo.removeOverride(localId)
+                mappings.forget(ENTITY_TIMETABLE_OVERRIDE, syncId)
+                syncStateDao.remove(ENTITY_TIMETABLE_OVERRIDE, syncId)
+            }
+            return
+        }
+
+        if (localId != null) return
+
+        val eventSyncId = data["event_sync_id"] as? String ?: return
+        val eventLocalId = mappings.localIdOf(ENTITY_TIMETABLE_EVENT, eventSyncId) ?: return
+        val date = data["date"] as? String ?: return
+        Timber.i("Importing timetable override %s from sync", syncId)
+        val newLocalId = timetableRepo.addOverride(
+            TimetableEventOverride(
+                date = date,
+                eventId = eventLocalId,
+                room = data["room"] as? String ?: "",
+                startTime = (data["start_time"] as? Double)?.toInt() ?: 0,
+                endTime = (data["end_time"] as? Double)?.toInt() ?: 0,
+                cancelled = data["cancelled"] as? Boolean ?: false,
+                note = data["note"] as? String ?: "",
+            ),
+        )
+        mappings.remember(ENTITY_TIMETABLE_OVERRIDE, newLocalId, syncId)
+        insertMirror(ENTITY_TIMETABLE_OVERRIDE, syncId, syncPayloadOf(data))
+    }
+
+    private suspend fun applyServerTimetableTodo(
+        data: Map<String, Any?>,
+        mappings: IdMappings,
+    ) {
+        val syncId = data["id"] as? String ?: return
+        val localId = mappings.localIdOf(ENTITY_TIMETABLE_TODO, syncId)
+
+        if (data["deleted_at"] != null) {
+            if (localId != null) {
+                timetableRepo.removeTodo(localId)
+                mappings.forget(ENTITY_TIMETABLE_TODO, syncId)
+                syncStateDao.remove(ENTITY_TIMETABLE_TODO, syncId)
+            }
+            return
+        }
+
+        val done = data["done"] as? Boolean ?: false
+
+        if (localId != null) {
+            // Only the done flag changes after creation; apply it when
+            // the local todo did not change since the last push.
+            val existing = timetableRepo.getAllTodos().firstOrNull { it.id == localId }
+            if (existing != null && existing.done != done) {
+                // Apply the server state when the local todo did not
+                // change since the last push.
+                val localMirrorHash = syncStateDao.getAll()
+                    .firstOrNull { it.entityType == ENTITY_TIMETABLE_TODO && it.entityId == syncId }
+                    ?.contentHash
+                if (localMirrorHash == deltaCalculator.contentHash(syncPayloadOf(data))) {
+                    timetableRepo.setTodoDone(localId, done)
+                }
+            }
+            return
+        }
+
+        val eventSyncId = data["event_sync_id"] as? String ?: return
+        val eventLocalId = mappings.localIdOf(ENTITY_TIMETABLE_EVENT, eventSyncId) ?: return
+        Timber.i("Importing timetable todo %s from sync", syncId)
+        val typeOrdinal = (data["type"] as? Double)?.toInt() ?: 0
+        val type = TimetableTodo.Type.entries.getOrNull(typeOrdinal) ?: TimetableTodo.Type.GENERAL
+        val newLocalId = timetableRepo.addTodo(
+            TimetableTodo(
+                eventId = eventLocalId,
+                date = data["date"] as? String,
+                text = data["text"] as? String ?: "",
+                done = done,
+                type = type,
+            ),
+        )
+        mappings.remember(ENTITY_TIMETABLE_TODO, newLocalId, syncId)
+        insertMirror(ENTITY_TIMETABLE_TODO, syncId, syncPayloadOf(data))
+    }
+
+    private suspend fun applyServerSubjectGoal(
+        data: Map<String, Any?>,
+        mappings: IdMappings,
+    ) {
+        val syncId = data["id"] as? String ?: return
+        val activitySyncId = data["activity_sync_id"] as? String ?: return
+        val activityLocalId = mappings.localIdOf(ENTITY_ACTIVITY, activitySyncId) ?: return
+        val localGoal = subjectGoalRepo.get(activityLocalId)
+
+        if (data["deleted_at"] != null) {
+            if (localGoal != null) {
+                subjectGoalRepo.remove(activityLocalId)
+                mappings.forget(ENTITY_SUBJECT_GOAL, syncId)
+                syncStateDao.remove(ENTITY_SUBJECT_GOAL, syncId)
+            }
+            return
+        }
+
+        val targetSeconds = (data["target_seconds"] as? Double)?.toLong() ?: 0L
+        val ects = (data["ects"] as? Double)
+
+        // The local target wins when it changed since the last push;
+        // otherwise the server state is applied.
+        if (localGoal != null) {
+            val localMirrorHash = syncStateDao.getAll()
+                .firstOrNull { it.entityType == ENTITY_SUBJECT_GOAL && it.entityId == syncId }
+                ?.contentHash
+            if (localMirrorHash == deltaCalculator.contentHash(syncPayloadOf(data))) {
+                subjectGoalRepo.set(
+                    SubjectGoal(
+                        activityTypeId = activityLocalId,
+                        targetSeconds = targetSeconds,
+                        ects = ects,
+                    ),
+                )
+            }
+            return
+        }
+
+        Timber.i("Importing subject goal %s from sync", syncId)
+        subjectGoalRepo.set(
+            SubjectGoal(
+                activityTypeId = activityLocalId,
+                targetSeconds = targetSeconds,
+                ects = ects,
+            ),
+        )
+        mappings.remember(ENTITY_SUBJECT_GOAL, activityLocalId, syncId)
+        insertMirror(ENTITY_SUBJECT_GOAL, syncId, syncPayloadOf(data))
     }
 
     private suspend fun applyServerTag(
@@ -411,6 +719,11 @@ class SyncEngine @Inject constructor(
             ),
         )
     }
+
+    // The server adds updated_at and deleted_at; the local payload hash
+    // never sees them.
+    private fun syncPayloadOf(data: Map<String, Any?>): Map<String, Any?> =
+        data.filterKeys { it != "updated_at" && it != "deleted_at" }
 
     private suspend fun insertMirror(
         entityType: String,
@@ -830,6 +1143,71 @@ class SyncEngine @Inject constructor(
         "note" to note,
     )
 
+    private fun timetableEventPayloadContent(
+        syncId: String,
+        event: TimetableEvent,
+        activitySyncId: String?,
+    ): Map<String, Any?> = mapOf(
+        "id" to syncId,
+        "name" to event.name,
+        "day_of_week" to event.dayOfWeek.toDouble(),
+        "start_time" to event.startTime.toDouble(),
+        "end_time" to event.endTime.toDouble(),
+        "room" to event.room,
+        "type" to event.type.ordinal.toDouble(),
+        "comment" to event.comment,
+        "activity_sync_id" to activitySyncId,
+    )
+
+    private fun timetableOverridePayloadContent(
+        syncId: String,
+        override: TimetableEventOverride,
+        eventSyncId: String,
+    ): Map<String, Any?> = mapOf(
+        "id" to syncId,
+        "date" to override.date,
+        "event_sync_id" to eventSyncId,
+        "room" to override.room,
+        "start_time" to override.startTime.toDouble(),
+        "end_time" to override.endTime.toDouble(),
+        "cancelled" to override.cancelled,
+        "note" to override.note,
+    )
+
+    private fun timetableDayPayloadContent(
+        syncId: String,
+        day: TimetableDay,
+    ): Map<String, Any?> = mapOf(
+        "id" to syncId,
+        "date" to day.date,
+        "free_day" to day.freeDay,
+        "note" to day.note,
+    )
+
+    private fun timetableTodoPayloadContent(
+        syncId: String,
+        todo: TimetableTodo,
+        eventSyncId: String,
+    ): Map<String, Any?> = mapOf(
+        "id" to syncId,
+        "event_sync_id" to eventSyncId,
+        "date" to todo.date,
+        "text" to todo.text,
+        "done" to todo.done,
+        "type" to todo.type.ordinal.toDouble(),
+    )
+
+    private fun subjectGoalPayloadContent(
+        syncId: String,
+        goal: SubjectGoal,
+        activitySyncId: String,
+    ): Map<String, Any?> = mapOf(
+        "id" to syncId,
+        "activity_sync_id" to activitySyncId,
+        "target_seconds" to goal.targetSeconds.toDouble(),
+        "ects" to goal.ects,
+    )
+
     private fun tagPayloadContent(
         syncId: String,
         name: String,
@@ -978,6 +1356,11 @@ class SyncEngine @Inject constructor(
         private const val ENTITY_RUNNING_RECORD = "running_record"
         private const val ENTITY_CATEGORY = "category"
         private const val ENTITY_RECORD_TAG = "record_tag"
+        private const val ENTITY_TIMETABLE_EVENT = "timetable_event"
+        private const val ENTITY_TIMETABLE_OVERRIDE = "timetable_override"
+        private const val ENTITY_TIMETABLE_DAY = "timetable_day"
+        private const val ENTITY_TIMETABLE_TODO = "timetable_todo"
+        private const val ENTITY_SUBJECT_GOAL = "subject_goal"
         private const val RESOLUTION_LOCAL_KEPT_NAME = "local_kept_name"
         private const val RESOLUTION_LOCAL_KEPT_START = "local_kept_start_time"
 

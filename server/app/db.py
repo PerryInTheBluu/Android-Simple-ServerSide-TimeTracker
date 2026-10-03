@@ -166,6 +166,25 @@ class SyncTag(Base):
     deleted_at = Column(DateTime(timezone=True), nullable=True)
 
 
+class SyncTimetable(Base):
+    """Generic sync storage for timetable entities; data holds the app owned json payload."""
+
+    __tablename__ = "sync_timetable"
+
+    id = Column(String, primary_key=True)
+    user_id = Column(String, nullable=False, index=True)
+    entity_type = Column(String, nullable=False, index=True)
+    data = Column(Text, nullable=False)
+    created_at = Column(DateTime(timezone=True), default=utcnow, nullable=False)
+    updated_at = Column(DateTime(timezone=True), default=utcnow, onupdate=utcnow, nullable=False)
+    deleted_at = Column(DateTime(timezone=True), nullable=True)
+
+    __table_args__ = (
+        Index("ix_sync_timetable_updated_at", "updated_at"),
+        Index("ix_sync_timetable_type_id", "entity_type", "id"),
+    )
+
+
 class SyncLog(Base):
     __tablename__ = "sync_log"
 
