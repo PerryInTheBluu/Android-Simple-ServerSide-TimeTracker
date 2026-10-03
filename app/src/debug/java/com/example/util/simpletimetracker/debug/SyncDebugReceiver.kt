@@ -14,6 +14,10 @@ import com.example.util.simpletimetracker.domain.category.repo.RecordTypeCategor
 import com.example.util.simpletimetracker.domain.category.model.Category
 import com.example.util.simpletimetracker.domain.color.model.AppColor
 import com.example.util.simpletimetracker.domain.recordType.model.RecordType
+import com.example.util.simpletimetracker.domain.record.model.Record
+import com.example.util.simpletimetracker.domain.timetable.model.TimetableDay
+import com.example.util.simpletimetracker.domain.timetable.model.TimetableEventOverride
+import java.util.Calendar
 import com.example.util.simpletimetracker.domain.recordType.repo.RecordTypeRepo
 import com.example.util.simpletimetracker.domain.timetable.model.TimetableEvent
 import com.example.util.simpletimetracker.domain.timetable.model.TimetableTodo
@@ -139,6 +143,7 @@ class SyncDebugReceiver : BroadcastReceiver() {
                     ACTION_STOP_ALL_TIMERS -> stopAllTimers()
                     ACTION_DUMP_RUNNING -> dumpRunning()
                     ACTION_SEED_TIMETABLE -> seedTimetable()
+                    ACTION_WIPE_ALL -> wipeAll()
                     ACTION_SET_PREF_LONG -> {
                         val key = intent.getStringExtra(EXTRA_KEY).orEmpty()
                         val value = intent.getLongExtra(EXTRA_VALUE, 0L)
@@ -166,26 +171,57 @@ class SyncDebugReceiver : BroadcastReceiver() {
         }
     }
 
+    private suspend fun wipeAll() {
+        recordRepo.clear()
+        runningRecordRepo.clear()
+        recordTypeRepo.clear()
+        categoryRepo.clear()
+        recordTypeCategoryRepo.clear()
+        timetableRepo.clearEvents()
+        syncIdMapDao.clear()
+        syncStateDao.clear()
+        Timber.i("DebugReceiver: all local data wiped")
+    }
+
+    /**
+     * Timestamp helper for the fictional test dataset.
+     */
+    private fun timestamp(year: Int, month: Int, day: Int, hour: Int, minute: Int): Long {
+        val calendar = Calendar.getInstance()
+        calendar.clear()
+        calendar.set(year, month - 1, day, hour, minute, 0)
+        return calendar.timeInMillis
+    }
+
     private suspend fun seedTimetable() {
         val uniCategory = categoryRepo.get("Uni").firstOrNull()
         val uniCategoryId = uniCategory?.id
             ?: categoryRepo.add(Category(id = 0, name = "Uni", color = AppColor(colorId = 10, colorInt = ""), note = ""))
 
-        // Uniform test activities in the green palette range, one tile per
-        // subject, all in the Uni category.
+        // One tile per subject in the green palette range, with a text
+        // icon (no emoji) instead of the unknown icon placeholder.
         val seedActivities = listOf(
-            "Thermodynamik" to 9, // teal
-            "Mathe" to 10, // green
-            "Physik" to 11, // light green
+            Triple("Thermodynamik", "Thermo", 9), // teal
+            Triple("Analysis", "Analysis", 10), // green
+            Triple("Java", "Java", 11), // light green
+            Triple("TheoInfo", "TheoInfo", 12), // lime
+        )
+        // Everyday activities outside the Uni category.
+        val everydayActivities = listOf(
+            Triple("Pause", "Pause", 4),
+            Triple("Essen", "Essen", 5),
+            Triple("Schlafen", "Schlafen", 6),
+            Triple("Sport", "Sport", 15),
+            Triple("Lesen", "Lesen", 12),
         )
         val activityIds = mutableMapOf<String, Long>()
-        seedActivities.forEach { (name, colorId) ->
+        (seedActivities).forEach { (name, iconText, colorId) ->
             val existing = recordTypeRepo.get(name).firstOrNull()
             val id = existing?.id ?: recordTypeRepo.add(
                 RecordType(
                     id = 0,
                     name = name,
-                    icon = "",
+                    icon = iconText,
                     color = AppColor(colorId = colorId, colorInt = ""),
                     defaultDuration = 0,
                     note = "",
@@ -196,27 +232,50 @@ class SyncDebugReceiver : BroadcastReceiver() {
                 recordTypeCategoryRepo.addTypes(uniCategoryId, listOf(id))
             }
         }
+        everydayActivities.forEach { (name, iconText, colorId) ->
+            val existing = recordTypeRepo.get(name).firstOrNull()
+            if (existing == null) {
+                recordTypeRepo.add(
+                    RecordType(
+                        id = 0,
+                        name = name,
+                        icon = iconText,
+                        color = AppColor(colorId = colorId, colorInt = ""),
+                        defaultDuration = 0,
+                        note = "",
+                    ),
+                )
+            }
+        }
 
         timetableRepo.clearEvents()
 
         // Fictional timetable per subject; the event type distinguishes
         // lecture, exercise and tutorium slots of the same subject.
         val events = listOf(
+            // Monday
             TimetableEvent(name = "Thermo", dayOfWeek = 1, startTime = 8 * 60 + 15, endTime = 9 * 60 + 45, room = "HS 1", type = TimetableEvent.Type.LECTURE, comment = "", activityTypeId = activityIds["Thermodynamik"]),
-            TimetableEvent(name = "Mathe", dayOfWeek = 1, startTime = 10 * 60 + 15, endTime = 11 * 60 + 45, room = "HS 2", type = TimetableEvent.Type.LECTURE, comment = "Serie 3 abgeben", activityTypeId = activityIds["Mathe"]),
+            TimetableEvent(name = "Analysis", dayOfWeek = 1, startTime = 10 * 60 + 15, endTime = 11 * 60 + 45, room = "HS 2", type = TimetableEvent.Type.LECTURE, comment = "", activityTypeId = activityIds["Analysis"]),
+            TimetableEvent(name = "Java", dayOfWeek = 1, startTime = 14 * 60 + 15, endTime = 15 * 60 + 45, room = "HS 3", type = TimetableEvent.Type.LECTURE, comment = "Laptop mitbringen", activityTypeId = activityIds["Java"]),
+            // Tuesday
+            TimetableEvent(name = "Java", dayOfWeek = 2, startTime = 8 * 60 + 15, endTime = 9 * 60 + 45, room = "HS 3", type = TimetableEvent.Type.LECTURE, comment = "", activityTypeId = activityIds["Java"]),
             TimetableEvent(name = "Thermo", dayOfWeek = 2, startTime = 12 * 60, endTime = 13 * 60 + 30, room = "R 2.104", type = TimetableEvent.Type.EXERCISE, comment = "", activityTypeId = activityIds["Thermodynamik"]),
-            TimetableEvent(name = "Mathe", dayOfWeek = 2, startTime = 14 * 60 + 15, endTime = 15 * 60 + 45, room = "HS 2", type = TimetableEvent.Type.LECTURE, comment = "", activityTypeId = activityIds["Mathe"]),
-            TimetableEvent(name = "Mathe", dayOfWeek = 3, startTime = 8 * 60 + 15, endTime = 9 * 60 + 45, room = "R 1.012", type = TimetableEvent.Type.EXERCISE, comment = "Rechner algebra aktiv", activityTypeId = activityIds["Mathe"]),
+            // Wednesday
             TimetableEvent(name = "Thermo", dayOfWeek = 3, startTime = 10 * 60 + 15, endTime = 11 * 60 + 45, room = "HS 1", type = TimetableEvent.Type.LECTURE, comment = "", activityTypeId = activityIds["Thermodynamik"]),
-            TimetableEvent(name = "Physik", dayOfWeek = 4, startTime = 16 * 60, endTime = 17 * 60 + 30, room = "R 0.201", type = TimetableEvent.Type.TUTORIUM, comment = "", activityTypeId = activityIds["Physik"]),
-            TimetableEvent(name = "Mathe", dayOfWeek = 5, startTime = 10 * 60 + 15, endTime = 11 * 60 + 45, room = "R 1.012", type = TimetableEvent.Type.EXERCISE, comment = "", activityTypeId = activityIds["Mathe"]),
-            // Saturday slots for testing today: one in the past, one upcoming.
-            TimetableEvent(name = "Thermo", dayOfWeek = 6, startTime = 8 * 60 + 15, endTime = 9 * 60 + 45, room = "HS 1", type = TimetableEvent.Type.LECTURE, comment = "", activityTypeId = activityIds["Thermodynamik"]),
-            TimetableEvent(name = "Mathe", dayOfWeek = 6, startTime = 22 * 60, endTime = 23 * 60 + 30, room = "R 1.012", type = TimetableEvent.Type.EXERCISE, comment = "Testslot", activityTypeId = activityIds["Mathe"]),
+            TimetableEvent(name = "TheoInfo", dayOfWeek = 3, startTime = 14 * 60 + 15, endTime = 15 * 60 + 45, room = "HS 4", type = TimetableEvent.Type.LECTURE, comment = "", activityTypeId = activityIds["TheoInfo"]),
+            // Thursday
+            TimetableEvent(name = "Analysis", dayOfWeek = 4, startTime = 10 * 60 + 15, endTime = 11 * 60 + 45, room = "HS 2", type = TimetableEvent.Type.LECTURE, comment = "", activityTypeId = activityIds["Analysis"]),
+            TimetableEvent(name = "Java", dayOfWeek = 4, startTime = 12 * 60, endTime = 13 * 60 + 30, room = "R 0.014", type = TimetableEvent.Type.EXERCISE, comment = "", activityTypeId = activityIds["Java"]),
+            TimetableEvent(name = "TheoInfo", dayOfWeek = 4, startTime = 16 * 60, endTime = 17 * 60 + 30, room = "R 0.201", type = TimetableEvent.Type.TUTORIUM, comment = "", activityTypeId = activityIds["TheoInfo"]),
+            // Friday
+            TimetableEvent(name = "Analysis", dayOfWeek = 5, startTime = 10 * 60 + 15, endTime = 11 * 60 + 45, room = "R 1.012", type = TimetableEvent.Type.EXERCISE, comment = "", activityTypeId = activityIds["Analysis"]),
+            TimetableEvent(name = "TheoInfo", dayOfWeek = 5, startTime = 12 * 60, endTime = 13 * 60 + 30, room = "R 0.207", type = TimetableEvent.Type.EXERCISE, comment = "", activityTypeId = activityIds["TheoInfo"]),
         )
 
+        val eventIds = mutableMapOf<TimetableEvent, Long>()
         events.forEach { event ->
             val id = timetableRepo.addEvent(event)
+            eventIds[event] = id
             if (event.type == TimetableEvent.Type.LECTURE) {
                 timetableRepo.addTodo(
                     TimetableTodo(eventId = id, date = null, text = "Vorbereitung: Skript lesen", done = false, type = TimetableTodo.Type.PREPARATION),
@@ -230,7 +289,56 @@ class SyncDebugReceiver : BroadcastReceiver() {
                 )
             }
         }
-        Timber.i("DebugReceiver: seeded %d timetable events with %d activities", events.size, seedActivities.size)
+        // Vorlesungsfreier Tag: naechster Mittwoch (Dies Academicus).
+        timetableRepo.addDay(
+            TimetableDay(id = 0, date = "2026-10-07", freeDay = true, note = "Dies Academicus"),
+        )
+
+        // Raumaenderung: Montag Thermo VL in HS 2 statt HS 1.
+        val mondayThermoId = eventIds.filterKeys { it.dayOfWeek == 1 && it.name == "Thermo" }.values.first()
+        timetableRepo.addOverride(
+            TimetableEventOverride(
+                id = 0,
+                date = "2026-10-05",
+                eventId = mondayThermoId,
+                room = "HS 2",
+                startTime = 8 * 60 + 15,
+                endTime = 9 * 60 + 45,
+                cancelled = false,
+                note = "Raumaenderung",
+            ),
+        )
+
+        // Attendance records of the past week for verification:
+        // attended slots get a record, missed slots stay without one.
+        val attendanceRecords = listOf(
+            // Monday 2026-09-28: both lectures attended.
+            Triple("Thermodynamik", timestamp(2026, 9, 28, 8, 20), timestamp(2026, 9, 28, 9, 40)),
+            Triple("Analysis", timestamp(2026, 9, 28, 10, 20), timestamp(2026, 9, 28, 11, 40)),
+            // Tuesday 2026-09-29: Thermo exercise missed, Java lecture attended.
+            Triple("Java", timestamp(2026, 9, 29, 8, 20), timestamp(2026, 9, 29, 9, 40)),
+            // Wednesday 2026-09-30: both attended.
+            Triple("Thermodynamik", timestamp(2026, 9, 30, 10, 20), timestamp(2026, 9, 30, 11, 40)),
+            Triple("TheoInfo", timestamp(2026, 9, 30, 14, 20), timestamp(2026, 9, 30, 15, 40)),
+            // Thursday 2026-10-01: Analysis attended, Java exercise attended.
+            Triple("Analysis", timestamp(2026, 10, 1, 10, 20), timestamp(2026, 10, 1, 11, 40)),
+            Triple("Java", timestamp(2026, 10, 1, 12, 5), timestamp(2026, 10, 1, 13, 25)),
+            Triple("Lesen", timestamp(2026, 10, 1, 20, 0), timestamp(2026, 10, 1, 21, 0)),
+            // Friday 2026-10-02: Analysis exercise missed, TheoInfo exercise attended.
+            Triple("TheoInfo", timestamp(2026, 10, 2, 12, 5), timestamp(2026, 10, 2, 13, 25)),
+            Triple("Sport", timestamp(2026, 10, 2, 17, 0), timestamp(2026, 10, 2, 18, 30)),
+        )
+        attendanceRecords.forEach { (name, start, end) ->
+            val typeId = recordTypeRepo.get(name).firstOrNull()?.id ?: return@forEach
+            recordRepo.add(Record(id = 0, typeId = typeId, timeStarted = start, timeEnded = end, comment = "", tags = emptyList()))
+        }
+
+        Timber.i(
+            "DebugReceiver: seeded %d events, %d activities, %d attendance records",
+            events.size,
+            seedActivities.size,
+            attendanceRecords.size,
+        )
     }
 
     private suspend fun startTimer(name: String) {
@@ -308,6 +416,7 @@ class SyncDebugReceiver : BroadcastReceiver() {
         const val ACTION_STOP_ALL_TIMERS = "de.piusdischinger.timetracker.debug.STOP_ALL_TIMERS"
         const val ACTION_DUMP_RUNNING = "de.piusdischinger.timetracker.debug.DUMP_RUNNING"
         const val ACTION_SEED_TIMETABLE = "de.piusdischinger.timetracker.debug.SEED_TIMETABLE"
+        const val ACTION_WIPE_ALL = "de.piusdischinger.timetracker.debug.WIPE_ALL"
         const val ACTION_SET_PREF_BOOL = "de.piusdischinger.timetracker.debug.SET_PREF_BOOL"
         const val ACTION_SET_PREF_LONG = "de.piusdischinger.timetracker.debug.SET_PREF_LONG"
         const val EXTRA_KEY = "key"

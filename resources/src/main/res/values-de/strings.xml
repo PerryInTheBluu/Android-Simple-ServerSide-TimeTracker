@@ -715,6 +715,11 @@ Beispiel:<br/>
     <string name="timetable_state_attended">anwesend</string>
     <string name="timetable_state_missed">verpasst</string>
     <string name="timetable_state_upcoming">bevorstehend</string>
+    <string name="timetable_type_lecture">Vorlesung</string>
+    <string name="timetable_type_exercise">Übung</string>
+    <string name="timetable_type_tutorium">Tutorium</string>
+    <string name="timetable_dialog_room">\nRaum: %s</string>
+    <string name="timetable_dialog_comment">\nKommentar: %s</string>
     <string name="uni_tab_hint">Lege in den Einstellungen eine Kategorie namens \"Uni\" an und ordne ihr Aktivitäten zu. Diese werden auf diesem Tab angezeigt.</string>
 
     <!--  Reminders  -->

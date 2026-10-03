@@ -142,6 +142,8 @@ class RecordsCalendarView @JvmOverloads constructor(
     private var viewData: RecordsCalendarViewData? = null
     private val iconView: IconView = IconView(ContextThemeWrapper(context, R.style.AppTheme))
     private var clickListener: (ViewHolderType) -> Unit = {}
+    private var slotClickListener: (RecordsCalendarViewData.Slot) -> Unit = {}
+    private var slotBoxes: List<Pair<RectF, RecordsCalendarViewData.Slot>> = emptyList()
     private var longClickListener: (ViewHolderType) -> Unit = {}
 
     private val nameTextView: AppCompatTextView by lazy {
@@ -244,6 +246,7 @@ class RecordsCalendarView @JvmOverloads constructor(
         calculateDimensions(w, h)
         drawTopLegend(canvas)
         drawSideLegend(canvas)
+        slotBoxes = emptyList()
         data.forEachIndexed { index, column ->
             drawSlots(
                 canvas = canvas,
@@ -278,6 +281,10 @@ class RecordsCalendarView @JvmOverloads constructor(
 
     fun setLongClickListener(listener: (ViewHolderType) -> Unit) {
         this.longClickListener = listener
+    }
+
+    fun setSlotClickListener(listener: (RecordsCalendarViewData.Slot) -> Unit) {
+        this.slotClickListener = listener
     }
 
     fun setData(viewData: RecordsCalendarViewData) {
@@ -460,6 +467,7 @@ class RecordsCalendarView @JvmOverloads constructor(
                 recordCornerRadius,
                 slotPaint,
             )
+            slotBoxes = slotBoxes + (RectF(slotBounds) to slot)
 
             drawSlotText(canvas, slot, boxTop, boxBottom, boxLeft, boxRight)
         }
@@ -484,7 +492,8 @@ class RecordsCalendarView @JvmOverloads constructor(
         canvas.drawText(text, textX, textY, slotTextPaint)
 
         // Status symbol on the right edge of the band.
-        val size = legendTextHeight * 0.8f
+        val size = legendTextHeight * 1.6f
+        slotSymbolPaint.strokeWidth = size / 8f
         val padding = recordHorizontalPadding
         val centerX = boxRight - padding - size / 2
         val centerY = (boxTop + boxBottom) / 2
@@ -492,36 +501,38 @@ class RecordsCalendarView @JvmOverloads constructor(
             RecordsCalendarViewData.Slot.STATE_ATTENDED -> {
                 slotSymbolPaint.color = slot.color
                 // Check mark.
+                val half = size / 2
                 canvas.drawLine(
-                    centerX - size / 2,
+                    centerX - half,
                     centerY,
-                    centerX - size / 6,
-                    centerY + size / 3,
+                    centerX - half / 4,
+                    centerY + half / 2,
                     slotSymbolPaint,
                 )
                 canvas.drawLine(
-                    centerX - size / 6,
-                    centerY + size / 3,
-                    centerX + size / 2,
-                    centerY - size / 3,
+                    centerX - half / 4,
+                    centerY + half / 2,
+                    centerX + half,
+                    centerY - half / 2,
                     slotSymbolPaint,
                 )
             }
             RecordsCalendarViewData.Slot.STATE_MISSED -> {
                 slotSymbolPaint.color = slot.color
-                // Cross.
+                // Symmetric cross.
+                val half = size / 2
                 canvas.drawLine(
-                    centerX - size / 2,
-                    centerY - size / 3,
-                    centerX + size / 2,
-                    centerY + size / 3,
+                    centerX - half,
+                    centerY - half,
+                    centerX + half,
+                    centerY + half,
                     slotSymbolPaint,
                 )
                 canvas.drawLine(
-                    centerX + size / 2,
-                    centerY - size / 3,
-                    centerX - size / 2,
-                    centerY + size / 3,
+                    centerX + half,
+                    centerY - half,
+                    centerX - half,
+                    centerY + half,
                     slotSymbolPaint,
                 )
             }
@@ -836,14 +847,8 @@ class RecordsCalendarView @JvmOverloads constructor(
 
     @SuppressLint("UseKtx")
     private fun drawSideLegend(canvas: Canvas) {
-        fun Float.checkReverse(): Float {
-            return if (reverseOrder) {
-                chartTopBound + chartHeight * scaleFactor - (this - chartTopBound)
-            } else {
-                this
-            }
-        }
-
+        // hourPosition already respects the reverse order, so no
+        // additional mirroring is needed here.
         fun Float.checkOverdraw(): Float {
             // If goes over the end - draw on top, and otherwise.
             return when {
@@ -870,9 +875,9 @@ class RecordsCalendarView @JvmOverloads constructor(
 
             canvas.drawLine(
                 0f,
-                currentTimeY.checkReverse(),
+                currentTimeY,
                 chartRightBound + legendTextPadding,
-                currentTimeY.checkReverse(),
+                currentTimeY,
                 currentTimelinePaint,
             )
         }
@@ -883,14 +888,14 @@ class RecordsCalendarView @JvmOverloads constructor(
             // Draw hour line
             canvas.drawLine(
                 chartLeftBound,
-                currentY.checkReverse(),
+                currentY,
                 chartRightBound,
-                currentY.checkReverse(),
+                currentY,
                 linePaint,
             )
 
             // Draw hour text
-            val textCenterY: Float = (currentY.checkReverse() + legendTextHeight / 2)
+            val textCenterY: Float = (currentY + legendTextHeight / 2)
                 .coerceIn(
                     chartTopBound + legendTextHeight,
                     chartTopBound + chartHeight * scaleFactor,
@@ -905,19 +910,23 @@ class RecordsCalendarView @JvmOverloads constructor(
             if (index == 0) return@forEachIndexed
             // Draw minutes
             selectedMinutesRange.forEachIndexed { minuteIndex, minute ->
-                val minuteCurrentY = (currentY - (minuteIndex + 1) * minuteLineStep * scaleFactor).checkOverdraw()
+                // Minutes lie between this hour and the next one.
+                val minuteDirection = if (reverseOrder) 1f else -1f
+                val minuteCurrentY = (
+                    currentY + minuteDirection * (minuteIndex + 1) * minuteLineStep * scaleFactor
+                    ).checkOverdraw()
 
                 // Draw minute line
                 canvas.drawLine(
                     chartLeftBound,
-                    minuteCurrentY.checkReverse(),
+                    minuteCurrentY,
                     chartRightBound,
-                    minuteCurrentY.checkReverse(),
+                    minuteCurrentY,
                     lineSecondaryPaint,
                 )
 
                 // Draw minute text
-                val minuteTextCenterY: Float = (minuteCurrentY.checkReverse() + legendMinutesTextHeight / 2)
+                val minuteTextCenterY: Float = (minuteCurrentY + legendMinutesTextHeight / 2)
                     .coerceIn(
                         chartTopBound + legendMinutesTextHeight,
                         chartTopBound + chartHeight * scaleFactor,
@@ -1052,8 +1061,17 @@ class RecordsCalendarView @JvmOverloads constructor(
     }
 
     private fun onEventClick(event: MotionEvent) {
-        val selected = findDataPoint(x = event.x, y = event.y)
-            ?.point?.data ?: return
+        val selectedData = findDataPoint(x = event.x, y = event.y)?.point?.data
+        if (selectedData == null) {
+            // No record at this position: check the timetable slots.
+            val slot = slotBoxes.firstOrNull { (bounds, slotData) ->
+                event.x > bounds.left && event.x < bounds.right &&
+                    event.y > bounds.top && event.y < bounds.bottom
+            }?.second ?: return
+            slotClickListener(slot)
+            return
+        }
+        val selected = selectedData
         resetSelectedRecordRunnable?.let(::removeCallbacks)
         selectedRecord = selected
         selectedRecordColor = getSelectedColor(selected)

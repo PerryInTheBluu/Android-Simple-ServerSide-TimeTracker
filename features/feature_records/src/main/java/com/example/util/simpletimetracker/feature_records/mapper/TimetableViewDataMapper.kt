@@ -67,7 +67,7 @@ class TimetableViewDataMapper @Inject constructor() {
         return ((calendar.get(Calendar.DAY_OF_WEEK) + 5) % 7) + 1
     }
 
-    private fun formatRange(
+    fun formatRange(
         start: Long,
         end: Long,
         useMilitaryTime: Boolean,

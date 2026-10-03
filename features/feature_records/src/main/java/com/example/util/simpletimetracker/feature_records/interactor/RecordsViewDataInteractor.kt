@@ -586,6 +586,13 @@ class RecordsViewDataInteractor @Inject constructor(
                     TimetableEvent.Type.TUTORIUM -> "T"
                 },
                 state = state,
+                time = timetableViewDataMapper.formatRange(
+                    start = slotStartAbs,
+                    end = slotEndAbs,
+                    useMilitaryTime = prefsInteractor.getUseMilitaryTimeFormat(),
+                ),
+                room = override?.room ?: event.room,
+                comment = event.comment,
             )
         }
     }

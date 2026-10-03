@@ -731,6 +731,11 @@ Example:<br/>
     <string name="timetable_state_attended">attended</string>
     <string name="timetable_state_missed">missed</string>
     <string name="timetable_state_upcoming">upcoming</string>
+    <string name="timetable_type_lecture">Lecture</string>
+    <string name="timetable_type_exercise">Exercise</string>
+    <string name="timetable_type_tutorium">Tutorium</string>
+    <string name="timetable_dialog_room">\nRoom: %s</string>
+    <string name="timetable_dialog_comment">\nComment: %s</string>
     <string name="uni_tab_hint">Add a category named \"Uni\" in Settings and assign activities to it. Those activities will be shown on this tab.</string>
 
     <!--  Reminders  -->

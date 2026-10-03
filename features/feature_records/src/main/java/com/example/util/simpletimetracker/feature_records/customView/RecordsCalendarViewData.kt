@@ -35,6 +35,9 @@ data class RecordsCalendarViewData(
         val typeLabel: String,
         // ATTENDED, MISSED or UPCOMING.
         val state: Int,
+        val time: String = "",
+        val room: String = "",
+        val comment: String = "",
     ) {
         companion object {
             const val STATE_UPCOMING = 0

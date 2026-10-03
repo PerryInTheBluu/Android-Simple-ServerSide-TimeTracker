@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.util.simpletimetracker.core.base.BaseViewModel
+import com.example.util.simpletimetracker.core.repo.ResourceRepo
 import com.example.util.simpletimetracker.core.base.SingleLiveEvent
 import com.example.util.simpletimetracker.core.extension.set
 import com.example.util.simpletimetracker.core.extension.toParams
@@ -30,6 +31,9 @@ import com.example.util.simpletimetracker.feature_records.extra.RecordsExtra
 import com.example.util.simpletimetracker.feature_records.interactor.RecordsViewDataInteractor
 import com.example.util.simpletimetracker.feature_records.mapper.RecordsViewDataMapper
 import com.example.util.simpletimetracker.feature_records.model.RecordsShareState
+import com.example.util.simpletimetracker.feature_records.R
+import com.example.util.simpletimetracker.navigation.params.screen.StandardDialogParams
+import com.example.util.simpletimetracker.feature_records.customView.RecordsCalendarViewData
 import com.example.util.simpletimetracker.feature_records.model.RecordsState
 import com.example.util.simpletimetracker.navigation.Router
 import com.example.util.simpletimetracker.navigation.params.screen.ChangeRecordFromMainParams
@@ -46,6 +50,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class RecordsViewModel @Inject constructor(
+    private val resourceRepo: ResourceRepo,
     private val router: Router,
     private val recordsViewDataInteractor: RecordsViewDataInteractor,
     private val prefsInteractor: PrefsInteractor,
@@ -89,6 +94,47 @@ class RecordsViewModel @Inject constructor(
         when (item) {
             is RecordViewData -> onRecordClick(item)
             is RunningRecordViewData -> onRunningRecordClick(item)
+        }
+    }
+
+    fun onTimetableSlotClick(slot: RecordsCalendarViewData.Slot) {
+        viewModelScope.launch {
+            val typeLabel = when (slot.typeLabel) {
+                "V" -> resourceRepo.getString(R.string.timetable_type_lecture)
+                "UE" -> resourceRepo.getString(R.string.timetable_type_exercise)
+                else -> resourceRepo.getString(R.string.timetable_type_tutorium)
+            }
+            val stateText = when (slot.state) {
+                RecordsCalendarViewData.Slot.STATE_ATTENDED ->
+                    resourceRepo.getString(R.string.timetable_state_attended)
+                RecordsCalendarViewData.Slot.STATE_MISSED ->
+                    resourceRepo.getString(R.string.timetable_state_missed)
+                else -> resourceRepo.getString(R.string.timetable_state_upcoming)
+            }
+            val roomText = slot.room.takeIf { it.isNotEmpty() }
+                ?.let { room -> resourceRepo.getString(R.string.timetable_dialog_room, room) }
+                .orEmpty()
+            val commentText = slot.comment.takeIf { it.isNotEmpty() }
+                ?.let { comment -> resourceRepo.getString(R.string.timetable_dialog_comment, comment) }
+                .orEmpty()
+            val message = buildString {
+                append(slot.name)
+                append(" (")
+                append(typeLabel)
+                append(")\n")
+                append(slot.time)
+                append(roomText)
+                append(commentText)
+                append("\n\n")
+                append(stateText)
+            }
+            router.navigate(
+                StandardDialogParams(
+                    tag = TIMETABLE_SLOT_DIALOG_TAG,
+                    message = message,
+                    btnPositive = resourceRepo.getString(R.string.ok),
+                ),
+            )
         }
     }
 
@@ -378,6 +424,7 @@ class RecordsViewModel @Inject constructor(
     }
 
     companion object {
+        private const val TIMETABLE_SLOT_DIALOG_TAG = "TIMETABLE_SLOT_DIALOG_TAG"
         private const val TIMER_UPDATE = 1000L
         private const val SHARING_NAME = "stt_records"
     }

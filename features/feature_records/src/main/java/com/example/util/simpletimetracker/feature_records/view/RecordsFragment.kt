@@ -87,6 +87,7 @@ class RecordsFragment :
     override fun initUx() {
         binding.viewRecordsCalendar.root.setClickListener(viewModel::onCalendarClick)
         binding.viewRecordsCalendar.root.setLongClickListener(viewModel::onCalendarLongClick)
+        binding.viewRecordsCalendar.root.setSlotClickListener(viewModel::onTimetableSlotClick)
     }
 
     override fun initViewModel() {
