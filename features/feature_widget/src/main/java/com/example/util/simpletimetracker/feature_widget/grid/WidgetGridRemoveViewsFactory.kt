@@ -18,6 +18,7 @@ import com.example.util.simpletimetracker.core.mapper.IconMapper
 import com.example.util.simpletimetracker.core.mapper.RecordTypeViewDataMapper
 import com.example.util.simpletimetracker.core.repo.ResourceRepo
 import com.example.util.simpletimetracker.core.utils.PendingIntents
+import com.example.util.simpletimetracker.domain.base.REPEAT_BUTTON_ITEM_ID
 import com.example.util.simpletimetracker.domain.extension.orZero
 import com.example.util.simpletimetracker.domain.prefs.interactor.PrefsInteractor
 import com.example.util.simpletimetracker.domain.record.interactor.RecordInteractor
@@ -103,13 +104,21 @@ class WidgetGridRemoveViewsFactory @Inject constructor(
         val widgetSize = getWidgetSize(options)
         val gridSize = getGridSize(context, widgetSize)
         val pageSize = gridSize.columnCount * gridSize.rowCount
-        val areControlsVisible = pageSize < recordTypes.size
-        val lastPage = (recordTypes.size / pageSize)
-            .let { if (recordTypes.size % pageSize == 0) it - 1 else it }
+        // The repeat card is appended after the activities. It is skipped on
+        // single cell widgets where it would take the only available slot.
+        val items: List<GridItem> = recordTypes.map { GridItem.Activity(it) } +
+            if (pageSize > 1) {
+                listOf(GridItem.Repeat)
+            } else {
+                emptyList()
+            }
+        val areControlsVisible = pageSize < items.size
+        val lastPage = (items.size / pageSize)
+            .let { if (items.size % pageSize == 0) it - 1 else it }
             .coerceAtLeast(0)
         val pageNumber = prefsInteractor.getGridWidget(appWidgetId)
         val pagesShift = pageNumber.coerceIn(0, lastPage) * pageSize
-        val rows = recordTypes
+        val rows = items
             .drop(pagesShift)
             .take(pageSize)
             .chunked(gridSize.columnCount)
@@ -143,24 +152,35 @@ class WidgetGridRemoveViewsFactory @Inject constructor(
         }
 
         rows.forEach { row ->
-            val items = row.map { type ->
-                getView(
-                    context = context,
-                    appWidgetId = appWidgetId,
-                    widgetSize = widgetSize,
-                    gridSize = gridSize,
-                    recordType = type,
-                    runningRecord = runningRecords.firstOrNull { record -> record.id == type.id },
-                    prevRecord = prevRecords.firstOrNull { record -> record.typeId == type.id },
-                    goals = goals,
-                    allDailyCurrents = allDailyCurrents,
-                    isDarkTheme = isDarkTheme,
-                    backgroundTransparency = backgroundTransparency,
-                )
+            val rowItems = row.map { item ->
+                when (item) {
+                    is GridItem.Activity -> getView(
+                        context = context,
+                        appWidgetId = appWidgetId,
+                        widgetSize = widgetSize,
+                        gridSize = gridSize,
+                        recordType = item.recordType,
+                        runningRecord = runningRecords.firstOrNull { record -> record.id == item.recordType.id },
+                        prevRecord = prevRecords.firstOrNull { record -> record.typeId == item.recordType.id },
+                        goals = goals,
+                        allDailyCurrents = allDailyCurrents,
+                        isDarkTheme = isDarkTheme,
+                        backgroundTransparency = backgroundTransparency,
+                    )
+                    GridItem.Repeat -> getRepeatView(
+                        context = context,
+                        appWidgetId = appWidgetId,
+                        widgetSize = widgetSize,
+                        gridSize = gridSize,
+                        isDarkTheme = isDarkTheme,
+                        backgroundTransparency = backgroundTransparency,
+                    )
+                }
             }
-            val row = getRow(context, items, gridSize)
 
-            views.addView(R.id.containerGridWidgets, row)
+            val rowViews = getRow(context, rowItems, gridSize)
+
+            views.addView(R.id.containerGridWidgets, rowViews)
         }
 
         val emptyRows = (gridSize.rowCount - rows.size).takeIf { it > 0 }.orZero()
@@ -203,7 +223,7 @@ class WidgetGridRemoveViewsFactory @Inject constructor(
     // TODO WIDGET:
     // TODO add settings activity to select number of cards
     // TODO add settings for padding between cards?
-    // TODO add repeat, avoid id collision because of ClickRequestCode hashCode and negative id
+
     private fun getView(
         context: Context,
         appWidgetId: Int,
@@ -248,6 +268,50 @@ class WidgetGridRemoveViewsFactory @Inject constructor(
         setRecordTypeTimers(runningRecord, prevRecord, item)
         item.setImageViewBitmap(R.id.ivWidgetBackground, bitmap)
         val clickPendingIntent = getPendingIntent(context, appWidgetId, recordType.id)
+        item.setOnClickPendingIntent(R.id.btnWidget, clickPendingIntent)
+        itemContainer.addView(R.id.containerItemWidgets, item)
+
+        return itemContainer
+    }
+
+    private fun getRepeatView(
+        context: Context,
+        appWidgetId: Int,
+        widgetSize: Size?,
+        gridSize: GridSize,
+        isDarkTheme: Boolean,
+        backgroundTransparency: Long,
+    ): RemoteViews {
+        val viewData = recordTypeViewDataMapper.mapToRepeatItem(
+            numberOfCards = 0, // Size is not used here.
+            isDarkTheme = isDarkTheme,
+        )
+        val view = getView(context).apply {
+            (parent as? ViewGroup)?.removeAllViews()
+            itemIcon = viewData.iconId
+            itemName = viewData.name
+            itemIconColor = viewData.color
+            itemColor = ColorUtils.changeAlpha(
+                color = resourceRepo.getColor(R.color.widget_universal_background_color),
+                alpha = 1f - backgroundTransparency / 100f,
+            )
+            itemCheckStates = emptyList()
+            itemCompleteIsAnimated = false
+            itemIsComplete = false
+        }
+        measureView(
+            context = context,
+            widgetSize = widgetSize,
+            gridSize = gridSize,
+            view = view,
+        )
+        val bitmap = view.getBitmapFromView()
+
+        val itemContainer = RemoteViews(context.packageName, R.layout.widget_item_layout)
+        val item = RemoteViews(context.packageName, R.layout.widget_layout)
+        setRecordTypeTimers(null, null, item)
+        item.setImageViewBitmap(R.id.ivWidgetBackground, bitmap)
+        val clickPendingIntent = getRepeatPendingIntent(context, appWidgetId)
         item.setOnClickPendingIntent(R.id.btnWidget, clickPendingIntent)
         itemContainer.addView(R.id.containerItemWidgets, item)
 
@@ -374,6 +438,22 @@ class WidgetGridRemoveViewsFactory @Inject constructor(
         )
     }
 
+    private fun getRepeatPendingIntent(
+        context: Context,
+        appWidgetId: Int,
+    ): PendingIntent {
+        val clickIntent = Intent(context, WidgetGridProvider::class.java)
+        clickIntent.action = ITEM_CLICK_ACTION
+        clickIntent.putExtra(TYPE_ID_EXTRA, REPEAT_BUTTON_ITEM_ID)
+        clickIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+        return PendingIntent.getBroadcast(
+            context,
+            RepeatClickRequestCode(appWidgetId).hashCode(),
+            clickIntent,
+            PendingIntents.getFlags(),
+        )
+    }
+
     private fun getPagePendingIntent(
         context: Context,
         appWidgetId: Int,
@@ -409,6 +489,17 @@ class WidgetGridRemoveViewsFactory @Inject constructor(
         val appWidgetId: Int,
         val recordTypeId: Long,
     )
+
+    // Separate request code so the repeat button intent can never collide
+    // with an activity click intent (REPEAT_BUTTON_ITEM_ID is negative).
+    private data class RepeatClickRequestCode(
+        val appWidgetId: Int,
+    )
+
+    private sealed interface GridItem {
+        data class Activity(val recordType: RecordType) : GridItem
+        data object Repeat : GridItem
+    }
 
     private data class PageRequestCode(
         val appWidgetId: Int,
