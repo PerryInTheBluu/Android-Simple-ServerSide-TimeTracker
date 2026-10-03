@@ -325,6 +325,8 @@ This allows you to see how much time you\'re spending on productive versus unpro
     <string name="settings_sync_server">Server</string>
     <string name="settings_sync_server_hint">Private Tailnet-Adresse, z. B. https://timetracker.example.ts.net</string>
     <string name="settings_sync_username">Benutzername</string>
+    <string name="settings_sync_password">Passwort</string>
+    <string name="settings_sync_login_failed">Login fehlgeschlagen. Token wurde nicht aktualisiert.</string>
     <string name="settings_sync_token">API-Token</string>
     <string name="settings_sync_now">Jetzt synchronisieren</string>
     <string name="settings_sync_status_synced">Synchronisiert</string>

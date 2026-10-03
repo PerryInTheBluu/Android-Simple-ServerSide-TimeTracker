@@ -44,6 +44,8 @@ class SyncServerDialogFragment : BaseBottomSheetFragment<Binding>() {
     override fun initUi() = with(binding) {
         etSettingsSyncServer.setText(params.initialUrl)
         etSettingsSyncServer.setSelection(etSettingsSyncServer.text?.length ?: 0)
+        etSettingsSyncUsername.setText(params.initialUsername)
+        etSettingsSyncUsername.setSelection(etSettingsSyncUsername.text?.length ?: 0)
     }
 
     override fun initUx() = with(binding) {
@@ -62,7 +64,7 @@ class SyncServerDialogFragment : BaseBottomSheetFragment<Binding>() {
         val input = etSettingsSyncServer.text?.toString().orEmpty()
         if (input.isBlank()) {
             inputSettingsSyncServer.error = null
-            listeners.forEach { it.onSyncServerSaved("") }
+            listeners.forEach { it.onSyncServerSaved(url = "", username = "", password = "") }
             dismiss()
             return
         }
@@ -73,7 +75,9 @@ class SyncServerDialogFragment : BaseBottomSheetFragment<Binding>() {
             return
         }
         inputSettingsSyncServer.error = null
-        listeners.forEach { it.onSyncServerSaved(normalized) }
+        val username = etSettingsSyncUsername.text?.toString().orEmpty().trim()
+        val password = etSettingsSyncPassword.text?.toString().orEmpty()
+        listeners.forEach { it.onSyncServerSaved(url = normalized, username = username, password = password) }
         dismiss()
     }
 

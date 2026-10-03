@@ -129,8 +129,8 @@ class SettingsFragment :
         viewModel.onOptionsItemClick(id)
     }
 
-    override fun onSyncServerSaved(url: String) {
-        viewModel.onSyncServerSaved(url)
+    override fun onSyncServerSaved(url: String, username: String, password: String) {
+        viewModel.onSyncServerSaved(url, username, password)
     }
 
     override fun getOptionsContent(): LiveData<List<ViewHolderType>> {

@@ -66,8 +66,8 @@ class SettingsViewModel @Inject constructor(
         if (tab is NavigationTab.Settings) resetScreen.set(Unit)
     }
 
-    fun onSyncServerSaved(url: String) = viewModelScope.launch {
-        syncDelegate.onSyncServerSaved(url)
+    fun onSyncServerSaved(url: String, username: String, password: String) = viewModelScope.launch {
+        syncDelegate.onSyncServerSaved(url, username, password)
     }
 
     fun onResetScreen() = viewModelScope.launch {

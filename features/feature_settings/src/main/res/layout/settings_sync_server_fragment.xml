@@ -41,11 +41,53 @@
             android:id="@+id/etSettingsSyncServer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:imeOptions="actionDone"
+            android:imeOptions="actionNext"
             android:inputType="textUri"
             android:maxLines="1"
             android:textColor="?appTextPrimaryColor"
             tools:text="https://example.com" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/inputSettingsSyncUsername"
+        style="@style/ChangeItemInputField"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="10dp"
+        android:layout_marginTop="8dp"
+        android:hint="@string/settings_sync_username">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etSettingsSyncUsername"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:imeOptions="actionNext"
+            android:inputType="text"
+            android:maxLines="1"
+            android:textColor="?appTextPrimaryColor"
+            tools:text="user" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/inputSettingsSyncPassword"
+        style="@style/ChangeItemInputField"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="10dp"
+        android:layout_marginTop="8dp"
+        android:hint="@string/settings_sync_password"
+        app:endIconMode="password_toggle">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etSettingsSyncPassword"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:imeOptions="actionDone"
+            android:inputType="textPassword"
+            android:maxLines="1"
+            android:textColor="?appTextPrimaryColor" />
 
     </com.google.android.material.textfield.TextInputLayout>
 

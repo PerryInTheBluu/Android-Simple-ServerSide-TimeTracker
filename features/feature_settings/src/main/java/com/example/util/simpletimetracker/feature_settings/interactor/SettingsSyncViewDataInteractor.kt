@@ -59,7 +59,9 @@ class SettingsSyncViewDataInteractor @Inject constructor(
         result += SettingsTextViewData(
             block = SettingsBlock.SyncNow,
             title = resourceRepo.getString(resourcesR.string.settings_sync_now),
-            subtitle = if (isConfigured) "" else {
+            subtitle = if (isConfigured) {
+                ""
+            } else {
                 resourceRepo.getString(resourcesR.string.settings_sync_not_configured)
             },
             layoutIsClickable = isConfigured,
