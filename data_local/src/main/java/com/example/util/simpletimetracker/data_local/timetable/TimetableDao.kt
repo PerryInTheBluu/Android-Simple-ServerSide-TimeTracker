@@ -35,6 +35,9 @@ interface TimetableEventOverrideDao {
 
     @Query("DELETE FROM timetableEventOverrides WHERE id = :id")
     suspend fun delete(id: Long)
+
+    @Query("DELETE FROM timetableEventOverrides")
+    suspend fun clear()
 }
 
 @Dao
@@ -48,6 +51,9 @@ interface TimetableDayDao {
 
     @Query("DELETE FROM timetableDays WHERE id = :id")
     suspend fun delete(id: Long)
+
+    @Query("DELETE FROM timetableDays")
+    suspend fun clear()
 }
 
 @Dao
@@ -64,4 +70,7 @@ interface TimetableTodoDao {
 
     @Query("DELETE FROM timetableTodos WHERE id = :id")
     suspend fun delete(id: Long)
+
+    @Query("DELETE FROM timetableTodos")
+    suspend fun clear()
 }

@@ -1,9 +1,11 @@
 package com.example.util.simpletimetracker.feature_records.customView
 
+import android.os.Parcelable
 import com.example.util.simpletimetracker.feature_base_adapter.ViewHolderType
 import com.example.util.simpletimetracker.feature_base_adapter.record.RecordViewData
 import com.example.util.simpletimetracker.feature_base_adapter.runningRecord.RunningRecordViewData
 import com.example.util.simpletimetracker.feature_views.viewData.RecordTypeIcon
+import kotlinx.parcelize.Parcelize
 
 data class RecordsCalendarViewData(
     val currentTime: Long?,
@@ -26,6 +28,7 @@ data class RecordsCalendarViewData(
         val slots: List<Slot> = emptyList(),
     )
 
+    @Parcelize
     data class Slot(
         val start: Long,
         val end: Long,
@@ -38,7 +41,12 @@ data class RecordsCalendarViewData(
         val time: String = "",
         val room: String = "",
         val comment: String = "",
-    ) {
+        // Absolute timestamps of the slot, used to add a record on demand.
+        val startTimestamp: Long = 0L,
+        val endTimestamp: Long = 0L,
+        // Linked activity, used to add a record on demand.
+        val activityTypeId: Long? = null,
+    ) : Parcelable {
         companion object {
             const val STATE_UPCOMING = 0
             const val STATE_ATTENDED = 1

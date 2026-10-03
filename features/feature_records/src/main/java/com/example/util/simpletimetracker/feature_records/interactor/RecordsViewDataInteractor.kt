@@ -593,6 +593,9 @@ class RecordsViewDataInteractor @Inject constructor(
                 ),
                 room = override?.room ?: event.room,
                 comment = event.comment,
+                startTimestamp = slotStartAbs,
+                endTimestamp = slotEndAbs,
+                activityTypeId = event.activityTypeId,
             )
         }
     }

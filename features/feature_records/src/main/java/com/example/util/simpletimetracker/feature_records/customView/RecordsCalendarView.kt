@@ -100,8 +100,18 @@ class RecordsCalendarView @JvmOverloads constructor(
     private val multiSelectedRecordIndicatorWidth: Float = 8.dpToPx().toFloat()
     private val dayInMillis = TimeUnit.DAYS.toMillis(1)
     private var endOfDayShift: Long = 0L
+
+    /**
+     * Length of the visible window from the shifted day start. The
+     * endOfDayShift is the absolute end of day in milliseconds from
+     * midnight; 0 means the full day.
+     */
     private val axisLen: Long
-        get() = endOfDayShift.takeIf { it > 0L } ?: dayInMillis
+        get() {
+            if (endOfDayShift <= 0L) return dayInMillis
+            val window = ((endOfDayShift - startOfDayShift) % dayInMillis + dayInMillis) % dayInMillis
+            return if (window > 0L) window else dayInMillis
+        }
     private val hourInMillis = TimeUnit.HOURS.toMillis(1)
     private var selectedRecord: RecordsCalendarViewData.Point.Data? = null
     private var selectedRecordColor: Int = 0
@@ -1214,9 +1224,10 @@ class RecordsCalendarView @JvmOverloads constructor(
         // Visible hours with their coordinate in the day window
         // (milliseconds from the shifted day start); hours outside the
         // window are dropped.
+        val seenCoordinates = mutableSetOf<Long>()
         val visible = (0..24).mapNotNull { hour ->
             val coordinate = (hour * hourInMillis - startOfDayShift + dayInMillis) % dayInMillis
-            if (coordinate > axisLen) {
+            if (coordinate > axisLen || !seenCoordinates.add(coordinate)) {
                 null
             } else {
                 HourLegend(

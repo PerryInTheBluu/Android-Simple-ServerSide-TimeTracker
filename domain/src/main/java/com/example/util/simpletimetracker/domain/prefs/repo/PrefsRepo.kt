@@ -57,7 +57,8 @@ interface PrefsRepo {
 
     var startOfDayShift: Long // in milliseconds
 
-    var endOfDayShift: Long // in milliseconds, 0 - full day
+    // Absolute end of day in milliseconds from midnight, 0 - full day.
+    var endOfDayShift: Long
 
     var showUntrackedInRecords: Boolean
 

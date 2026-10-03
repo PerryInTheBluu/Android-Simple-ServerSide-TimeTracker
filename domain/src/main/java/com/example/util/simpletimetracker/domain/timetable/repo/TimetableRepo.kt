@@ -17,6 +17,9 @@ interface TimetableRepo {
 
     suspend fun clearEvents()
 
+    // Clears events, overrides, days and todos.
+    suspend fun clearAll()
+
     suspend fun getOverrides(date: String): List<TimetableEventOverride>
 
     suspend fun addOverride(override: TimetableEventOverride): Long

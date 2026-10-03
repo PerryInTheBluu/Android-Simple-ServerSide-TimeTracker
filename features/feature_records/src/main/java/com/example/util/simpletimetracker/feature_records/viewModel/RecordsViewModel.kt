@@ -19,6 +19,9 @@ import com.example.util.simpletimetracker.domain.record.interactor.RecordsContai
 import com.example.util.simpletimetracker.domain.record.interactor.RecordsShareUpdateInteractor
 import com.example.util.simpletimetracker.domain.record.interactor.RecordsUpdateInteractor
 import com.example.util.simpletimetracker.domain.record.interactor.RunningRecordInteractor
+import com.example.util.simpletimetracker.domain.record.interactor.RecordInteractor
+import com.example.util.simpletimetracker.domain.record.model.Record
+import com.example.util.simpletimetracker.domain.notifications.interactor.UpdateExternalViewsInteractor
 import com.example.util.simpletimetracker.domain.record.interactor.UpdateRunningRecordsInteractor
 import com.example.util.simpletimetracker.domain.record.model.MultiSelectedRecordId
 import com.example.util.simpletimetracker.domain.statistics.model.ChartFilterType
@@ -55,6 +58,8 @@ class RecordsViewModel @Inject constructor(
     private val recordsViewDataInteractor: RecordsViewDataInteractor,
     private val prefsInteractor: PrefsInteractor,
     private val runningRecordInteractor: RunningRecordInteractor,
+    private val recordInteractor: RecordInteractor,
+    private val updateExternalViewsInteractor: UpdateExternalViewsInteractor,
     private val recordsUpdateInteractor: RecordsUpdateInteractor,
     private val recordsShareUpdateInteractor: RecordsShareUpdateInteractor,
     private val sharingInteractor: SharingInteractor,
@@ -131,10 +136,41 @@ class RecordsViewModel @Inject constructor(
             router.navigate(
                 StandardDialogParams(
                     tag = TIMETABLE_SLOT_DIALOG_TAG,
+                    data = slot.takeIf { it.state == RecordsCalendarViewData.Slot.STATE_MISSED },
                     message = message,
-                    btnPositive = resourceRepo.getString(R.string.ok),
+                    btnPositive = if (slot.state == RecordsCalendarViewData.Slot.STATE_MISSED) {
+                        resourceRepo.getString(R.string.timetable_dialog_nachtragen)
+                    } else {
+                        resourceRepo.getString(R.string.ok)
+                    },
+                    btnNegative = if (slot.state == RecordsCalendarViewData.Slot.STATE_MISSED) {
+                        resourceRepo.getString(R.string.cancel)
+                    } else {
+                        ""
+                    },
                 ),
             )
+        }
+    }
+
+    fun onTimetableSlotNachtragen(slot: RecordsCalendarViewData.Slot) {
+        viewModelScope.launch {
+            val typeId = slot.activityTypeId ?: return@launch
+            recordInteractor.add(
+                Record(
+                    typeId = typeId,
+                    timeStarted = slot.startTimestamp,
+                    timeEnded = slot.endTimestamp,
+                    comment = "",
+                    tags = emptyList(),
+                ),
+            )
+            updateExternalViewsInteractor.onRecordAddOrChange(
+                typeIds = listOf(typeId),
+                tagIds = emptyList(),
+                updateNotificationSwitch = false,
+            )
+            updateRecords()
         }
     }
 
@@ -424,7 +460,7 @@ class RecordsViewModel @Inject constructor(
     }
 
     companion object {
-        private const val TIMETABLE_SLOT_DIALOG_TAG = "TIMETABLE_SLOT_DIALOG_TAG"
+        const val TIMETABLE_SLOT_DIALOG_TAG = "TIMETABLE_SLOT_DIALOG_TAG"
         private const val TIMER_UPDATE = 1000L
         private const val SHARING_NAME = "stt_records"
     }

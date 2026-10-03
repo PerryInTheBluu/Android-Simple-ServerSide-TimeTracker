@@ -17,7 +17,6 @@ import com.example.util.simpletimetracker.feature_settings.viewData.LanguageView
 import com.example.util.simpletimetracker.feature_settings.views.SettingsBottomViewData
 import com.example.util.simpletimetracker.feature_settings.views.SettingsHintViewData
 import com.example.util.simpletimetracker.feature_settings.views.SettingsSelectorViewData
-import com.example.util.simpletimetracker.feature_settings.views.SettingsSelectorWithButtonViewData
 import com.example.util.simpletimetracker.feature_settings.views.SettingsCheckboxViewData
 import com.example.util.simpletimetracker.feature_settings.views.SettingsSpinnerViewData
 import com.example.util.simpletimetracker.feature_settings.views.SettingsTextViewData
@@ -94,21 +93,13 @@ class SettingsMainViewDataInteractor @Inject constructor(
         )
 
         val startOfDayViewData = loadStartOfDayViewData()
-        result += SettingsSelectorWithButtonViewData(
-            data = SettingsSelectorViewData(
-                block = SettingsBlock.AdditionalShiftStartOfDay,
-                title = resourceRepo.getString(R.string.settings_start_of_day),
-                subtitle = startOfDayViewData.hint,
-                selectedValue = startOfDayViewData.startOfDayValue,
-                bottomSpaceIsVisible = false,
-                dividerIsVisible = false,
-            ),
-            buttonBlock = SettingsBlock.AdditionalShiftStartOfDayButton,
-            buttonContent = if (startOfDayViewData.startOfDaySign.isNotEmpty()) {
-                SettingsSelectorWithButtonViewData.Button.Text(text = startOfDayViewData.startOfDaySign)
-            } else {
-                null
-            },
+        result += SettingsSelectorViewData(
+            block = SettingsBlock.AdditionalShiftStartOfDay,
+            title = resourceRepo.getString(R.string.settings_start_of_day),
+            subtitle = startOfDayViewData.hint,
+            selectedValue = startOfDayViewData.startOfDayValue,
+            bottomSpaceIsVisible = false,
+            dividerIsVisible = false,
         )
         result += SettingsHintViewData(
             block = SettingsBlock.AdditionalShiftStartOfDayHint,
@@ -155,6 +146,8 @@ class SettingsMainViewDataInteractor @Inject constructor(
         return if (shift <= 0L) {
             resourceRepo.getString(R.string.change_record_type_goal_time_disabled)
         } else {
+            // The value is the absolute clock time of the day end,
+            // displayed as a duration from midnight, e.g. 23:30.
             timeMapper.formatDuration(shift / 1000)
         }
     }

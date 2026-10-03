@@ -392,7 +392,7 @@ This allows you to see how much time you\'re spending on productive versus unpro
     <string name="settings_start_of_day_hint">Start of day will be shifted by the specified amount of time, forward or backward depending on the sign.</string>
     <string name="settings_end_of_day">Shift end of the day</string>
     <string name="settings_end_of_day_hint">Crops the day chart to the tracked time, e.g. to hide sleep.</string>
-    <string name="settings_end_of_day_hint_value">The day chart ends %s after the day start; disable for a full day.</string>
+    <string name="settings_end_of_day_hint_value">The day chart ends at %s; disable for a full day.</string>
     <string name="settings_start_of_day_hint_value">Today starts at %s</string>
     <string name="settings_inactivity_reminder">Show inactivity reminder</string>
     <string name="settings_inactivity_reminder_hint">Show notification after specified time if no timers are running.</string>
@@ -736,6 +736,7 @@ Example:<br/>
     <string name="timetable_type_tutorium">Tutorium</string>
     <string name="timetable_dialog_room">\nRoom: %s</string>
     <string name="timetable_dialog_comment">\nComment: %s</string>
+    <string name="timetable_dialog_nachtragen">Add attendance</string>
     <string name="uni_tab_hint">Add a category named \"Uni\" in Settings and assign activities to it. Those activities will be shown on this tab.</string>
 
     <!--  Reminders  -->

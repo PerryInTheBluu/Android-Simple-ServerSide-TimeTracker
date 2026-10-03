@@ -177,9 +177,12 @@ class SyncDebugReceiver : BroadcastReceiver() {
         recordTypeRepo.clear()
         categoryRepo.clear()
         recordTypeCategoryRepo.clear()
-        timetableRepo.clearEvents()
+        timetableRepo.clearAll()
         syncIdMapDao.clear()
         syncStateDao.clear()
+        // Reset the pull marker so the next sync imports the full
+        // server state instead of nothing.
+        credentialStore.lastSyncMarker = ""
         Timber.i("DebugReceiver: all local data wiped")
     }
 
@@ -206,13 +209,13 @@ class SyncDebugReceiver : BroadcastReceiver() {
             Triple("Java", "Java", 11), // light green
             Triple("TheoInfo", "TheoInfo", 12), // lime
         )
-        // Everyday activities outside the Uni category.
+        // Everyday activities outside the Uni category, with real icons.
         val everydayActivities = listOf(
-            Triple("Pause", "Pause", 4),
-            Triple("Essen", "Essen", 5),
-            Triple("Schlafen", "Schlafen", 6),
-            Triple("Sport", "Sport", 15),
-            Triple("Lesen", "Lesen", 12),
+            Triple("Pause", "ic_free_breakfast_24px", 12),
+            Triple("Essen", "ic_restaurant_24px", 9),
+            Triple("Schlafen", "ic_single_bed_24px", 1),
+            Triple("Sport", "ic_fitness_center_24px", 4),
+            Triple("Lesen", "ic_menu_book_24px", 5),
         )
         val activityIds = mutableMapOf<String, Long>()
         (seedActivities).forEach { (name, iconText, colorId) ->

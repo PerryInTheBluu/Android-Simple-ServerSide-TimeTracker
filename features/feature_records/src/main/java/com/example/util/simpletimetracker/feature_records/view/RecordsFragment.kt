@@ -11,6 +11,7 @@ import com.example.util.simpletimetracker.core.base.BaseFragment
 import com.example.util.simpletimetracker.core.di.BaseViewModelFactory
 import com.example.util.simpletimetracker.feature_dialogs.api.ChartFilterDialogListener
 import com.example.util.simpletimetracker.feature_dialogs.api.RecordQuickActionDialogListener
+import com.example.util.simpletimetracker.feature_dialogs.api.StandardDialogListener
 import com.example.util.simpletimetracker.core.sharedViewModel.MainTabsViewModel
 import com.example.util.simpletimetracker.core.sharedViewModel.RemoveRecordViewModel
 import com.example.util.simpletimetracker.core.utils.InsetConfiguration
@@ -34,6 +35,7 @@ import com.example.util.simpletimetracker.feature_records.databinding.RecordsFra
 import com.example.util.simpletimetracker.feature_records.extra.RecordsExtra
 import com.example.util.simpletimetracker.feature_records.model.RecordsShareState
 import com.example.util.simpletimetracker.feature_records.model.RecordsState
+import com.example.util.simpletimetracker.feature_records.customView.RecordsCalendarViewData
 import com.example.util.simpletimetracker.feature_records.viewModel.RecordsViewModel
 import com.example.util.simpletimetracker.feature_views.TransitionNames
 import com.example.util.simpletimetracker.feature_views.extension.animateAlpha
@@ -48,7 +50,8 @@ import com.example.util.simpletimetracker.feature_records.databinding.RecordsFra
 class RecordsFragment :
     BaseFragment<Binding>(),
     RecordQuickActionDialogListener,
-    ChartFilterDialogListener {
+    ChartFilterDialogListener,
+    StandardDialogListener {
 
     override val inflater: (LayoutInflater, ViewGroup?, Boolean) -> Binding =
         Binding::inflate
@@ -136,6 +139,12 @@ class RecordsFragment :
 
     override fun onChartFilterDialogDismissed() {
         viewModel.onNeedUpdate()
+    }
+
+    override fun onPositiveClick(tag: String?, data: Any?) {
+        if (tag == RecordsViewModel.TIMETABLE_SLOT_DIALOG_TAG && data is RecordsCalendarViewData.Slot) {
+            viewModel.onTimetableSlotNachtragen(data)
+        }
     }
 
     private fun switchState(isCalendarView: Boolean) = with(binding) {
