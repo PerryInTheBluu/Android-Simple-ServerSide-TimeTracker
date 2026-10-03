@@ -51,6 +51,14 @@ import com.example.util.simpletimetracker.data_local.recordsFilter.FavouriteReco
 import com.example.util.simpletimetracker.data_local.recordsFilter.FavouriteRecordsFilterDao
 import com.example.util.simpletimetracker.data_local.scheduledReminder.ScheduledReminderDBO
 import com.example.util.simpletimetracker.data_local.scheduledReminder.ScheduledReminderDao
+import com.example.util.simpletimetracker.data_local.timetable.TimetableDayDBO
+import com.example.util.simpletimetracker.data_local.timetable.TimetableDayDao
+import com.example.util.simpletimetracker.data_local.timetable.TimetableEventDBO
+import com.example.util.simpletimetracker.data_local.timetable.TimetableEventDao
+import com.example.util.simpletimetracker.data_local.timetable.TimetableEventOverrideDBO
+import com.example.util.simpletimetracker.data_local.timetable.TimetableEventOverrideDao
+import com.example.util.simpletimetracker.data_local.timetable.TimetableTodoDBO
+import com.example.util.simpletimetracker.data_local.timetable.TimetableTodoDao
 
 @Database(
     entities = [
@@ -80,13 +88,25 @@ import com.example.util.simpletimetracker.data_local.scheduledReminder.Scheduled
         ScheduledReminderDBO::class,
         ActivityReminderOverrideDBO::class,
         ActivityReminderRuleDBO::class,
+        TimetableEventDBO::class,
+        TimetableEventOverrideDBO::class,
+        TimetableDayDBO::class,
+        TimetableTodoDBO::class,
     ],
-    version = 39,
+    version = 40,
     exportSchema = true,
 )
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun recordDao(): RecordDao
+
+    abstract fun timetableEventDao(): TimetableEventDao
+
+    abstract fun timetableEventOverrideDao(): TimetableEventOverrideDao
+
+    abstract fun timetableDayDao(): TimetableDayDao
+
+    abstract fun timetableTodoDao(): TimetableTodoDao
 
     abstract fun recordTypeDao(): RecordTypeDao
 

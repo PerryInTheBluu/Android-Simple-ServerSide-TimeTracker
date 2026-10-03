@@ -47,6 +47,7 @@ class AppDatabaseMigrations {
                 migration_36_37,
                 migration_37_38,
                 migration_38_39,
+                migration_39_40,
             )
 
         private val migration_1_2 = object : Migration(1, 2) {
@@ -500,5 +501,49 @@ class AppDatabaseMigrations {
                 )
             }
         }
+    }
+}
+
+private val migration_39_40 = object : Migration(39, 40) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        database.execSQL(
+            "CREATE TABLE IF NOT EXISTS `timetableEvents` (" +
+                "`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                "`name` TEXT NOT NULL, " +
+                "`day_of_week` INTEGER NOT NULL, " +
+                "`start_time` INTEGER NOT NULL, " +
+                "`end_time` INTEGER NOT NULL, " +
+                "`room` TEXT NOT NULL, " +
+                "`type` INTEGER NOT NULL, " +
+                "`comment` TEXT NOT NULL, " +
+                "`activity_type_id` INTEGER)",
+        )
+        database.execSQL(
+            "CREATE TABLE IF NOT EXISTS `timetableEventOverrides` (" +
+                "`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                "`date` TEXT NOT NULL, " +
+                "`event_id` INTEGER NOT NULL, " +
+                "`room` TEXT NOT NULL, " +
+                "`start_time` INTEGER NOT NULL, " +
+                "`end_time` INTEGER NOT NULL, " +
+                "`cancelled` INTEGER NOT NULL, " +
+                "`note` TEXT NOT NULL)",
+        )
+        database.execSQL(
+            "CREATE TABLE IF NOT EXISTS `timetableDays` (" +
+                "`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                "`date` TEXT NOT NULL, " +
+                "`free_day` INTEGER NOT NULL, " +
+                "`note` TEXT NOT NULL)",
+        )
+        database.execSQL(
+            "CREATE TABLE IF NOT EXISTS `timetableTodos` (" +
+                "`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                "`event_id` INTEGER NOT NULL, " +
+                "`date` TEXT, " +
+                "`text` TEXT NOT NULL, " +
+                "`done` INTEGER NOT NULL, " +
+                "`type` INTEGER NOT NULL)",
+        )
     }
 }
