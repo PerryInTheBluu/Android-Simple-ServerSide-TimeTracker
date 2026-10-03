@@ -7,9 +7,12 @@ import com.example.util.simpletimetracker.data_sync.api.SyncPushRequest
 import com.example.util.simpletimetracker.data_sync.api.TimeEntryDto
 import com.example.util.simpletimetracker.data_sync.db.SyncConflictDBO
 import com.example.util.simpletimetracker.data_sync.db.SyncConflictDao
+import com.example.util.simpletimetracker.data_sync.db.SyncIdMapDBO
+import com.example.util.simpletimetracker.data_sync.db.SyncIdMapDao
 import com.example.util.simpletimetracker.data_sync.db.SyncStateDBO
 import com.example.util.simpletimetracker.data_sync.db.SyncStateDao
 import com.example.util.simpletimetracker.data_sync.keystore.SyncCredentialStore
+import com.example.util.simpletimetracker.domain.color.model.AppColor
 import com.example.util.simpletimetracker.domain.record.model.Record
 import com.example.util.simpletimetracker.domain.record.repo.RecordRepo
 import com.example.util.simpletimetracker.domain.recordType.model.RecordType
@@ -17,6 +20,7 @@ import com.example.util.simpletimetracker.domain.recordType.repo.RecordTypeRepo
 import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
+import java.util.UUID
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
@@ -32,23 +36,28 @@ enum class SyncStatus {
 }
 
 /**
- * Mirror based sync engine (v1.1).
+ * Mirror based sync engine (v1.2, id mapped).
+ *
+ * Every local entity has a stable server wide unique sync id stored in
+ * sync_id_map (a uuid for new entities; entities synced before the id map
+ * existed keep their legacy "a<id>"/"e<id>" ids, seeded by the v3 database
+ * migration). Local auto increment ids never reach the server, so several
+ * devices can sync against the same account without id collisions.
  *
  * Push: only entities changed since the last successful push are sent, plus
- * tombstones for entities deleted locally since then. This propagates local
- * deletions to the server instead of resurrecting them on the next pull.
+ * tombstones for entities deleted locally since then.
  *
  * Pull: server deletions are applied locally, server edits are applied to
- * entities that did not change locally since the last push, and entities
- * unknown locally are imported.
+ * entities that did not change locally since the last push, and unknown
+ * entities (created on the server or on another device) are imported.
  *
  * Entities changed locally since the last push always win and are re-pushed.
  * The running timer is never touched by sync.
  *
- * Known limitations: entity ids map to local database ids ("a<id>" for
- * activities, "e<id>" for time entries), so entities created on the server
- * (uuid ids) are ignored by the pull, and activity renames coming from the
- * server are not applied because the activity repository has no update.
+ * Known limitations: activity renames coming from the server are not
+ * applied because the activity repository has no update (local name wins
+ * on the next push); record start time changes from the server are logged
+ * to the conflict log instead of applied.
  */
 @Singleton
 class SyncEngine @Inject constructor(
@@ -57,6 +66,7 @@ class SyncEngine @Inject constructor(
     private val recordTypeRepo: RecordTypeRepo,
     private val recordRepo: RecordRepo,
     private val syncStateDao: SyncStateDao,
+    private val syncIdMapDao: SyncIdMapDao,
     private val syncConflictDao: SyncConflictDao,
     private val deltaCalculator: SyncDeltaCalculator,
 ) {
@@ -76,6 +86,7 @@ class SyncEngine @Inject constructor(
             _status.value = SyncStatus.SYNCED
         } catch (e: Exception) {
             val offline = e is java.io.IOException
+            Timber.e(e, "Sync failed")
             _status.value = if (offline) SyncStatus.OFFLINE else SyncStatus.ERROR
         }
     }
@@ -83,7 +94,8 @@ class SyncEngine @Inject constructor(
     suspend fun clearConflicts() = syncConflictDao.clear()
 
     private suspend fun pushLocalChanges() {
-        val candidates = buildCandidates()
+        val mappings = loadMappings()
+        val candidates = buildCandidates(mappings)
         val mirror = syncStateDao.getAll().associate {
             deltaCalculator.key(it.entityType, it.entityId) to it.contentHash
         }
@@ -104,6 +116,11 @@ class SyncEngine @Inject constructor(
                     ),
                 )
             }
+        }
+        // The tombstoned entities no longer exist locally; drop their
+        // mappings so a future local id is never reused for them.
+        delta.tombstones.forEach {
+            syncIdMapDao.removeBySyncId(it.entityType, it.entityId)
         }
         replaceMirror(candidates)
     }
@@ -144,73 +161,78 @@ class SyncEngine @Inject constructor(
         )
     }
 
-    private suspend fun buildCandidates(): List<SyncDeltaCalculator.Candidate> {
-        val typeCandidates = recordTypeRepo.getAll().map { it.toCandidate() }
-        val recordCandidates = recordRepo.getAll().map { it.toCandidate() }
+    private suspend fun buildCandidates(mappings: IdMappings): List<SyncDeltaCalculator.Candidate> {
+        val typeCandidates = recordTypeRepo.getAll().map { type ->
+            val syncId = mappings.syncIdOf(ENTITY_ACTIVITY, type.id)
+            SyncDeltaCalculator.Candidate(
+                entityType = ENTITY_ACTIVITY,
+                entityId = syncId,
+                payload = type.toPayloadContent(syncId),
+            )
+        }
+        val recordCandidates = recordRepo.getAll().mapNotNull { record ->
+            val syncId = mappings.syncIdOf(ENTITY_TIME_ENTRY, record.id)
+            val typeSyncId = mappings.existingSyncId(ENTITY_ACTIVITY, record.typeId)
+                ?: return@mapNotNull null.also {
+                    Timber.w("Record %s references unknown activity %s", record.id, record.typeId)
+                }
+            SyncDeltaCalculator.Candidate(
+                entityType = ENTITY_TIME_ENTRY,
+                entityId = syncId,
+                payload = record.toPayloadContent(syncId, typeSyncId),
+            )
+        }
         return typeCandidates + recordCandidates
     }
-
-    private fun RecordType.toCandidate(): SyncDeltaCalculator.Candidate = SyncDeltaCalculator.Candidate(
-        entityType = ENTITY_ACTIVITY,
-        entityId = "a$id",
-        payload = mapOf(
-            "id" to "a$id",
-            "name" to name,
-            "icon" to icon,
-            "color" to color.colorInt,
-            "archived" to hidden,
-        ),
-    )
-
-    private fun Record.toCandidate(): SyncDeltaCalculator.Candidate = SyncDeltaCalculator.Candidate(
-        entityType = ENTITY_TIME_ENTRY,
-        entityId = "e$id",
-        payload = toPayloadContent(),
-    )
-
-    /**
-     * Wire payload without updated_at. Also used for hash comparisons
-     * between local records, the mirror and server entries.
-     */
-    private fun Record.toPayloadContent(): Map<String, Any?> = mapOf(
-        "id" to "e$id",
-        "activity_id" to "a$typeId",
-        "started_at" to format(timeStarted),
-        "ended_at" to if (timeEnded > 0) format(timeEnded) else null,
-        "duration_seconds" to ((timeEnded - timeStarted) / 1000).toInt(),
-        "comment" to comment,
-    )
 
     private suspend fun pullServerChanges() {
         val since = credentialStore.lastSyncMarker.takeIf { it.isNotEmpty() }
         val pulled = syncApi.pull(since)
+        val mappings = loadMappings()
         val mirror = syncStateDao.getAll().associateBy {
             deltaCalculator.key(it.entityType, it.entityId)
         }
-        pulled.activities.forEach { activity -> applyServerActivity(activity, mirror) }
-        pulled.time_entries.forEach { entry -> applyServerEntry(entry, mirror) }
+        pulled.activities.forEach { activity -> applyServerActivity(activity, mirror, mappings) }
+        pulled.time_entries.forEach { entry -> applyServerEntry(entry, mirror, mappings) }
         credentialStore.lastSyncMarker = pulled.server_time ?: nowIso()
     }
 
     private suspend fun applyServerActivity(
         activity: ActivityDto,
         mirror: Map<String, SyncStateDBO>,
+        mappings: IdMappings,
     ) {
-        val localId = activity.id.removePrefix("a").toLongOrNull() ?: return
-        val local = recordTypeRepo.get(localId) ?: return
+        val localId = mappings.localIdOf(ENTITY_ACTIVITY, activity.id)
 
         if (activity.deleted_at != null) {
-            // The server deleted the activity: remove it locally together
-            // with its records. The removed records propagate to the server
-            // as tombstones on the next push.
-            recordRepo.removeByType(localId)
-            recordTypeRepo.remove(localId)
-            syncStateDao.remove(ENTITY_ACTIVITY, activity.id)
+            if (localId != null) {
+                // The server deleted the activity: remove it locally
+                // together with its records and all related mappings.
+                recordRepo.getByType(setOf(localId)).forEach { record ->
+                    mappings.existingSyncId(ENTITY_TIME_ENTRY, record.id)?.let { recordSyncId ->
+                        mappings.forget(ENTITY_TIME_ENTRY, recordSyncId)
+                        syncStateDao.remove(ENTITY_TIME_ENTRY, recordSyncId)
+                    }
+                }
+                recordRepo.removeByType(localId)
+                recordTypeRepo.remove(localId)
+                mappings.forget(ENTITY_ACTIVITY, activity.id)
+                syncStateDao.remove(ENTITY_ACTIVITY, activity.id)
+            }
             return
         }
 
-        val mirrorHash = mirror[deltaCalculator.key(ENTITY_ACTIVITY, activity.id)]?.contentHash
-        val localHash = deltaCalculator.contentHash(local.toCandidate().payload)
+        if (localId == null) {
+            // Unknown activity: created on the server or another device.
+            importActivity(activity, mappings)
+            return
+        }
+
+        val local = recordTypeRepo.get(localId) ?: return
+        val syncId = mappings.existingSyncId(ENTITY_ACTIVITY, localId) ?: return
+
+        val mirrorHash = mirror[deltaCalculator.key(ENTITY_ACTIVITY, syncId)]?.contentHash
+        val localHash = deltaCalculator.contentHash(local.toPayloadContent(syncId))
         if (mirrorHash != null && mirrorHash == localHash && activity.name != local.name) {
             // Activity renames from the server cannot be applied because the
             // repository has no update; the local name wins on the next push.
@@ -231,61 +253,120 @@ class SyncEngine @Inject constructor(
         }
     }
 
+    private suspend fun importActivity(
+        activity: ActivityDto,
+        mappings: IdMappings,
+    ) {
+        Timber.i("Importing activity %s from sync", activity.id)
+        val localId = recordTypeRepo.add(
+            RecordType(
+                name = activity.name,
+                icon = activity.icon,
+                color = AppColor(colorId = 0, colorInt = activity.color),
+                defaultDuration = 0,
+                note = "",
+                hidden = activity.archived,
+            ),
+        )
+        mappings.remember(ENTITY_ACTIVITY, localId, activity.id)
+    }
+
     private suspend fun applyServerEntry(
         entry: TimeEntryDto,
         mirror: Map<String, SyncStateDBO>,
+        mappings: IdMappings,
     ) {
-        val localId = entry.id.removePrefix("e").toLongOrNull() ?: return
-        val local = recordRepo.get(localId)
+        val localId = mappings.localIdOf(ENTITY_TIME_ENTRY, entry.id)
 
         if (entry.deleted_at != null) {
-            if (local != null) {
+            if (localId != null) {
                 recordRepo.remove(localId)
+                mappings.forget(ENTITY_TIME_ENTRY, entry.id)
                 syncStateDao.remove(ENTITY_TIME_ENTRY, entry.id)
             }
             return
         }
-        if (local == null) {
-            importEntry(entry, localId)
+
+        if (localId == null) {
+            // Unknown entry: created on the server or another device.
+            importEntry(entry, mappings)
             return
         }
 
-        val serverRecord = entry.toRecord(localId) ?: run {
+        val local = recordRepo.get(localId) ?: return
+        val syncId = mappings.existingSyncId(ENTITY_TIME_ENTRY, localId) ?: return
+        val typeSyncId = mappings.existingSyncId(ENTITY_ACTIVITY, local.typeId) ?: return
+
+        val parsed = entry.toParsed() ?: run {
             Timber.w("Skipping time entry %s: unparsable activity id or timestamps", entry.id)
             return
         }
-        val mirrorHash = mirror[deltaCalculator.key(ENTITY_TIME_ENTRY, entry.id)]?.contentHash
-        val localHash = deltaCalculator.contentHash(local.toPayloadContent())
+        val serverTypeId = mappings.localIdOf(ENTITY_ACTIVITY, entry.activity_id)
+            ?: run {
+                Timber.w("Skipping time entry %s: unknown activity %s", entry.id, entry.activity_id)
+                return
+            }
+        val mirrorHash = mirror[deltaCalculator.key(ENTITY_TIME_ENTRY, syncId)]?.contentHash
+        val localHash = deltaCalculator.contentHash(local.toPayloadContent(syncId, typeSyncId))
         // Apply the server version only if the local record did not change
         // since the last push; otherwise the local edit wins and is pushed again.
         if (mirrorHash == null || mirrorHash != localHash) return
-        val serverHash = deltaCalculator.contentHash(serverRecord.toPayloadContent())
+        val serverHash = deltaCalculator.contentHash(
+            parsed.toPayloadContent(syncId, entry.activity_id),
+        )
         if (serverHash == localHash) return
-        applyServerRecord(local, serverRecord)
-        syncStateDao.updateHash(ENTITY_TIME_ENTRY, entry.id, serverHash)
+        applyServerRecord(local, serverTypeId, parsed)
+        syncStateDao.updateHash(ENTITY_TIME_ENTRY, syncId, serverHash)
     }
 
-    private suspend fun importEntry(entry: TimeEntryDto, localId: Long) {
-        val record = entry.toRecord(localId) ?: return
-        if (recordTypeRepo.get(record.typeId) == null) return
-        recordRepo.add(record)
+    private suspend fun importEntry(
+        entry: TimeEntryDto,
+        mappings: IdMappings,
+    ) {
+        val typeLocalId = mappings.localIdOf(ENTITY_ACTIVITY, entry.activity_id)
+        if (typeLocalId == null) {
+            Timber.w("Cannot import time entry %s: unknown activity %s", entry.id, entry.activity_id)
+            return
+        }
+        val parsed = entry.toParsed() ?: run {
+            Timber.w("Skipping time entry %s: unparsable activity id or timestamps", entry.id)
+            return
+        }
+        Timber.i("Importing time entry %s from sync", entry.id)
+        val localId = recordRepo.add(
+            Record(
+                id = 0, // Let the local database allocate an id.
+                typeId = typeLocalId,
+                timeStarted = parsed.timeStarted,
+                timeEnded = parsed.timeEnded,
+                comment = parsed.comment,
+                tags = emptyList(),
+            ),
+        )
+        mappings.remember(ENTITY_TIME_ENTRY, localId, entry.id)
         syncStateDao.insertAll(
             listOf(
                 SyncStateDBO(
                     entityType = ENTITY_TIME_ENTRY,
                     entityId = entry.id,
-                    contentHash = deltaCalculator.contentHash(record.toPayloadContent()),
+                    contentHash = deltaCalculator.contentHash(
+                        parsed.toPayloadContent(entry.id, entry.activity_id),
+                    ),
                     syncedAt = System.currentTimeMillis(),
                 ),
             ),
         )
     }
 
-    private suspend fun applyServerRecord(local: Record, server: Record) {
-        if (server.typeId != local.typeId || server.comment != local.comment) {
+    private suspend fun applyServerRecord(
+        local: Record,
+        serverTypeId: Long,
+        server: ParsedEntry,
+    ) {
+        if (serverTypeId != local.typeId || server.comment != local.comment) {
             recordRepo.update(
                 recordId = local.id,
-                typeId = server.typeId,
+                typeId = serverTypeId,
                 comment = server.comment,
                 tags = local.tags,
             )
@@ -308,17 +389,59 @@ class SyncEngine @Inject constructor(
         }
     }
 
-    private fun TimeEntryDto.toRecord(localId: Long): Record? {
-        val typeId = activity_id.removePrefix("a").toLongOrNull() ?: return null
+    private fun RecordType.toPayloadContent(syncId: String): Map<String, Any?> = mapOf(
+        "id" to syncId,
+        "name" to name,
+        "icon" to icon,
+        "color" to color.colorInt,
+        "archived" to hidden,
+    )
+
+    private fun Record.toPayloadContent(
+        syncId: String,
+        typeSyncId: String,
+    ): Map<String, Any?> = entryPayloadContent(
+        syncId = syncId,
+        typeSyncId = typeSyncId,
+        timeStarted = timeStarted,
+        timeEnded = timeEnded,
+        comment = comment,
+    )
+
+    private fun ParsedEntry.toPayloadContent(
+        syncId: String,
+        typeSyncId: String,
+    ): Map<String, Any?> = entryPayloadContent(
+        syncId = syncId,
+        typeSyncId = typeSyncId,
+        timeStarted = timeStarted,
+        timeEnded = timeEnded,
+        comment = comment,
+    )
+
+    private fun entryPayloadContent(
+        syncId: String,
+        typeSyncId: String,
+        timeStarted: Long,
+        timeEnded: Long,
+        comment: String,
+    ): Map<String, Any?> = mapOf(
+        "id" to syncId,
+        "activity_id" to typeSyncId,
+        "started_at" to format(timeStarted),
+        "ended_at" to if (timeEnded > 0) format(timeEnded) else null,
+        "duration_seconds" to ((timeEnded - timeStarted) / 1000).toInt(),
+        "comment" to comment,
+    )
+
+    private fun TimeEntryDto.toParsed(): ParsedEntry? {
+        if (activity_id.isEmpty()) return null
         val timeStarted = parseEpochMilli(started_at) ?: return null
         val timeEnded = ended_at?.let { parseEpochMilli(it) ?: return null } ?: 0L
-        return Record(
-            id = localId,
-            typeId = typeId,
+        return ParsedEntry(
             timeStarted = timeStarted,
             timeEnded = timeEnded,
             comment = comment,
-            tags = emptyList(),
         )
     }
 
@@ -329,6 +452,55 @@ class SyncEngine @Inject constructor(
     }.recoverCatching {
         Instant.parse(iso).toEpochMilli()
     }.getOrNull()
+
+    private suspend fun loadMappings(): IdMappings {
+        val mappings = IdMappings()
+        syncIdMapDao.getAll().forEach { row ->
+            mappings.byLocal[row.entityType to row.localId] = row.syncId
+            mappings.bySync[row.entityType to row.syncId] = row.localId
+        }
+        return mappings
+    }
+
+    private inner class IdMappings {
+        val byLocal = mutableMapOf<Pair<String, Long>, String>()
+        val bySync = mutableMapOf<Pair<String, String>, Long>()
+
+        suspend fun syncIdOf(entityType: String, localId: Long): String {
+            return existingSyncId(entityType, localId) ?: UUID.randomUUID().toString().also { syncId ->
+                remember(entityType, localId, syncId)
+            }
+        }
+
+        fun existingSyncId(entityType: String, localId: Long): String? = byLocal[entityType to localId]
+
+        fun localIdOf(entityType: String, syncId: String): Long? = bySync[entityType to syncId]
+
+        suspend fun remember(entityType: String, localId: Long, syncId: String) {
+            syncIdMapDao.insert(
+                SyncIdMapDBO(
+                    entityType = entityType,
+                    localId = localId,
+                    syncId = syncId,
+                ),
+            )
+            byLocal[entityType to localId] = syncId
+            bySync[entityType to syncId] = localId
+        }
+
+        suspend fun forget(entityType: String, syncId: String) {
+            syncIdMapDao.removeBySyncId(entityType, syncId)
+            bySync.remove(entityType to syncId)?.let { localId ->
+                byLocal.remove(entityType to localId)
+            }
+        }
+    }
+
+    private data class ParsedEntry(
+        val timeStarted: Long,
+        val timeEnded: Long,
+        val comment: String,
+    )
 
     companion object {
         private const val PUSH_BATCH = 200

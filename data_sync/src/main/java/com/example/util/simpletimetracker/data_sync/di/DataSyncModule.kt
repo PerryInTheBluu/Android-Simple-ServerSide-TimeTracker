@@ -11,6 +11,7 @@ import com.example.util.simpletimetracker.data_sync.api.SyncUrlValidator
 import com.example.util.simpletimetracker.data_sync.api.TokenResponse
 import com.example.util.simpletimetracker.data_sync.db.SyncConflictDao
 import com.example.util.simpletimetracker.data_sync.db.SyncDatabase
+import com.example.util.simpletimetracker.data_sync.db.SyncIdMapDao
 import com.example.util.simpletimetracker.data_sync.db.SyncStateDao
 import com.example.util.simpletimetracker.data_sync.keystore.SyncCredentialStore
 import com.squareup.moshi.Moshi
@@ -39,6 +40,10 @@ object DataSyncModule {
     @Provides
     @Singleton
     fun provideSyncStateDao(database: SyncDatabase): SyncStateDao = database.syncStateDao()
+
+    @Provides
+    @Singleton
+    fun provideSyncIdMapDao(database: SyncDatabase): SyncIdMapDao = database.syncIdMapDao()
 
     @Provides
     @Singleton

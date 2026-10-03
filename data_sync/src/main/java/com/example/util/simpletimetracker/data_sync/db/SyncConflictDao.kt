@@ -26,6 +26,25 @@ interface SyncStateDao {
 }
 
 @Dao
+interface SyncIdMapDao {
+
+    @Query("SELECT * FROM sync_id_map")
+    suspend fun getAll(): List<SyncIdMapDBO>
+
+    @Query("SELECT * FROM sync_id_map WHERE entity_type = :entityType AND local_id = :localId")
+    suspend fun getByLocalId(entityType: String, localId: Long): SyncIdMapDBO?
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(item: SyncIdMapDBO)
+
+    @Query("DELETE FROM sync_id_map WHERE entity_type = :entityType AND local_id = :localId")
+    suspend fun removeByLocalId(entityType: String, localId: Long)
+
+    @Query("DELETE FROM sync_id_map WHERE entity_type = :entityType AND sync_id = :syncId")
+    suspend fun removeBySyncId(entityType: String, syncId: String)
+}
+
+@Dao
 interface SyncConflictDao {
 
     @Query("SELECT * FROM sync_conflict_log ORDER BY created_at DESC LIMIT 100")
