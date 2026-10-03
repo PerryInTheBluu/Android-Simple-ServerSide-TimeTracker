@@ -14,6 +14,7 @@ import com.example.util.simpletimetracker.data_sync.db.SyncDatabase
 import com.example.util.simpletimetracker.data_sync.db.SyncStateDao
 import com.example.util.simpletimetracker.data_sync.keystore.SyncCredentialStore
 import com.squareup.moshi.Moshi
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -45,7 +46,11 @@ object DataSyncModule {
 
     @Provides
     @Singleton
-    fun provideMoshi(): Moshi = Moshi.Builder().build()
+    fun provideMoshi(): Moshi {
+        return Moshi.Builder()
+            .addLast(KotlinJsonAdapterFactory())
+            .build()
+    }
 
     @Provides
     @Singleton
