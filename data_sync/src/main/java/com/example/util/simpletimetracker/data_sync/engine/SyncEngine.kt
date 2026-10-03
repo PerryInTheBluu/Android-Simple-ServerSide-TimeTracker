@@ -13,8 +13,11 @@ import com.example.util.simpletimetracker.data_sync.db.SyncStateDBO
 import com.example.util.simpletimetracker.data_sync.db.SyncStateDao
 import com.example.util.simpletimetracker.data_sync.keystore.SyncCredentialStore
 import com.example.util.simpletimetracker.domain.color.model.AppColor
+import com.example.util.simpletimetracker.domain.record.interactor.AddRunningRecordMediator
+import com.example.util.simpletimetracker.domain.record.interactor.RemoveRunningRecordMediator
 import com.example.util.simpletimetracker.domain.record.model.Record
 import com.example.util.simpletimetracker.domain.record.repo.RecordRepo
+import com.example.util.simpletimetracker.domain.record.repo.RunningRecordRepo
 import com.example.util.simpletimetracker.domain.recordType.model.RecordType
 import com.example.util.simpletimetracker.domain.recordType.repo.RecordTypeRepo
 import java.time.Instant
@@ -36,7 +39,7 @@ enum class SyncStatus {
 }
 
 /**
- * Mirror based sync engine (v1.2, id mapped).
+ * Mirror based sync engine (v1.2, id mapped, running timers synced).
  *
  * Every local entity has a stable server wide unique sync id stored in
  * sync_id_map (a uuid for new entities; entities synced before the id map
@@ -51,13 +54,17 @@ enum class SyncStatus {
  * entities that did not change locally since the last push, and unknown
  * entities (created on the server or on another device) are imported.
  *
- * Entities changed locally since the last push always win and are re-pushed.
- * The running timer is never touched by sync.
+ * Running timers sync as time entries with a null end time: a timer started
+ * on one device appears as running on every device, and stopping it on any
+ * device removes the running entry (the stopping device pushes the finished
+ * entry). If a timer is stopped on two devices before one of them syncs,
+ * both create a finished entry for the same time span.
  *
  * Known limitations: activity renames coming from the server are not
  * applied because the activity repository has no update (local name wins
  * on the next push); record start time changes from the server are logged
- * to the conflict log instead of applied.
+ * to the conflict log instead of applied; stop times use the stopping
+ * device's clock, so clock skew between devices shifts durations.
  */
 @Singleton
 class SyncEngine @Inject constructor(
@@ -65,6 +72,9 @@ class SyncEngine @Inject constructor(
     private val credentialStore: SyncCredentialStore,
     private val recordTypeRepo: RecordTypeRepo,
     private val recordRepo: RecordRepo,
+    private val runningRecordRepo: RunningRecordRepo,
+    private val addRunningRecordMediator: AddRunningRecordMediator,
+    private val removeRunningRecordMediator: RemoveRunningRecordMediator,
     private val syncStateDao: SyncStateDao,
     private val syncIdMapDao: SyncIdMapDao,
     private val syncConflictDao: SyncConflictDao,
@@ -127,15 +137,21 @@ class SyncEngine @Inject constructor(
 
     private fun buildPushItems(delta: SyncDeltaCalculator.Delta): List<SyncPushItem> {
         val now = nowIso()
+
+        // Running records travel as time entries with a null end time; the
+        // server keeps treating them like any other entry.
+        fun wireType(entityType: String): String =
+            if (entityType == ENTITY_RUNNING_RECORD) ENTITY_TIME_ENTRY else entityType
+
         val upserts = delta.upserts.map { candidate ->
             SyncPushItem(
-                entity_type = candidate.entityType,
+                entity_type = wireType(candidate.entityType),
                 data = candidate.payload + ("updated_at" to now),
             )
         }
         val tombstones = delta.tombstones.map { candidate ->
             SyncPushItem(
-                entity_type = candidate.entityType,
+                entity_type = wireType(candidate.entityType),
                 data = mapOf(
                     "id" to candidate.entityId,
                     "updated_at" to now,
@@ -182,7 +198,24 @@ class SyncEngine @Inject constructor(
                 payload = record.toPayloadContent(syncId, typeSyncId),
             )
         }
-        return typeCandidates + recordCandidates
+        val runningCandidates = runningRecordRepo.getAll().mapNotNull { running ->
+            val typeSyncId = mappings.existingSyncId(ENTITY_ACTIVITY, running.id)
+                ?: return@mapNotNull null.also {
+                    Timber.w("Running record %s references unknown activity", running.id)
+                }
+            val syncId = mappings.syncIdOf(ENTITY_RUNNING_RECORD, running.id)
+            SyncDeltaCalculator.Candidate(
+                entityType = ENTITY_RUNNING_RECORD,
+                entityId = syncId,
+                payload = runningPayloadContent(
+                    syncId = syncId,
+                    typeSyncId = typeSyncId,
+                    timeStarted = running.timeStarted,
+                    comment = running.comment,
+                ),
+            )
+        }
+        return typeCandidates + recordCandidates + runningCandidates
     }
 
     private suspend fun pullServerChanges() {
@@ -276,6 +309,13 @@ class SyncEngine @Inject constructor(
         mirror: Map<String, SyncStateDBO>,
         mappings: IdMappings,
     ) {
+        // Entries without an end time are running timers started on
+        // another device.
+        if (entry.ended_at == null) {
+            applyServerRunningEntry(entry, mappings)
+            return
+        }
+
         val localId = mappings.localIdOf(ENTITY_TIME_ENTRY, entry.id)
 
         if (entry.deleted_at != null) {
@@ -419,6 +459,69 @@ class SyncEngine @Inject constructor(
         comment = comment,
     )
 
+    /**
+     * Running timers sync as time entries with a null end time. A deletion
+     * means another device stopped the timer (that device also pushed the
+     * finished entry, which arrives through the regular entry path); the
+     * local running record is then removed without creating a record.
+     */
+    private suspend fun applyServerRunningEntry(
+        entry: TimeEntryDto,
+        mappings: IdMappings,
+    ) {
+        val localTypeId = mappings.localIdOf(ENTITY_RUNNING_RECORD, entry.id)
+
+        if (entry.deleted_at != null) {
+            if (localTypeId != null) {
+                if (runningRecordRepo.has(localTypeId)) {
+                    removeRunningRecordMediator.remove(typeId = localTypeId)
+                }
+                mappings.forget(ENTITY_RUNNING_RECORD, entry.id)
+                syncStateDao.remove(ENTITY_RUNNING_RECORD, entry.id)
+            }
+            return
+        }
+
+        if (localTypeId != null) {
+            // Already running locally; the repository has no update for a
+            // running start time, so keep the local value.
+            return
+        }
+
+        val typeLocalId = mappings.localIdOf(ENTITY_ACTIVITY, entry.activity_id)
+            ?: run {
+                Timber.w("Cannot import running record %s: unknown activity %s", entry.id, entry.activity_id)
+                return
+            }
+        val timeStarted = parseEpochMilli(entry.started_at) ?: return
+        Timber.i("Importing running record %s from sync", entry.id)
+        addRunningRecordMediator.startTimer(
+            typeId = typeLocalId,
+            tags = emptyList(),
+            comment = entry.comment,
+            timeStarted = AddRunningRecordMediator.StartTime.Timestamp(timeStarted),
+            checkDefaultDuration = false,
+        )
+        mappings.remember(ENTITY_RUNNING_RECORD, typeLocalId, entry.id)
+        syncStateDao.insertAll(
+            listOf(
+                SyncStateDBO(
+                    entityType = ENTITY_RUNNING_RECORD,
+                    entityId = entry.id,
+                    contentHash = deltaCalculator.contentHash(
+                        runningPayloadContent(
+                            syncId = entry.id,
+                            typeSyncId = entry.activity_id,
+                            timeStarted = timeStarted,
+                            comment = entry.comment,
+                        ),
+                    ),
+                    syncedAt = System.currentTimeMillis(),
+                ),
+            ),
+        )
+    }
+
     private fun entryPayloadContent(
         syncId: String,
         typeSyncId: String,
@@ -431,6 +534,20 @@ class SyncEngine @Inject constructor(
         "started_at" to format(timeStarted),
         "ended_at" to if (timeEnded > 0) format(timeEnded) else null,
         "duration_seconds" to ((timeEnded - timeStarted) / 1000).toInt(),
+        "comment" to comment,
+    )
+
+    private fun runningPayloadContent(
+        syncId: String,
+        typeSyncId: String,
+        timeStarted: Long,
+        comment: String,
+    ): Map<String, Any?> = mapOf(
+        "id" to syncId,
+        "activity_id" to typeSyncId,
+        "started_at" to format(timeStarted),
+        "ended_at" to null,
+        "duration_seconds" to 0,
         "comment" to comment,
     )
 
@@ -506,6 +623,7 @@ class SyncEngine @Inject constructor(
         private const val PUSH_BATCH = 200
         private const val ENTITY_ACTIVITY = "activity"
         private const val ENTITY_TIME_ENTRY = "time_entry"
+        private const val ENTITY_RUNNING_RECORD = "running_record"
         private const val RESOLUTION_LOCAL_KEPT_NAME = "local_kept_name"
         private const val RESOLUTION_LOCAL_KEPT_START = "local_kept_start_time"
 
