@@ -10,6 +10,8 @@ import com.example.util.simpletimetracker.core.extension.set
 import com.example.util.simpletimetracker.core.extension.toPreview
 import com.example.util.simpletimetracker.core.extension.toParams
 import com.example.util.simpletimetracker.core.interactor.GetChangeRecordNavigationParamsInteractor
+import com.example.util.simpletimetracker.core.interactor.FilterGoalsByDayOfWeekInteractor
+import com.example.util.simpletimetracker.core.interactor.GetRunningRecordViewDataMediator
 import com.example.util.simpletimetracker.core.interactor.RecordRepeatInteractor
 import com.example.util.simpletimetracker.core.model.NavigationTab
 import com.example.util.simpletimetracker.core.repo.ResourceRepo
@@ -17,6 +19,7 @@ import com.example.util.simpletimetracker.domain.activityFilter.interactor.Chang
 import com.example.util.simpletimetracker.domain.activityFilter.model.ActivityFilterType
 import com.example.util.simpletimetracker.domain.base.UNTRACKED_ITEM_ID
 import com.example.util.simpletimetracker.domain.darkMode.interactor.ThemeChangedInteractor
+import com.example.util.simpletimetracker.domain.notifications.interactor.LocalDataChangedBus
 import com.example.util.simpletimetracker.domain.extension.orZero
 import com.example.util.simpletimetracker.domain.prefs.interactor.PrefsInteractor
 import com.example.util.simpletimetracker.domain.record.interactor.AddRunningRecordMediator
@@ -24,6 +27,7 @@ import com.example.util.simpletimetracker.domain.record.interactor.RecordInterac
 import com.example.util.simpletimetracker.domain.record.interactor.RemoveRunningRecordMediator
 import com.example.util.simpletimetracker.domain.record.interactor.RunningRecordInteractor
 import com.example.util.simpletimetracker.domain.record.interactor.UpdateRunningRecordsInteractor
+import com.example.util.simpletimetracker.domain.recordType.model.RecordType
 import com.example.util.simpletimetracker.domain.record.model.RecordBase
 import com.example.util.simpletimetracker.domain.record.model.RecordDataSelectionDialogResult
 import com.example.util.simpletimetracker.domain.recordType.interactor.RecordTypeInteractor
@@ -36,8 +40,11 @@ import com.example.util.simpletimetracker.feature_base_adapter.recordShortcut.Re
 import com.example.util.simpletimetracker.feature_base_adapter.recordType.RecordTypeViewData
 import com.example.util.simpletimetracker.feature_base_adapter.recordTypeSpecial.RunningRecordTypeSpecialViewData
 import com.example.util.simpletimetracker.feature_base_adapter.recordWithHint.RecordWithHintViewData
+import com.example.util.simpletimetracker.feature_base_adapter.runningRecord.GoalTimeViewData
 import com.example.util.simpletimetracker.feature_base_adapter.runningRecord.RunningRecordViewData
 import com.example.util.simpletimetracker.feature_dialogs.api.interactor.CardOrderChangedInteractor
+import com.example.util.simpletimetracker.domain.recordTag.interactor.RecordTagInteractor
+import com.example.util.simpletimetracker.domain.recordType.interactor.RecordTypeGoalInteractor
 import com.example.util.simpletimetracker.feature_running_records.R
 import com.example.util.simpletimetracker.feature_running_records.api.OnShortcutClickInteractor
 import com.example.util.simpletimetracker.feature_running_records.interactor.RunningRecordsViewDataInteractor
@@ -79,6 +86,10 @@ class RunningRecordsViewModel @Inject constructor(
     private val themeChangedInteractor: ThemeChangedInteractor,
     private val onShortcutClickInteractor: OnShortcutClickInteractor,
     private val cardOrderChangedInteractor: CardOrderChangedInteractor,
+    private val recordTypeGoalInteractor: RecordTypeGoalInteractor,
+    private val recordTagInteractor: RecordTagInteractor,
+    private val filterGoalsByDayOfWeekInteractor: FilterGoalsByDayOfWeekInteractor,
+    private val getRunningRecordViewDataMediator: GetRunningRecordViewDataMediator,
 ) : BaseViewModel() {
 
     override var delayDataLoad: Boolean = false
@@ -95,6 +106,7 @@ class RunningRecordsViewModel @Inject constructor(
 
     private var timerJob: Job? = null
     private var updateJob: Job? = null
+    private var dataChangeJob: Job? = null
     private var searchJob: Job? = null
     private var completeTypeJob: Job? = null
     private var completeTypeIds: Set<Long> = emptySet()
@@ -103,6 +115,7 @@ class RunningRecordsViewModel @Inject constructor(
 
     init {
         subscribeToUpdates()
+        subscribeToDataChanges()
     }
 
     fun onRecordTypeClick(
@@ -453,12 +466,13 @@ class RunningRecordsViewModel @Inject constructor(
     }
 
     fun onVisible() {
-        startUpdate()
+        updateRunningRecords()
+        startTimerTick()
         if (!uniMode) checkForRetroActiveMultitaskHint()
     }
 
     fun onHidden() {
-        stopUpdate()
+        stopTimerTick()
     }
 
     fun onTagSelected() {
@@ -572,27 +586,100 @@ class RunningRecordsViewModel @Inject constructor(
         )
     }
 
-    private fun startUpdate() {
+    /**
+     * Data changes can come from widgets, automation or the sync engine
+     * without any ui interaction, so the list is rebuilt (debounced)
+     * whenever tracked data changes.
+     */
+    private fun subscribeToDataChanges() {
+        viewModelScope.launch {
+            LocalDataChangedBus.events.collect {
+                dataChangeJob?.cancel()
+                dataChangeJob = viewModelScope.launch {
+                    delay(DATA_CHANGE_DEBOUNCE_MS)
+                    if (updateJob?.isCompleted != false) updateRunningRecords()
+                }
+            }
+        }
+    }
+
+    /**
+     * Refreshes only the ticking cards of running timers each second;
+     * the whole list is rebuilt on data changes and visibility instead.
+     * This keeps the main screen smooth with many activities.
+     */
+    private fun startTimerTick() {
         timerJob?.cancel()
         timerJob = viewModelScope.launch {
             delayLoad()
             while (isActive) {
-                // Just in case update takes longer than timer period,
-                // otherwise will be canceled every tick.
-                if (updateJob?.isCompleted != false) updateRunningRecords()
+                tickRunningRecords()
                 delay(TIMER_UPDATE_MS)
             }
         }
     }
 
-    private fun stopUpdate() {
+    private fun stopTimerTick() {
         timerJob?.cancel()
-        updateJob?.cancel()
+    }
+
+    private suspend fun tickRunningRecords() {
+        val runningRecords = runningRecordInteractor.getAll()
+        if (runningRecords.isEmpty()) return
+
+        val isDarkTheme = prefsInteractor.getDarkMode()
+        val useMilitaryTime = prefsInteractor.getUseMilitaryTimeFormat()
+        val durationFormat = prefsInteractor.getDurationFormat()
+        val showSeconds = prefsInteractor.getShowSeconds()
+        val recordTypes = recordTypeInteractor.getAll().associateBy(RecordType::id)
+        val recordTags = recordTagInteractor.getAll()
+        val goals = filterGoalsByDayOfWeekInteractor
+            .execute(recordTypeGoalInteractor.getAllTypeGoals())
+            .groupBy { it.idData.value }
+
+        runningRecords.forEach { runningRecord ->
+            val type = recordTypes[runningRecord.id] ?: return@forEach
+            val data = getRunningRecordViewDataMediator.execute(
+                type = type,
+                tags = recordTags,
+                goals = goals[runningRecord.id].orEmpty(),
+                record = runningRecord,
+                nowIconVisible = false,
+                goalsVisible = true,
+                totalDurationVisible = true,
+                isDarkTheme = isDarkTheme,
+                useMilitaryTime = useMilitaryTime,
+                durationFormat = durationFormat,
+                showSeconds = showSeconds,
+            )
+            previewUpdate.set(
+                UpdateRunningRecordsInteractor.Update(
+                    id = data.id,
+                    timer = data.timer,
+                    timerTotal = data.timerTotal,
+                    goalTimes = data.goalTimes.map { goalTime ->
+                        UpdateRunningRecordsInteractor.GoalTime(
+                            text = goalTime.text,
+                            state = when (goalTime.state) {
+                                GoalTimeViewData.Subtype.Goal ->
+                                    UpdateRunningRecordsInteractor.GoalState.Goal
+                                GoalTimeViewData.Subtype.Limit ->
+                                    UpdateRunningRecordsInteractor.GoalState.Limit
+                                GoalTimeViewData.Subtype.Hidden ->
+                                    UpdateRunningRecordsInteractor.GoalState.Hidden
+                            },
+                        )
+                    },
+                    additionalData = null,
+                ),
+            )
+        }
     }
 
     companion object {
         const val ARG_UNI_MODE = "uniMode"
         private const val TIMER_UPDATE_MS = 1000L
+        private const val DATA_CHANGE_DEBOUNCE_MS = 500L
         private const val COMPLETE_TYPE_ANIMATION_MS = 1000L
         private const val RETRO_MULTITASKING_HINT_TAG = "RETRO_MULTITASKING_HINT_TAG"
     }
