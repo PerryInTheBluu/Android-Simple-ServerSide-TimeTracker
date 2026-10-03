@@ -721,6 +721,10 @@ Beispiel:<br/>
     <string name="timetable_dialog_room">\nRaum: %s</string>
     <string name="timetable_dialog_comment">\nKommentar: %s</string>
     <string name="timetable_dialog_nachtragen">Nachtragen</string>
+    <string name="settings_timetable_import">Stundenplan importieren</string>
+    <string name="settings_timetable_import_description">Importiert eine ICS-Datei und ersetzt den aktuellen Stundenplan. Veranstaltungen werden per Name einer Aktivität zugeordnet.</string>
+    <string name="settings_timetable_import_alert">Der aktuelle Stundenplan wird ersetzt. Fortfahren?</string>
+    <string name="settings_timetable_import_result">%d Stundenplan-Einträge importiert</string>
     <string name="uni_tab_hint">Lege in den Einstellungen eine Kategorie namens \"Uni\" an und ordne ihr Aktivitäten zu. Diese werden auf diesem Tab angezeigt.</string>
 
     <!--  Reminders  -->

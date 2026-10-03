@@ -4,14 +4,19 @@ import com.example.util.simpletimetracker.core.base.SingleLiveEvent
 import com.example.util.simpletimetracker.core.base.ViewModelDelegate
 import com.example.util.simpletimetracker.core.extension.set
 import com.example.util.simpletimetracker.core.interactor.LanguageInteractor
+import com.example.util.simpletimetracker.core.repo.ResourceRepo
+import com.example.util.simpletimetracker.core.R
 import com.example.util.simpletimetracker.domain.prefs.interactor.PrefsInteractor
 import com.example.util.simpletimetracker.feature_settings.api.OnSettingChangedInteractor
 import com.example.util.simpletimetracker.feature_settings.api.SettingsBlock
 import com.example.util.simpletimetracker.feature_settings.interactor.SettingsMainViewDataInteractor
+import com.example.util.simpletimetracker.feature_settings.interactor.SettingsOptionsUpdateInteractor
 import com.example.util.simpletimetracker.feature_settings.mapper.SettingsMapper
 import com.example.util.simpletimetracker.navigation.Router
 import com.example.util.simpletimetracker.navigation.params.screen.ArchiveParams
 import com.example.util.simpletimetracker.navigation.params.screen.CategoriesParams
+import com.example.util.simpletimetracker.navigation.params.screen.StandardDialogParams
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -22,6 +27,9 @@ class SettingsMainViewModelDelegate @Inject constructor(
     private val settingsMapper: SettingsMapper,
     private val onSettingChangedInteractor: OnSettingChangedInteractor,
     private val settingsMainViewDataInteractor: SettingsMainViewDataInteractor,
+    private val settingsOptionsUpdateInteractor: SettingsOptionsUpdateInteractor,
+    private val settingsFileWorkDelegate: SettingsFileWorkDelegate,
+    private val resourceRepo: ResourceRepo,
 ) : SettingsDelegate, ViewModelDelegate() {
 
     val themeChanged: SingleLiveEvent<Boolean> = SingleLiveEvent()
@@ -44,8 +52,19 @@ class SettingsMainViewModelDelegate @Inject constructor(
             SettingsBlock.Categories -> onEditCategoriesClick()
             SettingsBlock.Archive -> onArchiveClick()
             SettingsBlock.AllowMultitasking -> onAllowMultitaskingClicked()
+            SettingsBlock.TimetableImport -> onTimetableImportClick()
             else -> {
                 // Do nothing
+            }
+        }
+    }
+
+    override fun onPositiveClick(tag: String?) {
+        if (tag == TIMETABLE_IMPORT_ALERT_DIALOG_TAG) {
+            delegateScope.launch {
+                settingsOptionsUpdateInteractor.sendDismiss()
+                delay(200)
+                settingsFileWorkDelegate.onTimetableImportConfirmed()
             }
         }
     }
@@ -66,6 +85,17 @@ class SettingsMainViewModelDelegate @Inject constructor(
 
     private fun onArchiveClick() {
         router.navigate(ArchiveParams)
+    }
+
+    private fun onTimetableImportClick() {
+        router.navigate(
+            StandardDialogParams(
+                tag = TIMETABLE_IMPORT_ALERT_DIALOG_TAG,
+                message = resourceRepo.getString(R.string.settings_timetable_import_alert),
+                btnPositive = resourceRepo.getString(R.string.ok),
+                btnNegative = resourceRepo.getString(R.string.cancel),
+            ),
+        )
     }
 
     private fun onAllowMultitaskingClicked() {
@@ -98,5 +128,7 @@ class SettingsMainViewModelDelegate @Inject constructor(
         }
     }
 
-    companion object : SettingsDelegate.Key
+    companion object : SettingsDelegate.Key {
+        private const val TIMETABLE_IMPORT_ALERT_DIALOG_TAG = "TIMETABLE_IMPORT_ALERT_DIALOG_TAG"
+    }
 }

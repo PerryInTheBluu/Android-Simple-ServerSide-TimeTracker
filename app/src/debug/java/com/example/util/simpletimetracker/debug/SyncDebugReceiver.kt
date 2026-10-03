@@ -83,6 +83,9 @@ class SyncDebugReceiver : BroadcastReceiver() {
     @Inject
     lateinit var prefsInteractor: com.example.util.simpletimetracker.domain.prefs.interactor.PrefsInteractor
 
+    @Inject
+    lateinit var icsImportInteractor: com.example.util.simpletimetracker.domain.timetable.ics.IcsImportInteractor
+
     override fun onReceive(context: Context, intent: Intent) {
         val pending = goAsync()
         CoroutineScope(Dispatchers.IO).launch {
@@ -143,6 +146,7 @@ class SyncDebugReceiver : BroadcastReceiver() {
                     ACTION_STOP_ALL_TIMERS -> stopAllTimers()
                     ACTION_DUMP_RUNNING -> dumpRunning()
                     ACTION_SEED_TIMETABLE -> seedTimetable()
+                    ACTION_IMPORT_ICS -> importIcs(intent.getStringExtra(EXTRA_PATH).orEmpty())
                     ACTION_WIPE_ALL -> wipeAll()
                     ACTION_SET_PREF_LONG -> {
                         val key = intent.getStringExtra(EXTRA_KEY).orEmpty()
@@ -360,6 +364,20 @@ class SyncDebugReceiver : BroadcastReceiver() {
         Timber.i("DebugReceiver: started %s (id=%d)", name, type.id)
     }
 
+    private suspend fun importIcs(path: String) {
+        if (path.isEmpty()) {
+            Timber.w("DebugReceiver: import ics called without path")
+            return
+        }
+        val uri = android.net.Uri.fromFile(java.io.File(path)).toString()
+        val result = icsImportInteractor.importFile(uri)
+        Timber.i(
+            "DebugReceiver: ics import added %d events, unmatched: %s",
+            result.eventsAdded,
+            result.unmatchedNames.joinToString(),
+        )
+    }
+
     private suspend fun stopAllTimers() {
         val running = runningRecordRepo.getAll()
         running.forEach { runningRecordRepo.remove(it.id) }
@@ -420,6 +438,7 @@ class SyncDebugReceiver : BroadcastReceiver() {
         const val ACTION_STOP_ALL_TIMERS = "de.piusdischinger.timetracker.debug.STOP_ALL_TIMERS"
         const val ACTION_DUMP_RUNNING = "de.piusdischinger.timetracker.debug.DUMP_RUNNING"
         const val ACTION_SEED_TIMETABLE = "de.piusdischinger.timetracker.debug.SEED_TIMETABLE"
+        const val ACTION_IMPORT_ICS = "de.piusdischinger.timetracker.debug.IMPORT_ICS"
         const val ACTION_WIPE_ALL = "de.piusdischinger.timetracker.debug.WIPE_ALL"
         const val ACTION_SET_PREF_BOOL = "de.piusdischinger.timetracker.debug.SET_PREF_BOOL"
         const val ACTION_SET_PREF_LONG = "de.piusdischinger.timetracker.debug.SET_PREF_LONG"
@@ -430,5 +449,6 @@ class SyncDebugReceiver : BroadcastReceiver() {
         const val EXTRA_TOKEN = "token"
         const val EXTRA_HOST = "host"
         const val EXTRA_NAME = "name"
+        const val EXTRA_PATH = "path"
     }
 }

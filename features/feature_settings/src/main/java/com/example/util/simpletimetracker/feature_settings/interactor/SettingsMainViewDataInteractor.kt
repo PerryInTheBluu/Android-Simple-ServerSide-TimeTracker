@@ -81,6 +81,13 @@ class SettingsMainViewDataInteractor @Inject constructor(
             dividerIsVisible = false,
         )
 
+        result += SettingsTextViewData(
+            block = SettingsBlock.TimetableImport,
+            title = resourceRepo.getString(R.string.settings_timetable_import),
+            subtitle = resourceRepo.getString(R.string.settings_timetable_import_description),
+            dividerIsVisible = false,
+        )
+
         val firstDayOfWeekViewData = loadFirstDayOfWeekViewData()
         result += SettingsSpinnerViewData(
             block = SettingsBlock.AdditionalFirstDayOfWeek,

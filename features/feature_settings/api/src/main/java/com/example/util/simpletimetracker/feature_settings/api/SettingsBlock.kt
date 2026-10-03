@@ -7,6 +7,7 @@ enum class SettingsBlock {
     Language,
     Categories,
     Archive,
+    TimetableImport,
     MainBottom,
     SyncTop,
     SyncServer,

@@ -16,6 +16,7 @@ import com.example.util.simpletimetracker.domain.backup.interactor.AutomaticExpo
 import com.example.util.simpletimetracker.domain.backup.interactor.BackupInteractor
 import com.example.util.simpletimetracker.domain.backup.interactor.CsvExportInteractor
 import com.example.util.simpletimetracker.domain.backup.interactor.IcsExportInteractor
+import com.example.util.simpletimetracker.domain.timetable.ics.IcsImportInteractor
 import com.example.util.simpletimetracker.domain.prefs.interactor.PrefsInteractor
 import com.example.util.simpletimetracker.domain.statistics.interactor.SettingsDataUpdateInteractor
 import com.example.util.simpletimetracker.domain.backup.model.BackupOptionsData
@@ -55,6 +56,7 @@ class SettingsFileWorkDelegate @Inject constructor(
     private val backupInteractor: BackupInteractor,
     private val csvExportInteractor: CsvExportInteractor,
     private val icsExportInteractor: IcsExportInteractor,
+    private val icsImportInteractor: IcsImportInteractor,
     private val prefsInteractor: PrefsInteractor,
     private val automaticBackupInteractor: AutomaticBackupInteractor,
     private val automaticExportInteractor: AutomaticExportInteractor,
@@ -106,6 +108,17 @@ class SettingsFileWorkDelegate @Inject constructor(
             work = ::onImportCsvFile,
             params = OpenFileParams(
                 type = FILE_TYPE_CSV_OPEN,
+                notHandledCallback = ::onFileOpenError,
+            ),
+        )
+    }
+
+    fun onTimetableImportConfirmed() {
+        requestFileWork(
+            requestCode = RequestCode.REQUEST_CODE_OPEN_FILE,
+            work = ::onImportTimetableFile,
+            params = OpenFileParams(
+                type = FILE_TYPE_TEXT_OPEN,
                 notHandledCallback = ::onFileOpenError,
             ),
         )
@@ -430,6 +443,16 @@ class SettingsFileWorkDelegate @Inject constructor(
         }
     }
 
+    private fun onImportTimetableFile(uriString: String?) {
+        if (uriString == null) return
+        executeFileWork {
+            val result = icsImportInteractor.importFile(uriString)
+            ResultCode.Success(
+                resourceRepo.getString(R.string.settings_timetable_import_result, result.eventsAdded),
+            )
+        }
+    }
+
     private fun onSaveIcsFile(
         uriString: String?,
         range: Range?,
@@ -557,6 +580,7 @@ class SettingsFileWorkDelegate @Inject constructor(
         private const val FILE_TYPE_BIN_OPEN = "application/*"
         private const val FILE_TYPE_CSV = "text/csv"
         private const val FILE_TYPE_CSV_OPEN = "text/*"
+        private const val FILE_TYPE_TEXT_OPEN = "text/*"
         private const val FILE_TYPE_ICS = "application/ics"
     }
 }

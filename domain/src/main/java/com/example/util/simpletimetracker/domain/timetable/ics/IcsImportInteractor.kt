@@ -1,0 +1,89 @@
+package com.example.util.simpletimetracker.domain.timetable.ics
+
+import com.example.util.simpletimetracker.domain.recordType.model.RecordType
+import com.example.util.simpletimetracker.domain.recordType.repo.RecordTypeRepo
+import com.example.util.simpletimetracker.domain.timetable.model.TimetableEvent
+import com.example.util.simpletimetracker.domain.timetable.repo.TimetableIcsRepo
+import com.example.util.simpletimetracker.domain.timetable.repo.TimetableRepo
+import javax.inject.Inject
+
+/**
+ * Imports an ics file into the timetable. The import replaces all
+ * existing timetable data (events, overrides, free days and todos).
+ *
+ * Events are linked to activities by name: the activity with the
+ * longest name contained in the event name wins. The slot type is
+ * derived from the event name (exercise, tutorium, else lecture).
+ */
+class IcsImportInteractor @Inject constructor(
+    private val parser: IcsParser,
+    private val timetableRepo: TimetableRepo,
+    private val recordTypeRepo: RecordTypeRepo,
+    private val timetableIcsRepo: TimetableIcsRepo,
+) {
+
+    data class ImportResult(
+        val eventsAdded: Int,
+        val unmatchedNames: List<String>,
+    )
+
+    suspend fun importFile(uriString: String): ImportResult {
+        return import(timetableIcsRepo.readIcsFile(uriString))
+    }
+
+    suspend fun import(content: String): ImportResult {
+        val imported = parser.parse(content)
+        if (imported.isEmpty()) return ImportResult(0, emptyList())
+
+        val types = recordTypeRepo.getAll()
+        val unmatched = mutableSetOf<String>()
+        timetableRepo.clearAll()
+        var added = 0
+
+        imported.forEach { event ->
+            val activityTypeId = matchActivity(event.name, types)
+            if (activityTypeId == null) unmatched.add(event.name)
+            val type = deriveType(event.name)
+            event.daysOfWeek.forEach { day ->
+                timetableRepo.addEvent(
+                    TimetableEvent(
+                        name = event.name,
+                        dayOfWeek = day,
+                        startTime = event.startTime,
+                        endTime = event.endTime,
+                        room = event.room,
+                        type = type,
+                        comment = event.comment,
+                        activityTypeId = activityTypeId,
+                    ),
+                )
+                added++
+            }
+        }
+
+        return ImportResult(added, unmatched.toList())
+    }
+
+    private fun matchActivity(
+        eventName: String,
+        types: List<RecordType>,
+    ): Long? {
+        val name = eventName.lowercase()
+        return types
+            .filter { type ->
+                val typeName = type.name.lowercase()
+                typeName.isNotEmpty() && name.contains(typeName)
+            }
+            .maxByOrNull { it.name.length }
+            ?.id
+    }
+
+    private fun deriveType(eventName: String): TimetableEvent.Type {
+        val name = eventName.lowercase()
+        return when {
+            "übung" in name || "exercise" in name -> TimetableEvent.Type.EXERCISE
+            "tutorium" in name || "tutorial" in name -> TimetableEvent.Type.TUTORIUM
+            else -> TimetableEvent.Type.LECTURE
+        }
+    }
+}

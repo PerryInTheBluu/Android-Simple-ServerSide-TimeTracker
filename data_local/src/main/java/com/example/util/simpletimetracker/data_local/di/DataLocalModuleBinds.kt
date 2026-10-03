@@ -25,6 +25,7 @@ import com.example.util.simpletimetracker.data_local.backup.BackupRepoImpl
 import com.example.util.simpletimetracker.data_local.durationSuggestion.DurationSuggestionRepoImpl
 import com.example.util.simpletimetracker.data_local.file.CsvRepoImpl
 import com.example.util.simpletimetracker.data_local.file.IcsRepoImpl
+import com.example.util.simpletimetracker.data_local.timetable.TimetableIcsRepoImpl
 import com.example.util.simpletimetracker.data_local.recordShortcut.RecordShortcutRepoImpl
 import com.example.util.simpletimetracker.data_local.recordTag.RecordShortcutToRecordTagRepoImpl
 import com.example.util.simpletimetracker.data_local.recordsFilter.FavouriteRecordsFilterRepoImpl
@@ -34,6 +35,7 @@ import com.example.util.simpletimetracker.domain.activityFilter.repo.ActivityFil
 import com.example.util.simpletimetracker.domain.activitySuggestion.repo.ActivitySuggestionRepo
 import com.example.util.simpletimetracker.domain.activityReminder.repo.ActivityReminderOverrideRepo
 import com.example.util.simpletimetracker.domain.category.repo.CategoryRepo
+import com.example.util.simpletimetracker.domain.timetable.repo.TimetableIcsRepo
 import com.example.util.simpletimetracker.domain.timetable.repo.TimetableRepo
 import com.example.util.simpletimetracker.domain.complexRule.repo.ComplexRuleRepo
 import com.example.util.simpletimetracker.domain.favourite.repo.FavouriteColorRepo
@@ -97,6 +99,10 @@ interface DataLocalModuleBinds {
     @Binds
     @Singleton
     fun bindCsvRepo(impl: CsvRepoImpl): CsvRepo
+
+    @Binds
+    @Singleton
+    fun bindTimetableIcsRepo(impl: TimetableIcsRepoImpl): TimetableIcsRepo
 
     @Binds
     @Singleton

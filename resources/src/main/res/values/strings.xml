@@ -737,6 +737,10 @@ Example:<br/>
     <string name="timetable_dialog_room">\nRoom: %s</string>
     <string name="timetable_dialog_comment">\nComment: %s</string>
     <string name="timetable_dialog_nachtragen">Add attendance</string>
+    <string name="settings_timetable_import">Import timetable</string>
+    <string name="settings_timetable_import_description">Imports an ics file and replaces the current timetable. Events are matched to activities by name.</string>
+    <string name="settings_timetable_import_alert">The current timetable will be replaced. Continue?</string>
+    <string name="settings_timetable_import_result">%d timetable slots imported</string>
     <string name="uni_tab_hint">Add a category named \"Uni\" in Settings and assign activities to it. Those activities will be shown on this tab.</string>
 
     <!--  Reminders  -->
