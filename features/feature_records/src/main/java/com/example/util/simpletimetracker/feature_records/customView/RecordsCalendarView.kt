@@ -892,7 +892,7 @@ class RecordsCalendarView @JvmOverloads constructor(
             )
         }
 
-        hours.forEachIndexed { index, hour ->
+        hours.forEach { hour ->
             val currentY = hourPosition(hour.coordinate).checkOverdraw()
 
             // Draw hour line
@@ -917,10 +917,14 @@ class RecordsCalendarView @JvmOverloads constructor(
                 legendTextPaint,
             )
 
-            if (index == 0) return@forEachIndexed
-            // Draw minutes
+            // Draw minute ticks for every hour, including the first one;
+            // ticks outside the day window are dropped instead of being
+            // wrapped to the opposite side of the chart.
             selectedMinutesRange.forEachIndexed { minuteIndex, minute ->
                 // Minutes lie between this hour and the next one.
+                val minuteCoordinate = hour.coordinate +
+                    (minuteIndex + 1) * hourInMillis / (selectedMinutesRange.size + 1)
+                if (minuteCoordinate >= axisLen) return@forEachIndexed
                 val minuteDirection = if (reverseOrder) 1f else -1f
                 val minuteCurrentY = (
                     currentY + minuteDirection * (minuteIndex + 1) * minuteLineStep * scaleFactor
@@ -1227,7 +1231,9 @@ class RecordsCalendarView @JvmOverloads constructor(
         val seenCoordinates = mutableSetOf<Long>()
         val visible = (0..24).mapNotNull { hour ->
             val coordinate = (hour * hourInMillis - startOfDayShift + dayInMillis) % dayInMillis
-            if (coordinate > axisLen || !seenCoordinates.add(coordinate)) {
+            // The window end itself gets no label; it coincides with the
+            // chart border and would wrap around due to rounding.
+            if (coordinate >= axisLen || !seenCoordinates.add(coordinate)) {
                 null
             } else {
                 HourLegend(

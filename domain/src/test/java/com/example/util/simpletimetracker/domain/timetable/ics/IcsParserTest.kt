@@ -57,7 +57,7 @@ class IcsParserTest {
     }
 
     @Test
-    fun withoutRruleUsesStartDayOfWeek() {
+    fun skipsSingleEventsWithoutRrule() {
         val ics = """
             BEGIN:VCALENDAR
             BEGIN:VEVENT
@@ -70,9 +70,107 @@ class IcsParserTest {
 
         val events = parser.parse(ics)
 
+        // The timetable only holds weekly recurring slots.
+        assertEquals(0, events.size)
+    }
+
+    @Test
+    fun skipsExpiredRrulesWithPastUntil() {
+        val ics = """
+            BEGIN:VCALENDAR
+            BEGIN:VEVENT
+            SUMMARY:Alte Vorlesung
+            DTSTART;TZID=Europe/Berlin:20231017T130000
+            DTEND;TZID=Europe/Berlin:20231017T134500
+            RRULE:FREQ=WEEKLY;UNTIL=20240206T134500;INTERVAL=1;BYDAY=TU
+            END:VEVENT
+            BEGIN:VEVENT
+            SUMMARY:Aktuelle Vorlesung
+            DTSTART;TZID=Europe/Berlin:20261012T080000
+            DTEND;TZID=Europe/Berlin:20261012T100000
+            RRULE:FREQ=WEEKLY;UNTIL=20270206T100000;INTERVAL=1;BYDAY=MO
+            END:VEVENT
+            END:VCALENDAR
+        """.trimIndent()
+
+        val events = parser.parse(ics)
+
         assertEquals(1, events.size)
-        assertEquals(listOf(4), events[0].daysOfWeek) // Thursday
-        assertEquals(840, events[0].startTime)
+        assertEquals("Aktuelle Vorlesung", events[0].name)
+        assertEquals(listOf(1), events[0].daysOfWeek)
+        assertEquals(480, events[0].startTime)
+        assertEquals(600, events[0].endTime)
+    }
+
+    @Test
+    fun parsesCategoriesAndExDates() {
+        val ics = """
+            BEGIN:VCALENDAR
+            BEGIN:VEVENT
+            SUMMARY:Mathematik für Ingenieure E1: ET\,IuK\,ME
+            LOCATION:11401.00.116 (H14 Bernhard-Ilschner-Hörsaal)
+            DTSTART;TZID=Europe/Berlin:20231020T081500
+            DTEND;TZID=Europe/Berlin:20231020T094500
+            RRULE:FREQ=WEEKLY;UNTIL=20270209T094500;INTERVAL=1;BYDAY=FR
+            CATEGORIES:Vorlesung
+            EXDATE;TZID=Europe/Berlin:20270105T081500,20261229T081500
+            END:VEVENT
+            END:VCALENDAR
+        """.trimIndent()
+
+        val events = parser.parse(ics)
+
+        assertEquals(1, events.size)
+        assertEquals("Mathematik für Ingenieure E1: ET,IuK,ME", events[0].name)
+        assertEquals("Vorlesung", events[0].category)
+        assertEquals(listOf("2027-01-05", "2026-12-29"), events[0].exDates)
+        assertEquals(495, events[0].startTime)
+        assertEquals(585, events[0].endTime)
+    }
+
+    @Test
+    fun handlesHisinOneEventStructure() {
+        // Structure of the FAU campo export: folded URL lines, TZID,
+        // UNTIL with seconds, GEO and other unknown properties.
+        val ics = """
+            BEGIN:VCALENDAR
+            PRODID:-//HISinOne - HIS eG//iCal4j 3.0.6//EN
+            VERSION:2.0
+            BEGIN:VTIMEZONE
+            TZID:Europe/Berlin
+            BEGIN:DAYLIGHT
+            TZOFFSETFROM:+0100
+            TZOFFSETTO:+0200
+            TZNAME:CEST
+            DTSTART:19810329T020000
+            RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU
+            END:DAYLIGHT
+            END:VTIMEZONE
+            BEGIN:VEVENT
+            DTSTAMP:20261003T214607Z
+            DTSTART;TZID=Europe/Berlin:20261014T121500
+            DTEND;TZID=Europe/Berlin:20261014T134500
+            SUMMARY:Werkstoffe und ihre Struktur
+            RRULE:FREQ=WEEKLY;UNTIL=20270206T134500;INTERVAL=1;BYDAY=TU
+            LOCATION:11901.00.227 (H9 Werner-von-Siemens - Hörsaal)
+            GEO:49.574363708496094;11.029380798339844
+            CATEGORIES:Vorlesung mit Übung
+            EXDATE;TZID=Europe/Berlin:20261226T121500
+            URL:https://www.campo.fau.de:443/qisserver/pages/startFlow.xhtml?_flowId=
+             detailView-flow&unitId=87456&periodId=396
+            END:VEVENT
+            END:VCALENDAR
+        """.trimIndent()
+
+        val events = parser.parse(ics)
+
+        assertEquals(1, events.size)
+        assertEquals("Werkstoffe und ihre Struktur", events[0].name)
+        assertEquals(listOf(2), events[0].daysOfWeek)
+        assertEquals(735, events[0].startTime)
+        assertEquals(825, events[0].endTime)
+        assertEquals("Vorlesung mit Übung", events[0].category)
+        assertEquals(listOf("2026-12-26"), events[0].exDates)
     }
 
     @Test

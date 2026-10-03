@@ -3,6 +3,7 @@ package com.example.util.simpletimetracker.domain.timetable.ics
 import com.example.util.simpletimetracker.domain.recordType.model.RecordType
 import com.example.util.simpletimetracker.domain.recordType.repo.RecordTypeRepo
 import com.example.util.simpletimetracker.domain.timetable.model.TimetableEvent
+import com.example.util.simpletimetracker.domain.timetable.model.TimetableEventOverride
 import com.example.util.simpletimetracker.domain.timetable.repo.TimetableIcsRepo
 import com.example.util.simpletimetracker.domain.timetable.repo.TimetableRepo
 import javax.inject.Inject
@@ -13,7 +14,10 @@ import javax.inject.Inject
  *
  * Events are linked to activities by name: the activity with the
  * longest name contained in the event name wins. The slot type is
- * derived from the event name (exercise, tutorium, else lecture).
+ * derived from the ics CATEGORIES value first (e.g. HISinOne
+ * exports like the FAU campo export), with a name based fallback.
+ * Parallel groups of the same course (same name, day and time)
+ * collapse into one slot. EXDATE values become cancelled overrides.
  */
 class IcsImportInteractor @Inject constructor(
     private val parser: IcsParser,
@@ -39,13 +43,16 @@ class IcsImportInteractor @Inject constructor(
         val unmatched = mutableSetOf<String>()
         timetableRepo.clearAll()
         var added = 0
+        // Parallel groups differ only in the room; keep the first.
+        val seenSlots = mutableSetOf<Triple<String, Int, Int>>()
 
         imported.forEach { event ->
+            if (!seenSlots.add(Triple(event.name, event.daysOfWeek.first(), event.startTime))) return@forEach
             val activityTypeId = matchActivity(event.name, types)
             if (activityTypeId == null) unmatched.add(event.name)
-            val type = deriveType(event.name)
+            val type = deriveType(event.name, event.category)
             event.daysOfWeek.forEach { day ->
-                timetableRepo.addEvent(
+                val eventId = timetableRepo.addEvent(
                     TimetableEvent(
                         name = event.name,
                         dayOfWeek = day,
@@ -57,6 +64,19 @@ class IcsImportInteractor @Inject constructor(
                         activityTypeId = activityTypeId,
                     ),
                 )
+                event.exDates.forEach { date ->
+                    timetableRepo.addOverride(
+                        TimetableEventOverride(
+                            date = date,
+                            eventId = eventId,
+                            room = "",
+                            startTime = 0,
+                            endTime = 0,
+                            cancelled = true,
+                            note = "",
+                        ),
+                    )
+                }
                 added++
             }
         }
@@ -78,7 +98,20 @@ class IcsImportInteractor @Inject constructor(
             ?.id
     }
 
-    private fun deriveType(eventName: String): TimetableEvent.Type {
+    private fun deriveType(
+        eventName: String,
+        category: String,
+    ): TimetableEvent.Type {
+        val categoryLower = category.lowercase()
+        if (categoryLower.isNotEmpty()) {
+            return when {
+                "vorlesung" in categoryLower -> TimetableEvent.Type.LECTURE
+                "tutorium" in categoryLower -> TimetableEvent.Type.TUTORIUM
+                "übung" in categoryLower -> TimetableEvent.Type.EXERCISE
+                "praktikum" in categoryLower -> TimetableEvent.Type.EXERCISE
+                else -> TimetableEvent.Type.LECTURE
+            }
+        }
         val name = eventName.lowercase()
         return when {
             "übung" in name || "exercise" in name -> TimetableEvent.Type.EXERCISE
