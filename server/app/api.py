@@ -15,7 +15,9 @@ from app.db import (
     Activity,
     ConflictLog,
     Goal,
+    SyncCategory,
     SyncLog,
+    SyncTag,
     TimeEntry,
     User,
     new_id,
@@ -662,6 +664,42 @@ def sync_push(body: SyncPushRequest, db: Session = Depends(get_db), user_id: str
                 applied += 1
             else:
                 conflicts.append({"entity_type": entity_type, "id": data["id"], "resolution": "server_kept_newer"})
+        elif entity_type in ("category", "record_tag"):
+            # Generic opaque payload storage: the app owns the data layout.
+            table = SyncCategory if entity_type == "category" else SyncTag
+            existing = db.query(table).filter(table.id == data["id"]).first()
+            if existing is not None and existing.user_id != user_id:
+                conflicts.append({"entity_type": entity_type, "id": data["id"], "resolution": "rejected"})
+                continue
+            incoming_deleted = parse_dt(data["deleted_at"]) if data.get("deleted_at") else None
+            if existing is None:
+                if incoming_deleted is not None:
+                    # Tombstone for an unknown entity: nothing to delete.
+                    applied += 1
+                    continue
+                db.add(
+                    table(
+                        id=data["id"],
+                        user_id=user_id,
+                        data=json.dumps(data),
+                        updated_at=incoming_updated,
+                    ),
+                )
+                applied += 1
+            elif incoming_deleted is not None:
+                if incoming_updated >= _aware(existing.updated_at):
+                    existing.deleted_at = incoming_deleted
+                    existing.updated_at = incoming_updated
+                    applied += 1
+                else:
+                    conflicts.append({"entity_type": entity_type, "id": data["id"], "resolution": "server_kept_newer"})
+            elif incoming_updated >= _aware(existing.updated_at):
+                existing.data = json.dumps(data)
+                existing.deleted_at = None
+                existing.updated_at = incoming_updated
+                applied += 1
+            else:
+                conflicts.append({"entity_type": entity_type, "id": data["id"], "resolution": "server_kept_newer"})
         else:
             conflicts.append({"entity_type": entity_type, "id": data.get("id", ""), "resolution": "unknown_type"})
     for conflict in conflicts:
@@ -688,10 +726,22 @@ def sync_pull(
     activities = db.query(Activity).filter(Activity.user_id == user_id, Activity.updated_at > since_dt).all()
     entries = db.query(TimeEntry).filter(TimeEntry.user_id == user_id, TimeEntry.updated_at > since_dt).all()
     goals = db.query(Goal).filter(Goal.user_id == user_id, Goal.updated_at > since_dt).all()
+    categories = db.query(SyncCategory).filter(SyncCategory.user_id == user_id, SyncCategory.updated_at > since_dt).all()
+    tags = db.query(SyncTag).filter(SyncTag.user_id == user_id, SyncTag.updated_at > since_dt).all()
+
+    def generic_out(row) -> dict:
+        return {
+            **json.loads(row.data),
+            "updated_at": iso(row.updated_at),
+            "deleted_at": iso(row.deleted_at),
+        }
+
     return {
         "activities": [activity_out(a) for a in activities],
         "time_entries": [entry_out(e) for e in entries],
         "goals": [goal_out(g) for g in goals],
+        "categories": [generic_out(c) for c in categories],
+        "tags": [generic_out(t) for t in tags],
         "server_time": iso(utcnow()),
     }
 
