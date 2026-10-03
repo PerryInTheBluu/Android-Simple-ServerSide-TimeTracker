@@ -6,6 +6,7 @@ import com.example.util.simpletimetracker.data_sync.keystore.SyncCredentialStore
 import javax.inject.Inject
 import javax.inject.Singleton
 import retrofit2.HttpException
+import timber.log.Timber
 
 enum class SyncLoginResult {
     SUCCESS,
@@ -47,12 +48,14 @@ class SyncLoginInteractor @Inject constructor(
             credentialStore.apiToken = response.access_token
             SyncLoginResult.SUCCESS
         } catch (e: HttpException) {
+            Timber.w(e, "Sync login failed with http code %s", e.code())
             when (e.code()) {
                 401 -> SyncLoginResult.INVALID_CREDENTIALS
                 429 -> SyncLoginResult.RATE_LIMITED
                 else -> SyncLoginResult.SERVER_ERROR
             }
         } catch (e: Exception) {
+            Timber.e(e, "Sync login failed")
             SyncLoginResult.NETWORK_ERROR
         }
     }
