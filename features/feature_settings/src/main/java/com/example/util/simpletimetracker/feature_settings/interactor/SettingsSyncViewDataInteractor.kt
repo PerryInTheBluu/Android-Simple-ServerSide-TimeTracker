@@ -24,6 +24,18 @@ class SettingsSyncViewDataInteractor @Inject constructor(
         val serverUrl = credentialStore.serverUrl
         val apiToken = credentialStore.apiToken
         val isConfigured = credentialStore.isConfigured
+        // After a fresh app start the in-memory engine status resets to
+        // NOT_CONFIGURED although a previous sync happened; derive the
+        // display status from the stored sync marker in that case.
+        val effectiveStatus = if (
+            status == SyncStatus.NOT_CONFIGURED &&
+            isConfigured &&
+            credentialStore.lastSyncMarker.isNotEmpty()
+        ) {
+            SyncStatus.SYNCED
+        } else {
+            status
+        }
         val result = mutableListOf<ViewHolderType>()
 
         result += SettingsTopViewData(
@@ -69,7 +81,7 @@ class SettingsSyncViewDataInteractor @Inject constructor(
             layoutIsClickable = isConfigured,
         )
 
-        val statusTextRes = when (status) {
+        val statusTextRes = when (effectiveStatus) {
             SyncStatus.SYNCED -> resourcesR.string.settings_sync_status_synced
             SyncStatus.PENDING -> resourcesR.string.settings_sync_status_pending
             SyncStatus.OFFLINE -> resourcesR.string.settings_sync_status_offline
