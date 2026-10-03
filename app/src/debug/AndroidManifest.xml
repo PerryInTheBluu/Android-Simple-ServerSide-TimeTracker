@@ -8,6 +8,7 @@
             <intent-filter>
                 <action android:name="de.piusdischinger.timetracker.debug.SYNC_NOW" />
                 <action android:name="de.piusdischinger.timetracker.debug.DUMP_STATE" />
+                <action android:name="de.piusdischinger.timetracker.debug.SET_CREDENTIALS" />
             </intent-filter>
         </receiver>
     </application>

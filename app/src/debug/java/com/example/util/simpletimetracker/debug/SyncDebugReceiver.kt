@@ -51,6 +51,20 @@ class SyncDebugReceiver : BroadcastReceiver() {
                         syncScheduler.syncNow()
                     }
                     ACTION_DUMP_STATE -> dumpState()
+                    ACTION_SET_CREDENTIALS -> {
+                        val url = intent.getStringExtra(EXTRA_URL).orEmpty()
+                        val username = intent.getStringExtra(EXTRA_USERNAME).orEmpty()
+                        val token = intent.getStringExtra(EXTRA_TOKEN).orEmpty()
+                        if (url.isNotEmpty() && username.isNotEmpty() && token.isNotEmpty()) {
+                            credentialStore.serverUrl = url
+                            credentialStore.username = username
+                            credentialStore.apiToken = token
+                            Timber.i("DebugReceiver: credentials stored for %s", username)
+                            syncScheduler.syncNow()
+                        } else {
+                            Timber.w("DebugReceiver: set credentials called with missing extras")
+                        }
+                    }
                     else -> Timber.w("DebugReceiver: unknown action %s", intent.action)
                 }
             } finally {
@@ -78,5 +92,9 @@ class SyncDebugReceiver : BroadcastReceiver() {
     companion object {
         const val ACTION_SYNC_NOW = "de.piusdischinger.timetracker.debug.SYNC_NOW"
         const val ACTION_DUMP_STATE = "de.piusdischinger.timetracker.debug.DUMP_STATE"
+        const val ACTION_SET_CREDENTIALS = "de.piusdischinger.timetracker.debug.SET_CREDENTIALS"
+        const val EXTRA_URL = "url"
+        const val EXTRA_USERNAME = "username"
+        const val EXTRA_TOKEN = "token"
     }
 }

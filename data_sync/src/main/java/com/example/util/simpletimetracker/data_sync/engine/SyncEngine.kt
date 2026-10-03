@@ -12,14 +12,23 @@ import com.example.util.simpletimetracker.data_sync.db.SyncIdMapDao
 import com.example.util.simpletimetracker.data_sync.db.SyncStateDBO
 import com.example.util.simpletimetracker.data_sync.db.SyncStateDao
 import com.example.util.simpletimetracker.data_sync.keystore.SyncCredentialStore
+import com.example.util.simpletimetracker.domain.category.model.Category
+import com.example.util.simpletimetracker.domain.category.repo.CategoryRepo
+import com.example.util.simpletimetracker.domain.category.repo.RecordTypeCategoryRepo
 import com.example.util.simpletimetracker.domain.color.model.AppColor
 import com.example.util.simpletimetracker.domain.record.interactor.AddRunningRecordMediator
 import com.example.util.simpletimetracker.domain.record.interactor.RemoveRunningRecordMediator
 import com.example.util.simpletimetracker.domain.record.model.Record
+import com.example.util.simpletimetracker.domain.record.model.RecordBase
 import com.example.util.simpletimetracker.domain.record.repo.RecordRepo
 import com.example.util.simpletimetracker.domain.record.repo.RunningRecordRepo
+import com.example.util.simpletimetracker.domain.recordTag.model.RecordTag
+import com.example.util.simpletimetracker.domain.recordTag.model.RecordTagValueType
+import com.example.util.simpletimetracker.domain.recordTag.repo.RecordTagRepo
 import com.example.util.simpletimetracker.domain.recordType.model.RecordType
 import com.example.util.simpletimetracker.domain.recordType.repo.RecordTypeRepo
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.Types
 import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
@@ -73,15 +82,34 @@ class SyncEngine @Inject constructor(
     private val recordTypeRepo: RecordTypeRepo,
     private val recordRepo: RecordRepo,
     private val runningRecordRepo: RunningRecordRepo,
+    private val categoryRepo: CategoryRepo,
+    private val recordTypeCategoryRepo: RecordTypeCategoryRepo,
+    private val recordTagRepo: RecordTagRepo,
     private val addRunningRecordMediator: AddRunningRecordMediator,
     private val removeRunningRecordMediator: RemoveRunningRecordMediator,
     private val syncStateDao: SyncStateDao,
     private val syncIdMapDao: SyncIdMapDao,
     private val syncConflictDao: SyncConflictDao,
     private val deltaCalculator: SyncDeltaCalculator,
+    private val moshi: Moshi,
 ) {
 
     private val _status = MutableStateFlow(SyncStatus.NOT_CONFIGURED)
+
+    private val tagListAdapter by lazy {
+        moshi.adapter<List<Map<String, Any?>>>(
+            Types.newParameterizedType(
+                List::class.java,
+                Types.newParameterizedType(Map::class.java, String::class.java, Any::class.java),
+            ),
+        )
+    }
+
+    private val stringListAdapter by lazy {
+        moshi.adapter<List<String>>(
+            Types.newParameterizedType(List::class.java, String::class.java),
+        )
+    }
     val status: StateFlow<SyncStatus> = _status
 
     suspend fun syncNow() {
@@ -178,12 +206,41 @@ class SyncEngine @Inject constructor(
     }
 
     private suspend fun buildCandidates(mappings: IdMappings): List<SyncDeltaCalculator.Candidate> {
+        val categoryCandidates = categoryRepo.getAll().map { category ->
+            val syncId = mappings.syncIdOf(ENTITY_CATEGORY, category.id)
+            SyncDeltaCalculator.Candidate(
+                entityType = ENTITY_CATEGORY,
+                entityId = syncId,
+                payload = categoryPayloadContent(syncId, category.name, category.color.colorInt, category.note),
+            )
+        }
+        val tagCandidates = recordTagRepo.getAll().map { tag ->
+            val syncId = mappings.syncIdOf(ENTITY_RECORD_TAG, tag.id)
+            SyncDeltaCalculator.Candidate(
+                entityType = ENTITY_RECORD_TAG,
+                entityId = syncId,
+                payload = tagPayloadContent(
+                    syncId = syncId,
+                    name = tag.name,
+                    icon = tag.icon,
+                    color = tag.color.colorInt,
+                    iconColorSource = tag.iconColorSource,
+                    note = tag.note,
+                    archived = tag.archived,
+                    valueType = tag.valueType.name,
+                    valueSuffix = tag.valueSuffix,
+                ),
+            )
+        }
         val typeCandidates = recordTypeRepo.getAll().map { type ->
             val syncId = mappings.syncIdOf(ENTITY_ACTIVITY, type.id)
+            val categorySyncIds = recordTypeCategoryRepo.getCategoryIdsByType(type.id)
+                .map { mappings.syncIdOf(ENTITY_CATEGORY, it) }
+                .sorted()
             SyncDeltaCalculator.Candidate(
                 entityType = ENTITY_ACTIVITY,
                 entityId = syncId,
-                payload = type.toPayloadContent(syncId),
+                payload = type.toPayloadContent(syncId, categorySyncIds),
             )
         }
         val recordCandidates = recordRepo.getAll().mapNotNull { record ->
@@ -195,7 +252,7 @@ class SyncEngine @Inject constructor(
             SyncDeltaCalculator.Candidate(
                 entityType = ENTITY_TIME_ENTRY,
                 entityId = syncId,
-                payload = record.toPayloadContent(syncId, typeSyncId),
+                payload = record.toPayloadContent(syncId, typeSyncId, tagsPayload(record.tags, mappings)),
             )
         }
         val runningCandidates = runningRecordRepo.getAll().mapNotNull { running ->
@@ -212,10 +269,11 @@ class SyncEngine @Inject constructor(
                     typeSyncId = typeSyncId,
                     timeStarted = running.timeStarted,
                     comment = running.comment,
+                    tags = tagsPayload(running.tags, mappings),
                 ),
             )
         }
-        return typeCandidates + recordCandidates + runningCandidates
+        return categoryCandidates + tagCandidates + typeCandidates + recordCandidates + runningCandidates
     }
 
     private suspend fun pullServerChanges() {
@@ -225,9 +283,124 @@ class SyncEngine @Inject constructor(
         val mirror = syncStateDao.getAll().associateBy {
             deltaCalculator.key(it.entityType, it.entityId)
         }
+        // Categories and tags first: activities and entries reference them.
+        pulled.categories.forEach { data -> applyServerCategory(data, mappings) }
+        pulled.tags.forEach { data -> applyServerTag(data, mappings) }
         pulled.activities.forEach { activity -> applyServerActivity(activity, mirror, mappings) }
         pulled.time_entries.forEach { entry -> applyServerEntry(entry, mirror, mappings) }
         credentialStore.lastSyncMarker = pulled.server_time ?: nowIso()
+    }
+
+    private suspend fun applyServerCategory(
+        data: Map<String, Any?>,
+        mappings: IdMappings,
+    ) {
+        val syncId = data["id"] as? String ?: return
+        val localId = mappings.localIdOf(ENTITY_CATEGORY, syncId)
+
+        if (data["deleted_at"] != null) {
+            if (localId != null) {
+                recordTypeCategoryRepo.removeAll(categoryId = localId)
+                categoryRepo.remove(localId)
+                mappings.forget(ENTITY_CATEGORY, syncId)
+                syncStateDao.remove(ENTITY_CATEGORY, syncId)
+            }
+            return
+        }
+
+        if (localId != null) {
+            // Known category: the repository has no update, so the local
+            // version wins and is re-pushed on the next sync.
+            return
+        }
+
+        val name = data["name"] as? String ?: return
+        val color = data["color"] as? String ?: ""
+        val note = data["note"] as? String ?: ""
+        Timber.i("Importing category %s from sync", syncId)
+        val newLocalId = categoryRepo.add(
+            Category(
+                name = name,
+                color = AppColor(colorId = 0, colorInt = color),
+                note = note,
+            ),
+        )
+        mappings.remember(ENTITY_CATEGORY, newLocalId, syncId)
+        insertMirror(ENTITY_CATEGORY, syncId, categoryPayloadContent(syncId, name, color, note))
+    }
+
+    private suspend fun applyServerTag(
+        data: Map<String, Any?>,
+        mappings: IdMappings,
+    ) {
+        val syncId = data["id"] as? String ?: return
+        val localId = mappings.localIdOf(ENTITY_RECORD_TAG, syncId)
+
+        if (data["deleted_at"] != null) {
+            if (localId != null) {
+                recordTagRepo.remove(localId)
+                mappings.forget(ENTITY_RECORD_TAG, syncId)
+                syncStateDao.remove(ENTITY_RECORD_TAG, syncId)
+            }
+            return
+        }
+
+        if (localId != null) {
+            // Known tag: the repository has no update, so the local
+            // version wins and is re-pushed on the next sync.
+            return
+        }
+
+        val name = data["name"] as? String ?: return
+        val valueType = (data["value_type"] as? String)
+            ?.let { type -> RecordTagValueType.entries.firstOrNull { it.name == type } }
+            ?: RecordTagValueType.NONE
+        Timber.i("Importing record tag %s from sync", syncId)
+        val newLocalId = recordTagRepo.add(
+            RecordTag(
+                name = name,
+                icon = data["icon"] as? String ?: "",
+                color = AppColor(colorId = 0, colorInt = data["color"] as? String ?: ""),
+                iconColorSource = (data["icon_color_source"] as? Double)?.toLong() ?: 0L,
+                note = data["note"] as? String ?: "",
+                archived = data["archived"] as? Boolean ?: false,
+                valueType = valueType,
+                valueSuffix = data["value_suffix"] as? String ?: "",
+            ),
+        )
+        mappings.remember(ENTITY_RECORD_TAG, newLocalId, syncId)
+        insertMirror(
+            ENTITY_RECORD_TAG,
+            syncId,
+            tagPayloadContent(
+                syncId = syncId,
+                name = name,
+                icon = data["icon"] as? String ?: "",
+                color = data["color"] as? String ?: "",
+                iconColorSource = (data["icon_color_source"] as? Double)?.toLong() ?: 0L,
+                note = data["note"] as? String ?: "",
+                archived = data["archived"] as? Boolean ?: false,
+                valueType = valueType.name,
+                valueSuffix = data["value_suffix"] as? String ?: "",
+            ),
+        )
+    }
+
+    private suspend fun insertMirror(
+        entityType: String,
+        syncId: String,
+        payload: Map<String, Any?>,
+    ) {
+        syncStateDao.insertAll(
+            listOf(
+                SyncStateDBO(
+                    entityType = entityType,
+                    entityId = syncId,
+                    contentHash = deltaCalculator.contentHash(payload),
+                    syncedAt = System.currentTimeMillis(),
+                ),
+            ),
+        )
     }
 
     private suspend fun applyServerActivity(
@@ -264,20 +437,33 @@ class SyncEngine @Inject constructor(
         val local = recordTypeRepo.get(localId) ?: return
         val syncId = mappings.existingSyncId(ENTITY_ACTIVITY, localId) ?: return
 
+        val localCategorySyncIds = recordTypeCategoryRepo.getCategoryIdsByType(localId)
+            .mapNotNull { mappings.existingSyncId(ENTITY_CATEGORY, it) }
+            .sorted()
+        val localHash = deltaCalculator.contentHash(local.toPayloadContent(syncId, localCategorySyncIds))
         val mirrorHash = mirror[deltaCalculator.key(ENTITY_ACTIVITY, syncId)]?.contentHash
-        val localHash = deltaCalculator.contentHash(local.toPayloadContent(syncId))
-        if (mirrorHash != null && mirrorHash == localHash && activity.name != local.name) {
-            // Activity renames from the server cannot be applied because the
-            // repository has no update; the local name wins on the next push.
-            syncConflictDao.insert(
-                SyncConflictDBO(
-                    entityType = ENTITY_ACTIVITY,
-                    entityId = activity.id,
-                    resolution = RESOLUTION_LOCAL_KEPT_NAME,
-                    detail = "server name '${activity.name}' was not applied",
-                    createdAt = System.currentTimeMillis(),
-                ),
-            )
+        if (mirrorHash != null && mirrorHash == localHash) {
+            if (activity.name != local.name) {
+                // Activity renames from the server cannot be applied because the
+                // repository has no update; the local name wins on the next push.
+                syncConflictDao.insert(
+                    SyncConflictDBO(
+                        entityType = ENTITY_ACTIVITY,
+                        entityId = activity.id,
+                        resolution = RESOLUTION_LOCAL_KEPT_NAME,
+                        detail = "server name '${activity.name}' was not applied",
+                        createdAt = System.currentTimeMillis(),
+                    ),
+                )
+            }
+            // Apply server side category assignment changes.
+            val serverCategoryIds = decodeStringList(activity.category)
+                .mapNotNull { mappings.localIdOf(ENTITY_CATEGORY, it) }
+            val localCategoryIds = recordTypeCategoryRepo.getCategoryIdsByType(localId)
+            val toAdd = (serverCategoryIds - localCategoryIds.toSet()).toList()
+            val toRemove = (localCategoryIds - serverCategoryIds.toSet()).toList()
+            if (toAdd.isNotEmpty()) recordTypeCategoryRepo.addCategories(localId, toAdd)
+            if (toRemove.isNotEmpty()) recordTypeCategoryRepo.removeCategories(localId, toRemove)
         }
         if (activity.archived && !local.hidden) {
             recordTypeRepo.archive(localId)
@@ -302,6 +488,9 @@ class SyncEngine @Inject constructor(
             ),
         )
         mappings.remember(ENTITY_ACTIVITY, localId, activity.id)
+        val categoryIds = decodeStringList(activity.category)
+            .mapNotNull { mappings.localIdOf(ENTITY_CATEGORY, it) }
+        if (categoryIds.isNotEmpty()) recordTypeCategoryRepo.addCategories(localId, categoryIds)
     }
 
     private suspend fun applyServerEntry(
@@ -347,15 +536,18 @@ class SyncEngine @Inject constructor(
                 return
             }
         val mirrorHash = mirror[deltaCalculator.key(ENTITY_TIME_ENTRY, syncId)]?.contentHash
-        val localHash = deltaCalculator.contentHash(local.toPayloadContent(syncId, typeSyncId))
+        val localHash = deltaCalculator.contentHash(
+            local.toPayloadContent(syncId, typeSyncId, tagsPayload(local.tags, mappings)),
+        )
         // Apply the server version only if the local record did not change
         // since the last push; otherwise the local edit wins and is pushed again.
         if (mirrorHash == null || mirrorHash != localHash) return
+        val serverTags = localizeTags(parsed.tags, mappings)
         val serverHash = deltaCalculator.contentHash(
-            parsed.toPayloadContent(syncId, entry.activity_id),
+            parsed.toPayloadContent(syncId, entry.activity_id, parsed.tags),
         )
         if (serverHash == localHash) return
-        applyServerRecord(local, serverTypeId, parsed)
+        applyServerRecord(local, serverTypeId, parsed, serverTags)
         syncStateDao.updateHash(ENTITY_TIME_ENTRY, syncId, serverHash)
     }
 
@@ -380,7 +572,7 @@ class SyncEngine @Inject constructor(
                 timeStarted = parsed.timeStarted,
                 timeEnded = parsed.timeEnded,
                 comment = parsed.comment,
-                tags = emptyList(),
+                tags = localizeTags(parsed.tags, mappings),
             ),
         )
         mappings.remember(ENTITY_TIME_ENTRY, localId, entry.id)
@@ -390,7 +582,7 @@ class SyncEngine @Inject constructor(
                     entityType = ENTITY_TIME_ENTRY,
                     entityId = entry.id,
                     contentHash = deltaCalculator.contentHash(
-                        parsed.toPayloadContent(entry.id, entry.activity_id),
+                        parsed.toPayloadContent(entry.id, entry.activity_id, parsed.tags),
                     ),
                     syncedAt = System.currentTimeMillis(),
                 ),
@@ -402,13 +594,14 @@ class SyncEngine @Inject constructor(
         local: Record,
         serverTypeId: Long,
         server: ParsedEntry,
+        serverTags: List<RecordBase.Tag>,
     ) {
-        if (serverTypeId != local.typeId || server.comment != local.comment) {
+        if (serverTypeId != local.typeId || server.comment != local.comment || serverTags != local.tags) {
             recordRepo.update(
                 recordId = local.id,
                 typeId = serverTypeId,
                 comment = server.comment,
-                tags = local.tags,
+                tags = serverTags,
             )
         }
         if (server.timeEnded != local.timeEnded) {
@@ -429,34 +622,43 @@ class SyncEngine @Inject constructor(
         }
     }
 
-    private fun RecordType.toPayloadContent(syncId: String): Map<String, Any?> = mapOf(
+    private fun RecordType.toPayloadContent(
+        syncId: String,
+        categorySyncIds: List<String>,
+    ): Map<String, Any?> = mapOf(
         "id" to syncId,
         "name" to name,
         "icon" to icon,
         "color" to color.colorInt,
         "archived" to hidden,
+        // Stored in the server's free text category column as a json list.
+        "category" to encodeStringList(categorySyncIds),
     )
 
     private fun Record.toPayloadContent(
         syncId: String,
         typeSyncId: String,
+        tags: List<Map<String, Any?>>,
     ): Map<String, Any?> = entryPayloadContent(
         syncId = syncId,
         typeSyncId = typeSyncId,
         timeStarted = timeStarted,
         timeEnded = timeEnded,
         comment = comment,
+        tags = tags,
     )
 
     private fun ParsedEntry.toPayloadContent(
         syncId: String,
         typeSyncId: String,
+        tags: List<Map<String, Any?>>,
     ): Map<String, Any?> = entryPayloadContent(
         syncId = syncId,
         typeSyncId = typeSyncId,
         timeStarted = timeStarted,
         timeEnded = timeEnded,
         comment = comment,
+        tags = tags,
     )
 
     /**
@@ -494,10 +696,12 @@ class SyncEngine @Inject constructor(
                 return
             }
         val timeStarted = parseEpochMilli(entry.started_at) ?: return
+        val parsedTags = decodeTags(entry.tags)
+        val localTags = localizeTags(parsedTags, mappings)
         Timber.i("Importing running record %s from sync", entry.id)
         addRunningRecordMediator.startTimer(
             typeId = typeLocalId,
-            tags = emptyList(),
+            tags = localTags,
             comment = entry.comment,
             timeStarted = AddRunningRecordMediator.StartTime.Timestamp(timeStarted),
             checkDefaultDuration = false,
@@ -514,6 +718,7 @@ class SyncEngine @Inject constructor(
                             typeSyncId = entry.activity_id,
                             timeStarted = timeStarted,
                             comment = entry.comment,
+                            tags = parsedTags,
                         ),
                     ),
                     syncedAt = System.currentTimeMillis(),
@@ -528,6 +733,7 @@ class SyncEngine @Inject constructor(
         timeStarted: Long,
         timeEnded: Long,
         comment: String,
+        tags: List<Map<String, Any?>>,
     ): Map<String, Any?> = mapOf(
         "id" to syncId,
         "activity_id" to typeSyncId,
@@ -535,6 +741,8 @@ class SyncEngine @Inject constructor(
         "ended_at" to if (timeEnded > 0) format(timeEnded) else null,
         "duration_seconds" to ((timeEnded - timeStarted) / 1000).toInt(),
         "comment" to comment,
+        // Stored in the server's free text tags column as a json list.
+        "tags" to encodeTags(tags),
     )
 
     private fun runningPayloadContent(
@@ -542,6 +750,7 @@ class SyncEngine @Inject constructor(
         typeSyncId: String,
         timeStarted: Long,
         comment: String,
+        tags: List<Map<String, Any?>>,
     ): Map<String, Any?> = mapOf(
         "id" to syncId,
         "activity_id" to typeSyncId,
@@ -549,7 +758,72 @@ class SyncEngine @Inject constructor(
         "ended_at" to null,
         "duration_seconds" to 0,
         "comment" to comment,
+        // Stored in the server's free text tags column as a json list.
+        "tags" to encodeTags(tags),
     )
+
+    private fun categoryPayloadContent(
+        syncId: String,
+        name: String,
+        color: String,
+        note: String,
+    ): Map<String, Any?> = mapOf(
+        "id" to syncId,
+        "name" to name,
+        "color" to color,
+        "note" to note,
+    )
+
+    private fun tagPayloadContent(
+        syncId: String,
+        name: String,
+        icon: String,
+        color: String,
+        iconColorSource: Long,
+        note: String,
+        archived: Boolean,
+        valueType: String,
+        valueSuffix: String,
+    ): Map<String, Any?> = mapOf(
+        "id" to syncId,
+        "name" to name,
+        "icon" to icon,
+        "color" to color,
+        "icon_color_source" to iconColorSource,
+        "note" to note,
+        "archived" to archived,
+        "value_type" to valueType,
+        "value_suffix" to valueSuffix,
+    )
+
+    /**
+     * Tag list for payloads: one entry per tag with its sync id and the
+     * optional numeric value, sorted by sync id for stable hashes.
+     */
+    private suspend fun tagsPayload(
+        tags: List<RecordBase.Tag>,
+        mappings: IdMappings,
+    ): List<Map<String, Any?>> {
+        return tags.mapNotNull { tag ->
+            mappings.syncIdOf(ENTITY_RECORD_TAG, tag.tagId).let { syncId ->
+                mapOf("id" to syncId, "value" to tag.numericValue)
+            }
+        }.sortedBy { it["id"] as String }
+    }
+
+    private fun localizeTags(
+        tags: List<Map<String, Any?>>,
+        mappings: IdMappings,
+    ): List<RecordBase.Tag> {
+        return tags.mapNotNull { tag ->
+            val syncId = tag["id"] as? String ?: return@mapNotNull null
+            val localId = mappings.localIdOf(ENTITY_RECORD_TAG, syncId) ?: return@mapNotNull null
+            RecordBase.Tag(
+                tagId = localId,
+                numericValue = (tag["value"] as? Double),
+            )
+        }
+    }
 
     private fun TimeEntryDto.toParsed(): ParsedEntry? {
         if (activity_id.isEmpty()) return null
@@ -559,7 +833,26 @@ class SyncEngine @Inject constructor(
             timeStarted = timeStarted,
             timeEnded = timeEnded,
             comment = comment,
+            tags = decodeTags(tags),
         )
+    }
+
+    private fun encodeTags(tags: List<Map<String, Any?>>): String {
+        return tagListAdapter.toJson(tags)
+    }
+
+    private fun decodeTags(json: String): List<Map<String, Any?>> {
+        if (json.isEmpty()) return emptyList()
+        return runCatching { tagListAdapter.fromJson(json) }.getOrNull() ?: emptyList()
+    }
+
+    private fun encodeStringList(values: List<String>): String {
+        return stringListAdapter.toJson(values)
+    }
+
+    private fun decodeStringList(json: String): List<String> {
+        if (json.isEmpty()) return emptyList()
+        return runCatching { stringListAdapter.fromJson(json) }.getOrNull() ?: emptyList()
     }
 
     private fun parseEpochMilli(iso: String): Long? = runCatching {
@@ -617,6 +910,7 @@ class SyncEngine @Inject constructor(
         val timeStarted: Long,
         val timeEnded: Long,
         val comment: String,
+        val tags: List<Map<String, Any?>> = emptyList(),
     )
 
     companion object {
@@ -624,6 +918,8 @@ class SyncEngine @Inject constructor(
         private const val ENTITY_ACTIVITY = "activity"
         private const val ENTITY_TIME_ENTRY = "time_entry"
         private const val ENTITY_RUNNING_RECORD = "running_record"
+        private const val ENTITY_CATEGORY = "category"
+        private const val ENTITY_RECORD_TAG = "record_tag"
         private const val RESOLUTION_LOCAL_KEPT_NAME = "local_kept_name"
         private const val RESOLUTION_LOCAL_KEPT_START = "local_kept_start_time"
 

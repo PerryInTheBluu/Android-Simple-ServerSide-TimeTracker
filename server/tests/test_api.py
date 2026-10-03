@@ -356,3 +356,72 @@ def test_sync_push_entry_without_activity_id_is_invalid():
     )
     assert result["applied"] == 0
     assert result["conflicts"][0]["resolution"] == "invalid"
+
+
+def test_sync_category_push_and_pull():
+    ensure_seed_user()
+    client = TestClient(app)
+    token = login(client)
+
+    # Push a category.
+    result = push_item(
+        client,
+        token,
+        "category",
+        {"id": "cat-devb-0001", "name": "Uni", "color": "-16776961", "note": "",
+         "updated_at": "2026-01-01T00:00:00+00:00"},
+    )
+    assert result["applied"] == 1
+    assert result["conflicts"] == []
+
+    # Pull returns it with the payload preserved.
+    pulled = client.get("/api/sync/pull", headers=auth_headers(token)).json()
+    cat = next(c for c in pulled["categories"] if c["id"] == "cat-devb-0001")
+    assert cat["name"] == "Uni"
+    assert cat["deleted_at"] is None
+
+    # Tombstone for the known category marks it deleted.
+    result = push_item(
+        client,
+        token,
+        "category",
+        {"id": "cat-devb-0001",
+         "updated_at": "2026-01-02T00:00:00+00:00",
+         "deleted_at": "2026-01-02T00:00:00+00:00"},
+    )
+    assert result["applied"] == 1
+    pulled = client.get("/api/sync/pull", headers=auth_headers(token)).json()
+    cat = next(c for c in pulled["categories"] if c["id"] == "cat-devb-0001")
+    assert cat["deleted_at"] is not None
+
+
+def test_sync_tag_push_and_unknown_tombstone():
+    ensure_seed_user()
+    client = TestClient(app)
+    token = login(client)
+
+    result = push_item(
+        client,
+        token,
+        "record_tag",
+        {"id": "tag-devb-0001", "name": "Fokus", "icon": "", "color": "-16776961",
+         "icon_color_source": 0, "note": "", "archived": False,
+         "value_type": "NUMERIC", "value_suffix": "min",
+         "updated_at": "2026-01-01T00:00:00+00:00"},
+    )
+    assert result["applied"] == 1
+    pulled = client.get("/api/sync/pull", headers=auth_headers(token)).json()
+    tag = next(t for t in pulled["tags"] if t["id"] == "tag-devb-0001")
+    assert tag["value_type"] == "NUMERIC"
+    assert tag["deleted_at"] is None
+
+    # Unknown tombstone is a no-op, not an error.
+    result = push_item(
+        client,
+        token,
+        "record_tag",
+        {"id": "tag-unknown", "updated_at": "2026-01-02T00:00:00+00:00",
+         "deleted_at": "2026-01-02T00:00:00+00:00"},
+    )
+    assert result["applied"] == 1
+    assert result["conflicts"] == []

@@ -139,6 +139,32 @@ class Goal(Base):
     deleted_at = Column(DateTime(timezone=True), nullable=True)
 
 
+class SyncCategory(Base):
+    """Generic sync storage for categories; data holds the app owned json payload."""
+
+    __tablename__ = "sync_categories"
+
+    id = Column(String, primary_key=True)
+    user_id = Column(String, nullable=False, index=True)
+    data = Column(Text, nullable=False)
+    created_at = Column(DateTime(timezone=True), default=utcnow, nullable=False)
+    updated_at = Column(DateTime(timezone=True), default=utcnow, onupdate=utcnow, nullable=False)
+    deleted_at = Column(DateTime(timezone=True), nullable=True)
+
+
+class SyncTag(Base):
+    """Generic sync storage for record tags; data holds the app owned json payload."""
+
+    __tablename__ = "sync_tags"
+
+    id = Column(String, primary_key=True)
+    user_id = Column(String, nullable=False, index=True)
+    data = Column(Text, nullable=False)
+    created_at = Column(DateTime(timezone=True), default=utcnow, nullable=False)
+    updated_at = Column(DateTime(timezone=True), default=utcnow, onupdate=utcnow, nullable=False)
+    deleted_at = Column(DateTime(timezone=True), nullable=True)
+
+
 class SyncLog(Base):
     __tablename__ = "sync_log"
 

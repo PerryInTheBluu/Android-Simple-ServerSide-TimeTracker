@@ -72,6 +72,9 @@ data class SyncPullResponse(
     val activities: List<ActivityDto> = emptyList(),
     val time_entries: List<TimeEntryDto> = emptyList(),
     val goals: List<GoalDto> = emptyList(),
+    // Categories and tags sync as opaque app owned payloads.
+    val categories: List<Map<String, Any?>> = emptyList(),
+    val tags: List<Map<String, Any?>> = emptyList(),
     val server_time: String? = null,
 )
 
