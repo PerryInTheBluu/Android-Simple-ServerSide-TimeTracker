@@ -35,6 +35,7 @@ class UpdateExternalViewsInteractor @Inject constructor(
         fromArchive: Boolean,
         removedGoalIds: List<Long>,
     ) {
+        LocalDataChangedBus.publish()
         val runningRecordIds = runningRecordInteractor.getAll().map(RunningRecord::id)
 
         runUpdates(
@@ -127,6 +128,7 @@ class UpdateExternalViewsInteractor @Inject constructor(
         updateNotificationSwitch: Boolean,
         lifecycleEvent: RecordTimerEvent?,
     ) {
+        LocalDataChangedBus.publish()
         val runningRecords = runningRecordInteractor.getAll()
         val runningRecordIds = runningRecords.map(RunningRecord::id)
         val runningRecordTagIds = runningRecords.flatMap(RunningRecord::tags)
@@ -161,6 +163,7 @@ class UpdateExternalViewsInteractor @Inject constructor(
         updateNotificationSwitch: Boolean,
         lifecycleEvent: RecordTimerEvent?,
     ) {
+        LocalDataChangedBus.publish()
         runUpdates(
             Update.NotificationType(listOf(typeId)),
             Update.NotificationWithControls.takeIf { updateNotificationSwitch },
@@ -206,6 +209,7 @@ class UpdateExternalViewsInteractor @Inject constructor(
         tagIds: List<Long>,
         updateNotificationSwitch: Boolean,
     ) {
+        LocalDataChangedBus.publish()
         runUpdates(
             Update.NotificationType(typeIds),
             Update.NotificationWithControls.takeIf { updateNotificationSwitch },

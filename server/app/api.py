@@ -158,6 +158,7 @@ class ActivityIn(BaseModel):
     id: Optional[str] = None
     name: str
     color: str = ""
+    color_id: int = 0
     icon: str = ""
     sort_order: int = 0
     archived: bool = False
@@ -176,6 +177,7 @@ def activity_out(a: Activity) -> dict:
         "id": a.id,
         "name": a.name,
         "color": a.color,
+        "color_id": a.color_id,
         "icon": a.icon,
         "sort_order": a.sort_order,
         "archived": a.archived,
@@ -209,6 +211,7 @@ def create_activity(body: ActivityIn, db: Session = Depends(get_db), user_id: st
         user_id=user_id,
         name=body.name,
         color=body.color,
+        color_id=body.color_id,
         icon=body.icon,
         sort_order=body.sort_order,
         archived=body.archived,
@@ -248,7 +251,7 @@ def update_activity(activity_id: str, body: ActivityIn, db: Session = Depends(ge
         db.commit()
         return activity_out(activity)
     for field in (
-        "name", "color", "icon", "sort_order", "archived", "parent_activity_id",
+        "name", "color", "color_id", "icon", "sort_order", "archived", "parent_activity_id",
         "category", "goal_seconds_per_week", "goal_seconds_total", "goal_days_per_month",
     ):
         setattr(activity, field, getattr(body, field))
@@ -582,6 +585,7 @@ def sync_push(body: SyncPushRequest, db: Session = Depends(get_db), user_id: str
                         user_id=user_id,
                         name=data.get("name", ""),
                         color=data.get("color", ""),
+                        color_id=data.get("color_id", 0),
                         icon=data.get("icon", ""),
                         sort_order=data.get("sort_order", 0),
                         archived=data.get("archived", False),
@@ -598,6 +602,7 @@ def sync_push(body: SyncPushRequest, db: Session = Depends(get_db), user_id: str
             elif incoming_updated >= _aware(existing.updated_at):
                 existing.name = data.get("name", existing.name)
                 existing.color = data.get("color", existing.color)
+                existing.color_id = data.get("color_id", existing.color_id)
                 existing.icon = data.get("icon", existing.icon)
                 existing.sort_order = data.get("sort_order", existing.sort_order)
                 existing.archived = data.get("archived", existing.archived)

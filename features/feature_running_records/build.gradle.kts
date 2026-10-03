@@ -21,5 +21,6 @@ dependencies {
     implementation(project(":feature_running_records:api"))
     implementation(project(":feature_settings:api"))
     implementation(libs.google.dagger)
+    implementation(libs.androidx.swiperefresh)
     ksp(libs.kapt.dagger)
 }

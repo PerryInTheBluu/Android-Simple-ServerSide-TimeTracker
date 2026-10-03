@@ -9,6 +9,7 @@ data class ActivityDto(
     val id: String,
     val name: String,
     val color: String = "",
+    val color_id: Int = 0,
     val icon: String = "",
     val sort_order: Int = 0,
     val archived: Boolean = false,

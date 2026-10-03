@@ -15,6 +15,7 @@ import com.example.util.simpletimetracker.core.utils.doOnApplyWindowInsetsListen
 import com.example.util.simpletimetracker.core.utils.getNavBarInsetsBottom
 import com.example.util.simpletimetracker.core.utils.updateRunningRecordPreview
 import com.example.util.simpletimetracker.core.viewData.RecordTypeSuggestionType
+import com.example.util.simpletimetracker.domain.notifications.interactor.LocalDataChangedBus
 import com.example.util.simpletimetracker.domain.record.interactor.UpdateRunningRecordsInteractor
 import com.example.util.simpletimetracker.feature_base_adapter.BaseRecyclerAdapter
 import com.example.util.simpletimetracker.feature_base_adapter.ViewHolderType
@@ -119,6 +120,13 @@ class RunningRecordsFragment :
     override fun initUi(): Unit = with(binding) {
         parentFragment?.postponeEnterTransition()
 
+        // Pull to refresh: triggers the debounced sync and stops the
+        // indicator a moment later.
+        swipeRunningRecordsRefresh.setOnRefreshListener {
+            LocalDataChangedBus.publish()
+            view?.postDelayed({ swipeRunningRecordsRefresh.isRefreshing = false }, REFRESH_INDICATOR_MS)
+        }
+
         rvRunningRecordsList.apply {
             layoutManager = FlexboxLayoutManager(requireContext()).apply {
                 flexDirection = FlexDirection.ROW
@@ -206,6 +214,8 @@ class RunningRecordsFragment :
     }
 
     companion object {
+        private const val REFRESH_INDICATOR_MS = 4_000L
+
         fun newInstance() = RunningRecordsFragment()
     }
 }

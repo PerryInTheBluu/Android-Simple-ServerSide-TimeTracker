@@ -88,6 +88,7 @@ class Activity(Base):
     user_id = Column(String, nullable=False, index=True)
     name = Column(String, nullable=False)
     color = Column(String, default="", nullable=False)
+    color_id = Column(Integer, default=0, nullable=False)
     icon = Column(String, default="", nullable=False)
     sort_order = Column(Integer, default=0, nullable=False)
     archived = Column(Boolean, default=False, nullable=False)

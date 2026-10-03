@@ -13,7 +13,9 @@ import com.example.util.simpletimetracker.domain.extension.orFalse
 import com.example.util.simpletimetracker.domain.recordType.interactor.InitialActivitiesInteractor
 import com.example.util.simpletimetracker.feature_settings.viewModel.delegate.SettingsFileWorkDelegate
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -37,8 +39,13 @@ class MainActivityViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             // With a configured sync server the activities arrive from the
-            // server; creating defaults here would duplicate them.
-            if (!syncCredentialStore.isConfigured) {
+            // server; creating defaults here would duplicate them. The
+            // encrypted preferences must not be touched on the main thread
+            // (their first access also writes the prefs file).
+            val isSyncConfigured = withContext(Dispatchers.IO) {
+                syncCredentialStore.isConfigured
+            }
+            if (!isSyncConfigured) {
                 initialActivitiesInteractor.executeIfEmpty()
             }
         }

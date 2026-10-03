@@ -211,7 +211,13 @@ class SyncEngine @Inject constructor(
             SyncDeltaCalculator.Candidate(
                 entityType = ENTITY_CATEGORY,
                 entityId = syncId,
-                payload = categoryPayloadContent(syncId, category.name, category.color.colorInt, category.note),
+                payload = categoryPayloadContent(
+                    syncId = syncId,
+                    name = category.name,
+                    color = category.color.colorInt,
+                    colorId = category.color.colorId,
+                    note = category.note,
+                ),
             )
         }
         val tagCandidates = recordTagRepo.getAll().map { tag ->
@@ -224,6 +230,7 @@ class SyncEngine @Inject constructor(
                     name = tag.name,
                     icon = tag.icon,
                     color = tag.color.colorInt,
+                    colorId = tag.color.colorId,
                     iconColorSource = tag.iconColorSource,
                     note = tag.note,
                     archived = tag.archived,
@@ -316,17 +323,18 @@ class SyncEngine @Inject constructor(
 
         val name = data["name"] as? String ?: return
         val color = data["color"] as? String ?: ""
+        val colorId = (data["color_id"] as? Double)?.toInt() ?: 0
         val note = data["note"] as? String ?: ""
         Timber.i("Importing category %s from sync", syncId)
         val newLocalId = categoryRepo.add(
             Category(
                 name = name,
-                color = AppColor(colorId = 0, colorInt = color),
+                color = AppColor(colorId = colorId, colorInt = color),
                 note = note,
             ),
         )
         mappings.remember(ENTITY_CATEGORY, newLocalId, syncId)
-        insertMirror(ENTITY_CATEGORY, syncId, categoryPayloadContent(syncId, name, color, note))
+        insertMirror(ENTITY_CATEGORY, syncId, categoryPayloadContent(syncId, name, color, colorId, note))
     }
 
     private suspend fun applyServerTag(
@@ -360,7 +368,10 @@ class SyncEngine @Inject constructor(
             RecordTag(
                 name = name,
                 icon = data["icon"] as? String ?: "",
-                color = AppColor(colorId = 0, colorInt = data["color"] as? String ?: ""),
+                color = AppColor(
+                    colorId = (data["color_id"] as? Double)?.toInt() ?: 0,
+                    colorInt = data["color"] as? String ?: "",
+                ),
                 iconColorSource = (data["icon_color_source"] as? Double)?.toLong() ?: 0L,
                 note = data["note"] as? String ?: "",
                 archived = data["archived"] as? Boolean ?: false,
@@ -377,6 +388,7 @@ class SyncEngine @Inject constructor(
                 name = name,
                 icon = data["icon"] as? String ?: "",
                 color = data["color"] as? String ?: "",
+                colorId = (data["color_id"] as? Double)?.toInt() ?: 0,
                 iconColorSource = (data["icon_color_source"] as? Double)?.toLong() ?: 0L,
                 note = data["note"] as? String ?: "",
                 archived = data["archived"] as? Boolean ?: false,
@@ -481,7 +493,10 @@ class SyncEngine @Inject constructor(
             RecordType(
                 name = activity.name,
                 icon = activity.icon,
-                color = AppColor(colorId = 0, colorInt = activity.color),
+                // Predefined app colors live in colorId; without it every
+                // imported activity would fall back to the same fallback
+                // color on the receiving device.
+                color = AppColor(colorId = activity.color_id, colorInt = activity.color),
                 defaultDuration = 0,
                 note = "",
                 hidden = activity.archived,
@@ -499,6 +514,7 @@ class SyncEngine @Inject constructor(
                 "name" to activity.name,
                 "icon" to activity.icon,
                 "color" to activity.color,
+                "color_id" to activity.color_id,
                 "archived" to activity.archived,
                 "category" to encodeStringList(decodeStringList(activity.category).sorted()),
             ),
@@ -642,6 +658,7 @@ class SyncEngine @Inject constructor(
         "name" to name,
         "icon" to icon,
         "color" to color.colorInt,
+        "color_id" to color.colorId,
         "archived" to hidden,
         // Stored in the server's free text category column as a json list.
         "category" to encodeStringList(categorySyncIds),
@@ -778,11 +795,13 @@ class SyncEngine @Inject constructor(
         syncId: String,
         name: String,
         color: String,
+        colorId: Int,
         note: String,
     ): Map<String, Any?> = mapOf(
         "id" to syncId,
         "name" to name,
         "color" to color,
+        "color_id" to colorId,
         "note" to note,
     )
 
@@ -791,6 +810,7 @@ class SyncEngine @Inject constructor(
         name: String,
         icon: String,
         color: String,
+        colorId: Int,
         iconColorSource: Long,
         note: String,
         archived: Boolean,
@@ -801,6 +821,7 @@ class SyncEngine @Inject constructor(
         "name" to name,
         "icon" to icon,
         "color" to color,
+        "color_id" to colorId,
         "icon_color_source" to iconColorSource,
         "note" to note,
         "archived" to archived,
