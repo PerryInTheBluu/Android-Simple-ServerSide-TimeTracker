@@ -327,6 +327,8 @@ This allows you to see how much time you\'re spending on productive versus unpro
     <string name="settings_sync_username">Benutzername</string>
     <string name="settings_sync_password">Passwort</string>
     <string name="settings_sync_login_failed">Login fehlgeschlagen. Token wurde nicht aktualisiert.</string>
+    <string name="settings_sync_login_invalid">Benutzername oder Passwort ist falsch.</string>
+    <string name="settings_sync_login_rate_limited">Zu viele Anmeldeversuche. Bitte eine Minute warten.</string>
     <string name="settings_sync_token">API-Token</string>
     <string name="settings_sync_now">Jetzt synchronisieren</string>
     <string name="settings_sync_status_synced">Synchronisiert</string>

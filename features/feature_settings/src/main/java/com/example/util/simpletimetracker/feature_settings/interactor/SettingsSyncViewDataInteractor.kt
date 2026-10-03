@@ -41,7 +41,9 @@ class SettingsSyncViewDataInteractor @Inject constructor(
         result += SettingsTextViewData(
             block = SettingsBlock.SyncUsername,
             title = resourceRepo.getString(resourcesR.string.settings_sync_username),
-            subtitle = resourceRepo.getString(resourcesR.string.settings_sync_unavailable),
+            subtitle = credentialStore.username.ifEmpty {
+                resourceRepo.getString(resourcesR.string.settings_sync_unavailable)
+            },
             layoutIsClickable = false,
         )
 
