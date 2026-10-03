@@ -57,7 +57,9 @@ class RunningRecordsViewDataInteractor @Inject constructor(
         fromSearchChange: Boolean,
         uniMode: Boolean = false,
     ): List<ViewHolderType> = withContext(Dispatchers.Default) {
-        val uniTypeIds = if (uniMode) getUniTypeIds() else null
+        // Activities of the Uni category live on the Uni tab only and
+        // are hidden from the main screen (except for running cards).
+        val uniTypeIds = getUniTypeIds()
         val recordTypes = recordTypeInteractor.getAll()
         val recordTypesMap = recordTypes.associateBy(RecordType::id)
         val recordTags = recordTagInteractor.getAll()
@@ -191,6 +193,9 @@ class RunningRecordsViewDataInteractor @Inject constructor(
             .filterNot {
                 it.hidden
             }
+            .filterNot {
+                !uniMode && it.id in uniTypeIds
+            }
             .let { list ->
                 when {
                     uniMode -> list.filter { it.id in uniTypeIds.orEmpty() }
@@ -230,12 +235,10 @@ class RunningRecordsViewDataInteractor @Inject constructor(
                             isPomodoroStarted = isPomodoroStarted,
                         ).let(::add)
                     }
-                    if (!uniMode) {
-                        recordTypeViewDataMapper.mapToAddItem(
-                            numberOfCards = numberOfCards,
-                            isDarkTheme = isDarkTheme,
-                        ).let(::add)
-                    }
+                    recordTypeViewDataMapper.mapToAddItem(
+                        numberOfCards = numberOfCards,
+                        isDarkTheme = isDarkTheme,
+                    ).let(::add)
                     if (showDefaultTypesButton && !uniMode) {
                         recordTypeViewDataMapper.mapToAddDefaultItem(
                             numberOfCards = numberOfCards,

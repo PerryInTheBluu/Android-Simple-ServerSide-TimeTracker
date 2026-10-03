@@ -99,6 +99,8 @@ enum class SettingsBlock {
     AdditionalShiftStartOfDay,
     AdditionalShiftStartOfDayButton,
     AdditionalShiftStartOfDayHint,
+    AdditionalShiftEndOfDay,
+    AdditionalShiftEndOfDayHint,
     AdditionalAutomatedTracking,
     AdditionalSendEvents,
     AdditionalReceiveQueries,

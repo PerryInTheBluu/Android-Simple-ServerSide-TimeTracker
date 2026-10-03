@@ -57,6 +57,8 @@ interface PrefsRepo {
 
     var startOfDayShift: Long // in milliseconds
 
+    var endOfDayShift: Long // in milliseconds, 0 - full day
+
     var showUntrackedInRecords: Boolean
 
     var showUntrackedInStatistics: Boolean

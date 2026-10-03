@@ -8,7 +8,6 @@ import com.example.util.simpletimetracker.feature_settings.model.OptionsContent
 import com.example.util.simpletimetracker.feature_settings.viewModel.delegate.SettingsUiDelegated
 import com.example.util.simpletimetracker.feature_settings.viewModel.delegate.SettingsAdditionalViewModelDelegate
 import com.example.util.simpletimetracker.feature_settings.viewModel.delegate.SettingsBackupViewModelDelegate
-import com.example.util.simpletimetracker.feature_settings.viewModel.delegate.SettingsContributorsViewModelDelegate
 import com.example.util.simpletimetracker.feature_settings.viewModel.delegate.SettingsDelegate
 import com.example.util.simpletimetracker.feature_settings.viewModel.delegate.SettingsDisplayViewModelDelegate
 import com.example.util.simpletimetracker.feature_settings.viewModel.delegate.SettingsExportViewModelDelegate
@@ -29,7 +28,6 @@ class SettingsViewModelDelegatesProvider @Inject constructor(
     backupDelegate: SettingsBackupViewModelDelegate,
     val syncDelegate: SettingsSyncViewModelDelegate,
     exportDelegate: SettingsExportViewModelDelegate,
-    contributorsDelegate: SettingsContributorsViewModelDelegate,
 ) : SettingsUiDelegated {
 
     val delegates: List<SettingsDelegate> = listOf(
@@ -41,7 +39,6 @@ class SettingsViewModelDelegatesProvider @Inject constructor(
         backupDelegate,
         syncDelegate,
         exportDelegate,
-        contributorsDelegate,
     )
 
     override fun onHidden() =
@@ -93,7 +90,6 @@ class SettingsViewModelDelegatesProvider @Inject constructor(
             SettingsSyncViewModelDelegate,
             SettingsExportViewModelDelegate,
             SettingsRatingViewModelDelegate,
-            SettingsContributorsViewModelDelegate,
         )
         val viewData = delegates.map { it.getViewData() }.associateBy { it.key }
         return order.mapNotNull { key -> viewData[key]?.data }.flatten()

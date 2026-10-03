@@ -62,6 +62,7 @@ class SettingsAdditionalViewModelDelegate @Inject constructor(
             SettingsBlock.AdditionalIgnoreShort -> onIgnoreShortRecordsClicked()
             SettingsBlock.AdditionalShiftStartOfDay -> onStartOfDayClicked()
             SettingsBlock.AdditionalShiftStartOfDayButton -> onStartOfDaySignClicked()
+            SettingsBlock.AdditionalShiftEndOfDay -> onEndOfDayClicked()
             SettingsBlock.AdditionalAutomatedTracking -> onAutomatedTrackingHelpClick()
             SettingsBlock.AdditionalShowTagSelection -> onShowRecordTagSelectionClicked()
             SettingsBlock.AdditionalCloseAfterOneTag -> onRecordTagSelectionCloseClicked()
@@ -142,6 +143,18 @@ class SettingsAdditionalViewModelDelegate @Inject constructor(
                 tag = SettingsDialogTags.START_OF_DAY_DIALOG_TAG,
                 value = DurationDialogParams.Value.DurationSeconds(
                     duration = abs(prefsInteractor.getStartOfDayShift()) / 1000,
+                ),
+                showSeconds = false,
+            ).let(router::navigate)
+        }
+    }
+
+    private fun onEndOfDayClicked() {
+        delegateScope.launch {
+            DurationDialogParams(
+                tag = SettingsDialogTags.END_OF_DAY_DIALOG_TAG,
+                value = DurationDialogParams.Value.DurationSeconds(
+                    duration = prefsInteractor.getEndOfDayShift() / 1000,
                 ),
                 showSeconds = false,
             ).let(router::navigate)
@@ -340,6 +353,12 @@ class SettingsAdditionalViewModelDelegate @Inject constructor(
                 parent?.updateContent()
                 recordsContainerUpdateInteractor.sendDateSelectorUpdate()
             }
+            SettingsDialogTags.END_OF_DAY_DIALOG_TAG -> {
+                prefsInteractor.setEndOfDayShift(duration * 1000)
+                externalViewsInteractor.onStartOfDayChange()
+                parent?.updateContent()
+                recordsContainerUpdateInteractor.sendDateSelectorUpdate()
+            }
         }
     }
 
@@ -351,6 +370,12 @@ class SettingsAdditionalViewModelDelegate @Inject constructor(
             }
             SettingsDialogTags.START_OF_DAY_DIALOG_TAG -> {
                 prefsInteractor.setStartOfDayShift(0)
+                externalViewsInteractor.onStartOfDayChange()
+                parent?.updateContent()
+                recordsContainerUpdateInteractor.sendDateSelectorUpdate()
+            }
+            SettingsDialogTags.END_OF_DAY_DIALOG_TAG -> {
+                prefsInteractor.setEndOfDayShift(0)
                 externalViewsInteractor.onStartOfDayChange()
                 parent?.updateContent()
                 recordsContainerUpdateInteractor.sendDateSelectorUpdate()

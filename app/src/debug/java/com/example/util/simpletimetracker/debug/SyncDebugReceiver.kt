@@ -76,6 +76,9 @@ class SyncDebugReceiver : BroadcastReceiver() {
     @Inject
     lateinit var timetableRepo: com.example.util.simpletimetracker.domain.timetable.repo.TimetableRepo
 
+    @Inject
+    lateinit var prefsInteractor: com.example.util.simpletimetracker.domain.prefs.interactor.PrefsInteractor
+
     override fun onReceive(context: Context, intent: Intent) {
         val pending = goAsync()
         CoroutineScope(Dispatchers.IO).launch {
@@ -136,6 +139,25 @@ class SyncDebugReceiver : BroadcastReceiver() {
                     ACTION_STOP_ALL_TIMERS -> stopAllTimers()
                     ACTION_DUMP_RUNNING -> dumpRunning()
                     ACTION_SEED_TIMETABLE -> seedTimetable()
+                    ACTION_SET_PREF_LONG -> {
+                        val key = intent.getStringExtra(EXTRA_KEY).orEmpty()
+                        val value = intent.getLongExtra(EXTRA_VALUE, 0L)
+                        when (key) {
+                            "endOfDayShift" -> prefsInteractor.setEndOfDayShift(value)
+                            else -> Timber.w("DebugReceiver: unknown pref %s", key)
+                        }
+                        Timber.i("DebugReceiver: set %s=%d", key, value)
+                    }
+                    ACTION_SET_PREF_BOOL -> {
+                        val key = intent.getStringExtra(EXTRA_KEY).orEmpty()
+                        val value = intent.getBooleanExtra(EXTRA_VALUE, false)
+                        when (key) {
+                            "enablePomodoroMode" -> prefsInteractor.setEnablePomodoroMode(value)
+                            "enableRepeatButton" -> prefsInteractor.setEnableRepeatButton(value)
+                            else -> Timber.w("DebugReceiver: unknown pref %s", key)
+                        }
+                        Timber.i("DebugReceiver: set %s=%b", key, value)
+                    }
                     else -> Timber.w("DebugReceiver: unknown action %s", intent.action)
                 }
             } finally {
@@ -149,13 +171,12 @@ class SyncDebugReceiver : BroadcastReceiver() {
         val uniCategoryId = uniCategory?.id
             ?: categoryRepo.add(Category(id = 0, name = "Uni", color = AppColor(colorId = 10, colorInt = ""), note = ""))
 
-        // Uniform test activities in the green palette range, all in the Uni category.
+        // Uniform test activities in the green palette range, one tile per
+        // subject, all in the Uni category.
         val seedActivities = listOf(
-            "Thermo VL" to 9, // teal
-            "Thermo Übung" to 10, // green
-            "Mathe VL" to 11, // light green
-            "Mathe Übung" to 10, // green
-            "Physik Tutorium" to 12, // lime
+            "Thermodynamik" to 9, // teal
+            "Mathe" to 10, // green
+            "Physik" to 11, // light green
         )
         val activityIds = mutableMapOf<String, Long>()
         seedActivities.forEach { (name, colorId) ->
@@ -178,20 +199,22 @@ class SyncDebugReceiver : BroadcastReceiver() {
 
         timetableRepo.clearEvents()
 
-        // Fictional timetable: Mo - Fr, lectures, exercises and a tutorium.
+        // Fictional timetable per subject; the event type distinguishes
+        // lecture, exercise and tutorium slots of the same subject.
         val events = listOf(
-            TimetableEvent(name = "Thermo VL", dayOfWeek = 1, startTime = 8 * 60 + 15, endTime = 9 * 60 + 45, room = "HS 1", type = TimetableEvent.Type.LECTURE, comment = "", activityTypeId = activityIds["Thermo VL"]),
-            TimetableEvent(name = "Mathe VL", dayOfWeek = 1, startTime = 10 * 60 + 15, endTime = 11 * 60 + 45, room = "HS 2", type = TimetableEvent.Type.LECTURE, comment = "Serie 3 abgeben", activityTypeId = activityIds["Mathe VL"]),
-            TimetableEvent(name = "Thermo Übung", dayOfWeek = 2, startTime = 12 * 60, endTime = 13 * 60 + 30, room = "R 2.104", type = TimetableEvent.Type.EXERCISE, comment = "", activityTypeId = activityIds["Thermo Übung"]),
-            TimetableEvent(name = "Mathe VL", dayOfWeek = 2, startTime = 14 * 60 + 15, endTime = 15 * 60 + 45, room = "HS 2", type = TimetableEvent.Type.LECTURE, comment = "", activityTypeId = activityIds["Mathe VL"]),
-            TimetableEvent(name = "Mathe Übung", dayOfWeek = 3, startTime = 8 * 60 + 15, endTime = 9 * 60 + 45, room = "R 1.012", type = TimetableEvent.Type.EXERCISE, comment = "Rechner algebra aktiv", activityTypeId = activityIds["Mathe Übung"]),
-            TimetableEvent(name = "Thermo VL", dayOfWeek = 3, startTime = 10 * 60 + 15, endTime = 11 * 60 + 45, room = "HS 1", type = TimetableEvent.Type.LECTURE, comment = "", activityTypeId = activityIds["Thermo VL"]),
-            TimetableEvent(name = "Physik Tutorium", dayOfWeek = 4, startTime = 16 * 60, endTime = 17 * 60 + 30, room = "R 0.201", type = TimetableEvent.Type.TUTORIUM, comment = "", activityTypeId = activityIds["Physik Tutorium"]),
-            TimetableEvent(name = "Mathe Übung", dayOfWeek = 5, startTime = 10 * 60 + 15, endTime = 11 * 60 + 45, room = "R 1.012", type = TimetableEvent.Type.EXERCISE, comment = "", activityTypeId = activityIds["Mathe Übung"]),
+            TimetableEvent(name = "Thermo", dayOfWeek = 1, startTime = 8 * 60 + 15, endTime = 9 * 60 + 45, room = "HS 1", type = TimetableEvent.Type.LECTURE, comment = "", activityTypeId = activityIds["Thermodynamik"]),
+            TimetableEvent(name = "Mathe", dayOfWeek = 1, startTime = 10 * 60 + 15, endTime = 11 * 60 + 45, room = "HS 2", type = TimetableEvent.Type.LECTURE, comment = "Serie 3 abgeben", activityTypeId = activityIds["Mathe"]),
+            TimetableEvent(name = "Thermo", dayOfWeek = 2, startTime = 12 * 60, endTime = 13 * 60 + 30, room = "R 2.104", type = TimetableEvent.Type.EXERCISE, comment = "", activityTypeId = activityIds["Thermodynamik"]),
+            TimetableEvent(name = "Mathe", dayOfWeek = 2, startTime = 14 * 60 + 15, endTime = 15 * 60 + 45, room = "HS 2", type = TimetableEvent.Type.LECTURE, comment = "", activityTypeId = activityIds["Mathe"]),
+            TimetableEvent(name = "Mathe", dayOfWeek = 3, startTime = 8 * 60 + 15, endTime = 9 * 60 + 45, room = "R 1.012", type = TimetableEvent.Type.EXERCISE, comment = "Rechner algebra aktiv", activityTypeId = activityIds["Mathe"]),
+            TimetableEvent(name = "Thermo", dayOfWeek = 3, startTime = 10 * 60 + 15, endTime = 11 * 60 + 45, room = "HS 1", type = TimetableEvent.Type.LECTURE, comment = "", activityTypeId = activityIds["Thermodynamik"]),
+            TimetableEvent(name = "Physik", dayOfWeek = 4, startTime = 16 * 60, endTime = 17 * 60 + 30, room = "R 0.201", type = TimetableEvent.Type.TUTORIUM, comment = "", activityTypeId = activityIds["Physik"]),
+            TimetableEvent(name = "Mathe", dayOfWeek = 5, startTime = 10 * 60 + 15, endTime = 11 * 60 + 45, room = "R 1.012", type = TimetableEvent.Type.EXERCISE, comment = "", activityTypeId = activityIds["Mathe"]),
             // Saturday slots for testing today: one in the past, one upcoming.
-            TimetableEvent(name = "Thermo VL", dayOfWeek = 6, startTime = 8 * 60 + 15, endTime = 9 * 60 + 45, room = "HS 1", type = TimetableEvent.Type.LECTURE, comment = "", activityTypeId = activityIds["Thermo VL"]),
-            TimetableEvent(name = "Mathe Übung", dayOfWeek = 6, startTime = 22 * 60, endTime = 23 * 60 + 30, room = "R 1.012", type = TimetableEvent.Type.EXERCISE, comment = "Testslot", activityTypeId = activityIds["Mathe Übung"]),
+            TimetableEvent(name = "Thermo", dayOfWeek = 6, startTime = 8 * 60 + 15, endTime = 9 * 60 + 45, room = "HS 1", type = TimetableEvent.Type.LECTURE, comment = "", activityTypeId = activityIds["Thermodynamik"]),
+            TimetableEvent(name = "Mathe", dayOfWeek = 6, startTime = 22 * 60, endTime = 23 * 60 + 30, room = "R 1.012", type = TimetableEvent.Type.EXERCISE, comment = "Testslot", activityTypeId = activityIds["Mathe"]),
         )
+
         events.forEach { event ->
             val id = timetableRepo.addEvent(event)
             if (event.type == TimetableEvent.Type.LECTURE) {
@@ -285,6 +308,10 @@ class SyncDebugReceiver : BroadcastReceiver() {
         const val ACTION_STOP_ALL_TIMERS = "de.piusdischinger.timetracker.debug.STOP_ALL_TIMERS"
         const val ACTION_DUMP_RUNNING = "de.piusdischinger.timetracker.debug.DUMP_RUNNING"
         const val ACTION_SEED_TIMETABLE = "de.piusdischinger.timetracker.debug.SEED_TIMETABLE"
+        const val ACTION_SET_PREF_BOOL = "de.piusdischinger.timetracker.debug.SET_PREF_BOOL"
+        const val ACTION_SET_PREF_LONG = "de.piusdischinger.timetracker.debug.SET_PREF_LONG"
+        const val EXTRA_KEY = "key"
+        const val EXTRA_VALUE = "value"
         const val EXTRA_URL = "url"
         const val EXTRA_USERNAME = "username"
         const val EXTRA_TOKEN = "token"

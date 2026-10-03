@@ -36,6 +36,7 @@ import com.example.util.simpletimetracker.domain.record.interactor.RecordsContai
 import com.example.util.simpletimetracker.domain.record.model.MultiSelectedRecordId
 import com.example.util.simpletimetracker.domain.record.model.RecordBase
 import com.example.util.simpletimetracker.domain.statistics.model.ChartFilterType
+import com.example.util.simpletimetracker.domain.timetable.model.TimetableEvent
 import com.example.util.simpletimetracker.domain.timetable.repo.TimetableRepo
 import com.example.util.simpletimetracker.feature_base_adapter.ViewHolderType
 import com.example.util.simpletimetracker.feature_base_adapter.record.RecordViewData
@@ -48,7 +49,6 @@ import com.example.util.simpletimetracker.feature_records.mapper.RecordsViewData
 import com.example.util.simpletimetracker.feature_records.mapper.TimetableViewDataMapper
 import com.example.util.simpletimetracker.feature_records.model.RecordsState
 import kotlinx.coroutines.Dispatchers
-import timber.log.Timber
 import kotlinx.coroutines.withContext
 import java.lang.Long.min
 import java.util.Calendar
@@ -90,6 +90,7 @@ class RecordsViewDataInteractor @Inject constructor(
         val showSeconds = prefsInteractor.getShowSeconds()
         val isMilitary = prefsInteractor.getUseMilitaryTimeFormat()
         val startOfDayShift = prefsInteractor.getStartOfDayShift()
+        val endOfDayShift = prefsInteractor.getEndOfDayShift()
         val firstDayOfWeek = prefsInteractor.getFirstDayOfWeek()
         val showUntrackedInRecords = prefsInteractor.getShowUntrackedInRecords()
         val reverseOrder = prefsInteractor.getReverseOrderInCalendar()
@@ -145,6 +146,8 @@ class RecordsViewDataInteractor @Inject constructor(
 
             val slots = getTimetableSlots(
                 range = range,
+                records = records,
+                runningRecords = runningRecords,
                 recordTypes = recordTypes,
                 isDarkTheme = isDarkTheme,
             )
@@ -162,6 +165,7 @@ class RecordsViewDataInteractor @Inject constructor(
                     data = data,
                     calendar = calendar,
                     startOfDayShift = startOfDayShift,
+                    endOfDayShift = endOfDayShift,
                     shift = shift,
                     reverseOrder = reverseOrder,
                     showSeconds = showSeconds,
@@ -183,6 +187,7 @@ class RecordsViewDataInteractor @Inject constructor(
         data: List<ViewDataIntermediate>,
         calendar: Calendar,
         startOfDayShift: Long,
+        endOfDayShift: Long = 0L,
         shift: Int,
         reverseOrder: Boolean,
         showSeconds: Boolean,
@@ -234,6 +239,7 @@ class RecordsViewDataInteractor @Inject constructor(
                 RecordsCalendarViewData(
                     currentTime = currentTime,
                     startOfDayShift = startOfDayShift,
+                    endOfDayShift = endOfDayShift,
                     points = list,
                     reverseOrder = reverseOrder,
                     shouldDrawTopLegends = shouldMapLegends,
@@ -512,6 +518,8 @@ class RecordsViewDataInteractor @Inject constructor(
      */
     private suspend fun getTimetableSlots(
         range: Range,
+        records: List<Record>,
+        runningRecords: List<RunningRecord>,
         recordTypes: Map<Long, RecordType>,
         isDarkTheme: Boolean,
     ): List<RecordsCalendarViewData.Slot> {
@@ -521,7 +529,8 @@ class RecordsViewDataInteractor @Inject constructor(
 
         val isoDay = timetableViewDataMapper.isoDayOfWeek(dayTimestamp)
         val overrides = timetableRepo.getOverrides(date).associateBy { it.eventId }
-        Timber.d("Timetable slots for date=%s isoDay=%d events=%d", date, isoDay, timetableRepo.getEvents(isoDay).size)
+        val midnight = timetableViewDataMapper.midnightOf(dayTimestamp)
+        val startOfDayShift = prefsInteractor.getStartOfDayShift()
 
         return timetableRepo.getEvents(isoDay).mapNotNull { event ->
             val override = overrides[event.id]
@@ -540,10 +549,43 @@ class RecordsViewDataInteractor @Inject constructor(
                     isDarkTheme,
                 )
 
+            // Absolute timestamps for the attendance check.
+            val slotStartAbs = midnight + startTime * minuteInMillis
+            val slotEndAbs = midnight + endTime * minuteInMillis
+            val attended = event.activityTypeId != null && (
+                records.any { record ->
+                    record.typeId == event.activityTypeId &&
+                        record.timeStarted < slotEndAbs &&
+                        record.timeEnded > slotStartAbs
+                } ||
+                    runningRecords.any { running ->
+                        running.id == event.activityTypeId &&
+                            running.timeStarted < slotEndAbs
+                    }
+                )
+            val state = when {
+                attended -> RecordsCalendarViewData.Slot.STATE_ATTENDED
+                System.currentTimeMillis() > slotEndAbs ->
+                    RecordsCalendarViewData.Slot.STATE_MISSED
+                else -> RecordsCalendarViewData.Slot.STATE_UPCOMING
+            }
+
+            // Window coordinates: the chart measures from the shifted day
+            // start, so convert the wall clock minutes accordingly.
+            val startCoord = (
+                (startTime * minuteInMillis - startOfDayShift + dayInMillis) % dayInMillis
+                )
             RecordsCalendarViewData.Slot(
-                start = startTime * minuteInMillis,
-                end = endTime * minuteInMillis,
+                start = startCoord,
+                end = startCoord + (endTime - startTime) * minuteInMillis,
                 color = color,
+                name = event.name,
+                typeLabel = when (event.type) {
+                    TimetableEvent.Type.LECTURE -> "V"
+                    TimetableEvent.Type.EXERCISE -> "UE"
+                    TimetableEvent.Type.TUTORIUM -> "T"
+                },
+                state = state,
             )
         }
     }
@@ -656,5 +698,6 @@ class RecordsViewDataInteractor @Inject constructor(
 
     companion object {
         private val minuteInMillis = TimeUnit.MINUTES.toMillis(1)
+        private val dayInMillis = TimeUnit.DAYS.toMillis(1)
     }
 }

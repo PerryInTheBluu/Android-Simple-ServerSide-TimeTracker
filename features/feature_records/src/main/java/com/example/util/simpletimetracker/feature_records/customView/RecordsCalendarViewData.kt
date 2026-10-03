@@ -8,6 +8,9 @@ import com.example.util.simpletimetracker.feature_views.viewData.RecordTypeIcon
 data class RecordsCalendarViewData(
     val currentTime: Long?,
     val startOfDayShift: Long,
+    // Length of the visible day window in milliseconds, measured from
+    // the shifted day start; 0 means a full day.
+    val endOfDayShift: Long = 0L,
     val points: List<Points>,
     val reverseOrder: Boolean,
     val shouldDrawTopLegends: Boolean,
@@ -27,7 +30,18 @@ data class RecordsCalendarViewData(
         val start: Long,
         val end: Long,
         val color: Int,
-    )
+        val name: String,
+        // Short type label like "V", "UE" or "T".
+        val typeLabel: String,
+        // ATTENDED, MISSED or UPCOMING.
+        val state: Int,
+    ) {
+        companion object {
+            const val STATE_UPCOMING = 0
+            const val STATE_ATTENDED = 1
+            const val STATE_MISSED = 2
+        }
+    }
 
     data class Point(
         val start: Long,

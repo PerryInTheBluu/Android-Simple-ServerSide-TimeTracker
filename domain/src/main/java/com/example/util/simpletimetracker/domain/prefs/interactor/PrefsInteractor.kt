@@ -329,6 +329,14 @@ class PrefsInteractor @Inject constructor(
         prefsRepo.startOfDayShift
     }
 
+    suspend fun getEndOfDayShift(): Long = withContext(Dispatchers.IO) {
+        prefsRepo.endOfDayShift
+    }
+
+    suspend fun setEndOfDayShift(endOfDay: Long) = withContext(Dispatchers.IO) {
+        prefsRepo.endOfDayShift = endOfDay
+    }
+
     suspend fun setStartOfDayShift(startOfDay: Long) = withContext(Dispatchers.IO) {
         prefsRepo.startOfDayShift = startOfDay
     }

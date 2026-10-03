@@ -77,6 +77,7 @@ import com.example.util.simpletimetracker.data_local.prefs.PrefsRepoImpl.Compani
 import com.example.util.simpletimetracker.data_local.prefs.PrefsRepoImpl.Companion.KEY_SHOW_UNI_TAB
 import com.example.util.simpletimetracker.data_local.prefs.PrefsRepoImpl.Companion.KEY_SHOW_UNTRACKED_IN_RECORDS
 import com.example.util.simpletimetracker.data_local.prefs.PrefsRepoImpl.Companion.KEY_SHOW_UNTRACKED_IN_STATISTICS
+import com.example.util.simpletimetracker.data_local.prefs.PrefsRepoImpl.Companion.KEY_END_OF_DAY_SHIFT
 import com.example.util.simpletimetracker.data_local.prefs.PrefsRepoImpl.Companion.KEY_START_OF_DAY_SHIFT
 import com.example.util.simpletimetracker.data_local.prefs.PrefsRepoImpl.Companion.KEY_STATISTICS_DETAIL_RANGE
 import com.example.util.simpletimetracker.data_local.prefs.PrefsRepoImpl.Companion.KEY_STATISTICS_DETAIL_RANGE_CUSTOM_END
@@ -194,6 +195,7 @@ class BackupPrefsRepo @Inject constructor(
             PrefsProcessor(KEY_RETROACTIVE_TRACKING_MODE, ::retroactiveTrackingMode),
             PrefsProcessor(KEY_FIRST_DAY_OF_WEEK, ::firstDayOfWeek),
             PrefsProcessor(KEY_START_OF_DAY_SHIFT, ::startOfDayShift),
+            PrefsProcessor(KEY_END_OF_DAY_SHIFT, ::endOfDayShift),
             PrefsProcessor(KEY_SHOW_UNTRACKED_IN_RECORDS, ::showUntrackedInRecords),
             PrefsProcessor(KEY_SHOW_UNTRACKED_IN_STATISTICS, ::showUntrackedInStatistics),
             PrefsProcessor(KEY_SHOW_RECORDS_CALENDAR, ::showRecordsCalendar),

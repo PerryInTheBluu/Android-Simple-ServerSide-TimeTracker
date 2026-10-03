@@ -115,6 +115,20 @@ class SettingsMainViewDataInteractor @Inject constructor(
             text = resourceRepo.getString(R.string.settings_start_of_day_hint),
             topSpaceIsVisible = false,
         )
+        val endOfDayValue = loadEndOfDayValue()
+        result += SettingsSelectorViewData(
+            block = SettingsBlock.AdditionalShiftEndOfDay,
+            title = resourceRepo.getString(R.string.settings_end_of_day),
+            subtitle = resourceRepo.getString(R.string.settings_end_of_day_hint),
+            selectedValue = endOfDayValue,
+            bottomSpaceIsVisible = false,
+            dividerIsVisible = false,
+        )
+        result += SettingsHintViewData(
+            block = SettingsBlock.AdditionalShiftEndOfDayHint,
+            text = resourceRepo.getString(R.string.settings_end_of_day_hint_value, endOfDayValue),
+            topSpaceIsVisible = false,
+        )
         result += SettingsBottomViewData(
             block = SettingsBlock.MainBottom,
         )
@@ -134,6 +148,15 @@ class SettingsMainViewDataInteractor @Inject constructor(
     private suspend fun loadFirstDayOfWeekViewData(): FirstDayOfWeekViewData {
         return prefsInteractor.getFirstDayOfWeek()
             .let(settingsMapper::toFirstDayOfWeekViewData)
+    }
+
+    private suspend fun loadEndOfDayValue(): String {
+        val shift = prefsInteractor.getEndOfDayShift()
+        return if (shift <= 0L) {
+            resourceRepo.getString(R.string.change_record_type_goal_time_disabled)
+        } else {
+            timeMapper.formatDuration(shift / 1000)
+        }
     }
 
     private suspend fun loadStartOfDayViewData(): SettingsStartOfDayViewData {

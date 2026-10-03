@@ -374,6 +374,9 @@ Dies ermöglicht es dir, zu sehen, wie viel Zeit du insgesamt für produktive ve
     <string name="settings_retroactive_multitasking_hint">Multitasking ist aktiviert. Alle letzten Aktivitäten werden ebenfalls verfolgt, wenn eine Aktivität verfolgt wird.</string>
     <string name="settings_start_of_day">Schichtstart in den Tag</string>
     <string name="settings_start_of_day_hint">Der Tagesbeginn wird je nach Vorzeichen um die angegebene Zeit nach vorne oder hinten verschoben.</string>
+    <string name="settings_end_of_day">Schichtende</string>
+    <string name="settings_end_of_day_hint">Kürzt die Tagesansicht auf die getrackte Zeit, z. B. um Schlaf auszublenden.</string>
+    <string name="settings_end_of_day_hint_value">Die Tagesansicht endet %s nach Tagesbeginn; deaktivieren für den ganzen Tag.</string>
     <string name="settings_start_of_day_hint_value">Heute beginnt bei %s</string>
     <string name="settings_inactivity_reminder">Inaktivitätserinnerung anzeigen</string>
     <string name="settings_inactivity_reminder_hint">Benachrichtigung nach der angegebenen Zeit anzeigen, wenn keine Zeiten aktiv sind.</string>

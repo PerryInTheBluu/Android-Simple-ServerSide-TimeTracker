@@ -163,6 +163,10 @@ class PrefsRepoImpl @Inject constructor(
         KEY_FIRST_DAY_OF_WEEK, firstDayOfWeekDefault,
     )
 
+    override var endOfDayShift: Long by prefs.delegate(
+        KEY_END_OF_DAY_SHIFT, 0L,
+    )
+
     override var startOfDayShift: Long by prefs.delegate(
         KEY_START_OF_DAY_SHIFT, 0,
     )
@@ -776,6 +780,7 @@ class PrefsRepoImpl @Inject constructor(
         const val KEY_RETROACTIVE_MULTITASKING_HINT_WAS_HIDDEN = "retroactiveMultitaskingHintWasHidden"
         const val KEY_FIRST_DAY_OF_WEEK = "firstDayOfWeek"
         const val KEY_START_OF_DAY_SHIFT = "startOfDayShift"
+        const val KEY_END_OF_DAY_SHIFT = "endOfDayShift"
         const val KEY_SHOW_UNTRACKED_IN_RECORDS = "showUntrackedInRecords"
         const val KEY_SHOW_UNTRACKED_IN_STATISTICS = "showUntrackedInStatistics"
         const val KEY_SHOW_RECORDS_CALENDAR = "showRecordsCalendar"

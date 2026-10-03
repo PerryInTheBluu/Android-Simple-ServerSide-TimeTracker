@@ -99,6 +99,9 @@ class RecordsCalendarView @JvmOverloads constructor(
     private val paddingBetweenDays: Float = 1.dpToPx().toFloat()
     private val multiSelectedRecordIndicatorWidth: Float = 8.dpToPx().toFloat()
     private val dayInMillis = TimeUnit.DAYS.toMillis(1)
+    private var endOfDayShift: Long = 0L
+    private val axisLen: Long
+        get() = endOfDayShift.takeIf { it > 0L } ?: dayInMillis
     private val hourInMillis = TimeUnit.HOURS.toMillis(1)
     private var selectedRecord: RecordsCalendarViewData.Point.Data? = null
     private var selectedRecordColor: Int = 0
@@ -106,7 +109,7 @@ class RecordsCalendarView @JvmOverloads constructor(
     private var isMilitary: Boolean = false
 
     // Hour number to full hour text, ex. 03 to 03:00 / 03 to 03 am
-    private var hours: List<Pair<String, String>> = emptyList()
+    private var hours: List<HourLegend> = emptyList()
 
     private val recordPaint: Paint = Paint()
     private val legendTextPaint: Paint = Paint()
@@ -121,6 +124,16 @@ class RecordsCalendarView @JvmOverloads constructor(
     private val recordBounds: RectF = RectF(0f, 0f, 0f, 0f)
     private val slotPaint: Paint = Paint().apply { alpha = SLOT_ALPHA }
     private val slotBounds: RectF = RectF(0f, 0f, 0f, 0f)
+    private val slotTextPaint: Paint = Paint().apply {
+        isAntiAlias = true
+        textSize = legendTextHeight * 0.9f
+        isFakeBoldText = true
+    }
+    private val slotSymbolPaint: Paint = Paint().apply {
+        isAntiAlias = true
+        style = Paint.Style.STROKE
+        strokeWidth = 3f
+    }
     private var data: List<Column> = emptyList()
     private val dataSize: Int get() = data.size.takeUnless { it == 0 } ?: 1
     private var shouldDrawTopLegends: Boolean = false
@@ -272,6 +285,7 @@ class RecordsCalendarView @JvmOverloads constructor(
         this.viewData = viewData
         currentTime = viewData.currentTime
         startOfDayShift = viewData.startOfDayShift
+        endOfDayShift = viewData.endOfDayShift
         reverseOrder = viewData.reverseOrder
         shouldDrawTopLegends = viewData.shouldDrawTopLegends
         isMilitary = viewData.isMilitary
@@ -418,8 +432,10 @@ class RecordsCalendarView @JvmOverloads constructor(
         index: Int,
     ) {
         slots.forEach { slot ->
-            val boxHeight = chartHeight * (slot.end - slot.start) / dayInMillis
-            val boxShift = chartHeight * slot.start / dayInMillis
+            if (slot.start >= axisLen) return@forEach
+            val clampedEnd = slot.end.coerceAtMost(axisLen)
+            val boxHeight = chartHeight * (clampedEnd - slot.start) / axisLen
+            val boxShift = chartHeight * slot.start / axisLen
             val boxLeft = chartLeftBound + columnWidth * index
             val boxRight = boxLeft + columnWidth
             val boxBottom = if (reverseOrder) {
@@ -444,6 +460,76 @@ class RecordsCalendarView @JvmOverloads constructor(
                 recordCornerRadius,
                 slotPaint,
             )
+
+            drawSlotText(canvas, slot, boxTop, boxBottom, boxLeft, boxRight)
+        }
+    }
+
+    /**
+     * Name and short type label on the band and a status symbol at the
+     * right edge: circle = upcoming, check mark = attended, cross = missed.
+     */
+    private fun drawSlotText(
+        canvas: Canvas,
+        slot: RecordsCalendarViewData.Slot,
+        boxTop: Float,
+        boxBottom: Float,
+        boxLeft: Float,
+        boxRight: Float,
+    ) {
+        val text = "${slot.name} ${slot.typeLabel}"
+        val textY = boxTop + legendTextHeight
+        val textX = boxLeft + recordHorizontalPadding + legendTextPadding
+        slotTextPaint.color = slot.color
+        canvas.drawText(text, textX, textY, slotTextPaint)
+
+        // Status symbol on the right edge of the band.
+        val size = legendTextHeight * 0.8f
+        val padding = recordHorizontalPadding
+        val centerX = boxRight - padding - size / 2
+        val centerY = (boxTop + boxBottom) / 2
+        when (slot.state) {
+            RecordsCalendarViewData.Slot.STATE_ATTENDED -> {
+                slotSymbolPaint.color = slot.color
+                // Check mark.
+                canvas.drawLine(
+                    centerX - size / 2,
+                    centerY,
+                    centerX - size / 6,
+                    centerY + size / 3,
+                    slotSymbolPaint,
+                )
+                canvas.drawLine(
+                    centerX - size / 6,
+                    centerY + size / 3,
+                    centerX + size / 2,
+                    centerY - size / 3,
+                    slotSymbolPaint,
+                )
+            }
+            RecordsCalendarViewData.Slot.STATE_MISSED -> {
+                slotSymbolPaint.color = slot.color
+                // Cross.
+                canvas.drawLine(
+                    centerX - size / 2,
+                    centerY - size / 3,
+                    centerX + size / 2,
+                    centerY + size / 3,
+                    slotSymbolPaint,
+                )
+                canvas.drawLine(
+                    centerX + size / 2,
+                    centerY - size / 3,
+                    centerX - size / 2,
+                    centerY + size / 3,
+                    slotSymbolPaint,
+                )
+            }
+            else -> {
+                slotSymbolPaint.color = slot.color
+                // Open circle.
+                canvas.drawCircle(centerX, centerY, size / 2, slotSymbolPaint)
+            }
         }
     }
 
@@ -486,8 +572,9 @@ class RecordsCalendarView @JvmOverloads constructor(
             /************
              * Draw box *
              ************/
-            boxHeight = chartHeight * (item.point.end - item.point.start) / dayInMillis
-            boxShift = chartHeight * item.point.start / dayInMillis
+            if (item.point.start >= axisLen) return@forEach
+            boxHeight = chartHeight * (item.point.end.coerceAtMost(axisLen) - item.point.start) / axisLen
+            boxShift = chartHeight * item.point.start / axisLen
             boxWidth = columnWidth / item.columnCount
             boxLeft = chartLeftBound +
                 columnWidth * index +
@@ -766,24 +853,20 @@ class RecordsCalendarView @JvmOverloads constructor(
             }
         }
 
-        val lineStep = chartHeight / (hours.size - 1)
+        val lineStep = chartHeight * hourInMillis / axisLen
 
         val selectedMinutesRange = availableMinutesRanges.firstOrNull {
             (lineStep * scaleFactor / (it.size + 1)) > (legendMinutesTextHeight + 2 * legendMinutesTextPadding)
         }.orEmpty()
         val minuteLineStep = lineStep / (selectedMinutesRange.size + 1)
 
-        val shift: Float = chartHeight * startOfDayShift / dayInMillis
-
         canvas.save()
         canvas.translate(0f, panFactor)
 
         // Draw current time
         currentTime?.let { currentTime ->
-            val currentTimeY = (
-                chartTopBound +
-                    chartHeight * scaleFactor * (dayInMillis - currentTime) / dayInMillis
-                ).checkOverdraw()
+            if (currentTime > axisLen) return@let
+            val currentTimeY = hourPosition(currentTime).checkOverdraw()
 
             canvas.drawLine(
                 0f,
@@ -795,11 +878,7 @@ class RecordsCalendarView @JvmOverloads constructor(
         }
 
         hours.forEachIndexed { index, hour ->
-            val currentY = (
-                chartTopBound +
-                    index * lineStep * scaleFactor +
-                    shift * scaleFactor
-                ).checkOverdraw()
+            val currentY = hourPosition(hour.coordinate).checkOverdraw()
 
             // Draw hour line
             canvas.drawLine(
@@ -817,7 +896,7 @@ class RecordsCalendarView @JvmOverloads constructor(
                     chartTopBound + chartHeight * scaleFactor,
                 )
             canvas.drawText(
-                hour.second,
+                hour.full,
                 chartRightBound + legendTextPadding,
                 textCenterY,
                 legendTextPaint,
@@ -845,7 +924,7 @@ class RecordsCalendarView @JvmOverloads constructor(
                     )
                 val minuteText = minute.toString()
                     .padStart(2, '0')
-                val fullText = "${hour.first}:$minuteText"
+                val fullText = "${hour.short}:$minuteText"
                 canvas.drawText(
                     fullText,
                     chartRightBound + legendTextPadding,
@@ -1114,29 +1193,61 @@ class RecordsCalendarView @JvmOverloads constructor(
     }
 
     private fun calculateHoursData() {
-        val hoursNumbers = (24 downTo 0)
-            .map { if (it == 24 && startOfDayShift != 0L) 0 else it }
-        hours = if (isMilitary) {
-            hoursNumbers.map { hour ->
-                val hourText = hour
-                    .toString().padStart(2, '0')
-                val hourTextFull = "$hourText:00"
-                hourText to hourTextFull
-            }
-        } else {
-            hoursNumbers.map { hour ->
-                val isAfterMidday = hour > 12
-                val hourText = (if (isAfterMidday) hour - 12 else hour)
-                    .toString().padStart(2, '0')
-                val hourTextFull = context.getString(
-                    R.string.separator_template,
-                    hourText,
-                    if (isAfterMidday) "pm" else "am",
+        // Visible hours with their coordinate in the day window
+        // (milliseconds from the shifted day start); hours outside the
+        // window are dropped.
+        val visible = (0..24).mapNotNull { hour ->
+            val coordinate = (hour * hourInMillis - startOfDayShift + dayInMillis) % dayInMillis
+            if (coordinate > axisLen) {
+                null
+            } else {
+                HourLegend(
+                    short = hour.toString().padStart(2, '0'),
+                    full = formatHourLabel(hour),
+                    coordinate = coordinate,
                 )
-                hourText to hourTextFull
             }
         }
+
+        hours = if (reverseOrder) {
+            visible.sortedBy { it.coordinate }
+        } else {
+            visible.sortedByDescending { it.coordinate }
+        }
     }
+
+    private fun formatHourLabel(hour: Int): String {
+        return if (isMilitary) {
+            "${hour.toString().padStart(2, '0')}:00"
+        } else {
+            val isAfterMidday = hour > 12
+            val hourText = (if (isAfterMidday) hour - 12 else hour)
+                .toString().padStart(2, '0')
+            context.getString(
+                R.string.separator_template,
+                hourText,
+                if (isAfterMidday) "pm" else "am",
+            )
+        }
+    }
+
+    /**
+     * Y position of a window coordinate (milliseconds from day start)
+     * without pan; the legend canvas translation adds the pan.
+     */
+    private fun hourPosition(coordinate: Long): Float {
+        return if (reverseOrder) {
+            chartTopBound + chartHeight * scaleFactor * coordinate / axisLen
+        } else {
+            chartTopBound + chartHeight * scaleFactor * (axisLen - coordinate) / axisLen
+        }
+    }
+
+    private class HourLegend(
+        val short: String,
+        val full: String,
+        val coordinate: Long,
+    )
 
     private fun View.measureText(
         width: Int,
