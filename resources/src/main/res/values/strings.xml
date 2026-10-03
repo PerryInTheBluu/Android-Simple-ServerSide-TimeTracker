@@ -317,8 +317,8 @@ This allows you to see how much time you\'re spending on productive versus unpro
     <string name="running_records_repeat_already_tracking">Already tracking this activity</string>
 
     <!--  Settings  -->
-    <string name="settings_display_title">Display settings</string>
-    <string name="settings_additional_title">Additional settings</string>
+    <string name="settings_display_title">Display</string>
+    <string name="settings_additional_title">Tracking</string>
     <string name="settings_notification_title">Notification settings</string>
     <string name="settings_backup_title">Backup</string>
     <string name="settings_sync_title">Synchronisierung</string>

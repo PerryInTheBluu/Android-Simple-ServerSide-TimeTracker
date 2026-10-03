@@ -9,15 +9,12 @@ import com.example.util.simpletimetracker.feature_base_adapter.dayOfWeek.DayOfWe
 import com.example.util.simpletimetracker.feature_settings.R
 import com.example.util.simpletimetracker.feature_settings.api.SettingsBlock
 import com.example.util.simpletimetracker.feature_settings.views.SettingsCheckboxWithRangeViewData.RangeViewData
-import com.example.util.simpletimetracker.feature_settings.views.SettingsSpinnerEvenViewData
 import com.example.util.simpletimetracker.feature_settings.mapper.SettingsMapper
 import com.example.util.simpletimetracker.feature_settings.viewData.DaysInCalendarViewData
 import com.example.util.simpletimetracker.feature_settings.viewData.DurationFormatViewData
-import com.example.util.simpletimetracker.feature_settings.viewData.RepeatButtonViewData
 import com.example.util.simpletimetracker.feature_settings.viewData.WidgetTransparencyViewData
 import com.example.util.simpletimetracker.feature_settings.views.SettingsBottomViewData
 import com.example.util.simpletimetracker.feature_settings.views.SettingsCheckboxViewData
-import com.example.util.simpletimetracker.feature_settings.views.SettingsCheckboxWithButtonViewData
 import com.example.util.simpletimetracker.feature_settings.views.SettingsCheckboxWithRangeViewData
 import com.example.util.simpletimetracker.feature_settings.views.SettingsCollapseViewData
 import com.example.util.simpletimetracker.feature_settings.views.SettingsHintViewData
@@ -119,40 +116,6 @@ class SettingsDisplayViewDataInteractor @Inject constructor(
                     dividerIsVisible = true,
                 )
             }
-            val enableRepeatButton = prefsInteractor.getEnableRepeatButton()
-            result += SettingsCheckboxViewData(
-                block = SettingsBlock.DisplayEnableRepeatButton,
-                title = resourceRepo.getString(R.string.settings_show_repeat_button),
-                subtitle = "",
-                isChecked = enableRepeatButton,
-                bottomSpaceIsVisible = !enableRepeatButton,
-                dividerIsVisible = !enableRepeatButton,
-            )
-            if (enableRepeatButton) {
-                val repeatButtonViewData = loadRepeatButtonViewData()
-                result += SettingsSpinnerViewData(
-                    block = SettingsBlock.DisplayRepeatButtonMode,
-                    title = resourceRepo.getString(R.string.settings_repeat_button_type),
-                    value = repeatButtonViewData.items
-                        .getOrNull(repeatButtonViewData.selectedPosition)?.text.orEmpty(),
-                    items = repeatButtonViewData.items,
-                    selectedPosition = repeatButtonViewData.selectedPosition,
-                    processSameItemSelected = false,
-                ).let(::SettingsSpinnerEvenViewData)
-            }
-            val enablePomodoroMode = prefsInteractor.getEnablePomodoroMode()
-            result += SettingsCheckboxWithButtonViewData(
-                data = SettingsCheckboxViewData(
-                    block = SettingsBlock.DisplayEnablePomodoroMode,
-                    title = resourceRepo.getString(R.string.settings_enable_pomodoro_mode),
-                    subtitle = "",
-                    isChecked = enablePomodoroMode,
-                    bottomSpaceIsVisible = true,
-                    dividerIsVisible = true,
-                ),
-                buttonBlock = SettingsBlock.DisplayPomodoroModeActivities,
-                isButtonVisible = enablePomodoroMode,
-            )
             result += SettingsCheckboxViewData(
                 block = SettingsBlock.DisplayGoalsOnSeparateTabs,
                 title = resourceRepo.getString(R.string.settings_show_goals_separately),
@@ -387,10 +350,5 @@ class SettingsDisplayViewDataInteractor @Inject constructor(
     private suspend fun loadDurationFormatHintViewData(): String {
         return prefsInteractor.getDurationFormat()
             .let(settingsMapper::toDurationFormatHint)
-    }
-
-    private suspend fun loadRepeatButtonViewData(): RepeatButtonViewData {
-        return prefsInteractor.getRepeatButtonType()
-            .let(settingsMapper::toRepeatButtonViewData)
     }
 }

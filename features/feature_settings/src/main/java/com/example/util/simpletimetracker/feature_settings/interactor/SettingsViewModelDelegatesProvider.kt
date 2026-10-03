@@ -86,13 +86,13 @@ class SettingsViewModelDelegatesProvider @Inject constructor(
     suspend fun loadContent(): List<ViewHolderType> {
         val order: List<SettingsDelegate.Key> = listOf(
             SettingsMainViewModelDelegate,
-            SettingsRatingViewModelDelegate,
             SettingsNotificationsViewModelDelegate,
-            SettingsDisplayViewModelDelegate,
             SettingsAdditionalViewModelDelegate,
+            SettingsDisplayViewModelDelegate,
             SettingsBackupViewModelDelegate,
             SettingsSyncViewModelDelegate,
             SettingsExportViewModelDelegate,
+            SettingsRatingViewModelDelegate,
             SettingsContributorsViewModelDelegate,
         )
         val viewData = delegates.map { it.getViewData() }.associateBy { it.key }

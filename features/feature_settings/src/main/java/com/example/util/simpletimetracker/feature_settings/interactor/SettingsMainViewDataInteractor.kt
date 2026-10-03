@@ -4,24 +4,34 @@ import com.example.util.simpletimetracker.core.interactor.LanguageInteractor
 import com.example.util.simpletimetracker.core.repo.ResourceRepo
 import com.example.util.simpletimetracker.domain.prefs.interactor.PrefsInteractor
 import com.example.util.simpletimetracker.feature_base_adapter.ViewHolderType
+import com.example.util.simpletimetracker.core.extension.shiftTimeStamp
+import com.example.util.simpletimetracker.core.mapper.TimeMapper
 import com.example.util.simpletimetracker.feature_settings.R
 import com.example.util.simpletimetracker.feature_settings.api.SettingsBlock
+import com.example.util.simpletimetracker.feature_settings.viewData.FirstDayOfWeekViewData
+import com.example.util.simpletimetracker.feature_settings.viewData.SettingsStartOfDayViewData
 import com.example.util.simpletimetracker.feature_settings.views.SettingsSpinnerNotCheckableViewData
 import com.example.util.simpletimetracker.feature_settings.mapper.SettingsMapper
 import com.example.util.simpletimetracker.feature_settings.viewData.DarkModeViewData
 import com.example.util.simpletimetracker.feature_settings.viewData.LanguageViewData
 import com.example.util.simpletimetracker.feature_settings.views.SettingsBottomViewData
+import com.example.util.simpletimetracker.feature_settings.views.SettingsHintViewData
+import com.example.util.simpletimetracker.feature_settings.views.SettingsSelectorViewData
+import com.example.util.simpletimetracker.feature_settings.views.SettingsSelectorWithButtonViewData
 import com.example.util.simpletimetracker.feature_settings.views.SettingsCheckboxViewData
 import com.example.util.simpletimetracker.feature_settings.views.SettingsSpinnerViewData
 import com.example.util.simpletimetracker.feature_settings.views.SettingsTextViewData
 import com.example.util.simpletimetracker.feature_settings.views.SettingsTopViewData
+import java.util.Calendar
 import javax.inject.Inject
+import kotlin.math.abs
 
 class SettingsMainViewDataInteractor @Inject constructor(
     private val resourceRepo: ResourceRepo,
     private val settingsMapper: SettingsMapper,
     private val prefsInteractor: PrefsInteractor,
     private val languageInteractor: LanguageInteractor,
+    private val timeMapper: TimeMapper,
 ) {
 
     suspend fun execute(): List<ViewHolderType> {
@@ -72,6 +82,39 @@ class SettingsMainViewDataInteractor @Inject constructor(
             dividerIsVisible = false,
         )
 
+        val firstDayOfWeekViewData = loadFirstDayOfWeekViewData()
+        result += SettingsSpinnerViewData(
+            block = SettingsBlock.AdditionalFirstDayOfWeek,
+            title = resourceRepo.getString(R.string.settings_first_day_of_week),
+            value = firstDayOfWeekViewData.items
+                .getOrNull(firstDayOfWeekViewData.selectedPosition)?.text.orEmpty(),
+            items = firstDayOfWeekViewData.items,
+            selectedPosition = firstDayOfWeekViewData.selectedPosition,
+            processSameItemSelected = false,
+        )
+
+        val startOfDayViewData = loadStartOfDayViewData()
+        result += SettingsSelectorWithButtonViewData(
+            data = SettingsSelectorViewData(
+                block = SettingsBlock.AdditionalShiftStartOfDay,
+                title = resourceRepo.getString(R.string.settings_start_of_day),
+                subtitle = startOfDayViewData.hint,
+                selectedValue = startOfDayViewData.startOfDayValue,
+                bottomSpaceIsVisible = false,
+                dividerIsVisible = false,
+            ),
+            buttonBlock = SettingsBlock.AdditionalShiftStartOfDayButton,
+            buttonContent = if (startOfDayViewData.startOfDaySign.isNotEmpty()) {
+                SettingsSelectorWithButtonViewData.Button.Text(text = startOfDayViewData.startOfDaySign)
+            } else {
+                null
+            },
+        )
+        result += SettingsHintViewData(
+            block = SettingsBlock.AdditionalShiftStartOfDayHint,
+            text = resourceRepo.getString(R.string.settings_start_of_day_hint),
+            topSpaceIsVisible = false,
+        )
         result += SettingsBottomViewData(
             block = SettingsBlock.MainBottom,
         )
@@ -87,5 +130,35 @@ class SettingsMainViewDataInteractor @Inject constructor(
     private fun loadLanguageViewData(): LanguageViewData {
         return languageInteractor.getCurrentLanguage()
             .let(settingsMapper::toLanguageViewData)
+    }
+    private suspend fun loadFirstDayOfWeekViewData(): FirstDayOfWeekViewData {
+        return prefsInteractor.getFirstDayOfWeek()
+            .let(settingsMapper::toFirstDayOfWeekViewData)
+    }
+
+    private suspend fun loadStartOfDayViewData(): SettingsStartOfDayViewData {
+        val shift = prefsInteractor.getStartOfDayShift()
+        val useMilitaryTime = prefsInteractor.getUseMilitaryTimeFormat()
+        val calendar = Calendar.getInstance()
+
+        val hint = resourceRepo.getString(
+            R.string.settings_start_of_day_hint_value,
+            timeMapper.formatDateTime(
+                time = calendar.shiftTimeStamp(timeMapper.getStartOfDayTimeStamp(), shift),
+                useMilitaryTime = useMilitaryTime,
+                showSeconds = false,
+            ),
+        )
+        val value = if (shift == 0L) {
+            resourceRepo.getString(R.string.change_record_type_goal_time_disabled)
+        } else {
+            timeMapper.formatDuration(abs(shift) / 1000)
+        }
+
+        return SettingsStartOfDayViewData(
+            startOfDayValue = value,
+            startOfDaySign = settingsMapper.toStartOfDaySign(shift),
+            hint = hint,
+        )
     }
 }
