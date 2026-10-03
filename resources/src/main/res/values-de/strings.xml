@@ -730,6 +730,17 @@ Beispiel:<br/>
     <string name="timetable_todo_preparation">Vorbereitung</string>
     <string name="timetable_todo_follow_up">Nachbereitung</string>
     <string name="timetable_todo_general">Aufgabe</string>
+    <string name="settings_timetable_prep_lead">Vorbereitungs-Vorlauf</string>
+    <string name="settings_timetable_prep_lead_hint">Wie lange vor einem Stundenplan-Termin die Vorbereitung angefragt wird.</string>
+    <string name="settings_timetable_prep_lead_hint_value">Die Vorbereitung wird %s vorher angefragt; deaktiviert heißt zum Terminbeginn.</string>
+    <string name="subject_goals_title">Stunden pro Fach</string>
+    <string name="subject_goal_progress">%1$s / %2$s</string>
+    <string name="subject_goal_ects">%1$s ECTS</string>
+    <string name="subject_goal_no_target">Tippen, um ein Stundenziel einzutragen</string>
+    <string name="subject_goal_unit_ects">ECTS (×30h)</string>
+    <string name="subject_goal_unit_hours">Stunden</string>
+    <string name="todos_tab_name">Todos</string>
+    <string name="todos_empty_hint">Keine offenen Todos. Vorbereitungs- und Nachbereitungsfragen erscheinen hier.</string>
     <string name="settings_timetable_import">Stundenplan importieren</string>
     <string name="settings_timetable_import_description">Importiert eine ICS-Datei und ersetzt den aktuellen Stundenplan. Veranstaltungen werden per Name einer Aktivität zugeordnet.</string>
     <string name="settings_timetable_import_alert">Der aktuelle Stundenplan wird ersetzt. Fortfahren?</string>

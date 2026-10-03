@@ -355,6 +355,12 @@ class UpdateExternalViewsInteractor @Inject constructor(
         )
     }
 
+    suspend fun onTimetablePrepLeadChange() {
+        runUpdates(
+            Update.TimetableReschedule,
+        )
+    }
+
     suspend fun onStartOfDayChange() {
         runUpdates(
             Update.WidgetStatistics,

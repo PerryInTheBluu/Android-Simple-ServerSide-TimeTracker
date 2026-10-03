@@ -39,6 +39,7 @@ class GoalsViewDataInteractor @Inject constructor(
     private val resourceRepo: ResourceRepo,
     private val timeMapper: TimeMapper,
     private val filterGoalsByDayOfWeekInteractor: FilterGoalsByDayOfWeekInteractor,
+    private val subjectGoalsViewDataInteractor: SubjectGoalsViewDataInteractor,
     private val rangeViewDataMapper: RangeViewDataMapper,
 ) {
 
@@ -142,11 +143,21 @@ class GoalsViewDataInteractor @Inject constructor(
             .toList()
 
         val visibleItems = items.flatMap(RangeViewData::items)
+        val subjectRows = getSubjectGoalRows()
         return@withContext when {
-            visibleItems.isNotEmpty() -> visibleItems
-            items.any(RangeViewData::hasHiddenFinishedGoals) -> mapToAllFinished()
+            visibleItems.isNotEmpty() -> subjectRows + visibleItems
+            items.any(RangeViewData::hasHiddenFinishedGoals) -> subjectRows + mapToAllFinished()
+            subjectRows.isNotEmpty() -> subjectRows
             else -> mapToEmpty()
         }
+    }
+
+    private suspend fun getSubjectGoalRows(): List<ViewHolderType> {
+        val rows = subjectGoalsViewDataInteractor.getSubjectGoals()
+        if (rows.isEmpty()) return emptyList()
+        return listOf(
+            HintViewData(resourceRepo.getString(R.string.subject_goals_title)) as ViewHolderType,
+        ) + rows
     }
 
     private suspend fun getViewDataForRange(

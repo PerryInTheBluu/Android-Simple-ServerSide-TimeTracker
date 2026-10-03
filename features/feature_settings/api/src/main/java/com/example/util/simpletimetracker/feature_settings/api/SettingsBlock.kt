@@ -102,6 +102,8 @@ enum class SettingsBlock {
     AdditionalShiftStartOfDayHint,
     AdditionalShiftEndOfDay,
     AdditionalShiftEndOfDayHint,
+    AdditionalTimetablePrepLead,
+    AdditionalTimetablePrepLeadHint,
     AdditionalAutomatedTracking,
     AdditionalSendEvents,
     AdditionalReceiveQueries,

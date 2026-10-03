@@ -7,6 +7,7 @@ import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.util.simpletimetracker.core.base.BaseFragment
 import com.example.util.simpletimetracker.feature_dialogs.api.DateTimeDialogListener
+import com.example.util.simpletimetracker.feature_dialogs.api.DurationDialogListener
 import com.example.util.simpletimetracker.feature_dialogs.api.OptionsListDialogListener
 import com.example.util.simpletimetracker.core.di.BaseViewModelFactory
 import com.example.util.simpletimetracker.core.sharedViewModel.MainTabsViewModel
@@ -16,6 +17,7 @@ import com.example.util.simpletimetracker.feature_base_adapter.hint.createHintAd
 import com.example.util.simpletimetracker.feature_base_adapter.hintBig.createHintBigAdapterDelegate
 import com.example.util.simpletimetracker.feature_base_adapter.loader.createLoaderAdapterDelegate
 import com.example.util.simpletimetracker.feature_base_adapter.statisticsGoal.createStatisticsGoalAdapterDelegate
+import com.example.util.simpletimetracker.feature_base_adapter.subjectGoal.createSubjectGoalAdapterDelegate
 import com.example.util.simpletimetracker.feature_date_selection.api.viewDelegate.DateSelectorViewDelegateProvider
 import com.example.util.simpletimetracker.feature_goals.databinding.GoalsFragmentBinding as Binding
 import com.example.util.simpletimetracker.feature_goals.viewModel.GoalsViewModel
@@ -27,6 +29,7 @@ import javax.inject.Inject
 class GoalsFragment :
     BaseFragment<Binding>(),
     DateTimeDialogListener,
+    DurationDialogListener,
     OptionsListDialogListener {
 
     override val inflater: (LayoutInflater, ViewGroup?, Boolean) -> Binding =
@@ -59,6 +62,7 @@ class GoalsFragment :
             createHintAdapterDelegate(),
             createHintBigAdapterDelegate(),
             createStatisticsGoalAdapterDelegate(viewModel::onGoalClick),
+            createSubjectGoalAdapterDelegate(viewModel::onSubjectGoalClick),
         )
     }
 
@@ -111,6 +115,14 @@ class GoalsFragment :
 
     override fun onDateTimeSet(timestamp: Long, tag: String?) {
         viewModel.onDateTimeSet(timestamp, tag)
+    }
+
+    override fun onDurationSet(durationSeconds: Long, tag: String?) {
+        viewModel.onDurationSet(durationSeconds, tag)
+    }
+
+    override fun onCountSet(count: Long, tag: String?) {
+        viewModel.onCountSet(count, tag)
     }
 
     override fun onOptionsItemClick(id: OptionsListParams.Item.Id) {

@@ -108,6 +108,11 @@ class TimetableRepoImpl @Inject constructor(
         accessSource = { todoDao.getByEvent(eventId).map(mapper::map) },
     )
 
+    override suspend fun getAllTodos(): List<TimetableTodo> = mutex.withLockedCache(
+        logMessage = "getAllTodos",
+        accessSource = { todoDao.getAll().map(mapper::map) },
+    )
+
     override suspend fun addTodo(todo: TimetableTodo): Long = mutex.withLockedCache(
         logMessage = "addTodo",
         accessSource = { todoDao.insert(todo.let(mapper::map)) },

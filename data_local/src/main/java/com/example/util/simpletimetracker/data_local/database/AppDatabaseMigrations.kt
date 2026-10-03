@@ -48,6 +48,7 @@ class AppDatabaseMigrations {
                 migration_37_38,
                 migration_38_39,
                 migration_39_40,
+                migration_40_41,
             )
 
         private val migration_1_2 = object : Migration(1, 2) {
@@ -544,6 +545,17 @@ private val migration_39_40 = object : Migration(39, 40) {
                 "`text` TEXT NOT NULL, " +
                 "`done` INTEGER NOT NULL, " +
                 "`type` INTEGER NOT NULL)",
+        )
+    }
+}
+
+private val migration_40_41 = object : Migration(40, 41) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        database.execSQL(
+            "CREATE TABLE IF NOT EXISTS `subjectGoals` (" +
+                "`activity_type_id` INTEGER PRIMARY KEY NOT NULL, " +
+                "`target_seconds` INTEGER NOT NULL, " +
+                "`ects` REAL)",
         )
     }
 }

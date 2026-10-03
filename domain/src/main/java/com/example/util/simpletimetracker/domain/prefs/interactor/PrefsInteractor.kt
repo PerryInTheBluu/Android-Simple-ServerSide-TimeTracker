@@ -337,6 +337,14 @@ class PrefsInteractor @Inject constructor(
         prefsRepo.endOfDayShift = endOfDay
     }
 
+    suspend fun getTimetablePrepLead(): Long = withContext(Dispatchers.IO) {
+        prefsRepo.timetablePrepLead
+    }
+
+    suspend fun setTimetablePrepLead(lead: Long) = withContext(Dispatchers.IO) {
+        prefsRepo.timetablePrepLead = lead
+    }
+
     suspend fun setStartOfDayShift(startOfDay: Long) = withContext(Dispatchers.IO) {
         prefsRepo.startOfDayShift = startOfDay
     }

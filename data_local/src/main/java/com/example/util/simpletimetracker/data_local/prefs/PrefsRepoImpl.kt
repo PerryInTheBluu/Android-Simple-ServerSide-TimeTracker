@@ -170,6 +170,9 @@ class PrefsRepoImpl @Inject constructor(
     override var startOfDayShift: Long by prefs.delegate(
         KEY_START_OF_DAY_SHIFT, 0,
     )
+    override var timetablePrepLead: Long by prefs.delegate(
+        KEY_TIMETABLE_PREP_LEAD, 259_200_000L,
+    )
 
     override var showUntrackedInRecords: Boolean by prefs.delegate(
         KEY_SHOW_UNTRACKED_IN_RECORDS, false,
@@ -781,6 +784,7 @@ class PrefsRepoImpl @Inject constructor(
         const val KEY_FIRST_DAY_OF_WEEK = "firstDayOfWeek"
         const val KEY_START_OF_DAY_SHIFT = "startOfDayShift"
         const val KEY_END_OF_DAY_SHIFT = "endOfDayShift"
+        const val KEY_TIMETABLE_PREP_LEAD = "timetablePrepLead"
         const val KEY_SHOW_UNTRACKED_IN_RECORDS = "showUntrackedInRecords"
         const val KEY_SHOW_UNTRACKED_IN_STATISTICS = "showUntrackedInStatistics"
         const val KEY_SHOW_RECORDS_CALENDAR = "showRecordsCalendar"

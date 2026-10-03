@@ -746,6 +746,17 @@ Example:<br/>
     <string name="timetable_todo_preparation">Preparation</string>
     <string name="timetable_todo_follow_up">Follow-up</string>
     <string name="timetable_todo_general">Todo</string>
+    <string name="settings_timetable_prep_lead">Preparation lead</string>
+    <string name="settings_timetable_prep_lead_hint">How long before a timetable slot the preparation question pops up.</string>
+    <string name="settings_timetable_prep_lead_hint_value">Preparation is asked %s in advance; disabled means at slot start.</string>
+    <string name="subject_goals_title">Hours per subject</string>
+    <string name="subject_goal_progress">%1$s / %2$s</string>
+    <string name="subject_goal_ects">%1$s ECTS</string>
+    <string name="subject_goal_no_target">Tap to set an hours target</string>
+    <string name="subject_goal_unit_ects">ECTS (x30h)</string>
+    <string name="subject_goal_unit_hours">Hours</string>
+    <string name="todos_tab_name">Todos</string>
+    <string name="todos_empty_hint">No open todos. Preparation and follow-up questions appear here.</string>
     <string name="settings_timetable_import">Import timetable</string>
     <string name="settings_timetable_import_description">Imports an ics file and replaces the current timetable. Events are matched to activities by name.</string>
     <string name="settings_timetable_import_alert">The current timetable will be replaced. Continue?</string>

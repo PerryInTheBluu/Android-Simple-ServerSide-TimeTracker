@@ -75,6 +75,7 @@ class MainTabsProvider @Inject constructor(
             NavigationTab.Statistics -> R.drawable.tab_statistics
             NavigationTab.Settings -> R.drawable.tab_settings
             NavigationTab.Goals -> R.drawable.tab_goals
+            NavigationTab.Todos -> R.drawable.tab_todos
             null -> R.drawable.unknown
         }
     }
@@ -87,6 +88,7 @@ class MainTabsProvider @Inject constructor(
             NavigationTab.Statistics -> R.string.shortcut_navigation_statistics
             NavigationTab.Settings -> R.string.shortcut_navigation_settings
             NavigationTab.Goals -> R.string.change_record_type_goal_time_hint
+            NavigationTab.Todos -> R.string.todos_tab_name
             null -> return null
         }.let(resourceRepo::getString)
     }
@@ -109,12 +111,13 @@ class MainTabsProvider @Inject constructor(
             NavigationTab.Uni.takeIf { showUniTab },
             NavigationTab.Records,
             NavigationTab.Goals.takeIf { showGoals },
+            NavigationTab.Todos,
             NavigationTab.Statistics,
             NavigationTab.Settings,
         )
     }
 
     private fun loadMainTab(): NavigationTab {
-        return NavigationTab.RunningRecords
+        return NavigationTab.Goals
     }
 }

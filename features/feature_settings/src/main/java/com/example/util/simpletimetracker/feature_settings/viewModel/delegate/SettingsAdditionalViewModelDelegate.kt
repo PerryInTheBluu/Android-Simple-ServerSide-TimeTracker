@@ -63,6 +63,7 @@ class SettingsAdditionalViewModelDelegate @Inject constructor(
             SettingsBlock.AdditionalShiftStartOfDay -> onStartOfDayClicked()
             SettingsBlock.AdditionalShiftStartOfDayButton -> onStartOfDaySignClicked()
             SettingsBlock.AdditionalShiftEndOfDay -> onEndOfDayClicked()
+            SettingsBlock.AdditionalTimetablePrepLead -> onPrepLeadClicked()
             SettingsBlock.AdditionalAutomatedTracking -> onAutomatedTrackingHelpClick()
             SettingsBlock.AdditionalShowTagSelection -> onShowRecordTagSelectionClicked()
             SettingsBlock.AdditionalCloseAfterOneTag -> onRecordTagSelectionCloseClicked()
@@ -155,6 +156,18 @@ class SettingsAdditionalViewModelDelegate @Inject constructor(
                 tag = SettingsDialogTags.END_OF_DAY_DIALOG_TAG,
                 value = DurationDialogParams.Value.DurationSeconds(
                     duration = prefsInteractor.getEndOfDayShift() / 1000,
+                ),
+                showSeconds = false,
+            ).let(router::navigate)
+        }
+    }
+
+    private fun onPrepLeadClicked() {
+        delegateScope.launch {
+            DurationDialogParams(
+                tag = SettingsDialogTags.TIMETABLE_PREP_LEAD_DIALOG_TAG,
+                value = DurationDialogParams.Value.DurationSeconds(
+                    duration = prefsInteractor.getTimetablePrepLead() / 1000,
                 ),
                 showSeconds = false,
             ).let(router::navigate)
@@ -359,6 +372,11 @@ class SettingsAdditionalViewModelDelegate @Inject constructor(
                 parent?.updateContent()
                 recordsContainerUpdateInteractor.sendDateSelectorUpdate()
             }
+            SettingsDialogTags.TIMETABLE_PREP_LEAD_DIALOG_TAG -> {
+                prefsInteractor.setTimetablePrepLead(duration * 1000)
+                externalViewsInteractor.onTimetablePrepLeadChange()
+                parent?.updateContent()
+            }
         }
     }
 
@@ -379,6 +397,11 @@ class SettingsAdditionalViewModelDelegate @Inject constructor(
                 externalViewsInteractor.onStartOfDayChange()
                 parent?.updateContent()
                 recordsContainerUpdateInteractor.sendDateSelectorUpdate()
+            }
+            SettingsDialogTags.TIMETABLE_PREP_LEAD_DIALOG_TAG -> {
+                prefsInteractor.setTimetablePrepLead(0)
+                externalViewsInteractor.onTimetablePrepLeadChange()
+                parent?.updateContent()
             }
         }
     }

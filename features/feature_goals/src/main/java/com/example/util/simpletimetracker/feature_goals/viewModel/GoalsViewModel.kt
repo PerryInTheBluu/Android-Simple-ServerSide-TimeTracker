@@ -17,7 +17,12 @@ import com.example.util.simpletimetracker.domain.statistics.model.RangeLength
 import com.example.util.simpletimetracker.feature_base_adapter.InfiniteRecyclerAdapter
 import com.example.util.simpletimetracker.feature_base_adapter.ViewHolderType
 import com.example.util.simpletimetracker.feature_base_adapter.loader.LoaderViewData
+import com.example.util.simpletimetracker.feature_base_adapter.subjectGoal.SubjectGoalViewData
 import com.example.util.simpletimetracker.feature_base_adapter.statisticsGoal.StatisticsGoalViewData
+import com.example.util.simpletimetracker.feature_goals.interactor.SubjectGoalsViewDataInteractor
+import com.example.util.simpletimetracker.feature_goals.model.SubjectGoalUnitChoice
+import com.example.util.simpletimetracker.navigation.params.screen.DurationDialogParams
+import com.example.util.simpletimetracker.core.R
 import com.example.util.simpletimetracker.feature_date_selection.api.DateSelectorMapper
 import com.example.util.simpletimetracker.feature_date_selection.api.DateSelectorViewModelDelegate
 import com.example.util.simpletimetracker.feature_goals.interactor.GoalsViewDataInteractor
@@ -43,6 +48,8 @@ class GoalsViewModel @Inject constructor(
     private val timeMapper: TimeMapper,
     private val recordTypeGoalInteractor: RecordTypeGoalInteractor,
     private val goalsOptionsListMapper: GoalsOptionsListMapper,
+    private val subjectGoalsViewDataInteractor: SubjectGoalsViewDataInteractor,
+    private val resourceRepo: com.example.util.simpletimetracker.core.repo.ResourceRepo,
     val dateSelectorViewModelDelegate: DateSelectorViewModelDelegate,
 ) : ViewModel() {
 
@@ -111,11 +118,53 @@ class GoalsViewModel @Inject constructor(
         )
     }
 
+    fun onSubjectGoalClick(item: SubjectGoalViewData) = viewModelScope.launch {
+        val items = listOf(
+            OptionsListParams.Item(
+                id = SubjectGoalUnitChoice(activityTypeId = item.id, isEcts = true),
+                text = resourceRepo.getString(R.string.subject_goal_unit_ects),
+                icon = null,
+            ),
+            OptionsListParams.Item(
+                id = SubjectGoalUnitChoice(activityTypeId = item.id, isEcts = false),
+                text = resourceRepo.getString(R.string.subject_goal_unit_hours),
+                icon = null,
+            ),
+        )
+        router.navigate(OptionsListParams(items))
+    }
+
+    fun onDurationSet(durationSeconds: Long, tag: String?) = viewModelScope.launch {
+        if (!tag.orEmpty().startsWith(SUBJECT_GOAL_HOURS_TAG)) return@launch
+        val typeId = tag.orEmpty().removePrefix(SUBJECT_GOAL_HOURS_TAG).toLongOrNull() ?: return@launch
+        subjectGoalsViewDataInteractor.setTarget(
+            activityTypeId = typeId,
+            targetSeconds = durationSeconds,
+            ects = null,
+        )
+        updateStatistics()
+    }
+
+    fun onCountSet(count: Long, tag: String?) = viewModelScope.launch {
+        if (!tag.orEmpty().startsWith(SUBJECT_GOAL_ECTS_TAG)) return@launch
+        val typeId = tag.orEmpty().removePrefix(SUBJECT_GOAL_ECTS_TAG).toLongOrNull() ?: return@launch
+        subjectGoalsViewDataInteractor.setTarget(
+            activityTypeId = typeId,
+            targetSeconds = count * SubjectGoalsViewDataInteractor.ECTS_TO_SECONDS,
+            ects = count.toDouble(),
+        )
+        updateStatistics()
+    }
+
     fun onOptionsClick() = viewModelScope.launch {
         router.navigate(OptionsListParams(goalsOptionsListMapper.map()))
     }
 
     fun onOptionsItemClick(id: OptionsListParams.Item.Id) = viewModelScope.launch {
+        if (id is SubjectGoalUnitChoice) {
+            onSubjectGoalUnitClick(id)
+            return@launch
+        }
         if (id !is GoalsOptionsListItem) return@launch
         when (id) {
             is GoalsOptionsListItem.HideFinished -> {
@@ -123,6 +172,28 @@ class GoalsViewModel @Inject constructor(
                 prefsInteractor.setHideFinishedGoals(newValue)
                 updateStatistics()
             }
+        }
+    }
+
+    private suspend fun onSubjectGoalUnitClick(choice: SubjectGoalUnitChoice) {
+        val goal = subjectGoalsViewDataInteractor.getSubjectGoal(choice.activityTypeId)
+        if (choice.isEcts) {
+            router.navigate(
+                DurationDialogParams(
+                    tag = SUBJECT_GOAL_ECTS_TAG + choice.activityTypeId,
+                    value = DurationDialogParams.Value.Count(count = goal?.ects?.toLong() ?: 0L),
+                    hideDisableButton = true,
+                ),
+            )
+        } else {
+            router.navigate(
+                DurationDialogParams(
+                    tag = SUBJECT_GOAL_HOURS_TAG + choice.activityTypeId,
+                    value = DurationDialogParams.Value.DurationSeconds(duration = goal?.targetSeconds ?: 0L),
+                    hideDisableButton = true,
+                    showSeconds = false,
+                ),
+            )
         }
     }
 
@@ -225,5 +296,7 @@ class GoalsViewModel @Inject constructor(
     companion object {
         private const val DATE_TAG = "goals_date_tag"
         private const val TIMER_UPDATE = 1000L
+        private const val SUBJECT_GOAL_HOURS_TAG = "subject_goal_hours_"
+        private const val SUBJECT_GOAL_ECTS_TAG = "subject_goal_ects_"
     }
 }

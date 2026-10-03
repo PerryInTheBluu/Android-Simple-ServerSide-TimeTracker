@@ -34,6 +34,8 @@ interface TimetableRepo {
 
     suspend fun getTodos(eventId: Long): List<TimetableTodo>
 
+    suspend fun getAllTodos(): List<TimetableTodo>
+
     suspend fun addTodo(todo: TimetableTodo): Long
 
     suspend fun setTodoDone(id: Long, done: Boolean)

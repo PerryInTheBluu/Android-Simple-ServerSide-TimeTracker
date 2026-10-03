@@ -14,6 +14,7 @@ import com.example.util.simpletimetracker.data_local.timetable.TimetableDayDao
 import com.example.util.simpletimetracker.data_local.timetable.TimetableEventDao
 import com.example.util.simpletimetracker.data_local.timetable.TimetableEventOverrideDao
 import com.example.util.simpletimetracker.data_local.timetable.TimetableTodoDao
+import com.example.util.simpletimetracker.data_local.timetable.SubjectGoalDao
 import com.example.util.simpletimetracker.data_local.complexRule.ComplexRulesDao
 import com.example.util.simpletimetracker.data_local.favourite.FavouriteColorDao
 import com.example.util.simpletimetracker.data_local.favourite.FavouriteCommentDao
@@ -113,6 +114,11 @@ class DataLocalModule {
     @Provides
     fun getTimetableTodoDao(database: AppDatabase): TimetableTodoDao {
         return database.timetableTodoDao()
+    }
+
+    @Provides
+    fun getSubjectGoalDao(database: AppDatabase): SubjectGoalDao {
+        return database.subjectGoalDao()
     }
 
     @Provides

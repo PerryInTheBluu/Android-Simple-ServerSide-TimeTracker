@@ -127,6 +127,20 @@ class SettingsMainViewDataInteractor @Inject constructor(
             text = resourceRepo.getString(R.string.settings_end_of_day_hint_value, endOfDayValue),
             topSpaceIsVisible = false,
         )
+        val prepLeadValue = loadPrepLeadValue()
+        result += SettingsSelectorViewData(
+            block = SettingsBlock.AdditionalTimetablePrepLead,
+            title = resourceRepo.getString(R.string.settings_timetable_prep_lead),
+            subtitle = resourceRepo.getString(R.string.settings_timetable_prep_lead_hint),
+            selectedValue = prepLeadValue,
+            bottomSpaceIsVisible = false,
+            dividerIsVisible = false,
+        )
+        result += SettingsHintViewData(
+            block = SettingsBlock.AdditionalTimetablePrepLeadHint,
+            text = resourceRepo.getString(R.string.settings_timetable_prep_lead_hint_value, prepLeadValue),
+            topSpaceIsVisible = false,
+        )
         result += SettingsBottomViewData(
             block = SettingsBlock.MainBottom,
         )
@@ -156,6 +170,15 @@ class SettingsMainViewDataInteractor @Inject constructor(
             // The value is the absolute clock time of the day end,
             // displayed as a duration from midnight, e.g. 23:30.
             timeMapper.formatDuration(shift / 1000)
+        }
+    }
+
+    private suspend fun loadPrepLeadValue(): String {
+        val lead = prefsInteractor.getTimetablePrepLead()
+        return if (lead <= 0L) {
+            resourceRepo.getString(R.string.change_record_type_goal_time_disabled)
+        } else {
+            timeMapper.formatDuration(lead / 1000)
         }
     }
 

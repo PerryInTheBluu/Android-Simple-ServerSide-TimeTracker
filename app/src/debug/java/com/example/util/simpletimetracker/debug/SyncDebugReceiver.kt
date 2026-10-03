@@ -167,6 +167,7 @@ class SyncDebugReceiver : BroadcastReceiver() {
                         val value = intent.getLongExtra(EXTRA_VALUE, 0L)
                         when (key) {
                             "endOfDayShift" -> prefsInteractor.setEndOfDayShift(value)
+                            "timetablePrepLead" -> prefsInteractor.setTimetablePrepLead(value)
                             else -> Timber.w("DebugReceiver: unknown pref %s", key)
                         }
                         Timber.i("DebugReceiver: set %s=%d", key, value)

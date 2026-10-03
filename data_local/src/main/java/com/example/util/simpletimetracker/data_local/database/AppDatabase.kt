@@ -58,6 +58,8 @@ import com.example.util.simpletimetracker.data_local.timetable.TimetableEventDao
 import com.example.util.simpletimetracker.data_local.timetable.TimetableEventOverrideDBO
 import com.example.util.simpletimetracker.data_local.timetable.TimetableEventOverrideDao
 import com.example.util.simpletimetracker.data_local.timetable.TimetableTodoDBO
+import com.example.util.simpletimetracker.data_local.timetable.SubjectGoalDBO
+import com.example.util.simpletimetracker.data_local.timetable.SubjectGoalDao
 import com.example.util.simpletimetracker.data_local.timetable.TimetableTodoDao
 
 @Database(
@@ -92,8 +94,9 @@ import com.example.util.simpletimetracker.data_local.timetable.TimetableTodoDao
         TimetableEventOverrideDBO::class,
         TimetableDayDBO::class,
         TimetableTodoDBO::class,
+        SubjectGoalDBO::class,
     ],
-    version = 40,
+    version = 41,
     exportSchema = true,
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -107,6 +110,8 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun timetableDayDao(): TimetableDayDao
 
     abstract fun timetableTodoDao(): TimetableTodoDao
+
+    abstract fun subjectGoalDao(): SubjectGoalDao
 
     abstract fun recordTypeDao(): RecordTypeDao
 

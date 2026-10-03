@@ -62,6 +62,9 @@ interface TimetableTodoDao {
     @Query("SELECT * FROM timetableTodos WHERE event_id = :eventId ORDER BY date, id")
     suspend fun getByEvent(eventId: Long): List<TimetableTodoDBO>
 
+    @Query("SELECT * FROM timetableTodos ORDER BY date, id")
+    suspend fun getAll(): List<TimetableTodoDBO>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(item: TimetableTodoDBO): Long
 

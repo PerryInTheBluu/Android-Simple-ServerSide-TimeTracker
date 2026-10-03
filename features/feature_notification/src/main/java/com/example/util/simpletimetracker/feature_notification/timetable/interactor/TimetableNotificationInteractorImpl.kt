@@ -31,6 +31,7 @@ class TimetableNotificationInteractorImpl @Inject constructor(
         val zone = ZoneId.systemDefault()
         val now = System.currentTimeMillis()
         val today = LocalDate.now(zone)
+        val prepLead = prefsInteractor.getTimetablePrepLead()
 
         for (dayOffset in 0..SCHEDULE_DAYS) {
             val day = today.plusDays(dayOffset.toLong())
@@ -48,7 +49,7 @@ class TimetableNotificationInteractorImpl @Inject constructor(
                     val startTimestamp = midnight + startMinutes * MINUTE_MILLIS
                     val endTimestamp = midnight + endMinutes * MINUTE_MILLIS
 
-                    val preparationTrigger = startTimestamp - PREPARATION_LEAD_MINUTES * MINUTE_MILLIS
+                    val preparationTrigger = startTimestamp - prepLead
                     if (preparationTrigger > now) {
                         alarmScheduler.schedulePreparation(
                             eventId = event.id,
@@ -177,6 +178,5 @@ class TimetableNotificationInteractorImpl @Inject constructor(
     companion object {
         private const val MINUTE_MILLIS = 60_000L
         private const val SCHEDULE_DAYS = 7L
-        private const val PREPARATION_LEAD_MINUTES = 15L
     }
 }

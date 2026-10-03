@@ -60,6 +60,10 @@ interface PrefsRepo {
     // Absolute end of day in milliseconds from midnight, 0 - full day.
     var endOfDayShift: Long
 
+    // How many milliseconds before a timetable slot the preparation
+    // question pops up.
+    var timetablePrepLead: Long
+
     var showUntrackedInRecords: Boolean
 
     var showUntrackedInStatistics: Boolean

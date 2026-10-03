@@ -7,4 +7,5 @@ sealed interface NavigationTab {
     object Statistics : NavigationTab
     object Settings : NavigationTab
     object Goals : NavigationTab
+    object Todos : NavigationTab
 }
