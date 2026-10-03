@@ -29,7 +29,7 @@ android {
 
     buildTypes {
         debug {
-            applicationIdSuffix = ".debug"
+            applicationIdSuffix = ".dev"
             isMinifyEnabled = false
             isCrunchPngs = false
             proguardFiles(
