@@ -142,6 +142,9 @@ class RecordsFragment :
     }
 
     override fun onPositiveClick(tag: String?, data: Any?) {
+        // Several day pages of the pager are alive at once and all
+        // receive the dialog result; only the visible page handles it.
+        if (!isResumed) return
         if (tag == RecordsViewModel.TIMETABLE_SLOT_DIALOG_TAG && data is RecordsCalendarViewData.Slot) {
             viewModel.onTimetableSlotNachtragen(data)
         }

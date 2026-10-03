@@ -159,6 +159,7 @@ class SyncDebugReceiver : BroadcastReceiver() {
                         when (key) {
                             "enablePomodoroMode" -> prefsInteractor.setEnablePomodoroMode(value)
                             "enableRepeatButton" -> prefsInteractor.setEnableRepeatButton(value)
+                            "reverseOrderInCalendar" -> prefsInteractor.setReverseOrderInCalendar(value)
                             else -> Timber.w("DebugReceiver: unknown pref %s", key)
                         }
                         Timber.i("DebugReceiver: set %s=%b", key, value)
