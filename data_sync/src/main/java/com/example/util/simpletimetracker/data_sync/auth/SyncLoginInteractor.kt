@@ -5,6 +5,8 @@ import com.example.util.simpletimetracker.data_sync.api.SyncApi
 import com.example.util.simpletimetracker.data_sync.keystore.SyncCredentialStore
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import retrofit2.HttpException
 import timber.log.Timber
 
@@ -20,6 +22,9 @@ enum class SyncLoginResult {
  * Stores the server url and logs in with the given credentials.
  * On success the returned long lived api token is stored encrypted.
  * On failure the previously stored token stays unchanged.
+ *
+ * Runs on Dispatchers.IO: the request and the encrypted preferences
+ * must not touch the main thread (StrictMode crashes in debug builds).
  */
 @Singleton
 class SyncLoginInteractor @Inject constructor(
@@ -31,17 +36,26 @@ class SyncLoginInteractor @Inject constructor(
         url: String,
         username: String,
         password: String,
-    ): SyncLoginResult {
+    ): SyncLoginResult = withContext(Dispatchers.IO) {
         credentialStore.serverUrl = url
-        if (url.isBlank()) {
-            credentialStore.username = ""
-            credentialStore.apiToken = ""
-            return SyncLoginResult.SUCCESS
+        when {
+            url.isBlank() -> {
+                credentialStore.username = ""
+                credentialStore.apiToken = ""
+                SyncLoginResult.SUCCESS
+            }
+            username.isEmpty() || password.isEmpty() -> {
+                // Url only update: keep the existing credentials.
+                SyncLoginResult.SUCCESS
+            }
+            else -> login(username, password)
         }
-        if (username.isEmpty() || password.isEmpty()) {
-            // Url only update: keep the existing credentials.
-            return SyncLoginResult.SUCCESS
-        }
+    }
+
+    private suspend fun login(
+        username: String,
+        password: String,
+    ): SyncLoginResult {
         return try {
             val response = syncApi.login(LoginRequest(username, password))
             credentialStore.username = username
