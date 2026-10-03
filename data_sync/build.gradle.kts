@@ -31,6 +31,7 @@ dependencies {
     implementation(libs.squareup.retrofit)
     implementation(libs.squareup.retrofitMoshi)
     implementation(libs.squareup.moshi)
+    implementation(libs.timber)
     implementation(libs.androidx.security)
     ksp(libs.kapt.dagger)
 
