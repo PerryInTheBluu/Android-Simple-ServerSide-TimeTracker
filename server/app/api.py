@@ -563,12 +563,17 @@ def sync_push(body: SyncPushRequest, db: Session = Depends(get_db), user_id: str
         data = item.data
         entity_type = item.entity_type
         incoming_updated = parse_dt(data.get("updated_at")) if data.get("updated_at") else utcnow()
+        incoming_deleted = parse_dt(data["deleted_at"]) if data.get("deleted_at") else None
         if entity_type == "activity":
             existing = db.query(Activity).filter(Activity.id == data["id"]).first()
             if existing is not None and existing.user_id != user_id:
                 conflicts.append({"entity_type": entity_type, "id": data["id"], "resolution": "rejected"})
                 continue
             if existing is None:
+                if incoming_deleted is not None:
+                    # Tombstone for an unknown activity: nothing to delete.
+                    applied += 1
+                    continue
                 db.add(
                     Activity(
                         id=data["id"],
@@ -599,6 +604,7 @@ def sync_push(body: SyncPushRequest, db: Session = Depends(get_db), user_id: str
                 existing.goal_seconds_per_week = data.get("goal_seconds_per_week")
                 existing.goal_seconds_total = data.get("goal_seconds_total")
                 existing.goal_days_per_month = data.get("goal_days_per_month")
+                existing.deleted_at = incoming_deleted
                 existing.updated_at = incoming_updated
                 applied += 1
             else:
@@ -609,6 +615,13 @@ def sync_push(body: SyncPushRequest, db: Session = Depends(get_db), user_id: str
                 conflicts.append({"entity_type": entity_type, "id": data["id"], "resolution": "rejected"})
                 continue
             if existing is None:
+                if incoming_deleted is not None:
+                    # Tombstone for an unknown entry: nothing to delete.
+                    applied += 1
+                    continue
+                if not data.get("activity_id") or not data.get("started_at"):
+                    conflicts.append({"entity_type": entity_type, "id": data["id"], "resolution": "invalid"})
+                    continue
                 db.add(
                     TimeEntry(
                         id=data["id"],
@@ -626,6 +639,15 @@ def sync_push(body: SyncPushRequest, db: Session = Depends(get_db), user_id: str
                     ),
                 )
                 applied += 1
+            elif incoming_deleted is not None:
+                # Tombstone for a known entry: mark deleted, keep content.
+                if incoming_updated >= _aware(existing.updated_at):
+                    existing.deleted_at = incoming_deleted
+                    existing.updated_at = incoming_updated
+                    existing.sync_status = "synced"
+                    applied += 1
+                else:
+                    conflicts.append({"entity_type": entity_type, "id": data["id"], "resolution": "server_kept_newer"})
             elif incoming_updated >= _aware(existing.updated_at):
                 existing.activity_id = data["activity_id"]
                 existing.parent_activity_ids = data.get("parent_activity_ids", "")
@@ -634,7 +656,7 @@ def sync_push(body: SyncPushRequest, db: Session = Depends(get_db), user_id: str
                 existing.duration_seconds = data.get("duration_seconds", 0)
                 existing.comment = data.get("comment", "")
                 existing.tags = data.get("tags", "")
-                existing.deleted_at = parse_dt(data["deleted_at"]) if data.get("deleted_at") else None
+                existing.deleted_at = incoming_deleted
                 existing.updated_at = incoming_updated
                 existing.sync_status = "synced"
                 applied += 1

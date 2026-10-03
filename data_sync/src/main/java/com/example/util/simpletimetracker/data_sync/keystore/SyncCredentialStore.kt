@@ -42,9 +42,13 @@ class SyncCredentialStore @Inject constructor(
         get() = prefs.getString(KEY_API_TOKEN, "").orEmpty()
         set(value) = prefs.edit().putString(KEY_API_TOKEN, value).apply()
 
-    var lastSyncTime: Long
-        get() = prefs.getLong(KEY_LAST_SYNC, 0L)
-        set(value) = prefs.edit().putLong(KEY_LAST_SYNC, value).apply()
+    /**
+     * Server time of the last successful pull, used as the delta marker for
+     * the next pull. Server time avoids clock skew between device and server.
+     */
+    var lastSyncMarker: String
+        get() = prefs.getString(KEY_LAST_SYNC_MARKER, "").orEmpty()
+        set(value) = prefs.edit().putString(KEY_LAST_SYNC_MARKER, value).apply()
 
     val isConfigured: Boolean
         get() = serverUrl.isNotEmpty() && apiToken.isNotEmpty()
@@ -57,6 +61,6 @@ class SyncCredentialStore @Inject constructor(
         private const val KEY_SERVER_URL = "server_url"
         private const val KEY_USERNAME = "username"
         private const val KEY_API_TOKEN = "api_token"
-        private const val KEY_LAST_SYNC = "last_sync"
+        private const val KEY_LAST_SYNC_MARKER = "last_sync_marker"
     }
 }

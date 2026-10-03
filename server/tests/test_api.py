@@ -173,3 +173,186 @@ def test_login_rate_limit():
         client.post("/api/auth/login", json={"username": "x", "password": "y"})
     response = client.post("/api/auth/login", json={"username": "x", "password": "y"})
     assert response.status_code == 429
+
+
+def ensure_seed_user() -> None:
+    Base.metadata.create_all(bind=engine)
+    db = SessionLocal()
+    if db.query(User).filter(User.username == "test").first() is None:
+        db.add(User(id=new_id(), username="test", password_hash=hash_password("password123")))
+        db.commit()
+    db.close()
+
+
+def push_item(client: TestClient, token: str, entity_type: str, data: dict) -> dict:
+    response = client.post(
+        "/api/sync/push",
+        json={"items": [{"entity_type": entity_type, "data": data}]},
+        headers=auth_headers(token),
+    )
+    assert response.status_code == 200, response.text
+    return response.json()
+
+
+def test_sync_push_tombstone_deletes_known_entry():
+    ensure_seed_user()
+    client = TestClient(app)
+    token = login(client)
+
+    push_item(
+        client,
+        token,
+        "activity",
+        {"id": "a1", "name": "Lernen", "updated_at": "2026-01-01T00:00:00+00:00"},
+    )
+    push_item(
+        client,
+        token,
+        "time_entry",
+        {
+            "id": "e1",
+            "activity_id": "a1",
+            "started_at": "2026-01-01T08:00:00+00:00",
+            "ended_at": "2026-01-01T09:00:00+00:00",
+            "duration_seconds": 3600,
+            "updated_at": "2026-01-01T00:00:00+00:00",
+        },
+    )
+
+    result = push_item(
+        client,
+        token,
+        "time_entry",
+        {
+            "id": "e1",
+            "updated_at": "2026-01-02T00:00:00+00:00",
+            "deleted_at": "2026-01-02T00:00:00+00:00",
+        },
+    )
+    assert result["applied"] == 1
+    assert result["conflicts"] == []
+
+    pulled = client.get("/api/sync/pull", headers=auth_headers(token)).json()
+    entry = next(e for e in pulled["time_entries"] if e["id"] == "e1")
+    assert entry["deleted_at"] is not None
+
+
+def test_sync_push_tombstone_unknown_entities_is_noop():
+    ensure_seed_user()
+    client = TestClient(app)
+    token = login(client)
+
+    result = client.post(
+        "/api/sync/push",
+        json={
+            "items": [
+                {
+                    "entity_type": "time_entry",
+                    "data": {
+                        "id": "e-unknown",
+                        "updated_at": "2026-01-02T00:00:00+00:00",
+                        "deleted_at": "2026-01-02T00:00:00+00:00",
+                    },
+                },
+                {
+                    "entity_type": "activity",
+                    "data": {
+                        "id": "a-unknown",
+                        "updated_at": "2026-01-02T00:00:00+00:00",
+                        "deleted_at": "2026-01-02T00:00:00+00:00",
+                    },
+                },
+            ]
+        },
+        headers=auth_headers(token),
+    )
+    assert result.status_code == 200, result.text
+    assert result.json()["applied"] == 2
+    assert result.json()["conflicts"] == []
+
+
+def test_sync_push_tombstone_deletes_known_activity():
+    ensure_seed_user()
+    client = TestClient(app)
+    token = login(client)
+
+    push_item(
+        client,
+        token,
+        "activity",
+        {"id": "a2", "name": "Vorlesung", "updated_at": "2026-01-01T00:00:00+00:00"},
+    )
+
+    result = push_item(
+        client,
+        token,
+        "activity",
+        {
+            "id": "a2",
+            "updated_at": "2026-01-02T00:00:00+00:00",
+            "deleted_at": "2026-01-02T00:00:00+00:00",
+        },
+    )
+    assert result["applied"] == 1
+
+    pulled = client.get("/api/sync/pull", headers=auth_headers(token)).json()
+    activity = next(a for a in pulled["activities"] if a["id"] == "a2")
+    assert activity["deleted_at"] is not None
+
+
+def test_sync_push_tombstone_stale_entry_keeps_server_state():
+    ensure_seed_user()
+    client = TestClient(app)
+    token = login(client)
+
+    push_item(
+        client,
+        token,
+        "activity",
+        {"id": "a3", "name": "Tutorium", "updated_at": "2026-01-01T00:00:00+00:00"},
+    )
+    push_item(
+        client,
+        token,
+        "time_entry",
+        {
+            "id": "e3",
+            "activity_id": "a3",
+            "started_at": "2026-01-01T08:00:00+00:00",
+            "ended_at": "2026-01-01T09:00:00+00:00",
+            "updated_at": "2026-01-05T00:00:00+00:00",
+        },
+    )
+
+    # A stale tombstone loses against the newer server version.
+    result = push_item(
+        client,
+        token,
+        "time_entry",
+        {
+            "id": "e3",
+            "updated_at": "2026-01-02T00:00:00+00:00",
+            "deleted_at": "2026-01-02T00:00:00+00:00",
+        },
+    )
+    assert result["applied"] == 0
+    assert result["conflicts"][0]["resolution"] == "server_kept_newer"
+
+    pulled = client.get("/api/sync/pull", headers=auth_headers(token)).json()
+    entry = next(e for e in pulled["time_entries"] if e["id"] == "e3")
+    assert entry["deleted_at"] is None
+
+
+def test_sync_push_entry_without_activity_id_is_invalid():
+    ensure_seed_user()
+    client = TestClient(app)
+    token = login(client)
+
+    result = push_item(
+        client,
+        token,
+        "time_entry",
+        {"id": "e4", "started_at": "2026-01-01T08:00:00+00:00"},
+    )
+    assert result["applied"] == 0
+    assert result["conflicts"][0]["resolution"] == "invalid"
