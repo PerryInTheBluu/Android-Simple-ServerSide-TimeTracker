@@ -371,6 +371,8 @@ This allows you to see how much time you\'re spending on productive versus unpro
     <string name="settings_show_categories_as_predefined_filters">Show categories as predefined filters</string>
     <string name="settings_enable_pomodoro_mode">Show Pomodoro button on main screen</string>
     <string name="settings_show_goals_separately">Show goals on a separate tab</string>
+    <string name="settings_show_uni_tab">Show Uni tab</string>
+    <string name="settings_show_uni_tab_hint">Shows a separate tab with the activities of the \"Uni\" category. Takes effect after app restart.</string>
     <string name="settings_show_nav_bar_at_the_bottom">Show navigation bar at the bottom</string>
     <string name="settings_enable_search_on_main">Enable search on main screen</string>
     <string name="settings_allow_multitasking">Allow multitasking</string>
@@ -722,6 +724,8 @@ Example:<br/>
     <string name="shortcut_navigation_records">Records</string>
     <string name="shortcut_navigation_statistics">Statistics</string>
     <string name="shortcut_navigation_settings">Settings</string>
+    <string name="uni_tab_name">Uni</string>
+    <string name="uni_tab_hint">Add a category named \"Uni\" in Settings and assign activities to it. Those activities will be shown on this tab.</string>
 
     <!--  Reminders  -->
     <string name="reminders_schedule_daily">Daily</string>

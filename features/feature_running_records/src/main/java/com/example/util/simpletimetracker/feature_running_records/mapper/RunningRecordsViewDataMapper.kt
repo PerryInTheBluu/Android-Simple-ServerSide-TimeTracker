@@ -39,6 +39,14 @@ class RunningRecordsViewDataMapper @Inject constructor(
         )
     }
 
+    fun mapToUniEmpty(): ViewHolderType {
+        return HintBigViewData(
+            text = resourceRepo.getString(R.string.uni_tab_hint),
+            infoIconVisible = true,
+            closeIconVisible = false,
+        )
+    }
+
     fun mapToEmpty(
         startTimersByLongClick: Boolean,
     ): ViewHolderType {

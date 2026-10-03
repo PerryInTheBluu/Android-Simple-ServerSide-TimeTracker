@@ -1,5 +1,6 @@
 package com.example.util.simpletimetracker.feature_running_records.view
 
+import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
@@ -216,6 +217,10 @@ class RunningRecordsFragment :
     companion object {
         private const val REFRESH_INDICATOR_MS = 4_000L
 
-        fun newInstance() = RunningRecordsFragment()
+        fun newInstance(uniMode: Boolean = false) = RunningRecordsFragment().apply {
+            arguments = Bundle().apply {
+                putBoolean(RunningRecordsViewModel.ARG_UNI_MODE, uniMode)
+            }
+        }
     }
 }

@@ -7,6 +7,10 @@ import android.net.Uri
 import com.example.util.simpletimetracker.data_sync.db.SyncIdMapDao
 import com.example.util.simpletimetracker.domain.record.repo.RecordRepo
 import com.example.util.simpletimetracker.domain.record.repo.RunningRecordRepo
+import com.example.util.simpletimetracker.domain.category.repo.CategoryRepo
+import com.example.util.simpletimetracker.domain.category.repo.RecordTypeCategoryRepo
+import com.example.util.simpletimetracker.domain.category.model.Category
+import com.example.util.simpletimetracker.domain.color.model.AppColor
 import com.example.util.simpletimetracker.domain.recordType.repo.RecordTypeRepo
 import com.example.util.simpletimetracker.data_sync.db.SyncStateDao
 import com.example.util.simpletimetracker.data_sync.keystore.SyncCredentialStore
@@ -54,6 +58,12 @@ class SyncDebugReceiver : BroadcastReceiver() {
 
     @Inject
     lateinit var credentialStore: SyncCredentialStore
+
+    @Inject
+    lateinit var categoryRepo: CategoryRepo
+
+    @Inject
+    lateinit var recordTypeCategoryRepo: RecordTypeCategoryRepo
 
     override fun onReceive(context: Context, intent: Intent) {
         val pending = goAsync()
@@ -110,12 +120,31 @@ class SyncDebugReceiver : BroadcastReceiver() {
                         syncIdMapDao.clear()
                         Timber.i("DebugReceiver: local data wiped")
                     }
+                    ACTION_ADD_UNI_TEST_DATA -> addUniTestData()
                     else -> Timber.w("DebugReceiver: unknown action %s", intent.action)
                 }
             } finally {
                 pending.finish()
             }
         }
+    }
+
+    private suspend fun addUniTestData() {
+        val existing = categoryRepo.get("Uni").firstOrNull()
+        val categoryId = existing?.id ?: categoryRepo.add(
+            Category(
+                id = 0,
+                name = "Uni",
+                color = AppColor(colorId = 5, colorInt = ""),
+                note = "",
+            ),
+        )
+        val assigned = recordTypeCategoryRepo.getTypeIdsByCategory(categoryId)
+        recordTypeRepo.getAll()
+            .filter { it.name in listOf("Vorlesung", "Lernen") && it.id !in assigned }
+            .forEach { recordTypeCategoryRepo.addTypes(categoryId, listOf(it.id)) }
+        val typeIds = recordTypeCategoryRepo.getTypeIdsByCategory(categoryId)
+        Timber.i("DebugReceiver: uni category id=%d types=%s", categoryId, typeIds)
     }
 
     private suspend fun dumpState() {
@@ -140,6 +169,7 @@ class SyncDebugReceiver : BroadcastReceiver() {
         const val ACTION_SET_CREDENTIALS = "de.piusdischinger.timetracker.debug.SET_CREDENTIALS"
         const val ACTION_DNS_TEST = "de.piusdischinger.timetracker.debug.DNS_TEST"
         const val ACTION_WIPE_LOCAL = "de.piusdischinger.timetracker.debug.WIPE_LOCAL"
+        const val ACTION_ADD_UNI_TEST_DATA = "de.piusdischinger.timetracker.debug.ADD_UNI_TEST_DATA"
         const val EXTRA_URL = "url"
         const val EXTRA_USERNAME = "username"
         const val EXTRA_TOKEN = "token"

@@ -92,6 +92,7 @@ class SettingsDisplayViewModelDelegate @Inject constructor(
             SettingsBlock.DisplayAllowMultipleActivityFilters -> onAllowMultipleActivityFiltersClicked()
             SettingsBlock.DisplayShowCategoriesAsPredefinedFilters -> onShowCategoriesAsPredefinedFiltersClicked()
             SettingsBlock.DisplayGoalsOnSeparateTabs -> onShowGoalsSeparatelyClicked()
+            SettingsBlock.DisplayShowUniTab -> onShowUniTabClicked()
             SettingsBlock.DisplayNavBarAtTheBottom -> onShowNavBarAtTheBottomClicked()
             SettingsBlock.DisplayMilitaryFormat -> onUseMilitaryTimeClicked()
             SettingsBlock.DisplayMonthDayFormat -> onUseMonthDayTimeClicked()
@@ -398,6 +399,14 @@ class SettingsDisplayViewModelDelegate @Inject constructor(
             prefsInteractor.setShowGoalsSeparately(newValue)
             parent?.updateContent()
             router.restartApp()
+        }
+    }
+
+    private fun onShowUniTabClicked() {
+        delegateScope.launch {
+            val newValue = !prefsInteractor.getShowUniTab()
+            prefsInteractor.setShowUniTab(newValue)
+            parent?.updateContent()
         }
     }
 

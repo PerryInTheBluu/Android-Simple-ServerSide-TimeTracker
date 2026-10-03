@@ -32,5 +32,12 @@ interface RunningRecordsModule {
         fun bindNavigationTab(): NavigationTabProvider {
             return NavigationTabProvider { RunningRecordsFragment.newInstance() }
         }
+
+        @Provides
+        @IntoMap
+        @NavigationTabKey(NavigationTab.Uni::class)
+        fun bindUniNavigationTab(): NavigationTabProvider {
+            return NavigationTabProvider { RunningRecordsFragment.newInstance(uniMode = true) }
+        }
     }
 }

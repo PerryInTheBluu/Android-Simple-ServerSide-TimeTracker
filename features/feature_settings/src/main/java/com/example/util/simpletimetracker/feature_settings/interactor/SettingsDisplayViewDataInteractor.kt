@@ -125,6 +125,14 @@ class SettingsDisplayViewDataInteractor @Inject constructor(
                 dividerIsVisible = true,
             )
             result += SettingsCheckboxViewData(
+                block = SettingsBlock.DisplayShowUniTab,
+                title = resourceRepo.getString(R.string.settings_show_uni_tab),
+                subtitle = resourceRepo.getString(R.string.settings_show_uni_tab_hint),
+                isChecked = prefsInteractor.getShowUniTab(),
+                bottomSpaceIsVisible = true,
+                dividerIsVisible = true,
+            )
+            result += SettingsCheckboxViewData(
                 block = SettingsBlock.DisplayNavBarAtTheBottom,
                 title = resourceRepo.getString(R.string.settings_show_nav_bar_at_the_bottom),
                 subtitle = "",

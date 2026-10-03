@@ -519,6 +519,14 @@ class PrefsInteractor @Inject constructor(
         prefsRepo.showGoalsSeparately = isEnabled
     }
 
+    suspend fun getShowUniTab(): Boolean = withContext(Dispatchers.IO) {
+        prefsRepo.showUniTab
+    }
+
+    suspend fun setShowUniTab(isEnabled: Boolean) = withContext(Dispatchers.IO) {
+        prefsRepo.showUniTab = isEnabled
+    }
+
     suspend fun getHideFinishedGoals(): Boolean = withContext(Dispatchers.IO) {
         prefsRepo.hideFinishedGoals
     }

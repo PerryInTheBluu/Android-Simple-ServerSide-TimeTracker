@@ -8,6 +8,8 @@ import com.example.util.simpletimetracker.core.interactor.GetCurrentRecordsDurat
 import com.example.util.simpletimetracker.core.interactor.GetRunningRecordViewDataMediator
 import com.example.util.simpletimetracker.core.mapper.RecordTypeViewDataMapper
 import com.example.util.simpletimetracker.core.repo.ResourceRepo
+import com.example.util.simpletimetracker.domain.category.interactor.CategoryInteractor
+import com.example.util.simpletimetracker.domain.category.interactor.RecordTypeCategoryInteractor
 import com.example.util.simpletimetracker.domain.extension.addBetweenEach
 import com.example.util.simpletimetracker.domain.extension.plus
 import com.example.util.simpletimetracker.domain.extension.search
@@ -33,6 +35,8 @@ class RunningRecordsViewDataInteractor @Inject constructor(
     private val prefsInteractor: PrefsInteractor,
     private val recordTypeInteractor: RecordTypeInteractor,
     private val recordTagInteractor: RecordTagInteractor,
+    private val categoryInteractor: CategoryInteractor,
+    private val recordTypeCategoryInteractor: RecordTypeCategoryInteractor,
     private val recordTypeGoalInteractor: RecordTypeGoalInteractor,
     private val runningRecordInteractor: RunningRecordInteractor,
     private val recordInteractor: RecordInteractor,
@@ -51,7 +55,9 @@ class RunningRecordsViewDataInteractor @Inject constructor(
         navBarHeightDp: Int,
         searchText: String,
         fromSearchChange: Boolean,
+        uniMode: Boolean = false,
     ): List<ViewHolderType> = withContext(Dispatchers.Default) {
+        val uniTypeIds = if (uniMode) getUniTypeIds() else null
         val recordTypes = recordTypeInteractor.getAll()
         val recordTypesMap = recordTypes.associateBy(RecordType::id)
         val recordTags = recordTagInteractor.getAll()
@@ -62,12 +68,13 @@ class RunningRecordsViewDataInteractor @Inject constructor(
         val useMilitaryTime = prefsInteractor.getUseMilitaryTimeFormat()
         val showSeconds = prefsInteractor.getShowSeconds()
         val durationFormat = prefsInteractor.getDurationFormat()
-        val showFirstEnterHint = recordTypes.filterNot(RecordType::hidden).isEmpty()
+        val showFirstEnterHint = !uniMode && recordTypes.filterNot(RecordType::hidden).isEmpty()
+        val showUniEmptyHint = uniMode && uniTypeIds.isNullOrEmpty()
         val showDefaultTypesButton = !prefsInteractor.getDefaultTypesHidden()
         val showPomodoroButton = prefsInteractor.getEnablePomodoroMode()
         val showRepeatButton = prefsInteractor.getEnableRepeatButton()
         val isPomodoroStarted = prefsInteractor.getPomodoroModeStartedTimestampMs() != 0L
-        val retroactiveTrackingModeEnabled = prefsInteractor.getRetroactiveTrackingMode()
+        val retroactiveTrackingModeEnabled = !uniMode && prefsInteractor.getRetroactiveTrackingMode()
         val isFiltersCollapsed = prefsInteractor.getIsActivityFiltersCollapsed()
         val isNavBarAtTheBottom = prefsInteractor.getIsNavBarAtTheBottom()
         val enableSearchOnMain = prefsInteractor.getEnableSearchOnMain()
@@ -87,6 +94,9 @@ class RunningRecordsViewDataInteractor @Inject constructor(
         val actualSearchText = if (enableSearchOnMain) searchText else ""
 
         val runningRecordsViewData = when {
+            showUniEmptyHint -> {
+                listOf(mapper.mapToUniEmpty())
+            }
             showFirstEnterHint -> {
                 listOf(mapper.mapToTypesEmpty())
             }
@@ -136,7 +146,7 @@ class RunningRecordsViewDataInteractor @Inject constructor(
             }
         }
 
-        val searchViewData = if (enableSearchOnMain) {
+        val searchViewData = if (enableSearchOnMain && !uniMode) {
             CommentFieldViewData(
                 id = "running_records_search".hashCode().toLong(),
                 text = if (fromSearchChange) null else actualSearchText,
@@ -150,31 +160,42 @@ class RunningRecordsViewDataInteractor @Inject constructor(
         }
 
         val filter = activityFilterViewDataInteractor.getFilter()
-        val filtersViewData = activityFilterViewDataInteractor.getFilterViewData(
-            filter = filter,
-            searchText = actualSearchText,
-            isDarkTheme = isDarkTheme,
-            isFiltersCollapsed = isFiltersCollapsed,
-            appendAddButton = true,
-        )
+        val filtersViewData = if (uniMode) {
+            emptyList()
+        } else {
+            activityFilterViewDataInteractor.getFilterViewData(
+                filter = filter,
+                searchText = actualSearchText,
+                isDarkTheme = isDarkTheme,
+                isFiltersCollapsed = isFiltersCollapsed,
+                appendAddButton = true,
+            )
+        }
 
-        val suggestionsViewData = activitySuggestionViewDataInteractor.getSuggestionsViewData(
-            recordTypesMap = recordTypesMap,
-            goals = goals,
-            runningRecords = runningRecords,
-            allDailyCurrents = allDailyCurrents,
-            completeTypeIds = completeTypeIds,
-            searchText = actualSearchText,
-            numberOfCards = numberOfCards,
-            isDarkTheme = isDarkTheme,
-        )
+        val suggestionsViewData = if (uniMode) {
+            emptyList()
+        } else {
+            activitySuggestionViewDataInteractor.getSuggestionsViewData(
+                recordTypesMap = recordTypesMap,
+                goals = goals,
+                runningRecords = runningRecords,
+                allDailyCurrents = allDailyCurrents,
+                completeTypeIds = completeTypeIds,
+                searchText = actualSearchText,
+                numberOfCards = numberOfCards,
+                isDarkTheme = isDarkTheme,
+            )
+        }
 
         val recordTypesViewData = recordTypes
             .filterNot {
                 it.hidden
             }
             .let { list ->
-                activityFilterViewDataInteractor.applyFilter(list, filter)
+                when {
+                    uniMode -> list.filter { it.id in uniTypeIds.orEmpty() }
+                    else -> activityFilterViewDataInteractor.applyFilter(list, filter)
+                }
             }
             .map {
                 recordTypeViewDataMapper.mapFiltered(
@@ -202,18 +223,20 @@ class RunningRecordsViewDataInteractor @Inject constructor(
                             isDarkTheme = isDarkTheme,
                         ).let(::add)
                     }
-                    if (showPomodoroButton) {
+                    if (showPomodoroButton && !uniMode) {
                         recordTypeViewDataMapper.mapToPomodoroItem(
                             numberOfCards = numberOfCards,
                             isDarkTheme = isDarkTheme,
                             isPomodoroStarted = isPomodoroStarted,
                         ).let(::add)
                     }
-                    recordTypeViewDataMapper.mapToAddItem(
-                        numberOfCards = numberOfCards,
-                        isDarkTheme = isDarkTheme,
-                    ).let(::add)
-                    if (showDefaultTypesButton) {
+                    if (!uniMode) {
+                        recordTypeViewDataMapper.mapToAddItem(
+                            numberOfCards = numberOfCards,
+                            isDarkTheme = isDarkTheme,
+                        ).let(::add)
+                    }
+                    if (showDefaultTypesButton && !uniMode) {
                         recordTypeViewDataMapper.mapToAddDefaultItem(
                             numberOfCards = numberOfCards,
                             isDarkTheme = isDarkTheme,
@@ -222,14 +245,18 @@ class RunningRecordsViewDataInteractor @Inject constructor(
                 }
             }
 
-        val shortcutsViewData = recordsShortcutsViewDataInteractor.getShortcutsViewData(
-            filter = filter,
-            recordTypesMap = recordTypesMap,
-            recordTags = recordTags,
-            runningRecords = runningRecords,
-            searchText = actualSearchText,
-            isDarkTheme = isDarkTheme,
-        )
+        val shortcutsViewData = if (uniMode) {
+            emptyList()
+        } else {
+            recordsShortcutsViewDataInteractor.getShortcutsViewData(
+                filter = filter,
+                recordTypesMap = recordTypesMap,
+                recordTags = recordTags,
+                runningRecords = runningRecords,
+                searchText = actualSearchText,
+                isDarkTheme = isDarkTheme,
+            )
+        }
 
         // Flexbox layout doesn't fully support clipToPadding = false.
         // Because of that bottom padding with nav bar insets are not applied to main recycler.
@@ -258,5 +285,17 @@ class RunningRecordsViewDataInteractor @Inject constructor(
         }.flatten().plus(
             bottomSpaceForNavBar,
         )
+    }
+
+    private suspend fun getUniTypeIds(): Set<Long> {
+        val uniCategory = categoryInteractor
+            .getAll()
+            .firstOrNull { it.name.equals(UNI_CATEGORY_NAME, ignoreCase = true) }
+            ?: return emptySet()
+        return recordTypeCategoryInteractor.getTypes(categoryId = uniCategory.id)
+    }
+
+    companion object {
+        private const val UNI_CATEGORY_NAME = "Uni"
     }
 }

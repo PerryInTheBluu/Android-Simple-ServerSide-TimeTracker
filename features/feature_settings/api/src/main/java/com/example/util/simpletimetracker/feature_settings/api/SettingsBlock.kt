@@ -67,6 +67,7 @@ enum class SettingsBlock {
     DisplayRepeatButtonMode,
     DisplayPomodoroModeActivities,
     DisplayGoalsOnSeparateTabs,
+    DisplayShowUniTab,
     DisplayNavBarAtTheBottom,
     DisplayWidgetBackground,
     DisplayMilitaryFormat,
@@ -135,7 +136,6 @@ enum class SettingsBlock {
     ExportCustomized,
     ExportTriggerAutoBackup,
     ExportBottom,
-
 
     ContributorsTop,
     ContributorsTitle,

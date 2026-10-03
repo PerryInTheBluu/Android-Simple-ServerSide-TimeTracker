@@ -355,6 +355,8 @@ Dies ermöglicht es dir, zu sehen, wie viel Zeit du insgesamt für produktive ve
     <string name="settings_show_categories_as_predefined_filters">Kategorien als vordefinierte Filter anzeigen</string>
     <string name="settings_enable_pomodoro_mode">Pomodoro-Schaltfläche auf dem Hauptbildschirm anzeigen</string>
     <string name="settings_show_goals_separately">Ziele auf einer separaten Registerkarte anzeigen</string>
+    <string name="settings_show_uni_tab">Uni-Tab anzeigen</string>
+    <string name="settings_show_uni_tab_hint">Zeigt einen separaten Tab mit den Aktivitäten der Kategorie \"Uni\". Wird nach App-Neustart wirksam.</string>
     <string name="settings_show_nav_bar_at_the_bottom">Navigationsleiste unten anzeigen</string>
     <string name="settings_enable_search_on_main">Suche auf dem Hauptbildschirm aktivieren</string>
     <string name="settings_allow_multitasking">Multitasking erlauben</string>
@@ -706,6 +708,8 @@ Beispiel:<br/>
     <string name="shortcut_navigation_records">Einträge</string>
     <string name="shortcut_navigation_statistics">Statistiken</string>
     <string name="shortcut_navigation_settings">Einstellungen</string>
+    <string name="uni_tab_name">Uni</string>
+    <string name="uni_tab_hint">Lege in den Einstellungen eine Kategorie namens \"Uni\" an und ordne ihr Aktivitäten zu. Diese werden auf diesem Tab angezeigt.</string>
 
     <!--  Reminders  -->
     <string name="reminders_schedule_daily">Täglich</string>

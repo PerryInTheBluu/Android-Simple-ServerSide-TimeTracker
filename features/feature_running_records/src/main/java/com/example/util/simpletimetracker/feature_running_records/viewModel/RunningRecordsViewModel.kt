@@ -2,6 +2,7 @@ package com.example.util.simpletimetracker.feature_running_records.viewModel
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.example.util.simpletimetracker.core.base.BaseViewModel
 import com.example.util.simpletimetracker.core.base.SingleLiveEvent
@@ -61,6 +62,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class RunningRecordsViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
     private val router: Router,
     private val resourceRepo: ResourceRepo,
     private val addRunningRecordMediator: AddRunningRecordMediator,
@@ -80,6 +82,8 @@ class RunningRecordsViewModel @Inject constructor(
 ) : BaseViewModel() {
 
     override var delayDataLoad: Boolean = false
+
+    private val uniMode: Boolean = savedStateHandle[ARG_UNI_MODE] ?: false
 
     val runningRecords: LiveData<List<ViewHolderType>> by lazy {
         MutableLiveData(listOf(LoaderViewData()))
@@ -450,7 +454,7 @@ class RunningRecordsViewModel @Inject constructor(
 
     fun onVisible() {
         startUpdate()
-        checkForRetroActiveMultitaskHint()
+        if (!uniMode) checkForRetroActiveMultitaskHint()
     }
 
     fun onHidden() {
@@ -462,7 +466,7 @@ class RunningRecordsViewModel @Inject constructor(
     }
 
     fun onTabReselected(tab: NavigationTab?) {
-        if (tab is NavigationTab.RunningRecords) {
+        if (tab is NavigationTab.RunningRecords || tab is NavigationTab.Uni) {
             resetScreen.set(Unit)
         }
     }
@@ -564,6 +568,7 @@ class RunningRecordsViewModel @Inject constructor(
             navBarHeightDp = navBarHeightDp,
             searchText = searchText,
             fromSearchChange = fromSearchChange,
+            uniMode = uniMode,
         )
     }
 
@@ -586,6 +591,7 @@ class RunningRecordsViewModel @Inject constructor(
     }
 
     companion object {
+        const val ARG_UNI_MODE = "uniMode"
         private const val TIMER_UPDATE_MS = 1000L
         private const val COMPLETE_TYPE_ANIMATION_MS = 1000L
         private const val RETRO_MULTITASKING_HINT_TAG = "RETRO_MULTITASKING_HINT_TAG"

@@ -99,6 +99,8 @@ interface PrefsRepo {
 
     var showGoalsSeparately: Boolean
 
+    var showUniTab: Boolean
+
     var hideFinishedGoals: Boolean
 
     var allowMultitasking: Boolean

@@ -51,6 +51,7 @@ class MainTabsProvider @Inject constructor(
     private fun mapToIcon(tab: NavigationTab?): Int {
         return when (tab) {
             NavigationTab.RunningRecords -> R.drawable.tab_running_records
+            NavigationTab.Uni -> R.drawable.tab_uni
             NavigationTab.Records -> R.drawable.tab_records
             NavigationTab.Statistics -> R.drawable.tab_statistics
             NavigationTab.Settings -> R.drawable.tab_settings
@@ -62,6 +63,7 @@ class MainTabsProvider @Inject constructor(
     private fun mapToDescription(tab: NavigationTab?): String? {
         return when (tab) {
             NavigationTab.RunningRecords -> R.string.shortcut_navigation_timers
+            NavigationTab.Uni -> R.string.uni_tab_name
             NavigationTab.Records -> R.string.shortcut_navigation_records
             NavigationTab.Statistics -> R.string.shortcut_navigation_statistics
             NavigationTab.Settings -> R.string.shortcut_navigation_settings
@@ -81,9 +83,11 @@ class MainTabsProvider @Inject constructor(
 
     private fun loadTabsList(): List<NavigationTab> {
         val showGoals = runBlocking { prefsInteractor.getShowGoalsSeparately() }
+        val showUniTab = runBlocking { prefsInteractor.getShowUniTab() }
 
         return listOfNotNull(
             NavigationTab.RunningRecords,
+            NavigationTab.Uni.takeIf { showUniTab },
             NavigationTab.Records,
             NavigationTab.Goals.takeIf { showGoals },
             NavigationTab.Statistics,
