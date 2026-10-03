@@ -15,6 +15,7 @@ import androidx.fragment.app.viewModels
 import androidx.viewpager2.widget.ViewPager2
 import com.example.util.simpletimetracker.core.base.BaseFragment
 import com.example.util.simpletimetracker.core.di.BaseViewModelFactory
+import com.example.util.simpletimetracker.core.model.NavigationTab
 import com.example.util.simpletimetracker.core.extension.addOnBackPressedListener
 import com.example.util.simpletimetracker.core.extension.addOnPageChangeCallback
 import com.example.util.simpletimetracker.core.extension.changeDragSensitivity
@@ -68,6 +69,15 @@ class MainFragment : BaseFragment<Binding>() {
         mainTabsProvider.mainTab.let(mainTabsProvider::mapTabToPosition)
     }
 
+    /** On tablets the screen is split: timers on the left, the rest on the right. */
+    private val isTwoPaneLayout: Boolean by lazy {
+        resources.configuration.smallestScreenWidthDp >= TWO_PANE_MIN_WIDTH_DP
+    }
+
+    private val paneTabs: List<NavigationTab> by lazy {
+        if (isTwoPaneLayout) mainTabsProvider.restTabsList else mainTabsProvider.tabsList
+    }
+
     override fun initUi() {
         setupPager()
         checkForShortcutNavigation()
@@ -84,58 +94,103 @@ class MainFragment : BaseFragment<Binding>() {
     }
 
     private fun setupPager() = with(binding) {
-        mainPager.adapter = SafeFragmentStateAdapter(
+        if (isTwoPaneLayout) {
+            setupTwoPanePagers()
+            return@with
+        }
+        setupPagers(startPane = false)
+    }
+
+    private fun setupTwoPanePagers() = with(binding) {
+        mainStartTabs.isVisible = true
+        mainStartPager.isVisible = true
+        mainPaneDivider.isVisible = true
+
+        setupPaneConstraints()
+        setupPagers(startPane = false)
+        setupPagers(startPane = true)
+    }
+
+    private fun setupPaneConstraints() = with(binding) {
+        val set = ConstraintSet()
+        set.clone(containerMain)
+        set.clear(R.id.mainTabs, ConstraintSet.START)
+        set.connect(R.id.mainTabs, ConstraintSet.START, R.id.mainPaneDividerGuideline, ConstraintSet.END)
+        set.connect(R.id.mainTabs, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+        set.clear(R.id.mainPager, ConstraintSet.START)
+        set.connect(R.id.mainPager, ConstraintSet.START, R.id.mainPaneDividerGuideline, ConstraintSet.END)
+        set.connect(R.id.mainPager, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+        set.applyTo(containerMain)
+    }
+
+    private fun setupPagers(
+        startPane: Boolean,
+    ) = with(binding) {
+        val pager = if (startPane) mainStartPager else mainPager
+        val tabsView = if (startPane) mainStartTabs else mainTabs
+        val tabList = if (startPane) mainTabsProvider.startTabsList else paneTabs
+
+        pager.adapter = SafeFragmentStateAdapter(
             MainContentAdapter(
                 fragment = this@MainFragment,
-                tabs = mainTabsProvider.tabsList,
+                tabs = tabList,
                 providers = mainTabsProvider.tabProviders,
             ),
         )
-        mainPager.offscreenPageLimit = 3 // Same as number of pages to avoid recreating.
-        mainPager.addOnPageChangeCallback(lifecycleOwner = this@MainFragment) { state ->
+        pager.offscreenPageLimit = tabList.size - 1 // Same as number of pages to avoid recreating.
+        pager.addOnPageChangeCallback(lifecycleOwner = this@MainFragment) { state ->
             mainTabsViewModel.onScrollStateChanged(
                 isScrolling = state != ViewPager2.SCROLL_STATE_IDLE,
             )
         }
 
-        TabLayoutMediator(mainTabs, mainPager) { tab, position ->
-            position.let(mainTabsProvider::mapPositionToIcon)
+        TabLayoutMediator(tabsView, pager) { tab, position ->
+            tabList.getOrNull(position)
+                .let(mainTabsProvider::mapTabToIcon)
                 .let(tab::setIcon)
-            position.let(mainTabsProvider::mapPositionToDescription)
+            tabList.getOrNull(position)
+                ?.let(mainTabsProvider::mapTabToDescription)
                 ?.let { tab.contentDescription = it }
-            tab.icon?.colorFilter = if (position == mainPagePosition) {
+            tab.icon?.colorFilter = if (!startPane && position == mainPagePosition) {
                 selectedColorFilter
             } else {
                 unselectedColorFilter
             }
         }.attach()
 
-        mainTabs.addOnTabSelectedListener(
+        tabsView.addOnTabSelectedListener(
             object : TabLayout.OnTabSelectedListener {
                 override fun onTabReselected(tab: TabLayout.Tab?) {
                     tab?.position
-                        ?.let(mainTabsProvider::mapPositionToTab)
+                        ?.let(tabList::getOrNull)
                         ?.let(mainTabsViewModel::onTabReselected)
                 }
 
                 override fun onTabUnselected(tab: TabLayout.Tab?) {
                     tab?.icon?.colorFilter = unselectedColorFilter
                     tab?.position
-                        ?.let(mainTabsProvider::mapPositionToTab)
+                        ?.let(tabList::getOrNull)
                         ?.let(mainTabsViewModel::onTabUnselected)
                 }
 
                 override fun onTabSelected(tab: TabLayout.Tab?) {
                     tab?.icon?.colorFilter = selectedColorFilter
-                    backPressedCallback?.isEnabled = tab?.position.orZero() != mainPagePosition
+                    if (!startPane && !isTwoPaneLayout) {
+                        backPressedCallback?.isEnabled = tab?.position.orZero() != mainPagePosition
+                    }
                 }
             },
         )
-        mainPager.setCurrentItem(mainPagePosition, false)
-        mainPager.findRecycler()?.changeDragSensitivity(2f)
+        pager.setCurrentItem(if (startPane) 0 else mainPagePosition, false)
+        pager.findRecycler()?.changeDragSensitivity(2f)
     }
 
     private fun updateNavBarPosition(isAtTheBottom: Boolean) = with(binding) {
+        if (isTwoPaneLayout) {
+            // Two pane layout keeps the tab rows at the top.
+            mainTabsDivider.isVisible = false
+            return@with
+        }
         val set = ConstraintSet()
         set.clone(binding.containerMain)
         if (isAtTheBottom) {
@@ -166,19 +221,26 @@ class MainFragment : BaseFragment<Binding>() {
     }
 
     private fun onBackPressed() {
+        if (isTwoPaneLayout) return
         binding.mainPager.setCurrentItem(mainPagePosition, true)
     }
 
     private fun checkForShortcutNavigation() = with(binding) {
         if (shortcutNavigationHandled) return@with
 
-        activity?.intent?.extras
-            ?.getString(SHORTCUT_NAVIGATION_KEY)
-            ?.let(mainTabsProvider::mapNavigationToPosition)
-            ?.let {
-                mainPager.setCurrentItem(it, true)
-                shortcutNavigationHandled = true
-            }
+        val navigation = activity?.intent?.extras?.getString(SHORTCUT_NAVIGATION_KEY)
+        val position = if (isTwoPaneLayout) {
+            navigation
+                ?.let(mainTabsProvider::mapNavigationToTab)
+                ?.let(paneTabs::indexOf)
+                ?.takeUnless { it == -1 }
+        } else {
+            navigation?.let(mainTabsProvider::mapNavigationToPosition)
+        }
+        position?.let {
+            mainPager.setCurrentItem(it, true)
+            shortcutNavigationHandled = true
+        }
     }
 
     private fun getColorFilter(@AttrRes attrRes: Int): ColorFilter? {
@@ -195,5 +257,9 @@ class MainFragment : BaseFragment<Binding>() {
             InsetConfiguration.DoNotApply
         }
         initInsets()
+    }
+
+    companion object {
+        private const val TWO_PANE_MIN_WIDTH_DP = 600
     }
 }

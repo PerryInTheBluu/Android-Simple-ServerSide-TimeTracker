@@ -20,7 +20,26 @@ class MainTabsProvider @Inject constructor(
 ) {
 
     val tabsList: List<NavigationTab> by lazy { loadTabsList() }
+
+    /** Tabs of the left pane in the two pane tablet layout. */
+    val startTabsList: List<NavigationTab> by lazy {
+        tabsList.filter { it is NavigationTab.RunningRecords || it is NavigationTab.Uni }
+    }
+
+    /** Tabs of the right pane in the two pane tablet layout. */
+    val restTabsList: List<NavigationTab> by lazy {
+        tabsList.filterNot { it is NavigationTab.RunningRecords || it is NavigationTab.Uni }
+    }
+
     val mainTab: NavigationTab by lazy { loadMainTab() }
+
+    fun mapTabToIcon(tab: NavigationTab?): Int = tab.let(::mapToIcon)
+
+    fun mapTabToDescription(tab: NavigationTab?): String? = tab.let(::mapToDescription)
+
+    fun mapNavigationToTab(value: String): NavigationTab? {
+        return mapNavigationToTabInternal(value)
+    }
 
     fun mapPositionToTab(position: Int): NavigationTab? {
         return tabsList.getOrNull(position)
@@ -44,7 +63,7 @@ class MainTabsProvider @Inject constructor(
     }
 
     fun mapNavigationToPosition(value: String): Int? {
-        return mapNavigationToTab(value)?.let(::mapTabToPosition)
+        return mapNavigationToTabInternal(value)?.let(::mapTabToPosition)
     }
 
     @DrawableRes
@@ -72,7 +91,7 @@ class MainTabsProvider @Inject constructor(
         }.let(resourceRepo::getString)
     }
 
-    private fun mapNavigationToTab(value: String): NavigationTab? {
+    private fun mapNavigationToTabInternal(value: String): NavigationTab? {
         return when (value) {
             SHORTCUT_NAVIGATION_RECORDS -> NavigationTab.Records
             SHORTCUT_NAVIGATION_STATISTICS -> NavigationTab.Statistics

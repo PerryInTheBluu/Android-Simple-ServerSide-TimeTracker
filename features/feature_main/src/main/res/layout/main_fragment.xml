@@ -8,10 +8,14 @@
 
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/mainTabs"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:tabGravity="fill"
         app:tabIndicatorColor="?appTabSelectedColor"
+        app:tabMode="fixed"
         app:tabRippleColor="@color/tab_ripple" />
 
     <View
@@ -26,10 +30,59 @@
     <!--  Small margin is added to prevent shared transition going under new screen  -->
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/mainPager"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="0.1dp"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/mainTabs" />
+
+    <!--  Two pane layout on tablets: left pane starts timers (main and uni),
+          right pane holds the remaining tabs. Hidden on phones.  -->
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/mainPaneDividerGuideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.5" />
+
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/mainStartTabs"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintEnd_toStartOf="@id/mainPaneDividerGuideline"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tabGravity="fill"
+        app:tabIndicatorColor="?appTabSelectedColor"
+        app:tabMode="fixed"
+        app:tabRippleColor="@color/tab_ripple"
+        tools:visibility="gone" />
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/mainStartPager"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="0.1dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/mainPaneDividerGuideline"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/mainStartTabs"
+        tools:visibility="gone" />
+
+    <View
+        android:id="@+id/mainPaneDivider"
+        android:layout_width="2dp"
+        android:layout_height="0dp"
+        android:background="?appDividerColor"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/mainPaneDividerGuideline"
+        app:layout_constraintStart_toStartOf="@id/mainPaneDividerGuideline"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:visibility="gone" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
