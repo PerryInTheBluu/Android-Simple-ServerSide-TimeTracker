@@ -15,11 +15,13 @@ import com.example.util.simpletimetracker.domain.record.repo.RecordRepo
 import com.example.util.simpletimetracker.domain.recordType.model.RecordType
 import com.example.util.simpletimetracker.domain.recordType.repo.RecordTypeRepo
 import java.time.Instant
+import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
 import javax.inject.Singleton
+import timber.log.Timber
 
 enum class SyncStatus {
     NOT_CONFIGURED,
@@ -248,7 +250,10 @@ class SyncEngine @Inject constructor(
             return
         }
 
-        val serverRecord = entry.toRecord(localId) ?: return
+        val serverRecord = entry.toRecord(localId) ?: run {
+            Timber.w("Skipping time entry %s: unparsable activity id or timestamps", entry.id)
+            return
+        }
         val mirrorHash = mirror[deltaCalculator.key(ENTITY_TIME_ENTRY, entry.id)]?.contentHash
         val localHash = deltaCalculator.contentHash(local.toPayloadContent())
         // Apply the server version only if the local record did not change
@@ -318,6 +323,10 @@ class SyncEngine @Inject constructor(
     }
 
     private fun parseEpochMilli(iso: String): Long? = runCatching {
+        // The server sends timestamps with an explicit offset (+00:00)
+        // while the app pushes Instant.toString with Z; accept both.
+        OffsetDateTime.parse(iso).toInstant().toEpochMilli()
+    }.recoverCatching {
         Instant.parse(iso).toEpochMilli()
     }.getOrNull()
 
