@@ -31,6 +31,6 @@ class SyncWorker @AssistedInject constructor(
 
     companion object {
         private const val MAX_RETRIES = 3
-        const val PERIODIC_INTERVAL_HOURS = 6L
+        const val PERIODIC_INTERVAL_HOURS = 1L
     }
 }

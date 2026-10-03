@@ -1,5 +1,6 @@
 package com.example.util.simpletimetracker.feature_main.view
 
+import android.content.res.Configuration
 import android.graphics.ColorFilter
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -104,7 +105,11 @@ class MainFragment : BaseFragment<Binding>() {
     private fun setupTwoPanePagers() = with(binding) {
         mainStartTabs.isVisible = true
         mainStartPager.isVisible = true
-        mainPaneDivider.isVisible = true
+        if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+            mainPaneDividerHorizontal.isVisible = true
+        } else {
+            mainPaneDivider.isVisible = true
+        }
 
         setupPaneConstraints()
         setupPagers(startPane = false)
@@ -114,12 +119,39 @@ class MainFragment : BaseFragment<Binding>() {
     private fun setupPaneConstraints() = with(binding) {
         val set = ConstraintSet()
         set.clone(containerMain)
-        set.clear(R.id.mainTabs, ConstraintSet.START)
-        set.connect(R.id.mainTabs, ConstraintSet.START, R.id.mainPaneDividerGuideline, ConstraintSet.END)
-        set.connect(R.id.mainTabs, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
-        set.clear(R.id.mainPager, ConstraintSet.START)
-        set.connect(R.id.mainPager, ConstraintSet.START, R.id.mainPaneDividerGuideline, ConstraintSet.END)
-        set.connect(R.id.mainPager, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+        if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+            // Portrait: timers on top, the rest below.
+            set.clear(R.id.mainStartTabs, ConstraintSet.END)
+            set.connect(R.id.mainStartTabs, ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+            set.connect(R.id.mainStartTabs, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+            set.clear(R.id.mainStartPager, ConstraintSet.END)
+            set.connect(R.id.mainStartPager, ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+            set.connect(R.id.mainStartPager, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+            set.connect(R.id.mainStartPager, ConstraintSet.TOP, R.id.mainStartTabs, ConstraintSet.BOTTOM)
+            set.connect(
+                R.id.mainStartPager,
+                ConstraintSet.BOTTOM,
+                R.id.mainPaneDividerGuidelineHorizontal,
+                ConstraintSet.TOP,
+            )
+            set.clear(R.id.mainTabs, ConstraintSet.TOP)
+            set.connect(R.id.mainTabs, ConstraintSet.TOP, R.id.mainPaneDividerGuidelineHorizontal, ConstraintSet.BOTTOM)
+            set.connect(R.id.mainTabs, ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+            set.connect(R.id.mainTabs, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+            set.clear(R.id.mainPager, ConstraintSet.START)
+            set.connect(R.id.mainPager, ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+            set.connect(R.id.mainPager, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+            set.connect(R.id.mainPager, ConstraintSet.TOP, R.id.mainTabs, ConstraintSet.BOTTOM)
+            set.connect(R.id.mainPager, ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
+        } else {
+            // Landscape: timers on the left, the rest on the right.
+            set.clear(R.id.mainTabs, ConstraintSet.START)
+            set.connect(R.id.mainTabs, ConstraintSet.START, R.id.mainPaneDividerGuideline, ConstraintSet.END)
+            set.connect(R.id.mainTabs, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+            set.clear(R.id.mainPager, ConstraintSet.START)
+            set.connect(R.id.mainPager, ConstraintSet.START, R.id.mainPaneDividerGuideline, ConstraintSet.END)
+            set.connect(R.id.mainPager, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+        }
         set.applyTo(containerMain)
     }
 

@@ -5,6 +5,8 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import com.example.util.simpletimetracker.data_sync.db.SyncIdMapDao
+import com.example.util.simpletimetracker.domain.record.interactor.AddRunningRecordMediator
+import com.example.util.simpletimetracker.domain.record.model.RecordBase
 import com.example.util.simpletimetracker.domain.record.repo.RecordRepo
 import com.example.util.simpletimetracker.domain.record.repo.RunningRecordRepo
 import com.example.util.simpletimetracker.domain.category.repo.CategoryRepo
@@ -65,6 +67,9 @@ class SyncDebugReceiver : BroadcastReceiver() {
     @Inject
     lateinit var recordTypeCategoryRepo: RecordTypeCategoryRepo
 
+    @Inject
+    lateinit var addRunningRecordMediator: AddRunningRecordMediator
+
     override fun onReceive(context: Context, intent: Intent) {
         val pending = goAsync()
         CoroutineScope(Dispatchers.IO).launch {
@@ -121,12 +126,45 @@ class SyncDebugReceiver : BroadcastReceiver() {
                         Timber.i("DebugReceiver: local data wiped")
                     }
                     ACTION_ADD_UNI_TEST_DATA -> addUniTestData()
+                    ACTION_START_TIMER -> startTimer(intent.getStringExtra(EXTRA_NAME).orEmpty())
+                    ACTION_STOP_ALL_TIMERS -> stopAllTimers()
+                    ACTION_DUMP_RUNNING -> dumpRunning()
                     else -> Timber.w("DebugReceiver: unknown action %s", intent.action)
                 }
             } finally {
                 pending.finish()
             }
         }
+    }
+
+    private suspend fun startTimer(name: String) {
+        val type = recordTypeRepo.get(name).firstOrNull()
+        if (type == null) {
+            Timber.w("DebugReceiver: unknown activity %s", name)
+            return
+        }
+        addRunningRecordMediator.startTimer(
+            typeId = type.id,
+            tags = emptyList<RecordBase.Tag>(),
+            comment = "",
+            timeStarted = AddRunningRecordMediator.StartTime.TakeCurrent,
+        )
+        Timber.i("DebugReceiver: started %s (id=%d)", name, type.id)
+    }
+
+    private suspend fun stopAllTimers() {
+        val running = runningRecordRepo.getAll()
+        running.forEach { runningRecordRepo.remove(it.id) }
+        Timber.i("DebugReceiver: stopped %d timers (without records)", running.size)
+    }
+
+    private suspend fun dumpRunning() {
+        val running = runningRecordRepo.getAll()
+        val names = mutableListOf<String>()
+        running.forEach { r ->
+            names.add(recordTypeRepo.get(r.id)?.name ?: "?")
+        }
+        Timber.i("DebugReceiver: running=%d [%s]", running.size, names.joinToString())
     }
 
     private suspend fun addUniTestData() {
@@ -170,9 +208,13 @@ class SyncDebugReceiver : BroadcastReceiver() {
         const val ACTION_DNS_TEST = "de.piusdischinger.timetracker.debug.DNS_TEST"
         const val ACTION_WIPE_LOCAL = "de.piusdischinger.timetracker.debug.WIPE_LOCAL"
         const val ACTION_ADD_UNI_TEST_DATA = "de.piusdischinger.timetracker.debug.ADD_UNI_TEST_DATA"
+        const val ACTION_START_TIMER = "de.piusdischinger.timetracker.debug.START_TIMER"
+        const val ACTION_STOP_ALL_TIMERS = "de.piusdischinger.timetracker.debug.STOP_ALL_TIMERS"
+        const val ACTION_DUMP_RUNNING = "de.piusdischinger.timetracker.debug.DUMP_RUNNING"
         const val EXTRA_URL = "url"
         const val EXTRA_USERNAME = "username"
         const val EXTRA_TOKEN = "token"
         const val EXTRA_HOST = "host"
+        const val EXTRA_NAME = "name"
     }
 }

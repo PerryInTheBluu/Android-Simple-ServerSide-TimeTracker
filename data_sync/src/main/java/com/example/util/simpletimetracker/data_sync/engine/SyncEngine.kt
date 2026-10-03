@@ -35,6 +35,7 @@ import java.time.format.DateTimeFormatter
 import java.util.UUID
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.sync.Mutex
 import javax.inject.Inject
 import javax.inject.Singleton
 import timber.log.Timber
@@ -112,20 +113,33 @@ class SyncEngine @Inject constructor(
     }
     val status: StateFlow<SyncStatus> = _status
 
+    private val syncMutex = Mutex()
+
     suspend fun syncNow() {
         if (!credentialStore.isConfigured) {
             _status.value = SyncStatus.NOT_CONFIGURED
             return
         }
-        _status.value = SyncStatus.PENDING
+        // Only one sync may run at a time: overlapping runs could cancel each
+        // other mid apply and leave partially imported data behind. A skipped
+        // run is fine, the next trigger (debounce, worker or manual) syncs.
+        if (!syncMutex.tryLock()) {
+            Timber.i("Sync already in progress, skipping this request")
+            return
+        }
         try {
-            pushLocalChanges()
-            pullServerChanges()
-            _status.value = SyncStatus.SYNCED
-        } catch (e: Exception) {
-            val offline = e is java.io.IOException
-            Timber.e(e, "Sync failed")
-            _status.value = if (offline) SyncStatus.OFFLINE else SyncStatus.ERROR
+            _status.value = SyncStatus.PENDING
+            try {
+                pushLocalChanges()
+                pullServerChanges()
+                _status.value = SyncStatus.SYNCED
+            } catch (e: Exception) {
+                val offline = e is java.io.IOException
+                Timber.e(e, "Sync failed")
+                _status.value = if (offline) SyncStatus.OFFLINE else SyncStatus.ERROR
+            }
+        } finally {
+            syncMutex.unlock()
         }
     }
 
@@ -714,8 +728,13 @@ class SyncEngine @Inject constructor(
         }
 
         if (localTypeId != null) {
-            // Already running locally; the repository has no update for a
-            // running start time, so keep the local value.
+            if (runningRecordRepo.has(localTypeId)) {
+                // Already running locally; the repository has no update for a
+                // running start time, so keep the local value.
+                return
+            }
+            // Mapped but not running locally: the local stop is newer than
+            // the server state; the next push sends the tombstone.
             return
         }
 
@@ -728,13 +747,19 @@ class SyncEngine @Inject constructor(
         val parsedTags = decodeTags(entry.tags)
         val localTags = localizeTags(parsedTags, mappings)
         Timber.i("Importing running record %s from sync", entry.id)
-        addRunningRecordMediator.startTimer(
-            typeId = typeLocalId,
-            tags = localTags,
-            comment = entry.comment,
-            timeStarted = AddRunningRecordMediator.StartTime.Timestamp(timeStarted),
-            checkDefaultDuration = false,
-        )
+        // The timer may already run locally if a previous sync was
+        // interrupted between starting it and writing the mapping; never
+        // start it twice. Mapping and mirror are written after the start
+        // so an interrupted import is retried idempotently.
+        if (!runningRecordRepo.has(typeLocalId)) {
+            addRunningRecordMediator.startTimer(
+                typeId = typeLocalId,
+                tags = localTags,
+                comment = entry.comment,
+                timeStarted = AddRunningRecordMediator.StartTime.Timestamp(timeStarted),
+                checkDefaultDuration = false,
+            )
+        }
         mappings.remember(ENTITY_RUNNING_RECORD, typeLocalId, entry.id)
         syncStateDao.insertAll(
             listOf(

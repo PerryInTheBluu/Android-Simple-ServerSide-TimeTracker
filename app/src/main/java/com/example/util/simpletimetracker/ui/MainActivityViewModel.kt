@@ -9,6 +9,7 @@ import com.example.util.simpletimetracker.core.repo.AutomaticExportRepo
 import com.example.util.simpletimetracker.core.repo.DataEditRepo
 import com.example.util.simpletimetracker.core.repo.FileWorkRepo
 import com.example.util.simpletimetracker.data_sync.keystore.SyncCredentialStore
+import com.example.util.simpletimetracker.data_sync.work.SyncScheduler
 import com.example.util.simpletimetracker.domain.extension.orFalse
 import com.example.util.simpletimetracker.domain.recordType.interactor.InitialActivitiesInteractor
 import com.example.util.simpletimetracker.feature_settings.viewModel.delegate.SettingsFileWorkDelegate
@@ -27,6 +28,7 @@ class MainActivityViewModel @Inject constructor(
     private val settingsFileWorkDelegate: SettingsFileWorkDelegate,
     private val initialActivitiesInteractor: InitialActivitiesInteractor,
     private val syncCredentialStore: SyncCredentialStore,
+    private val syncScheduler: SyncScheduler,
 ) : BaseViewModel() {
 
     val progressVisibility: MediatorLiveData<Boolean> = MediatorLiveData<Boolean>().apply {
@@ -53,6 +55,9 @@ class MainActivityViewModel @Inject constructor(
 
     fun onVisible() {
         settingsFileWorkDelegate.onAppVisible()
+        // Pick up remote changes quickly when the app comes to the front;
+        // the engine skips the run if a sync is already in progress.
+        syncScheduler.syncNow()
     }
 
     private fun updateProgress() {
