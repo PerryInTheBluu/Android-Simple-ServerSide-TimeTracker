@@ -4,6 +4,7 @@ import com.example.util.simpletimetracker.domain.recordType.model.RecordType
 import com.example.util.simpletimetracker.domain.recordType.repo.RecordTypeRepo
 import com.example.util.simpletimetracker.domain.timetable.model.TimetableEvent
 import com.example.util.simpletimetracker.domain.timetable.model.TimetableEventOverride
+import com.example.util.simpletimetracker.domain.timetable.notification.TimetableNotificationInteractor
 import com.example.util.simpletimetracker.domain.timetable.repo.TimetableIcsRepo
 import com.example.util.simpletimetracker.domain.timetable.repo.TimetableRepo
 import javax.inject.Inject
@@ -24,6 +25,7 @@ class IcsImportInteractor @Inject constructor(
     private val timetableRepo: TimetableRepo,
     private val recordTypeRepo: RecordTypeRepo,
     private val timetableIcsRepo: TimetableIcsRepo,
+    private val timetableNotificationInteractor: TimetableNotificationInteractor,
 ) {
 
     data class ImportResult(
@@ -81,6 +83,7 @@ class IcsImportInteractor @Inject constructor(
             }
         }
 
+        timetableNotificationInteractor.rescheduleAll()
         return ImportResult(added, unmatched.toList())
     }
 

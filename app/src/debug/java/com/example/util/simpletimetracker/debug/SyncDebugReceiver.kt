@@ -86,6 +86,9 @@ class SyncDebugReceiver : BroadcastReceiver() {
     @Inject
     lateinit var icsImportInteractor: com.example.util.simpletimetracker.domain.timetable.ics.IcsImportInteractor
 
+    @Inject
+    lateinit var timetableNotificationInteractor: com.example.util.simpletimetracker.domain.timetable.notification.TimetableNotificationInteractor
+
     override fun onReceive(context: Context, intent: Intent) {
         val pending = goAsync()
         CoroutineScope(Dispatchers.IO).launch {
@@ -147,6 +150,17 @@ class SyncDebugReceiver : BroadcastReceiver() {
                     ACTION_DUMP_RUNNING -> dumpRunning()
                     ACTION_SEED_TIMETABLE -> seedTimetable()
                     ACTION_IMPORT_ICS -> importIcs(intent.getStringExtra(EXTRA_PATH).orEmpty())
+                    ACTION_RESCHEDULE_TIMETABLE -> rescheduleTimetable()
+                    ACTION_TIMETABLE_TODO_DONE -> {
+                        val eventId = intent.getLongExtra(EXTRA_EVENT_ID, 0L)
+                        val date = intent.getStringExtra(EXTRA_DATE).orEmpty()
+                        val type = com.example.util.simpletimetracker.domain.timetable.model.TimetableTodo.Type
+                            .entries.getOrNull(intent.getIntExtra(EXTRA_TODO_TYPE, 0))
+                        if (eventId != 0L && date.isNotEmpty() && type != null) {
+                            timetableNotificationInteractor.onTodoDone(eventId, date, type)
+                            Timber.i("DebugReceiver: todo done %d %s %s", eventId, date, type)
+                        }
+                    }
                     ACTION_WIPE_ALL -> wipeAll()
                     ACTION_SET_PREF_LONG -> {
                         val key = intent.getStringExtra(EXTRA_KEY).orEmpty()
@@ -364,6 +378,11 @@ class SyncDebugReceiver : BroadcastReceiver() {
         Timber.i("DebugReceiver: started %s (id=%d)", name, type.id)
     }
 
+    private suspend fun rescheduleTimetable() {
+        timetableNotificationInteractor.rescheduleAll()
+        Timber.i("DebugReceiver: timetable notifications rescheduled")
+    }
+
     private suspend fun importIcs(path: String) {
         if (path.isEmpty()) {
             Timber.w("DebugReceiver: import ics called without path")
@@ -439,6 +458,8 @@ class SyncDebugReceiver : BroadcastReceiver() {
         const val ACTION_DUMP_RUNNING = "de.piusdischinger.timetracker.debug.DUMP_RUNNING"
         const val ACTION_SEED_TIMETABLE = "de.piusdischinger.timetracker.debug.SEED_TIMETABLE"
         const val ACTION_IMPORT_ICS = "de.piusdischinger.timetracker.debug.IMPORT_ICS"
+        const val ACTION_RESCHEDULE_TIMETABLE = "de.piusdischinger.timetracker.debug.RESCHEDULE_TIMETABLE"
+        const val ACTION_TIMETABLE_TODO_DONE = "de.piusdischinger.timetracker.debug.TIMETABLE_TODO_DONE"
         const val ACTION_WIPE_ALL = "de.piusdischinger.timetracker.debug.WIPE_ALL"
         const val ACTION_SET_PREF_BOOL = "de.piusdischinger.timetracker.debug.SET_PREF_BOOL"
         const val ACTION_SET_PREF_LONG = "de.piusdischinger.timetracker.debug.SET_PREF_LONG"
@@ -450,5 +471,8 @@ class SyncDebugReceiver : BroadcastReceiver() {
         const val EXTRA_HOST = "host"
         const val EXTRA_NAME = "name"
         const val EXTRA_PATH = "path"
+        const val EXTRA_EVENT_ID = "eventId"
+        const val EXTRA_DATE = "date"
+        const val EXTRA_TODO_TYPE = "todoType"
     }
 }

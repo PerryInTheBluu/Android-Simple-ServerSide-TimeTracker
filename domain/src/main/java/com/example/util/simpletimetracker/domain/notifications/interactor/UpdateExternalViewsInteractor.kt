@@ -1,6 +1,7 @@
 package com.example.util.simpletimetracker.domain.notifications.interactor
 
 import com.example.util.simpletimetracker.domain.category.interactor.RecordTypeCategoryInteractor
+import com.example.util.simpletimetracker.domain.timetable.notification.TimetableNotificationInteractor
 import com.example.util.simpletimetracker.domain.wear.WearInteractor
 import com.example.util.simpletimetracker.domain.recordType.model.RecordTypeGoal
 import com.example.util.simpletimetracker.domain.record.model.RunningRecord
@@ -21,6 +22,7 @@ class UpdateExternalViewsInteractor @Inject constructor(
     private val notificationActivityInteractor: NotificationActivityInteractor,
     private val notificationGoalTimeInteractor: NotificationGoalTimeInteractor,
     private val scheduledReminderNotificationInteractor: ScheduledReminderNotificationInteractor,
+    private val timetableNotificationInteractor: TimetableNotificationInteractor,
     private val widgetInteractor: WidgetInteractor,
     private val wearInteractor: WearInteractor,
     private val prefsInteractor: PrefsInteractor,
@@ -473,6 +475,7 @@ class UpdateExternalViewsInteractor @Inject constructor(
             Update.GoalReschedule(),
             Update.GoalTagReschedule(),
             Update.ScheduledReminderReschedule,
+            Update.TimetableReschedule,
             Update.WidgetSingleTypes,
             Update.WidgetUniversal,
             Update.WidgetGrid,
@@ -514,6 +517,7 @@ class UpdateExternalViewsInteractor @Inject constructor(
             Update.NotificationTypes,
             Update.NotificationWithControls,
             Update.ScheduledReminderReschedule,
+            Update.TimetableReschedule,
             Update.WidgetSingleTypes,
             Update.WidgetUniversal,
             Update.WidgetGrid,
@@ -596,6 +600,9 @@ class UpdateExternalViewsInteractor @Inject constructor(
             is Update.ScheduledReminderReschedule -> {
                 scheduledReminderNotificationInteractor.rescheduleAll()
             }
+            is Update.TimetableReschedule -> {
+                timetableNotificationInteractor.rescheduleAll()
+            }
             is Update.ScheduledReminderLifecycleEvent -> {
                 scheduledReminderNotificationInteractor.onActivityLifecycleEvent(
                     event = update.event,
@@ -628,6 +635,7 @@ class UpdateExternalViewsInteractor @Inject constructor(
         data object InactivityReminderCancel : Update
         data object InactivityReminderReschedule : Update
         data object ScheduledReminderReschedule : Update
+        data object TimetableReschedule : Update
         data class ScheduledReminderLifecycleEvent(
             val typeId: Long,
             val tagIds: List<Long>,

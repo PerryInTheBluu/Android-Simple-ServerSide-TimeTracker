@@ -13,6 +13,7 @@ import com.example.util.simpletimetracker.domain.notifications.interactor.Notifi
 import com.example.util.simpletimetracker.domain.notifications.interactor.NotificationTypeInteractor
 import com.example.util.simpletimetracker.domain.notifications.interactor.ScheduledReminderNotificationInteractor
 import com.example.util.simpletimetracker.domain.notifications.interactor.NotificationActivitySwitchInteractor
+import com.example.util.simpletimetracker.domain.timetable.notification.TimetableNotificationInteractor
 import com.example.util.simpletimetracker.domain.pomodoro.interactor.PomodoroCycleNotificationInteractor
 import com.example.util.simpletimetracker.feature_notification.automaticBackup.interactor.AutomaticBackupInteractorImpl
 import com.example.util.simpletimetracker.feature_notification.automaticBackup.repo.AutomaticBackupRepoImpl
@@ -28,6 +29,7 @@ import com.example.util.simpletimetracker.feature_notification.pomodoro.interact
 import com.example.util.simpletimetracker.feature_notification.external.ActivityStartedStoppedBroadcastInteractorImpl
 import com.example.util.simpletimetracker.feature_notification.recordType.interactor.NotificationTypeInteractorImpl
 import com.example.util.simpletimetracker.feature_notification.scheduledReminder.interactor.ScheduledReminderNotificationInteractorImpl
+import com.example.util.simpletimetracker.feature_notification.timetable.interactor.TimetableNotificationInteractorImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -81,4 +83,7 @@ interface NotificationModule {
 
     @Binds
     fun bindScheduledReminderNotificationInteractor(impl: ScheduledReminderNotificationInteractorImpl): ScheduledReminderNotificationInteractor
+
+    @Binds
+    fun bindTimetableNotificationInteractor(impl: TimetableNotificationInteractorImpl): TimetableNotificationInteractor
 }

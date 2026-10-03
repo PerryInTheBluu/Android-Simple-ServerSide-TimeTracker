@@ -9,6 +9,7 @@ import com.example.util.simpletimetracker.domain.record.interactor.RecordsContai
 import com.example.util.simpletimetracker.domain.record.interactor.RecordsUpdateInteractor
 import com.example.util.simpletimetracker.domain.record.interactor.StatisticsUpdateInteractor
 import com.example.util.simpletimetracker.domain.record.model.RecordBase
+import com.example.util.simpletimetracker.domain.timetable.model.TimetableTodo
 import com.example.util.simpletimetracker.feature_notification.activity.controller.NotificationActivityBroadcastController
 import com.example.util.simpletimetracker.feature_notification.activitySwitch.manager.NotificationActivitySwitchManager.Companion.ACTION_NOTIFICATION_SWITCH_CANCEL
 import com.example.util.simpletimetracker.feature_notification.activitySwitch.manager.NotificationControlsManager.Companion.ACTION_NOTIFICATION_CONTROLS_APPLY_TAGS
@@ -45,6 +46,7 @@ import com.example.util.simpletimetracker.feature_notification.recordType.contro
 import com.example.util.simpletimetracker.feature_notification.recordType.manager.NotificationTypeManager.Companion.ACTION_NOTIFICATION_TYPE_CANCEL
 import com.example.util.simpletimetracker.feature_notification.recordType.manager.NotificationTypeManager.Companion.ACTION_NOTIFICATION_TYPE_STOP
 import com.example.util.simpletimetracker.feature_notification.scheduledReminder.controller.ScheduledReminderController
+import com.example.util.simpletimetracker.feature_notification.timetable.controller.TimetableController
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
@@ -78,6 +80,9 @@ class NotificationReceiver : BroadcastReceiver() {
     lateinit var scheduledReminderController: ScheduledReminderController
 
     @Inject
+    lateinit var timetableController: TimetableController
+
+    @Inject
     lateinit var recordsUpdateInteractor: RecordsUpdateInteractor
 
     @Inject
@@ -100,6 +105,29 @@ class NotificationReceiver : BroadcastReceiver() {
                     reminderId = reminderId,
                     expectedOccurrenceTimestamp = expectedTimestamp,
                 )
+            }
+            ACTION_TIMETABLE_PREP_DUE -> {
+                val eventId = intent.getLongExtra(EXTRA_TIMETABLE_EVENT_ID, 0L)
+                val date = intent.getStringExtra(EXTRA_TIMETABLE_DATE).orEmpty()
+                if (eventId != 0L && date.isNotEmpty()) {
+                    timetableController.onPreparationDue(eventId, date)
+                }
+            }
+            ACTION_TIMETABLE_FOLLOWUP_DUE -> {
+                val eventId = intent.getLongExtra(EXTRA_TIMETABLE_EVENT_ID, 0L)
+                val date = intent.getStringExtra(EXTRA_TIMETABLE_DATE).orEmpty()
+                if (eventId != 0L && date.isNotEmpty()) {
+                    timetableController.onFollowUpDue(eventId, date)
+                }
+            }
+            ACTION_TIMETABLE_TODO_DONE -> {
+                val eventId = intent.getLongExtra(EXTRA_TIMETABLE_EVENT_ID, 0L)
+                val date = intent.getStringExtra(EXTRA_TIMETABLE_DATE).orEmpty()
+                val typeOrdinal = intent.getIntExtra(EXTRA_TIMETABLE_TODO_TYPE, 0)
+                val type = TimetableTodo.Type.entries.getOrNull(typeOrdinal)
+                if (eventId != 0L && date.isNotEmpty() && type != null) {
+                    timetableController.onTodoDone(eventId, date, type)
+                }
             }
             ACTION_INACTIVITY_REMINDER -> {
                 inactivityController.onInactivityReminder()
@@ -295,17 +323,20 @@ class NotificationReceiver : BroadcastReceiver() {
                 launch { automaticExportController.onBootCompleted() }
                 launch { pomodoroController.onBootCompleted() }
                 launch { scheduledReminderController.onBootCompleted() }
+                launch { timetableController.onBootCompleted() }
             }
             AlarmManager.ACTION_SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED -> supervisorScope {
                 launch { activityController.onExactAlarmPermissionStateChanged() }
                 launch { goalTimeController.onExactAlarmPermissionStateChanged() }
                 launch { pomodoroController.onExactAlarmPermissionStateChanged() }
                 launch { scheduledReminderController.onExactAlarmPermissionStateChanged() }
+                launch { timetableController.onExactAlarmPermissionStateChanged() }
             }
             Intent.ACTION_MY_PACKAGE_REPLACED -> supervisorScope {
                 launch { activityController.onPackageReplaced() }
                 launch { goalTimeController.onPackageReplaced() }
                 launch { scheduledReminderController.onPackageReplaced() }
+                launch { timetableController.onPackageReplaced() }
             }
             Intent.ACTION_TIME_CHANGED,
             Intent.ACTION_DATE_CHANGED,
@@ -313,6 +344,7 @@ class NotificationReceiver : BroadcastReceiver() {
             -> supervisorScope {
                 launch { activityController.onDateTimeChanged() }
                 launch { scheduledReminderController.onDateTimeChanged() }
+                launch { timetableController.onDateTimeChanged() }
                 launch { recordsUpdateInteractor.send() }
                 launch { recordsContainerUpdateInteractor.sendDateSelectorUpdate() }
                 launch { statisticsUpdateInteractor.sendDateTimeChanged() }
@@ -376,6 +408,12 @@ class NotificationReceiver : BroadcastReceiver() {
             "de.piusdischinger.timetracker.ACTION_AUTOMATIC_EXPORT"
         const val ACTION_SCHEDULED_REMINDER =
             "de.piusdischinger.timetracker.ACTION_SCHEDULED_REMINDER"
+        const val ACTION_TIMETABLE_PREP_DUE =
+            "de.piusdischinger.timetracker.ACTION_TIMETABLE_PREP_DUE"
+        const val ACTION_TIMETABLE_FOLLOWUP_DUE =
+            "de.piusdischinger.timetracker.ACTION_TIMETABLE_FOLLOWUP_DUE"
+        const val ACTION_TIMETABLE_TODO_DONE =
+            "de.piusdischinger.timetracker.ACTION_TIMETABLE_TODO_DONE"
 
         const val ACTION_QUICK_BOOT_POWER_ON = "android.intent.action.QUICKBOOT_POWERON"
         const val ACTION_HTC_QUICK_BOOT_POWER_ON = "com.htc.intent.action.QUICKBOOT_POWERON"
@@ -394,5 +432,11 @@ class NotificationReceiver : BroadcastReceiver() {
             "extra_activity_reminder_start"
         const val EXTRA_ACTIVITY_REMINDER_TRIGGER =
             "extra_activity_reminder_trigger"
+        const val EXTRA_TIMETABLE_EVENT_ID =
+            "extra_timetable_event_id"
+        const val EXTRA_TIMETABLE_DATE =
+            "extra_timetable_date"
+        const val EXTRA_TIMETABLE_TODO_TYPE =
+            "extra_timetable_todo_type"
     }
 }

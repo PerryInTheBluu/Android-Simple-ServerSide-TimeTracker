@@ -737,6 +737,15 @@ Example:<br/>
     <string name="timetable_dialog_room">\nRoom: %s</string>
     <string name="timetable_dialog_comment">\nComment: %s</string>
     <string name="timetable_dialog_nachtragen">Add attendance</string>
+    <string name="timetable_notification_channel">Timetable</string>
+    <string name="timetable_notification_prep_title">Preparation: %s</string>
+    <string name="timetable_notification_prep_text">Starts at %s</string>
+    <string name="timetable_notification_follow_title">Follow-up: %s</string>
+    <string name="timetable_notification_follow_text">Ended at %s</string>
+    <string name="timetable_notification_done">Done</string>
+    <string name="timetable_todo_preparation">Preparation</string>
+    <string name="timetable_todo_follow_up">Follow-up</string>
+    <string name="timetable_todo_general">Todo</string>
     <string name="settings_timetable_import">Import timetable</string>
     <string name="settings_timetable_import_description">Imports an ics file and replaces the current timetable. Events are matched to activities by name.</string>
     <string name="settings_timetable_import_alert">The current timetable will be replaced. Continue?</string>
