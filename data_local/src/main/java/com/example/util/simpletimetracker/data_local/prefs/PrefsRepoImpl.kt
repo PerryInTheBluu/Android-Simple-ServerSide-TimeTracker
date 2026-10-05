@@ -1,14 +1,17 @@
 package com.example.util.simpletimetracker.data_local.prefs
 
+import android.content.Context
 import android.content.SharedPreferences
 import com.example.util.simpletimetracker.data_local.base.delegate
 import com.example.util.simpletimetracker.data_local.base.logPrefsDataAccess
+import com.example.util.simpletimetracker.domain.daysOfWeek.model.DaysInCalendar
 import com.example.util.simpletimetracker.domain.widget.model.StatisticsWidgetData
 import com.example.util.simpletimetracker.domain.statistics.model.ChartFilterType
 import com.example.util.simpletimetracker.domain.widget.model.QuickSettingsWidgetType
 import com.example.util.simpletimetracker.domain.statistics.model.RangeLength
 import com.example.util.simpletimetracker.domain.prefs.repo.PrefsRepo
 import java.util.Calendar
+import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
 import androidx.core.content.edit
@@ -18,10 +21,18 @@ import com.example.util.simpletimetracker.domain.widget.model.WidgetDataFilterTy
 @Singleton
 class PrefsRepoImpl @Inject constructor(
     private val prefs: SharedPreferences,
+    @ApplicationContext private val context: Context,
 ) : PrefsRepo {
 
     private val firstDayOfWeekDefault: Int by lazy {
         Calendar.getInstance().firstDayOfWeek
+    }
+
+    // On tablets the week overview is the more useful calendar
+    // default; phones keep the single day default.
+    private val daysInCalendarDefault: Int by lazy {
+        val isTablet = context.resources.configuration.smallestScreenWidthDp >= TABLET_SMALLEST_WIDTH_DP
+        if (isTablet) DaysInCalendar.WEEK.ordinal else DaysInCalendar.ONE.ordinal
     }
 
     override var recordTypesFilteredOnList: Set<String> by prefs.delegate(
@@ -199,7 +210,7 @@ class PrefsRepoImpl @Inject constructor(
     )
 
     override var daysInCalendar: Int by prefs.delegate(
-        KEY_DAYS_IN_CALENDAR, 0,
+        KEY_DAYS_IN_CALENDAR, daysInCalendarDefault,
     )
 
     override var showActivityFilters: Boolean by prefs.delegate(
@@ -800,6 +811,7 @@ class PrefsRepoImpl @Inject constructor(
         const val KEY_SHOW_RECORDS_CALENDAR = "showRecordsCalendar"
         const val KEY_REVERSE_ORDER_IN_CALENDAR = "reverseOrderInCalendar"
         const val KEY_DAYS_IN_CALENDAR = "daysInCalendar"
+        private const val TABLET_SMALLEST_WIDTH_DP = 600
         const val KEY_SHOW_ACTIVITY_FILTERS = "showActivityFilters"
         const val KEY_IS_ACTIVITY_FILTERS_COLLAPSED = "isActivityFiltersCollapsed"
         const val KEY_ENABLE_REPEAT_BUTTON = "enableRepeatButton"
