@@ -7,6 +7,7 @@ import com.example.util.simpletimetracker.domain.record.interactor.RemoveRunning
 import com.example.util.simpletimetracker.domain.prefs.interactor.PrefsInteractor
 import com.example.util.simpletimetracker.domain.record.interactor.RecordInteractor
 import com.example.util.simpletimetracker.domain.record.interactor.RunningRecordInteractor
+import com.example.util.simpletimetracker.domain.record.model.Record
 import com.example.util.simpletimetracker.domain.record.model.RepeatButtonType
 import com.example.util.simpletimetracker.domain.recordType.interactor.RecordTypeInteractor
 import com.example.util.simpletimetracker.domain.recordType.model.RecordType
@@ -27,13 +28,38 @@ class RecordRepeatInteractor @Inject constructor(
     private val resourceRepo: ResourceRepo,
 ) {
 
-    suspend fun repeat(): ActionResult {
-        return execute { messageResId ->
+    /**
+     * Repeat button behaviour of the main screen and the
+     * notifications: like the quick settings tile, but when nothing
+     * runs the repeat button preference decides whether the last or
+     * the before last finished activity starts.
+     */
+    suspend fun repeatButton(): ActionResult {
+        return executeRepeatButtonAction { messageResId ->
             SnackBarParams(
                 message = resourceRepo.getString(messageResId),
                 duration = SnackBarParams.Duration.Short,
             ).let(router::show)
         }
+    }
+
+    // Can be used when app is closed (ex. from widget or notification).
+    suspend fun repeatButtonExternal(): ActionResult {
+        return executeRepeatButtonAction { messageResId ->
+            ToastParams(
+                message = resourceRepo.getString(messageResId),
+            ).let(router::show)
+        }
+    }
+
+    private suspend fun executeRepeatButtonAction(
+        messageShower: (messageResId: Int) -> Unit,
+    ): ActionResult {
+        val skipLastWhenIdle = prefsInteractor.getRepeatButtonType() is RepeatButtonType.RepeatBeforeLast
+        return executeStopAndStartAction(
+            skipLastWhenIdle = skipLastWhenIdle,
+            messageShower = messageShower,
+        )
     }
 
     /**
@@ -43,75 +69,76 @@ class RecordRepeatInteractor @Inject constructor(
      * finished activity (the one from before the current activity).
      */
     suspend fun repeatForQuickTileExternal() {
-        executeTileAction { messageResId ->
-            ToastParams(
-                message = resourceRepo.getString(messageResId),
-            ).let(router::show)
-        }
+        executeStopAndStartAction(
+            skipLastWhenIdle = true,
+            messageShower = { messageResId ->
+                ToastParams(
+                    message = resourceRepo.getString(messageResId),
+                ).let(router::show)
+            },
+        )
     }
 
-    private suspend fun executeTileAction(messageShower: (messageResId: Int) -> Unit) {
-        val defaultTypeIds = recordTypeInteractor.getAll()
-            .filter { it.defaultDuration != 0L }
-            .map(RecordType::id)
-        val running = runningRecordInteractor.getAll()
-        val runningTypeIds = running.map { it.id }.toSet()
-
-        // Nothing runs: the last finished activity is usually the break
-        // that just ended, so continue with the one before it. With
-        // several activities running (multitasking) the running ones are
-        // the most recent ones, so the target is the last finished
-        // activity that none of the running ones is currently tracking.
-        var candidate = recordInteractor.getPrev(
-            timeStarted = System.currentTimeMillis(),
-            ignoreTypeIds = defaultTypeIds,
-        )
-        var target: com.example.util.simpletimetracker.domain.record.model.Record? = null
-        if (running.isEmpty()) {
-            // Skip the last finished activity: it is the break.
-            candidate = candidate?.let {
-                recordInteractor.getPrev(
-                    timeStarted = it.timeEnded - 1,
-                    ignoreTypeIds = defaultTypeIds,
-                )
-            }
-            target = candidate
-        } else {
-            // Walk back until the activity was not running just now;
-            // with one running activity this is the last finished one,
-            // with several it is the one from before all of them.
-            var lookAt = candidate
-            while (lookAt != null && lookAt.typeId in runningTypeIds) {
-                lookAt = recordInteractor.getPrev(
-                    timeStarted = lookAt.timeEnded - 1,
-                    ignoreTypeIds = defaultTypeIds,
-                )
-            }
-            target = lookAt
-        }
+    private suspend fun executeStopAndStartAction(
+        skipLastWhenIdle: Boolean,
+        messageShower: (messageResId: Int) -> Unit,
+    ): ActionResult {
+        val target = resolveRepeatTarget(skipLastWhenIdle = skipLastWhenIdle)
         if (target == null) {
             messageShower(R.string.running_records_repeat_no_prev_record)
-            return
+            return ActionResult.NoPreviousFound
         }
         // Stop everything first, then start the target activity; the
         // target is resolved before stopping so the just stopped
         // records cannot shadow it.
-        running.forEach { removeRunningRecordMediator.removeWithRecordAdd(it) }
+        runningRecordInteractor.getAll().forEach {
+            removeRunningRecordMediator.removeWithRecordAdd(it)
+        }
         addRunningRecordMediator.startTimer(
             typeId = target.typeId,
             tags = target.tags,
             comment = target.comment,
         )
         messageShower(R.string.running_records_repeat_started)
+        return ActionResult.Started
     }
 
-    // Can be used than app is closed (ex. from widget).
-    suspend fun repeatExternal() {
-        execute { messageResId ->
-            ToastParams(
-                message = resourceRepo.getString(messageResId),
-            ).let(router::show)
+    // The running activities are the most recent ones, so the target is
+    // the last finished activity that none of them is tracking. With
+    // several activities running (multitasking) this is the one from
+    // before all of them.
+    private suspend fun resolveRepeatTarget(skipLastWhenIdle: Boolean): Record? {
+        val defaultTypeIds = recordTypeInteractor.getAll()
+            .filter { it.defaultDuration != 0L }
+            .map(RecordType::id)
+        val runningTypeIds = runningRecordInteractor.getAll().map { it.id }.toSet()
+
+        var candidate = recordInteractor.getPrev(
+            timeStarted = System.currentTimeMillis(),
+            ignoreTypeIds = defaultTypeIds,
+        )
+        if (runningTypeIds.isEmpty()) {
+            // Skip the last finished activity: it is usually the break.
+            if (skipLastWhenIdle) {
+                candidate = candidate?.let {
+                    recordInteractor.getPrev(
+                        timeStarted = it.timeEnded - 1,
+                        ignoreTypeIds = defaultTypeIds,
+                    )
+                }
+            }
+            return candidate
         }
+        // Walk back until the activity was not running just now;
+        // with one running activity this is the last finished one,
+        // with several it is the one from before all of them.
+        while (candidate != null && candidate.typeId in runningTypeIds) {
+            candidate = recordInteractor.getPrev(
+                timeStarted = candidate.timeEnded - 1,
+                ignoreTypeIds = defaultTypeIds,
+            )
+        }
+        return candidate
     }
 
     suspend fun repeatWithoutMessage(): ActionResult {

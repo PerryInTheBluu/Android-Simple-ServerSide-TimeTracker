@@ -203,7 +203,7 @@ class RunningRecordsViewModel @Inject constructor(
                 )
             }
             is RunningRecordTypeSpecialViewData.Type.Repeat -> viewModelScope.launch {
-                recordRepeatInteractor.repeat()
+                recordRepeatInteractor.repeatButton()
             }
             is RunningRecordTypeSpecialViewData.Type.Pomodoro -> {
                 delayDataLoad = true

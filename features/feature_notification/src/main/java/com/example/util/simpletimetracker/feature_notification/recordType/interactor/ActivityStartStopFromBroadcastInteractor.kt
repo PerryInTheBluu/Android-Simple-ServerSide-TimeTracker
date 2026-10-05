@@ -94,7 +94,7 @@ class ActivityStartStopFromBroadcastInteractor @Inject constructor(
     }
 
     suspend fun onActionRepeat() {
-        recordRepeatInteractor.repeat()
+        recordRepeatInteractor.repeatButtonExternal()
     }
 
     suspend fun onActionApplyTags(
