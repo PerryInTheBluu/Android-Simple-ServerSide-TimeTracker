@@ -1,1482 +1,1633 @@
 {
   "time_entries": [
     {
-      "id": "6d2e4f97-2b5a-47e5-8d4a-58e64bc435e2",
-      "activity_id": "932805c1-2449-4d26-8c98-796821f4d888",
+      "id": "5694af40-c59a-4216-8ee3-b05ccb1cf7e0",
+      "activity_id": "d39183c2-44fe-4f47-a13c-c82bb1c4f16e",
       "started_at": "2026-09-27T00:00:00+02:00",
       "ended_at": "2026-09-27T07:15:00+02:00",
       "duration_seconds": 26100,
-      "comment": "Schlaf",
-      "tags": "",
+      "comment": "Schlafphase & Erholung",
+      "tags": "gesundheit",
       "created_at": "2026-09-27T00:00:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "1f5f11b1-fbd6-4a41-9c76-84f55f6449a1",
-      "activity_id": "7a285386-1db5-4a85-ba59-b743b258a1ac",
-      "started_at": "2026-09-27T07:20:00+02:00",
-      "ended_at": "2026-09-27T07:35:00+02:00",
-      "duration_seconds": 900,
-      "comment": "Bad & Dusche",
-      "tags": "",
-      "created_at": "2026-09-27T07:20:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
-    },
-    {
-      "id": "dc32fd81-93ed-4479-bf73-c385affe61a2",
-      "activity_id": "49303e2d-7039-433c-905a-900b7ed3942c",
-      "started_at": "2026-09-27T07:35:00+02:00",
-      "ended_at": "2026-09-27T08:00:00+02:00",
+      "id": "a4214b6d-47fa-4a0c-9671-db525474c146",
+      "activity_id": "0ed94de9-1ac8-43d6-a829-39fe9a0c3672",
+      "started_at": "2026-09-27T07:30:00+02:00",
+      "ended_at": "2026-09-27T07:55:00+02:00",
       "duration_seconds": 1500,
-      "comment": "Frühstück & Kaffee",
-      "tags": "",
-      "created_at": "2026-09-27T07:35:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "comment": "Müsli, Obst & schwarzer Kaffee",
+      "tags": "essen,routine",
+      "created_at": "2026-09-27T07:30:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "f33a2b80-3ad4-4d17-8b92-ac40534112dc",
-      "activity_id": "c3e2e093-127d-43d6-95c4-9acc75ffe58d",
-      "started_at": "2026-09-27T12:45:00+02:00",
-      "ended_at": "2026-09-27T13:20:00+02:00",
+      "id": "fccc45b8-a5a0-4e75-b64b-d7b2ea445d7c",
+      "activity_id": "08700f71-ed48-4b03-ae35-a12e6ecd1867",
+      "started_at": "2026-09-27T12:15:00+02:00",
+      "ended_at": "2026-09-27T12:35:00+02:00",
+      "duration_seconds": 1200,
+      "comment": "Pasta aglio e olio gekocht",
+      "tags": "kochen",
+      "created_at": "2026-09-27T12:15:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "364cd35b-d0b1-4c41-b7d1-275e8b441975",
+      "activity_id": "66f348ae-74e1-479f-8fb6-e204575dd3bf",
+      "started_at": "2026-09-27T12:35:00+02:00",
+      "ended_at": "2026-09-27T13:00:00+02:00",
+      "duration_seconds": 1500,
+      "comment": "Mittagessen auf dem Balkon",
+      "tags": "essen",
+      "created_at": "2026-09-27T12:35:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "cbbee4ba-9490-45f9-af11-93f64cf5428c",
+      "activity_id": "85626af3-1812-4945-b2e3-a6ff3d1c4e81",
+      "started_at": "2026-09-27T15:45:00+02:00",
+      "ended_at": "2026-09-27T16:00:00+02:00",
+      "duration_seconds": 900,
+      "comment": "Espresso & kurze Denkpause",
+      "tags": "pause",
+      "created_at": "2026-09-27T15:45:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "9d3e68c8-5ec4-4351-afa8-e2461a9f7a4f",
+      "activity_id": "fa8561d6-1734-4ef2-8f17-0eeb019d493c",
+      "started_at": "2026-09-27T19:15:00+02:00",
+      "ended_at": "2026-09-27T19:50:00+02:00",
       "duration_seconds": 2100,
-      "comment": "Mensa Mittagessen",
-      "tags": "",
-      "created_at": "2026-09-27T12:45:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "comment": "Gemüsepfanne & Reis",
+      "tags": "essen",
+      "created_at": "2026-09-27T19:15:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "c3d4fec8-0785-4aff-b531-c3fa77008758",
-      "activity_id": "1927c28b-dd78-4c25-aff4-84a2bace641e",
-      "started_at": "2026-09-27T17:00:00+02:00",
-      "ended_at": "2026-09-27T18:15:00+02:00",
-      "duration_seconds": 4500,
-      "comment": "Fitnessstudio",
-      "tags": "",
-      "created_at": "2026-09-27T17:00:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
-    },
-    {
-      "id": "4f47bb55-aa33-4d78-a898-5378367b2a3c",
-      "activity_id": "733cb350-71b2-4508-a4d6-bad2ab42de4c",
-      "started_at": "2026-09-27T18:45:00+02:00",
-      "ended_at": "2026-09-27T19:20:00+02:00",
-      "duration_seconds": 2100,
-      "comment": "Pasta kochen",
-      "tags": "",
-      "created_at": "2026-09-27T18:45:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
-    },
-    {
-      "id": "48234b92-6c92-49e7-9c07-fc4916756946",
-      "activity_id": "9b151a93-5cc3-415c-8fcf-dcf4c4dc528f",
-      "started_at": "2026-09-27T19:20:00+02:00",
-      "ended_at": "2026-09-27T19:55:00+02:00",
-      "duration_seconds": 2100,
-      "comment": "Abendessen",
-      "tags": "",
-      "created_at": "2026-09-27T19:20:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
-    },
-    {
-      "id": "8edca208-87ad-493e-8af1-378da1a5ae4b",
-      "activity_id": "8e33d7e1-11c3-4bf3-98c4-11b50750cefd",
+      "id": "578fa186-bcba-41a2-a531-e75cc3d4be2b",
+      "activity_id": "0fc33439-c782-4cdf-96f0-20b5ceb452f4",
       "started_at": "2026-09-27T20:30:00+02:00",
-      "ended_at": "2026-09-27T22:00:00+02:00",
-      "duration_seconds": 5400,
-      "comment": "Feierabend",
-      "tags": "",
+      "ended_at": "2026-09-27T21:45:00+02:00",
+      "duration_seconds": 4500,
+      "comment": "Clean Code & Software Architecture gelesen",
+      "tags": "lesen,weiterbildung",
       "created_at": "2026-09-27T20:30:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "26e97c70-0dda-4309-90fc-bde4a83d9ec2",
-      "activity_id": "932805c1-2449-4d26-8c98-796821f4d888",
+      "id": "c55d1ddd-4ae6-4c7f-a24e-49a980d91b61",
+      "activity_id": "d39183c2-44fe-4f47-a13c-c82bb1c4f16e",
       "started_at": "2026-09-28T00:00:00+02:00",
       "ended_at": "2026-09-28T07:15:00+02:00",
       "duration_seconds": 26100,
-      "comment": "Schlaf",
-      "tags": "",
+      "comment": "Schlafphase & Erholung",
+      "tags": "gesundheit",
       "created_at": "2026-09-28T00:00:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "4653a265-a060-4852-b9b6-cd907c04c2da",
-      "activity_id": "7a285386-1db5-4a85-ba59-b743b258a1ac",
-      "started_at": "2026-09-28T07:20:00+02:00",
-      "ended_at": "2026-09-28T07:35:00+02:00",
-      "duration_seconds": 900,
-      "comment": "Bad & Dusche",
-      "tags": "",
-      "created_at": "2026-09-28T07:20:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
-    },
-    {
-      "id": "977cfdf8-056a-40da-852a-f109939cb123",
-      "activity_id": "49303e2d-7039-433c-905a-900b7ed3942c",
-      "started_at": "2026-09-28T07:35:00+02:00",
-      "ended_at": "2026-09-28T08:00:00+02:00",
+      "id": "3442e0bb-5ea8-499a-9fbd-cefa821aa675",
+      "activity_id": "0ed94de9-1ac8-43d6-a829-39fe9a0c3672",
+      "started_at": "2026-09-28T07:30:00+02:00",
+      "ended_at": "2026-09-28T07:55:00+02:00",
       "duration_seconds": 1500,
-      "comment": "Frühstück & Kaffee",
-      "tags": "",
-      "created_at": "2026-09-28T07:35:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "comment": "Müsli, Obst & schwarzer Kaffee",
+      "tags": "essen,routine",
+      "created_at": "2026-09-28T07:30:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "a23baf88-f024-4667-8c52-755641a47bf2",
-      "activity_id": "ec513627-83c2-4326-babb-1cd08315fd59",
+      "id": "b334ded9-4a45-4f08-8338-a418d52e3d43",
+      "activity_id": "3001f255-10c7-4ca5-8b72-218564b8de8d",
+      "started_at": "2026-09-28T07:55:00+02:00",
+      "ended_at": "2026-09-28T08:12:00+02:00",
+      "duration_seconds": 1020,
+      "comment": "U-Bahn Linie 3 zum Campus",
+      "tags": "unterwegs",
+      "created_at": "2026-09-28T07:55:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "92413181-b3d8-448c-8732-1b4f5c78326e",
+      "activity_id": "74f02a2c-86f7-4df4-a029-998e684e9740",
       "started_at": "2026-09-28T08:15:00+02:00",
       "ended_at": "2026-09-28T09:45:00+02:00",
       "duration_seconds": 5400,
-      "comment": "Vorlesung HS 1",
-      "tags": "",
+      "comment": "HS 1: 1. Hauptsatz der Thermodynamik",
+      "tags": "vorlesung,wichtig",
       "created_at": "2026-09-28T08:15:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "e596a55c-0a4d-4cc7-865f-abe447f135c9",
-      "activity_id": "fa578669-d987-4d04-b701-a5fbcbb9f4d3",
+      "id": "e1ac45fb-eb06-4656-ba19-c199deae8ffe",
+      "activity_id": "c058e922-6dd6-4839-a9fe-c7930f0d20d9",
       "started_at": "2026-09-28T10:15:00+02:00",
       "ended_at": "2026-09-28T11:45:00+02:00",
       "duration_seconds": 5400,
-      "comment": "HS 2 Wechselstromtechnik",
-      "tags": "",
+      "comment": "HS 2: Komplexe Wechselstromrechnung",
+      "tags": "vorlesung",
       "created_at": "2026-09-28T10:15:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "b7c5b188-d6b6-4c90-9a29-8a6d66e66319",
-      "activity_id": "c3e2e093-127d-43d6-95c4-9acc75ffe58d",
-      "started_at": "2026-09-28T12:45:00+02:00",
-      "ended_at": "2026-09-28T13:20:00+02:00",
-      "duration_seconds": 2100,
-      "comment": "Mensa Mittagessen",
-      "tags": "",
-      "created_at": "2026-09-28T12:45:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "id": "6a291279-23ef-4f97-8604-983fbe3a701b",
+      "activity_id": "ea4d5685-49b2-4020-8782-7ce2e10f1b38",
+      "started_at": "2026-09-28T14:15:00+02:00",
+      "ended_at": "2026-09-28T15:45:00+02:00",
+      "duration_seconds": 5400,
+      "comment": "HS 3: Streams, Lambdas & Optionals",
+      "tags": "programmieren",
+      "created_at": "2026-09-28T14:15:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "594baed9-94ef-4460-9c29-50f93df76717",
-      "activity_id": "2190e418-86f0-4d65-868f-e7d7eecc07ff",
-      "started_at": "2026-09-28T16:30:00+02:00",
+      "id": "639b57ff-aa44-4982-b017-90e56fd2ad04",
+      "activity_id": "b62c38f4-58b5-4b42-9698-a401ee878a3a",
+      "started_at": "2026-09-28T16:00:00+02:00",
       "ended_at": "2026-09-28T18:00:00+02:00",
-      "duration_seconds": 5400,
-      "comment": "Lötkolben & ESP32",
-      "tags": "",
-      "created_at": "2026-09-28T16:30:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "duration_seconds": 7200,
+      "comment": "Navier-Stokes Gleichungen & Grenzschichttheorie (Teil 1)",
+      "tags": "selbststudium,klausur",
+      "created_at": "2026-09-28T16:00:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "02843450-7cdd-497c-bf9b-d4b65c4426ff",
-      "activity_id": "733cb350-71b2-4508-a4d6-bad2ab42de4c",
-      "started_at": "2026-09-28T18:45:00+02:00",
-      "ended_at": "2026-09-28T19:20:00+02:00",
+      "id": "531e1ca2-0d38-405c-af14-04e23b2821c8",
+      "activity_id": "08700f71-ed48-4b03-ae35-a12e6ecd1867",
+      "started_at": "2026-09-28T12:15:00+02:00",
+      "ended_at": "2026-09-28T12:35:00+02:00",
+      "duration_seconds": 1200,
+      "comment": "Pasta aglio e olio gekocht",
+      "tags": "kochen",
+      "created_at": "2026-09-28T12:15:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "0257c1f4-dbb7-4bfe-9c70-cf329852ad97",
+      "activity_id": "66f348ae-74e1-479f-8fb6-e204575dd3bf",
+      "started_at": "2026-09-28T12:35:00+02:00",
+      "ended_at": "2026-09-28T13:00:00+02:00",
+      "duration_seconds": 1500,
+      "comment": "Mittagessen auf dem Balkon",
+      "tags": "essen",
+      "created_at": "2026-09-28T12:35:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "2f74bdd8-8ec7-45fd-9499-65dda524c933",
+      "activity_id": "85626af3-1812-4945-b2e3-a6ff3d1c4e81",
+      "started_at": "2026-09-28T15:45:00+02:00",
+      "ended_at": "2026-09-28T16:00:00+02:00",
+      "duration_seconds": 900,
+      "comment": "Espresso & kurze Denkpause",
+      "tags": "pause",
+      "created_at": "2026-09-28T15:45:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "b0d8efd0-09c9-46d1-8008-da1be26de5e8",
+      "activity_id": "fa8561d6-1734-4ef2-8f17-0eeb019d493c",
+      "started_at": "2026-09-28T19:15:00+02:00",
+      "ended_at": "2026-09-28T19:50:00+02:00",
       "duration_seconds": 2100,
-      "comment": "Pasta kochen",
-      "tags": "",
-      "created_at": "2026-09-28T18:45:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "comment": "Gemüsepfanne & Reis",
+      "tags": "essen",
+      "created_at": "2026-09-28T19:15:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "f5e7fbb4-8115-41d5-a865-f4e8d0698b33",
-      "activity_id": "9b151a93-5cc3-415c-8fcf-dcf4c4dc528f",
-      "started_at": "2026-09-28T19:20:00+02:00",
-      "ended_at": "2026-09-28T19:55:00+02:00",
-      "duration_seconds": 2100,
-      "comment": "Abendessen",
-      "tags": "",
-      "created_at": "2026-09-28T19:20:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "id": "2bfeea10-390c-473d-9504-a3d04af523eb",
+      "activity_id": "8cf8186e-ad67-44e5-827d-323faea060be",
+      "started_at": "2026-09-28T20:15:00+02:00",
+      "ended_at": "2026-09-28T21:15:00+02:00",
+      "duration_seconds": 3600,
+      "comment": "Riffs & Pentatonik geübt",
+      "tags": "musik",
+      "created_at": "2026-09-28T20:15:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "3ca69385-a2fc-48cc-bbcf-904e8ead5c33",
-      "activity_id": "446a0a5d-0837-494b-a008-e75f82c016ed",
-      "started_at": "2026-09-28T20:30:00+02:00",
-      "ended_at": "2026-09-28T22:00:00+02:00",
-      "duration_seconds": 5400,
-      "comment": "Feierabend",
-      "tags": "",
-      "created_at": "2026-09-28T20:30:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
-    },
-    {
-      "id": "64cb425e-8107-4aa3-b7d3-11d4b3ccebe7",
-      "activity_id": "932805c1-2449-4d26-8c98-796821f4d888",
+      "id": "ee9b1c02-eb31-4e94-a336-156fd1fb754e",
+      "activity_id": "d39183c2-44fe-4f47-a13c-c82bb1c4f16e",
       "started_at": "2026-09-29T00:00:00+02:00",
       "ended_at": "2026-09-29T07:15:00+02:00",
       "duration_seconds": 26100,
-      "comment": "Schlaf",
-      "tags": "",
+      "comment": "Schlafphase & Erholung",
+      "tags": "gesundheit",
       "created_at": "2026-09-29T00:00:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "bef3beb4-b485-4c6b-af55-5eb1f94683ce",
-      "activity_id": "7a285386-1db5-4a85-ba59-b743b258a1ac",
-      "started_at": "2026-09-29T07:20:00+02:00",
-      "ended_at": "2026-09-29T07:35:00+02:00",
-      "duration_seconds": 900,
-      "comment": "Bad & Dusche",
-      "tags": "",
-      "created_at": "2026-09-29T07:20:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
-    },
-    {
-      "id": "a079f0c1-7331-4911-8b3b-6efa10635935",
-      "activity_id": "49303e2d-7039-433c-905a-900b7ed3942c",
-      "started_at": "2026-09-29T07:35:00+02:00",
-      "ended_at": "2026-09-29T08:00:00+02:00",
+      "id": "38d94644-fc39-4cb6-b22f-6794fd5a6f5e",
+      "activity_id": "0ed94de9-1ac8-43d6-a829-39fe9a0c3672",
+      "started_at": "2026-09-29T07:30:00+02:00",
+      "ended_at": "2026-09-29T07:55:00+02:00",
       "duration_seconds": 1500,
-      "comment": "Frühstück & Kaffee",
-      "tags": "",
-      "created_at": "2026-09-29T07:35:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "comment": "Müsli, Obst & schwarzer Kaffee",
+      "tags": "essen,routine",
+      "created_at": "2026-09-29T07:30:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "867fca7b-c2f8-4719-9f70-caf7df346e9c",
-      "activity_id": "771b6804-9fd1-46c4-bd79-d8423bb78702",
-      "started_at": "2026-09-29T15:30:00+02:00",
-      "ended_at": "2026-09-29T17:30:00+02:00",
-      "duration_seconds": 7200,
-      "comment": "Selbststudium Navier-Stokes & Grenzschichten",
-      "tags": "",
-      "created_at": "2026-09-29T15:30:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "id": "e1d1ce1e-a2a3-41b2-95d3-18fc962d3da7",
+      "activity_id": "3001f255-10c7-4ca5-8b72-218564b8de8d",
+      "started_at": "2026-09-29T07:55:00+02:00",
+      "ended_at": "2026-09-29T08:12:00+02:00",
+      "duration_seconds": 1020,
+      "comment": "U-Bahn Linie 3 zum Campus",
+      "tags": "unterwegs",
+      "created_at": "2026-09-29T07:55:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "2184141d-ff08-4d9f-ad44-d61bda9d6e9e",
-      "activity_id": "c3e2e093-127d-43d6-95c4-9acc75ffe58d",
-      "started_at": "2026-09-29T12:45:00+02:00",
-      "ended_at": "2026-09-29T13:20:00+02:00",
+      "id": "9ae00835-d6c3-4dc9-a2cb-f1eca150a7c6",
+      "activity_id": "08700f71-ed48-4b03-ae35-a12e6ecd1867",
+      "started_at": "2026-09-29T12:15:00+02:00",
+      "ended_at": "2026-09-29T12:35:00+02:00",
+      "duration_seconds": 1200,
+      "comment": "Pasta aglio e olio gekocht",
+      "tags": "kochen",
+      "created_at": "2026-09-29T12:15:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "b094a783-6314-4e1f-b725-7662d7c02afa",
+      "activity_id": "66f348ae-74e1-479f-8fb6-e204575dd3bf",
+      "started_at": "2026-09-29T12:35:00+02:00",
+      "ended_at": "2026-09-29T13:00:00+02:00",
+      "duration_seconds": 1500,
+      "comment": "Mittagessen auf dem Balkon",
+      "tags": "essen",
+      "created_at": "2026-09-29T12:35:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "54a06dc0-a023-4a1d-853e-223435f60e77",
+      "activity_id": "85626af3-1812-4945-b2e3-a6ff3d1c4e81",
+      "started_at": "2026-09-29T15:45:00+02:00",
+      "ended_at": "2026-09-29T16:00:00+02:00",
+      "duration_seconds": 900,
+      "comment": "Espresso & kurze Denkpause",
+      "tags": "pause",
+      "created_at": "2026-09-29T15:45:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "fe5b5ef6-f881-4311-ad52-d5a86e325d3f",
+      "activity_id": "fa8561d6-1734-4ef2-8f17-0eeb019d493c",
+      "started_at": "2026-09-29T19:15:00+02:00",
+      "ended_at": "2026-09-29T19:50:00+02:00",
       "duration_seconds": 2100,
-      "comment": "Mensa Mittagessen",
-      "tags": "",
-      "created_at": "2026-09-29T12:45:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "comment": "Gemüsepfanne & Reis",
+      "tags": "essen",
+      "created_at": "2026-09-29T19:15:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "999eae9f-7140-4ec1-83e3-27c04ec1d082",
-      "activity_id": "838518c9-5fdd-4559-ae8e-f8a59e9dbcc8",
-      "started_at": "2026-09-29T16:45:00+02:00",
-      "ended_at": "2026-09-29T17:45:00+02:00",
-      "duration_seconds": 3600,
-      "comment": "Riffs & Pentatonik",
-      "tags": "",
-      "created_at": "2026-09-29T16:45:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
-    },
-    {
-      "id": "915c4ed1-1113-4ff1-b3c2-69527fcbd79e",
-      "activity_id": "733cb350-71b2-4508-a4d6-bad2ab42de4c",
-      "started_at": "2026-09-29T18:45:00+02:00",
-      "ended_at": "2026-09-29T19:20:00+02:00",
-      "duration_seconds": 2100,
-      "comment": "Pasta kochen",
-      "tags": "",
-      "created_at": "2026-09-29T18:45:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
-    },
-    {
-      "id": "ec6f0c91-9343-4dc3-9f30-f666e6e86218",
-      "activity_id": "9b151a93-5cc3-415c-8fcf-dcf4c4dc528f",
-      "started_at": "2026-09-29T19:20:00+02:00",
-      "ended_at": "2026-09-29T19:55:00+02:00",
-      "duration_seconds": 2100,
-      "comment": "Abendessen",
-      "tags": "",
-      "created_at": "2026-09-29T19:20:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
-    },
-    {
-      "id": "1f5cc1e7-a041-49de-ad27-7c439537a679",
-      "activity_id": "7cc02e2e-c6b1-44eb-9857-cb13dbcb43b8",
-      "started_at": "2026-09-29T20:30:00+02:00",
-      "ended_at": "2026-09-29T22:00:00+02:00",
+      "id": "0532c599-6ae2-4c10-90a2-9b2df2aea687",
+      "activity_id": "be6c219c-4958-477e-aebf-466a66a7250d",
+      "started_at": "2026-09-29T20:00:00+02:00",
+      "ended_at": "2026-09-29T21:30:00+02:00",
       "duration_seconds": 5400,
-      "comment": "Feierabend",
-      "tags": "",
-      "created_at": "2026-09-29T20:30:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "comment": "Multiplayer Session mit Freunden",
+      "tags": "gaming",
+      "created_at": "2026-09-29T20:00:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "8a7c6166-614d-4e35-92cf-56db07b9d10a",
-      "activity_id": "932805c1-2449-4d26-8c98-796821f4d888",
+      "id": "e4235a78-9154-4957-918b-9a99f868cc04",
+      "activity_id": "d39183c2-44fe-4f47-a13c-c82bb1c4f16e",
       "started_at": "2026-09-30T00:00:00+02:00",
       "ended_at": "2026-09-30T07:15:00+02:00",
       "duration_seconds": 26100,
-      "comment": "Schlaf",
-      "tags": "",
+      "comment": "Schlafphase & Erholung",
+      "tags": "gesundheit",
       "created_at": "2026-09-30T00:00:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "4db069d0-5f8d-4edf-ba40-638b2d304c5e",
-      "activity_id": "7a285386-1db5-4a85-ba59-b743b258a1ac",
-      "started_at": "2026-09-30T07:20:00+02:00",
-      "ended_at": "2026-09-30T07:35:00+02:00",
-      "duration_seconds": 900,
-      "comment": "Bad & Dusche",
-      "tags": "",
-      "created_at": "2026-09-30T07:20:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
-    },
-    {
-      "id": "8993c2b4-39d1-4b36-a5fc-414bb2675c12",
-      "activity_id": "49303e2d-7039-433c-905a-900b7ed3942c",
-      "started_at": "2026-09-30T07:35:00+02:00",
-      "ended_at": "2026-09-30T08:00:00+02:00",
+      "id": "04e68e3b-84a7-48ff-9132-3835e51f390e",
+      "activity_id": "0ed94de9-1ac8-43d6-a829-39fe9a0c3672",
+      "started_at": "2026-09-30T07:30:00+02:00",
+      "ended_at": "2026-09-30T07:55:00+02:00",
       "duration_seconds": 1500,
-      "comment": "Frühstück & Kaffee",
-      "tags": "",
-      "created_at": "2026-09-30T07:35:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "comment": "Müsli, Obst & schwarzer Kaffee",
+      "tags": "essen,routine",
+      "created_at": "2026-09-30T07:30:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "4e7e27e6-10ae-4541-b9a3-c61ae03d6611",
-      "activity_id": "f489a1d9-ac43-40da-bbb8-7d97e20c4f84",
+      "id": "bb9f31b1-ec48-4990-8a90-2786474e1135",
+      "activity_id": "3001f255-10c7-4ca5-8b72-218564b8de8d",
+      "started_at": "2026-09-30T07:55:00+02:00",
+      "ended_at": "2026-09-30T08:12:00+02:00",
+      "duration_seconds": 1020,
+      "comment": "U-Bahn Linie 3 zum Campus",
+      "tags": "unterwegs",
+      "created_at": "2026-09-30T07:55:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "1c2da2d8-3c36-4b6e-84e0-1778b9223cd1",
+      "activity_id": "32f12255-9337-4955-8163-9df18b4297c2",
       "started_at": "2026-09-30T09:15:00+02:00",
       "ended_at": "2026-09-30T10:45:00+02:00",
       "duration_seconds": 5400,
-      "comment": "Kombinatorik & Wahrscheinlichkeit",
-      "tags": "",
+      "comment": "Audimax: Wahrscheinlichkeitsräume & Bayes-Theorem",
+      "tags": "mathe",
       "created_at": "2026-09-30T09:15:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "9456882c-6397-4694-9915-6664510ea3f7",
-      "activity_id": "c3e2e093-127d-43d6-95c4-9acc75ffe58d",
-      "started_at": "2026-09-30T12:45:00+02:00",
-      "ended_at": "2026-09-30T13:20:00+02:00",
-      "duration_seconds": 2100,
-      "comment": "Mensa Mittagessen",
-      "tags": "",
-      "created_at": "2026-09-30T12:45:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
-    },
-    {
-      "id": "5d7960f7-e34f-43e9-98f8-5562f8efc71b",
-      "activity_id": "1927c28b-dd78-4c25-aff4-84a2bace641e",
-      "started_at": "2026-09-30T17:00:00+02:00",
-      "ended_at": "2026-09-30T18:15:00+02:00",
-      "duration_seconds": 4500,
-      "comment": "Fitnessstudio",
-      "tags": "",
-      "created_at": "2026-09-30T17:00:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
-    },
-    {
-      "id": "45c38d84-aeeb-427b-ac70-293195ae6808",
-      "activity_id": "733cb350-71b2-4508-a4d6-bad2ab42de4c",
-      "started_at": "2026-09-30T18:45:00+02:00",
-      "ended_at": "2026-09-30T19:20:00+02:00",
-      "duration_seconds": 2100,
-      "comment": "Pasta kochen",
-      "tags": "",
-      "created_at": "2026-09-30T18:45:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
-    },
-    {
-      "id": "0530d35b-c6d7-42b4-a6a3-93ffe51ae656",
-      "activity_id": "9b151a93-5cc3-415c-8fcf-dcf4c4dc528f",
-      "started_at": "2026-09-30T19:20:00+02:00",
-      "ended_at": "2026-09-30T19:55:00+02:00",
-      "duration_seconds": 2100,
-      "comment": "Abendessen",
-      "tags": "",
-      "created_at": "2026-09-30T19:20:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
-    },
-    {
-      "id": "3a7f8a24-4735-48cb-9079-e454f6e6d13a",
-      "activity_id": "8d569e3d-0bfa-448e-9c1f-d16395650cb9",
-      "started_at": "2026-09-30T20:30:00+02:00",
-      "ended_at": "2026-09-30T22:00:00+02:00",
+      "id": "ded034bc-7932-4747-a01b-36efab1e5e60",
+      "activity_id": "ea4d5685-49b2-4020-8782-7ce2e10f1b38",
+      "started_at": "2026-09-30T14:15:00+02:00",
+      "ended_at": "2026-09-30T15:45:00+02:00",
       "duration_seconds": 5400,
-      "comment": "Feierabend",
-      "tags": "",
-      "created_at": "2026-09-30T20:30:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "comment": "R 1.05: Übungsblatt 3 besprochen",
+      "tags": "uebung",
+      "created_at": "2026-09-30T14:15:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "035fd136-cddc-43dc-94cc-cd7ed5d84ca3",
-      "activity_id": "932805c1-2449-4d26-8c98-796821f4d888",
+      "id": "d07b0d06-afef-4e0a-ac4a-53fd1cc4c87e",
+      "activity_id": "08700f71-ed48-4b03-ae35-a12e6ecd1867",
+      "started_at": "2026-09-30T12:15:00+02:00",
+      "ended_at": "2026-09-30T12:35:00+02:00",
+      "duration_seconds": 1200,
+      "comment": "Pasta aglio e olio gekocht",
+      "tags": "kochen",
+      "created_at": "2026-09-30T12:15:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "c06e4fad-0c9e-40e7-a8a1-89ce5a85d8a0",
+      "activity_id": "66f348ae-74e1-479f-8fb6-e204575dd3bf",
+      "started_at": "2026-09-30T12:35:00+02:00",
+      "ended_at": "2026-09-30T13:00:00+02:00",
+      "duration_seconds": 1500,
+      "comment": "Mittagessen auf dem Balkon",
+      "tags": "essen",
+      "created_at": "2026-09-30T12:35:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "1ae12f6d-3fb7-4057-bf94-570a9e48485a",
+      "activity_id": "85626af3-1812-4945-b2e3-a6ff3d1c4e81",
+      "started_at": "2026-09-30T15:45:00+02:00",
+      "ended_at": "2026-09-30T16:00:00+02:00",
+      "duration_seconds": 900,
+      "comment": "Espresso & kurze Denkpause",
+      "tags": "pause",
+      "created_at": "2026-09-30T15:45:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "cdd12ae3-79aa-4b45-a66c-052a397018b4",
+      "activity_id": "fa8561d6-1734-4ef2-8f17-0eeb019d493c",
+      "started_at": "2026-09-30T19:15:00+02:00",
+      "ended_at": "2026-09-30T19:50:00+02:00",
+      "duration_seconds": 2100,
+      "comment": "Gemüsepfanne & Reis",
+      "tags": "essen",
+      "created_at": "2026-09-30T19:15:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "2888ca14-c559-43cd-be65-ddf11f988490",
+      "activity_id": "0fc33439-c782-4cdf-96f0-20b5ceb452f4",
+      "started_at": "2026-09-30T20:30:00+02:00",
+      "ended_at": "2026-09-30T21:45:00+02:00",
+      "duration_seconds": 4500,
+      "comment": "Clean Code & Software Architecture gelesen",
+      "tags": "lesen,weiterbildung",
+      "created_at": "2026-09-30T20:30:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "d4d9aa73-87d2-4703-b807-9ea58b74c6d2",
+      "activity_id": "543cbf92-8ab7-4284-9fa3-fefdc857ae55",
+      "started_at": "2026-09-30T04:15:00+02:00",
+      "ended_at": "2026-09-30T05:30:00+02:00",
+      "duration_seconds": 4500,
+      "comment": "Schlaflos: nächtlicher Geistesblitz an der Platine",
+      "tags": "outofhours",
+      "created_at": "2026-09-30T04:15:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "cff219b0-255c-4626-a1b3-a58b43b78a1c",
+      "activity_id": "d39183c2-44fe-4f47-a13c-c82bb1c4f16e",
       "started_at": "2026-10-01T00:00:00+02:00",
       "ended_at": "2026-10-01T07:15:00+02:00",
       "duration_seconds": 26100,
-      "comment": "Schlaf",
-      "tags": "",
+      "comment": "Schlafphase & Erholung",
+      "tags": "gesundheit",
       "created_at": "2026-10-01T00:00:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "fb7af35e-eb6a-43cb-be83-6d5c3378e555",
-      "activity_id": "7a285386-1db5-4a85-ba59-b743b258a1ac",
-      "started_at": "2026-10-01T07:20:00+02:00",
-      "ended_at": "2026-10-01T07:35:00+02:00",
-      "duration_seconds": 900,
-      "comment": "Bad & Dusche",
-      "tags": "",
-      "created_at": "2026-10-01T07:20:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
-    },
-    {
-      "id": "9e59e287-33ac-42b4-a408-9380029fde19",
-      "activity_id": "49303e2d-7039-433c-905a-900b7ed3942c",
-      "started_at": "2026-10-01T07:35:00+02:00",
-      "ended_at": "2026-10-01T08:00:00+02:00",
+      "id": "5e4690f1-2a5f-4fc1-ab31-908043f80706",
+      "activity_id": "0ed94de9-1ac8-43d6-a829-39fe9a0c3672",
+      "started_at": "2026-10-01T07:30:00+02:00",
+      "ended_at": "2026-10-01T07:55:00+02:00",
       "duration_seconds": 1500,
-      "comment": "Frühstück & Kaffee",
-      "tags": "",
-      "created_at": "2026-10-01T07:35:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "comment": "Müsli, Obst & schwarzer Kaffee",
+      "tags": "essen,routine",
+      "created_at": "2026-10-01T07:30:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "587e272c-8abd-48ec-8db7-2576fb4b8bd8",
-      "activity_id": "ec513627-83c2-4326-babb-1cd08315fd59",
-      "started_at": "2026-10-01T08:15:00+02:00",
-      "ended_at": "2026-10-01T09:45:00+02:00",
+      "id": "a3f62f58-1b49-47a7-b0dc-612099f9ec37",
+      "activity_id": "3001f255-10c7-4ca5-8b72-218564b8de8d",
+      "started_at": "2026-10-01T07:55:00+02:00",
+      "ended_at": "2026-10-01T08:12:00+02:00",
+      "duration_seconds": 1020,
+      "comment": "U-Bahn Linie 3 zum Campus",
+      "tags": "unterwegs",
+      "created_at": "2026-10-01T07:55:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "569c4dfc-35bd-4a6a-bcda-0a603afcf579",
+      "activity_id": "74f02a2c-86f7-4df4-a029-998e684e9740",
+      "started_at": "2026-10-01T08:30:00+02:00",
+      "ended_at": "2026-10-01T10:00:00+02:00",
       "duration_seconds": 5400,
-      "comment": "R 2.104 Kreisprozesse",
-      "tags": "",
-      "created_at": "2026-10-01T08:15:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "comment": "R 2.104: Kreisprozesse (Carnot & Joule)",
+      "tags": "uebung",
+      "created_at": "2026-10-01T08:30:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "fb82714c-7ef4-4a2e-b8e6-a87d80fb88a8",
-      "activity_id": "f489a1d9-ac43-40da-bbb8-7d97e20c4f84",
+      "id": "564fd480-f550-41bb-bacd-57922306bee3",
+      "activity_id": "32f12255-9337-4955-8163-9df18b4297c2",
       "started_at": "2026-10-01T14:15:00+02:00",
       "ended_at": "2026-10-01T15:45:00+02:00",
       "duration_seconds": 5400,
-      "comment": "Übungsaufgaben Besprechung",
-      "tags": "",
+      "comment": "R 2.201: Kombinatorik & Urnenmodelle",
+      "tags": "uebung",
       "created_at": "2026-10-01T14:15:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "40f8062c-d85b-4175-b25e-b97e1c8af2df",
-      "activity_id": "c3e2e093-127d-43d6-95c4-9acc75ffe58d",
-      "started_at": "2026-10-01T12:45:00+02:00",
-      "ended_at": "2026-10-01T13:20:00+02:00",
-      "duration_seconds": 2100,
-      "comment": "Mensa Mittagessen",
-      "tags": "",
-      "created_at": "2026-10-01T12:45:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
-    },
-    {
-      "id": "1e93287b-8711-4975-9849-2af45c63eca5",
-      "activity_id": "b5073b17-27dc-43b5-ab7a-083297927370",
-      "started_at": "2026-10-01T15:00:00+02:00",
+      "id": "fa519c04-6473-43dd-b5a7-09cc4e5b0ab3",
+      "activity_id": "b62c38f4-58b5-4b42-9698-a401ee878a3a",
+      "started_at": "2026-10-01T16:00:00+02:00",
       "ended_at": "2026-10-01T18:00:00+02:00",
-      "duration_seconds": 10800,
-      "comment": "Kaffee & Kuchen bei Oma",
-      "tags": "",
-      "created_at": "2026-10-01T15:00:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "duration_seconds": 7200,
+      "comment": "Navier-Stokes Gleichungen & Grenzschichttheorie (Teil 3)",
+      "tags": "selbststudium,klausur",
+      "created_at": "2026-10-01T16:00:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "8998328c-cc27-4655-8a26-cd1df3496afd",
-      "activity_id": "733cb350-71b2-4508-a4d6-bad2ab42de4c",
-      "started_at": "2026-10-01T18:45:00+02:00",
-      "ended_at": "2026-10-01T19:20:00+02:00",
+      "id": "afe4c26e-1bf2-4824-9544-e7e2f7897347",
+      "activity_id": "08700f71-ed48-4b03-ae35-a12e6ecd1867",
+      "started_at": "2026-10-01T12:15:00+02:00",
+      "ended_at": "2026-10-01T12:35:00+02:00",
+      "duration_seconds": 1200,
+      "comment": "Pasta aglio e olio gekocht",
+      "tags": "kochen",
+      "created_at": "2026-10-01T12:15:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "ae53ac83-60d4-4200-9d35-56ab8acae8f3",
+      "activity_id": "66f348ae-74e1-479f-8fb6-e204575dd3bf",
+      "started_at": "2026-10-01T12:35:00+02:00",
+      "ended_at": "2026-10-01T13:00:00+02:00",
+      "duration_seconds": 1500,
+      "comment": "Mittagessen auf dem Balkon",
+      "tags": "essen",
+      "created_at": "2026-10-01T12:35:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "c5a2b979-3df0-471a-95d5-2df7bd7f4ebb",
+      "activity_id": "85626af3-1812-4945-b2e3-a6ff3d1c4e81",
+      "started_at": "2026-10-01T15:45:00+02:00",
+      "ended_at": "2026-10-01T16:00:00+02:00",
+      "duration_seconds": 900,
+      "comment": "Espresso & kurze Denkpause",
+      "tags": "pause",
+      "created_at": "2026-10-01T15:45:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "1ea76e51-10e5-4e60-b6fc-56600fb0f145",
+      "activity_id": "fa8561d6-1734-4ef2-8f17-0eeb019d493c",
+      "started_at": "2026-10-01T19:15:00+02:00",
+      "ended_at": "2026-10-01T19:50:00+02:00",
       "duration_seconds": 2100,
-      "comment": "Pasta kochen",
-      "tags": "",
-      "created_at": "2026-10-01T18:45:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "comment": "Gemüsepfanne & Reis",
+      "tags": "essen",
+      "created_at": "2026-10-01T19:15:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "f52b7c02-dbd9-4425-8ec8-56d177dcafae",
-      "activity_id": "9b151a93-5cc3-415c-8fcf-dcf4c4dc528f",
-      "started_at": "2026-10-01T19:20:00+02:00",
-      "ended_at": "2026-10-01T19:55:00+02:00",
-      "duration_seconds": 2100,
-      "comment": "Abendessen",
-      "tags": "",
-      "created_at": "2026-10-01T19:20:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "id": "75c1d370-f2ce-4958-8d72-8efcf4c5b624",
+      "activity_id": "8cf8186e-ad67-44e5-827d-323faea060be",
+      "started_at": "2026-10-01T20:15:00+02:00",
+      "ended_at": "2026-10-01T21:15:00+02:00",
+      "duration_seconds": 3600,
+      "comment": "Riffs & Pentatonik geübt",
+      "tags": "musik",
+      "created_at": "2026-10-01T20:15:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "161eb12f-7736-46eb-bd7a-5b406b4ec432",
-      "activity_id": "8e33d7e1-11c3-4bf3-98c4-11b50750cefd",
-      "started_at": "2026-10-01T20:30:00+02:00",
-      "ended_at": "2026-10-01T22:00:00+02:00",
-      "duration_seconds": 5400,
-      "comment": "Feierabend",
-      "tags": "",
-      "created_at": "2026-10-01T20:30:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
-    },
-    {
-      "id": "11118eb7-9090-49fd-b9c6-13bee8ebe40c",
-      "activity_id": "932805c1-2449-4d26-8c98-796821f4d888",
+      "id": "40e5ce38-5e98-4fdb-a23a-6c5ba8732850",
+      "activity_id": "d39183c2-44fe-4f47-a13c-c82bb1c4f16e",
       "started_at": "2026-10-02T00:00:00+02:00",
       "ended_at": "2026-10-02T07:15:00+02:00",
       "duration_seconds": 26100,
-      "comment": "Schlaf",
-      "tags": "",
+      "comment": "Schlafphase & Erholung",
+      "tags": "gesundheit",
       "created_at": "2026-10-02T00:00:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "ac001e91-23d1-4c22-9ba6-9e6ac690dd67",
-      "activity_id": "7a285386-1db5-4a85-ba59-b743b258a1ac",
-      "started_at": "2026-10-02T07:20:00+02:00",
-      "ended_at": "2026-10-02T07:35:00+02:00",
-      "duration_seconds": 900,
-      "comment": "Bad & Dusche",
-      "tags": "",
-      "created_at": "2026-10-02T07:20:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
-    },
-    {
-      "id": "4517ba4e-9ba6-42da-a68f-860bcf8d211d",
-      "activity_id": "49303e2d-7039-433c-905a-900b7ed3942c",
-      "started_at": "2026-10-02T07:35:00+02:00",
-      "ended_at": "2026-10-02T08:00:00+02:00",
+      "id": "acb2e041-26a0-4e82-92df-f73d49d51623",
+      "activity_id": "0ed94de9-1ac8-43d6-a829-39fe9a0c3672",
+      "started_at": "2026-10-02T07:30:00+02:00",
+      "ended_at": "2026-10-02T07:55:00+02:00",
       "duration_seconds": 1500,
-      "comment": "Frühstück & Kaffee",
-      "tags": "",
-      "created_at": "2026-10-02T07:35:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "comment": "Müsli, Obst & schwarzer Kaffee",
+      "tags": "essen,routine",
+      "created_at": "2026-10-02T07:30:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "dab29d4b-dcfb-4b48-99aa-929514483cd0",
-      "activity_id": "ec7e3365-62a4-40a6-bae5-eedeed9b0f87",
+      "id": "954af22c-8afd-4da6-a0f9-936ff90cce0e",
+      "activity_id": "3001f255-10c7-4ca5-8b72-218564b8de8d",
+      "started_at": "2026-10-02T07:55:00+02:00",
+      "ended_at": "2026-10-02T08:12:00+02:00",
+      "duration_seconds": 1020,
+      "comment": "U-Bahn Linie 3 zum Campus",
+      "tags": "unterwegs",
+      "created_at": "2026-10-02T07:55:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "4a30bd86-6bf4-4520-9afc-f8b33c798ba6",
+      "activity_id": "39127902-aba8-4621-8da5-24d1a63963c5",
       "started_at": "2026-10-02T10:15:00+02:00",
       "ended_at": "2026-10-02T11:45:00+02:00",
       "duration_seconds": 5400,
-      "comment": "Sensoren & Messfehler",
-      "tags": "",
+      "comment": "HS 3: Messunsicherheiten nach GUM",
+      "tags": "vorlesung",
       "created_at": "2026-10-02T10:15:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "dd78a31b-34eb-498c-8762-8570b728a163",
-      "activity_id": "ec513627-83c2-4326-babb-1cd08315fd59",
+      "id": "c7c73765-0994-44ea-94e3-6b5cbc32669d",
+      "activity_id": "74f02a2c-86f7-4df4-a029-998e684e9740",
       "started_at": "2026-10-02T13:00:00+02:00",
       "ended_at": "2026-10-02T14:30:00+02:00",
       "duration_seconds": 5400,
-      "comment": "Tutorium Aufgaben",
-      "tags": "",
+      "comment": "R 0.014: Fragen zu Enthalpie & Entropie",
+      "tags": "tutorium",
       "created_at": "2026-10-02T13:00:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "b0517106-599f-483c-bcde-d254799d1719",
-      "activity_id": "771b6804-9fd1-46c4-bd79-d8423bb78702",
-      "started_at": "2026-10-02T15:30:00+02:00",
-      "ended_at": "2026-10-02T17:30:00+02:00",
-      "duration_seconds": 7200,
-      "comment": "Selbststudium Navier-Stokes & Grenzschichten",
-      "tags": "",
-      "created_at": "2026-10-02T15:30:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "id": "1da77c8e-11a0-417e-b29d-e8fab07e4753",
+      "activity_id": "08700f71-ed48-4b03-ae35-a12e6ecd1867",
+      "started_at": "2026-10-02T12:15:00+02:00",
+      "ended_at": "2026-10-02T12:35:00+02:00",
+      "duration_seconds": 1200,
+      "comment": "Pasta aglio e olio gekocht",
+      "tags": "kochen",
+      "created_at": "2026-10-02T12:15:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "b08f8b75-4247-46ed-b17f-8700d6352cbe",
-      "activity_id": "c3e2e093-127d-43d6-95c4-9acc75ffe58d",
-      "started_at": "2026-10-02T12:45:00+02:00",
-      "ended_at": "2026-10-02T13:20:00+02:00",
+      "id": "ff6d7b80-cd10-409e-9c59-155330af5199",
+      "activity_id": "66f348ae-74e1-479f-8fb6-e204575dd3bf",
+      "started_at": "2026-10-02T12:35:00+02:00",
+      "ended_at": "2026-10-02T13:00:00+02:00",
+      "duration_seconds": 1500,
+      "comment": "Mittagessen auf dem Balkon",
+      "tags": "essen",
+      "created_at": "2026-10-02T12:35:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "d174c1ab-4645-42f2-be4a-9587488a5bfd",
+      "activity_id": "85626af3-1812-4945-b2e3-a6ff3d1c4e81",
+      "started_at": "2026-10-02T15:45:00+02:00",
+      "ended_at": "2026-10-02T16:00:00+02:00",
+      "duration_seconds": 900,
+      "comment": "Espresso & kurze Denkpause",
+      "tags": "pause",
+      "created_at": "2026-10-02T15:45:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "305570f7-244b-4435-b077-4da7f3311c11",
+      "activity_id": "fa8561d6-1734-4ef2-8f17-0eeb019d493c",
+      "started_at": "2026-10-02T19:15:00+02:00",
+      "ended_at": "2026-10-02T19:50:00+02:00",
       "duration_seconds": 2100,
-      "comment": "Mensa Mittagessen",
-      "tags": "",
-      "created_at": "2026-10-02T12:45:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "comment": "Gemüsepfanne & Reis",
+      "tags": "essen",
+      "created_at": "2026-10-02T19:15:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "51f8be78-591f-451f-af8b-1a52d9f6a2cc",
-      "activity_id": "838518c9-5fdd-4559-ae8e-f8a59e9dbcc8",
-      "started_at": "2026-10-02T16:45:00+02:00",
-      "ended_at": "2026-10-02T17:45:00+02:00",
-      "duration_seconds": 3600,
-      "comment": "Riffs & Pentatonik",
-      "tags": "",
-      "created_at": "2026-10-02T16:45:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
-    },
-    {
-      "id": "3e2d4174-a563-44b2-9bad-eec54d4e373e",
-      "activity_id": "733cb350-71b2-4508-a4d6-bad2ab42de4c",
-      "started_at": "2026-10-02T18:45:00+02:00",
-      "ended_at": "2026-10-02T19:20:00+02:00",
-      "duration_seconds": 2100,
-      "comment": "Pasta kochen",
-      "tags": "",
-      "created_at": "2026-10-02T18:45:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
-    },
-    {
-      "id": "e7c2c7bb-8c3e-45df-b829-c18386aa46d6",
-      "activity_id": "9b151a93-5cc3-415c-8fcf-dcf4c4dc528f",
-      "started_at": "2026-10-02T19:20:00+02:00",
-      "ended_at": "2026-10-02T19:55:00+02:00",
-      "duration_seconds": 2100,
-      "comment": "Abendessen",
-      "tags": "",
-      "created_at": "2026-10-02T19:20:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
-    },
-    {
-      "id": "9905e7bc-a46a-4b2d-a921-c957bc4ba6ba",
-      "activity_id": "446a0a5d-0837-494b-a008-e75f82c016ed",
-      "started_at": "2026-10-02T20:30:00+02:00",
-      "ended_at": "2026-10-02T22:00:00+02:00",
+      "id": "425b38e6-923e-4c6d-a111-2c46297763e6",
+      "activity_id": "be6c219c-4958-477e-aebf-466a66a7250d",
+      "started_at": "2026-10-02T20:00:00+02:00",
+      "ended_at": "2026-10-02T21:30:00+02:00",
       "duration_seconds": 5400,
-      "comment": "Feierabend",
-      "tags": "",
-      "created_at": "2026-10-02T20:30:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "comment": "Multiplayer Session mit Freunden",
+      "tags": "gaming",
+      "created_at": "2026-10-02T20:00:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "5ea85a48-a1e5-42ad-930c-3031991d2a32",
-      "activity_id": "932805c1-2449-4d26-8c98-796821f4d888",
+      "id": "d39fbd3f-dbd8-4c4a-88ad-e2fce36495ef",
+      "activity_id": "3001f255-10c7-4ca5-8b72-218564b8de8d",
+      "started_at": "2026-10-02T12:00:00+02:00",
+      "ended_at": "2026-10-02T12:02:00+02:00",
+      "duration_seconds": 120,
+      "comment": "Sprint zur S-Bahn",
+      "tags": "mikro",
+      "created_at": "2026-10-02T12:00:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "f588d507-95ad-45ed-ade5-142bed443a73",
+      "activity_id": "f83baad6-abf3-41cf-84ed-7f338cd8e3be",
+      "started_at": "2026-10-02T12:02:00+02:00",
+      "ended_at": "2026-10-02T12:04:00+02:00",
+      "duration_seconds": 120,
+      "comment": "Händewaschen & Frischepause",
+      "tags": "mikro",
+      "created_at": "2026-10-02T12:02:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "c16d6a16-9c2f-4e1b-8722-e9349e87e309",
+      "activity_id": "85626af3-1812-4945-b2e3-a6ff3d1c4e81",
+      "started_at": "2026-10-02T12:04:00+02:00",
+      "ended_at": "2026-10-02T12:06:00+02:00",
+      "duration_seconds": 120,
+      "comment": "Schnellen Espresso geholt",
+      "tags": "mikro",
+      "created_at": "2026-10-02T12:04:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "f3379099-bea0-4c48-b2c5-ccc986a93dff",
+      "activity_id": "27d55b97-d6ff-44c0-97fa-37b0845872a1",
+      "started_at": "2026-10-02T12:06:00+02:00",
+      "ended_at": "2026-10-02T12:08:00+02:00",
+      "duration_seconds": 120,
+      "comment": "Kommilitone im Flur gegrüßt",
+      "tags": "mikro",
+      "created_at": "2026-10-02T12:06:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "87c363f4-9cc3-4940-acfa-f6c3153deb07",
+      "activity_id": "d39183c2-44fe-4f47-a13c-c82bb1c4f16e",
       "started_at": "2026-10-03T00:00:00+02:00",
       "ended_at": "2026-10-03T07:15:00+02:00",
       "duration_seconds": 26100,
-      "comment": "Schlaf",
-      "tags": "",
+      "comment": "Schlafphase & Erholung",
+      "tags": "gesundheit",
       "created_at": "2026-10-03T00:00:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "0e7bb1ec-70d4-4e5b-b849-b6a41c7001e8",
-      "activity_id": "7a285386-1db5-4a85-ba59-b743b258a1ac",
-      "started_at": "2026-10-03T07:20:00+02:00",
-      "ended_at": "2026-10-03T07:35:00+02:00",
-      "duration_seconds": 900,
-      "comment": "Bad & Dusche",
-      "tags": "",
-      "created_at": "2026-10-03T07:20:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
-    },
-    {
-      "id": "14e9c291-3f86-4320-aa41-1d84c64ec67c",
-      "activity_id": "49303e2d-7039-433c-905a-900b7ed3942c",
-      "started_at": "2026-10-03T07:35:00+02:00",
-      "ended_at": "2026-10-03T08:00:00+02:00",
+      "id": "01647c95-2754-4b6a-b1d8-8c3bdfc8a828",
+      "activity_id": "0ed94de9-1ac8-43d6-a829-39fe9a0c3672",
+      "started_at": "2026-10-03T07:30:00+02:00",
+      "ended_at": "2026-10-03T07:55:00+02:00",
       "duration_seconds": 1500,
-      "comment": "Frühstück & Kaffee",
-      "tags": "",
-      "created_at": "2026-10-03T07:35:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "comment": "Müsli, Obst & schwarzer Kaffee",
+      "tags": "essen,routine",
+      "created_at": "2026-10-03T07:30:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "4e4f6f3a-059c-44a9-9e20-93343390f166",
-      "activity_id": "c3e2e093-127d-43d6-95c4-9acc75ffe58d",
-      "started_at": "2026-10-03T12:45:00+02:00",
-      "ended_at": "2026-10-03T13:20:00+02:00",
+      "id": "c1bf4ad7-678c-4fe3-8979-b2247f621504",
+      "activity_id": "08700f71-ed48-4b03-ae35-a12e6ecd1867",
+      "started_at": "2026-10-03T12:15:00+02:00",
+      "ended_at": "2026-10-03T12:35:00+02:00",
+      "duration_seconds": 1200,
+      "comment": "Pasta aglio e olio gekocht",
+      "tags": "kochen",
+      "created_at": "2026-10-03T12:15:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "4e704579-900f-44ad-8072-3c5df9b080c5",
+      "activity_id": "66f348ae-74e1-479f-8fb6-e204575dd3bf",
+      "started_at": "2026-10-03T12:35:00+02:00",
+      "ended_at": "2026-10-03T13:00:00+02:00",
+      "duration_seconds": 1500,
+      "comment": "Mittagessen auf dem Balkon",
+      "tags": "essen",
+      "created_at": "2026-10-03T12:35:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "96348cf9-f0f6-40b6-a6ba-6434dbd7439d",
+      "activity_id": "85626af3-1812-4945-b2e3-a6ff3d1c4e81",
+      "started_at": "2026-10-03T15:45:00+02:00",
+      "ended_at": "2026-10-03T16:00:00+02:00",
+      "duration_seconds": 900,
+      "comment": "Espresso & kurze Denkpause",
+      "tags": "pause",
+      "created_at": "2026-10-03T15:45:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "9fb7ffa6-051b-4de5-ba20-5bf5ffd564c4",
+      "activity_id": "fa8561d6-1734-4ef2-8f17-0eeb019d493c",
+      "started_at": "2026-10-03T19:15:00+02:00",
+      "ended_at": "2026-10-03T19:50:00+02:00",
       "duration_seconds": 2100,
-      "comment": "Mensa Mittagessen",
-      "tags": "",
-      "created_at": "2026-10-03T12:45:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "comment": "Gemüsepfanne & Reis",
+      "tags": "essen",
+      "created_at": "2026-10-03T19:15:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "a5392b74-0955-4f71-b43b-f993b8eacfb5",
-      "activity_id": "1927c28b-dd78-4c25-aff4-84a2bace641e",
-      "started_at": "2026-10-03T17:00:00+02:00",
-      "ended_at": "2026-10-03T18:15:00+02:00",
-      "duration_seconds": 4500,
-      "comment": "Fitnessstudio",
-      "tags": "",
-      "created_at": "2026-10-03T17:00:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
-    },
-    {
-      "id": "82af9f67-ea4d-44a6-afd4-abb24ed669d4",
-      "activity_id": "733cb350-71b2-4508-a4d6-bad2ab42de4c",
-      "started_at": "2026-10-03T18:45:00+02:00",
-      "ended_at": "2026-10-03T19:20:00+02:00",
-      "duration_seconds": 2100,
-      "comment": "Pasta kochen",
-      "tags": "",
-      "created_at": "2026-10-03T18:45:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
-    },
-    {
-      "id": "bb4c1dfe-b0b1-4180-99ba-c9ff2c622d64",
-      "activity_id": "9b151a93-5cc3-415c-8fcf-dcf4c4dc528f",
-      "started_at": "2026-10-03T19:20:00+02:00",
-      "ended_at": "2026-10-03T19:55:00+02:00",
-      "duration_seconds": 2100,
-      "comment": "Abendessen",
-      "tags": "",
-      "created_at": "2026-10-03T19:20:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
-    },
-    {
-      "id": "30f10599-c35f-4694-9045-043f09c48d32",
-      "activity_id": "7cc02e2e-c6b1-44eb-9857-cb13dbcb43b8",
+      "id": "dfecb48a-5f4a-4477-86a9-a38132a5e458",
+      "activity_id": "0fc33439-c782-4cdf-96f0-20b5ceb452f4",
       "started_at": "2026-10-03T20:30:00+02:00",
-      "ended_at": "2026-10-03T22:00:00+02:00",
-      "duration_seconds": 5400,
-      "comment": "Feierabend",
-      "tags": "",
+      "ended_at": "2026-10-03T21:45:00+02:00",
+      "duration_seconds": 4500,
+      "comment": "Clean Code & Software Architecture gelesen",
+      "tags": "lesen,weiterbildung",
       "created_at": "2026-10-03T20:30:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "3e9a1a2d-a006-4614-b58c-094520e0e744",
-      "activity_id": "932805c1-2449-4d26-8c98-796821f4d888",
+      "id": "34918720-2cb6-44f4-a65c-74183be88140",
+      "activity_id": "543cbf92-8ab7-4284-9fa3-fefdc857ae55",
+      "started_at": "2026-10-03T15:00:00+02:00",
+      "ended_at": "2026-10-03T15:06:00+02:00",
+      "duration_seconds": 360,
+      "comment": "Widerstände gemessen",
+      "tags": "kollision",
+      "created_at": "2026-10-03T15:00:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "b2609ff9-1662-4abf-b417-9731d172d170",
+      "activity_id": "8cf8186e-ad67-44e5-827d-323faea060be",
+      "started_at": "2026-10-03T15:02:00+02:00",
+      "ended_at": "2026-10-03T15:07:00+02:00",
+      "duration_seconds": 300,
+      "comment": "Verstärker eingepegelt",
+      "tags": "kollision",
+      "created_at": "2026-10-03T15:02:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "5e5d8b1b-3e39-43dc-b714-3b35767a5112",
+      "activity_id": "42c994c5-ff33-46a6-bd9c-cb30d23177f6",
+      "started_at": "2026-10-03T15:04:00+02:00",
+      "ended_at": "2026-10-03T15:10:00+02:00",
+      "duration_seconds": 360,
+      "comment": "Tutorial nebenbei",
+      "tags": "kollision",
+      "created_at": "2026-10-03T15:04:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "12a8a89a-b801-44a3-8188-2e70ea9674b4",
+      "activity_id": "d39183c2-44fe-4f47-a13c-c82bb1c4f16e",
       "started_at": "2026-10-04T00:00:00+02:00",
       "ended_at": "2026-10-04T07:15:00+02:00",
       "duration_seconds": 26100,
-      "comment": "Schlaf",
-      "tags": "",
+      "comment": "Schlafphase & Erholung",
+      "tags": "gesundheit",
       "created_at": "2026-10-04T00:00:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "50dc939c-bcbf-4f48-8420-89c38cb75076",
-      "activity_id": "7a285386-1db5-4a85-ba59-b743b258a1ac",
-      "started_at": "2026-10-04T07:20:00+02:00",
-      "ended_at": "2026-10-04T07:35:00+02:00",
-      "duration_seconds": 900,
-      "comment": "Bad & Dusche",
-      "tags": "",
-      "created_at": "2026-10-04T07:20:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
-    },
-    {
-      "id": "2b3ae972-e4e2-4def-9b9f-470205884129",
-      "activity_id": "49303e2d-7039-433c-905a-900b7ed3942c",
-      "started_at": "2026-10-04T07:35:00+02:00",
-      "ended_at": "2026-10-04T08:00:00+02:00",
+      "id": "aa76fdbe-0fc4-4ce2-841c-87724ef57b0f",
+      "activity_id": "0ed94de9-1ac8-43d6-a829-39fe9a0c3672",
+      "started_at": "2026-10-04T07:30:00+02:00",
+      "ended_at": "2026-10-04T07:55:00+02:00",
       "duration_seconds": 1500,
-      "comment": "Frühstück & Kaffee",
-      "tags": "",
-      "created_at": "2026-10-04T07:35:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "comment": "Müsli, Obst & schwarzer Kaffee",
+      "tags": "essen,routine",
+      "created_at": "2026-10-04T07:30:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "ecc195f9-5878-411b-aede-4f83d509592a",
-      "activity_id": "c3e2e093-127d-43d6-95c4-9acc75ffe58d",
-      "started_at": "2026-10-04T12:45:00+02:00",
-      "ended_at": "2026-10-04T13:20:00+02:00",
-      "duration_seconds": 2100,
-      "comment": "Mensa Mittagessen",
-      "tags": "",
-      "created_at": "2026-10-04T12:45:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
-    },
-    {
-      "id": "c034c41b-d46c-4c1a-a30f-9943b0fad7c3",
-      "activity_id": "2190e418-86f0-4d65-868f-e7d7eecc07ff",
-      "started_at": "2026-10-04T16:30:00+02:00",
+      "id": "643cd999-ac51-4a42-b244-51d0e833a0b0",
+      "activity_id": "b62c38f4-58b5-4b42-9698-a401ee878a3a",
+      "started_at": "2026-10-04T16:00:00+02:00",
       "ended_at": "2026-10-04T18:00:00+02:00",
-      "duration_seconds": 5400,
-      "comment": "Lötkolben & ESP32",
-      "tags": "",
-      "created_at": "2026-10-04T16:30:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "duration_seconds": 7200,
+      "comment": "Navier-Stokes Gleichungen & Grenzschichttheorie (Teil 4)",
+      "tags": "selbststudium,klausur",
+      "created_at": "2026-10-04T16:00:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "ff9a32d9-2511-483b-9857-90b8db979558",
-      "activity_id": "733cb350-71b2-4508-a4d6-bad2ab42de4c",
-      "started_at": "2026-10-04T18:45:00+02:00",
-      "ended_at": "2026-10-04T19:20:00+02:00",
+      "id": "c9e70d10-0c20-457d-8565-33c44a37fa32",
+      "activity_id": "08700f71-ed48-4b03-ae35-a12e6ecd1867",
+      "started_at": "2026-10-04T12:15:00+02:00",
+      "ended_at": "2026-10-04T12:35:00+02:00",
+      "duration_seconds": 1200,
+      "comment": "Pasta aglio e olio gekocht",
+      "tags": "kochen",
+      "created_at": "2026-10-04T12:15:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "62b87ddb-c914-4a5e-b0d9-59e053f0f7b6",
+      "activity_id": "66f348ae-74e1-479f-8fb6-e204575dd3bf",
+      "started_at": "2026-10-04T12:35:00+02:00",
+      "ended_at": "2026-10-04T13:00:00+02:00",
+      "duration_seconds": 1500,
+      "comment": "Mittagessen auf dem Balkon",
+      "tags": "essen",
+      "created_at": "2026-10-04T12:35:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "4bb00b62-c17b-4554-9770-f8caccb377d0",
+      "activity_id": "85626af3-1812-4945-b2e3-a6ff3d1c4e81",
+      "started_at": "2026-10-04T15:45:00+02:00",
+      "ended_at": "2026-10-04T16:00:00+02:00",
+      "duration_seconds": 900,
+      "comment": "Espresso & kurze Denkpause",
+      "tags": "pause",
+      "created_at": "2026-10-04T15:45:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "bfe845ef-d836-4812-8819-d1fca964c319",
+      "activity_id": "fa8561d6-1734-4ef2-8f17-0eeb019d493c",
+      "started_at": "2026-10-04T19:15:00+02:00",
+      "ended_at": "2026-10-04T19:50:00+02:00",
       "duration_seconds": 2100,
-      "comment": "Pasta kochen",
-      "tags": "",
-      "created_at": "2026-10-04T18:45:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "comment": "Gemüsepfanne & Reis",
+      "tags": "essen",
+      "created_at": "2026-10-04T19:15:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "cf849068-94af-4e03-ad3c-4952b47dc30c",
-      "activity_id": "9b151a93-5cc3-415c-8fcf-dcf4c4dc528f",
-      "started_at": "2026-10-04T19:20:00+02:00",
-      "ended_at": "2026-10-04T19:55:00+02:00",
-      "duration_seconds": 2100,
-      "comment": "Abendessen",
-      "tags": "",
-      "created_at": "2026-10-04T19:20:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "id": "3f22e3da-926c-4f29-b846-f9d9b29cf706",
+      "activity_id": "8cf8186e-ad67-44e5-827d-323faea060be",
+      "started_at": "2026-10-04T20:15:00+02:00",
+      "ended_at": "2026-10-04T21:15:00+02:00",
+      "duration_seconds": 3600,
+      "comment": "Riffs & Pentatonik geübt",
+      "tags": "musik",
+      "created_at": "2026-10-04T20:15:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "525c27a4-9c3f-42a5-b654-93c6f0e2c120",
-      "activity_id": "8d569e3d-0bfa-448e-9c1f-d16395650cb9",
-      "started_at": "2026-10-04T20:30:00+02:00",
-      "ended_at": "2026-10-04T22:00:00+02:00",
-      "duration_seconds": 5400,
-      "comment": "Feierabend",
-      "tags": "",
-      "created_at": "2026-10-04T20:30:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "id": "0b4b3cd0-38c6-49fc-970e-83778de9fc55",
+      "activity_id": "0fc33439-c782-4cdf-96f0-20b5ceb452f4",
+      "started_at": "2026-10-04T23:15:00+02:00",
+      "ended_at": "2026-10-05T01:00:00+02:00",
+      "duration_seconds": 6300,
+      "comment": "Spannendes Kapitel bis spät in die Nacht fertig gelesen",
+      "tags": "mitternacht",
+      "created_at": "2026-10-04T23:15:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "6bfa0aae-9760-4a37-8754-e2d883a1c4dd",
-      "activity_id": "932805c1-2449-4d26-8c98-796821f4d888",
+      "id": "51057840-cca4-4060-b9b5-4874a03ec150",
+      "activity_id": "d39183c2-44fe-4f47-a13c-c82bb1c4f16e",
       "started_at": "2026-10-05T00:00:00+02:00",
       "ended_at": "2026-10-05T07:15:00+02:00",
       "duration_seconds": 26100,
-      "comment": "Schlaf",
-      "tags": "",
+      "comment": "Schlafphase & Erholung",
+      "tags": "gesundheit",
       "created_at": "2026-10-05T00:00:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "444c5c76-3090-4553-930a-d535c9f1ff1a",
-      "activity_id": "7a285386-1db5-4a85-ba59-b743b258a1ac",
-      "started_at": "2026-10-05T07:20:00+02:00",
-      "ended_at": "2026-10-05T07:35:00+02:00",
-      "duration_seconds": 900,
-      "comment": "Bad & Dusche",
-      "tags": "",
-      "created_at": "2026-10-05T07:20:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
-    },
-    {
-      "id": "d82dbfa9-413c-4724-ae64-5d8b82eae350",
-      "activity_id": "49303e2d-7039-433c-905a-900b7ed3942c",
-      "started_at": "2026-10-05T07:35:00+02:00",
-      "ended_at": "2026-10-05T08:00:00+02:00",
+      "id": "94e110e0-d43f-4efa-a3af-7aaf33d5d473",
+      "activity_id": "0ed94de9-1ac8-43d6-a829-39fe9a0c3672",
+      "started_at": "2026-10-05T07:30:00+02:00",
+      "ended_at": "2026-10-05T07:55:00+02:00",
       "duration_seconds": 1500,
-      "comment": "Frühstück & Kaffee",
-      "tags": "",
-      "created_at": "2026-10-05T07:35:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "comment": "Müsli, Obst & schwarzer Kaffee",
+      "tags": "essen,routine",
+      "created_at": "2026-10-05T07:30:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "29141604-3387-40ef-b0c2-7322d7751697",
-      "activity_id": "ec513627-83c2-4326-babb-1cd08315fd59",
+      "id": "6d667d5c-89c4-44e0-8627-4a98963c2da0",
+      "activity_id": "3001f255-10c7-4ca5-8b72-218564b8de8d",
+      "started_at": "2026-10-05T07:55:00+02:00",
+      "ended_at": "2026-10-05T08:12:00+02:00",
+      "duration_seconds": 1020,
+      "comment": "U-Bahn Linie 3 zum Campus",
+      "tags": "unterwegs",
+      "created_at": "2026-10-05T07:55:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "381c73f4-ee62-4666-a79f-9c537240b0c9",
+      "activity_id": "74f02a2c-86f7-4df4-a029-998e684e9740",
       "started_at": "2026-10-05T08:15:00+02:00",
       "ended_at": "2026-10-05T09:45:00+02:00",
       "duration_seconds": 5400,
-      "comment": "Vorlesung HS 1 (später eingetragen)",
-      "tags": "",
-      "created_at": "2026-10-07T09:45:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "comment": "Aufzeichnung nachgearbeitet",
+      "tags": "nachgetragen",
+      "created_at": "2026-10-05T15:30:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "cab24f43-824e-4aea-9c74-d11be1f265fc",
-      "activity_id": "fa578669-d987-4d04-b701-a5fbcbb9f4d3",
+      "id": "36ce8383-7115-4abc-a8e0-6fb23012c6fa",
+      "activity_id": "c058e922-6dd6-4839-a9fe-c7930f0d20d9",
       "started_at": "2026-10-05T10:15:00+02:00",
       "ended_at": "2026-10-05T11:45:00+02:00",
       "duration_seconds": 5400,
-      "comment": "HS 2 Wechselstromtechnik",
-      "tags": "",
+      "comment": "HS 2: Komplexe Wechselstromrechnung",
+      "tags": "vorlesung",
       "created_at": "2026-10-05T10:15:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "a366a943-08b8-4bac-98ae-de46fac6ba65",
-      "activity_id": "771b6804-9fd1-46c4-bd79-d8423bb78702",
-      "started_at": "2026-10-05T15:30:00+02:00",
-      "ended_at": "2026-10-05T17:30:00+02:00",
-      "duration_seconds": 7200,
-      "comment": "Selbststudium Navier-Stokes & Grenzschichten",
-      "tags": "",
-      "created_at": "2026-10-05T15:30:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
-    },
-    {
-      "id": "bbbf8561-f96a-4fa6-a2a0-b3fb4f32b20b",
-      "activity_id": "c3e2e093-127d-43d6-95c4-9acc75ffe58d",
-      "started_at": "2026-10-05T12:45:00+02:00",
-      "ended_at": "2026-10-05T13:20:00+02:00",
-      "duration_seconds": 2100,
-      "comment": "Mensa Mittagessen",
-      "tags": "",
-      "created_at": "2026-10-05T12:45:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
-    },
-    {
-      "id": "79c231cb-ad43-4bc5-9d8d-50cd07b71ad6",
-      "activity_id": "838518c9-5fdd-4559-ae8e-f8a59e9dbcc8",
-      "started_at": "2026-10-05T16:45:00+02:00",
-      "ended_at": "2026-10-05T17:45:00+02:00",
-      "duration_seconds": 3600,
-      "comment": "Riffs & Pentatonik",
-      "tags": "",
-      "created_at": "2026-10-05T16:45:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
-    },
-    {
-      "id": "35c3114c-0a46-44de-a81f-c23220f54ed4",
-      "activity_id": "733cb350-71b2-4508-a4d6-bad2ab42de4c",
-      "started_at": "2026-10-05T18:45:00+02:00",
-      "ended_at": "2026-10-05T19:20:00+02:00",
-      "duration_seconds": 2100,
-      "comment": "Pasta kochen",
-      "tags": "",
-      "created_at": "2026-10-05T18:45:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
-    },
-    {
-      "id": "564d8319-def2-4bb2-ac96-70a11e6a7865",
-      "activity_id": "9b151a93-5cc3-415c-8fcf-dcf4c4dc528f",
-      "started_at": "2026-10-05T19:20:00+02:00",
-      "ended_at": "2026-10-05T19:55:00+02:00",
-      "duration_seconds": 2100,
-      "comment": "Abendessen",
-      "tags": "",
-      "created_at": "2026-10-05T19:20:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
-    },
-    {
-      "id": "ece8a05f-e411-434c-b8ab-bf58ae1ca833",
-      "activity_id": "8e33d7e1-11c3-4bf3-98c4-11b50750cefd",
-      "started_at": "2026-10-05T20:30:00+02:00",
-      "ended_at": "2026-10-05T22:00:00+02:00",
+      "id": "739b9c5c-f752-4ca8-82db-67b54b701c4d",
+      "activity_id": "ea4d5685-49b2-4020-8782-7ce2e10f1b38",
+      "started_at": "2026-10-05T14:15:00+02:00",
+      "ended_at": "2026-10-05T15:45:00+02:00",
       "duration_seconds": 5400,
-      "comment": "Feierabend",
-      "tags": "",
-      "created_at": "2026-10-05T20:30:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "comment": "HS 3: Streams, Lambdas & Optionals",
+      "tags": "programmieren",
+      "created_at": "2026-10-05T14:15:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "d612423d-321a-479c-9a89-66ee8f04f9f1",
-      "activity_id": "932805c1-2449-4d26-8c98-796821f4d888",
+      "id": "757f43ce-abde-4b26-9649-09a60bb37b7f",
+      "activity_id": "b62c38f4-58b5-4b42-9698-a401ee878a3a",
+      "started_at": "2026-10-05T16:00:00+02:00",
+      "ended_at": "2026-10-05T18:00:00+02:00",
+      "duration_seconds": 7200,
+      "comment": "Navier-Stokes Gleichungen & Grenzschichttheorie (Teil 5)",
+      "tags": "selbststudium,klausur",
+      "created_at": "2026-10-05T22:00:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "ebf43647-b487-4179-9bfb-0022a1e221e3",
+      "activity_id": "08700f71-ed48-4b03-ae35-a12e6ecd1867",
+      "started_at": "2026-10-05T12:15:00+02:00",
+      "ended_at": "2026-10-05T12:35:00+02:00",
+      "duration_seconds": 1200,
+      "comment": "Pasta aglio e olio gekocht",
+      "tags": "kochen",
+      "created_at": "2026-10-05T12:15:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "9cff5b6f-30a9-4ff7-b797-f7726f9008fd",
+      "activity_id": "66f348ae-74e1-479f-8fb6-e204575dd3bf",
+      "started_at": "2026-10-05T12:35:00+02:00",
+      "ended_at": "2026-10-05T13:00:00+02:00",
+      "duration_seconds": 1500,
+      "comment": "Mittagessen auf dem Balkon",
+      "tags": "essen",
+      "created_at": "2026-10-05T12:35:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "bf479ad7-8c1b-466a-874a-20244183674f",
+      "activity_id": "85626af3-1812-4945-b2e3-a6ff3d1c4e81",
+      "started_at": "2026-10-05T15:45:00+02:00",
+      "ended_at": "2026-10-05T16:00:00+02:00",
+      "duration_seconds": 900,
+      "comment": "Espresso & kurze Denkpause",
+      "tags": "pause",
+      "created_at": "2026-10-05T15:45:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "23862462-457d-42b9-acef-53fb5291a1bf",
+      "activity_id": "fa8561d6-1734-4ef2-8f17-0eeb019d493c",
+      "started_at": "2026-10-05T19:15:00+02:00",
+      "ended_at": "2026-10-05T19:50:00+02:00",
+      "duration_seconds": 2100,
+      "comment": "Gemüsepfanne & Reis",
+      "tags": "essen",
+      "created_at": "2026-10-05T19:15:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "28b7cb04-d635-44bc-8860-f3f2a4eef81c",
+      "activity_id": "be6c219c-4958-477e-aebf-466a66a7250d",
+      "started_at": "2026-10-05T20:00:00+02:00",
+      "ended_at": "2026-10-05T21:30:00+02:00",
+      "duration_seconds": 5400,
+      "comment": "Multiplayer Session mit Freunden",
+      "tags": "gaming",
+      "created_at": "2026-10-05T20:00:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "c73e61dc-9387-4989-bdea-edc66fdb7bf7",
+      "activity_id": "f9c97cac-ffc7-43ff-a5bc-aa91b03f6663",
+      "started_at": "2026-10-05T15:00:00+02:00",
+      "ended_at": "2026-10-05T18:00:00+02:00",
+      "duration_seconds": 10800,
+      "comment": "Kaffee und Kuchen mit Oma, Garten geholfen",
+      "tags": "familie",
+      "created_at": "2026-10-05T15:00:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "d117c004-5731-42b9-80ec-720caaa0c3f9",
+      "activity_id": "d39183c2-44fe-4f47-a13c-c82bb1c4f16e",
       "started_at": "2026-10-06T00:00:00+02:00",
       "ended_at": "2026-10-06T07:15:00+02:00",
       "duration_seconds": 26100,
-      "comment": "Schlaf",
-      "tags": "",
+      "comment": "Schlafphase & Erholung",
+      "tags": "gesundheit",
       "created_at": "2026-10-06T00:00:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "6774d1d7-3d61-4161-a762-f87ec0eee10a",
-      "activity_id": "7a285386-1db5-4a85-ba59-b743b258a1ac",
-      "started_at": "2026-10-06T07:20:00+02:00",
-      "ended_at": "2026-10-06T07:35:00+02:00",
-      "duration_seconds": 900,
-      "comment": "Bad & Dusche",
-      "tags": "",
-      "created_at": "2026-10-06T07:20:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
-    },
-    {
-      "id": "7c462569-cee0-4242-9340-e5ba44e1552d",
-      "activity_id": "49303e2d-7039-433c-905a-900b7ed3942c",
-      "started_at": "2026-10-06T07:35:00+02:00",
-      "ended_at": "2026-10-06T08:00:00+02:00",
+      "id": "3af1c0ae-e2bb-4805-9c36-def0d85e7741",
+      "activity_id": "0ed94de9-1ac8-43d6-a829-39fe9a0c3672",
+      "started_at": "2026-10-06T07:30:00+02:00",
+      "ended_at": "2026-10-06T07:55:00+02:00",
       "duration_seconds": 1500,
-      "comment": "Frühstück & Kaffee",
-      "tags": "",
-      "created_at": "2026-10-06T07:35:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "comment": "Müsli, Obst & schwarzer Kaffee",
+      "tags": "essen,routine",
+      "created_at": "2026-10-06T07:30:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "220bf8ae-1cf3-4fd0-96a5-6b90a726e52e",
-      "activity_id": "5b8eb0dc-7115-4e6c-8340-979321db9d8e",
-      "started_at": "2026-10-06T11:30:00+02:00",
-      "ended_at": "2026-10-06T11:32:00+02:00",
-      "duration_seconds": 120,
-      "comment": "Kurze Kaffeepause",
-      "tags": "",
-      "created_at": "2026-10-06T11:30:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "id": "7b544a10-04d8-41c0-a476-29743dd95fc7",
+      "activity_id": "3001f255-10c7-4ca5-8b72-218564b8de8d",
+      "started_at": "2026-10-06T07:55:00+02:00",
+      "ended_at": "2026-10-06T08:12:00+02:00",
+      "duration_seconds": 1020,
+      "comment": "U-Bahn Linie 3 zum Campus",
+      "tags": "unterwegs",
+      "created_at": "2026-10-06T07:55:00+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "51a84d0f-e70e-4f48-b30e-908926df83e2",
-      "activity_id": "7a285386-1db5-4a85-ba59-b743b258a1ac",
-      "started_at": "2026-10-06T11:32:00+02:00",
-      "ended_at": "2026-10-06T11:34:00+02:00",
-      "duration_seconds": 120,
-      "comment": "Händewaschen",
-      "tags": "",
-      "created_at": "2026-10-06T11:32:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
-    },
-    {
-      "id": "227413b0-9390-42f4-98eb-fb9d8c4c8877",
-      "activity_id": "76e7d4ac-8aa7-4fb3-a93a-8a7d36b580c7",
-      "started_at": "2026-10-06T11:34:00+02:00",
-      "ended_at": "2026-10-06T11:36:00+02:00",
-      "duration_seconds": 120,
-      "comment": "Sprint zum Bus",
-      "tags": "",
-      "created_at": "2026-10-06T11:34:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
-    },
-    {
-      "id": "6307dc5a-6c9f-4ce7-9cde-5801d8c4a64f",
-      "activity_id": "446a0a5d-0837-494b-a008-e75f82c016ed",
-      "started_at": "2026-10-06T02:30:00+02:00",
-      "ended_at": "2026-10-06T03:15:00+02:00",
-      "duration_seconds": 2700,
-      "comment": "Nachts Doku geschaut",
-      "tags": "",
-      "created_at": "2026-10-06T02:30:00+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
-    },
-    {
-      "id": "643000fb-9d9d-40b0-9e7c-dc610dc37809",
-      "activity_id": "ec513627-83c2-4326-babb-1cd08315fd59",
-      "started_at": "2026-10-06T00:21:44.733473+02:00",
+      "id": "defdaa40-7a52-4617-bb4b-32787821922f",
+      "activity_id": "ea4d5685-49b2-4020-8782-7ce2e10f1b38",
+      "started_at": "2026-10-06T00:48:47.529610+02:00",
       "ended_at": null,
       "duration_seconds": 0,
-      "comment": "Übungsblatt 3 rechnen",
-      "tags": "",
-      "created_at": "2026-10-06T00:21:44.733473+02:00",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "comment": "Spring Boot REST API & Hibernate Entities",
+      "tags": "programmieren,live",
+      "created_at": "2026-10-06T00:48:47.529610+02:00",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     }
   ],
   "activities": [
     {
-      "id": "7a285386-1db5-4a85-ba59-b743b258a1ac",
-      "name": "bio",
-      "icon": "bio",
-      "color_id": 14,
-      "category": "[\"5d697679-79f2-4053-b460-ff6f771ed1b6\"]",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
-    },
-    {
-      "id": "4d4f5c54-a452-4980-a679-fdc9329e78dd",
-      "name": "chores",
-      "icon": "chores",
-      "color_id": 17,
-      "category": "[\"5d697679-79f2-4053-b460-ff6f771ed1b6\"]",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
-    },
-    {
-      "id": "76e7d4ac-8aa7-4fb3-a93a-8a7d36b580c7",
-      "name": "commute",
-      "icon": "commute",
-      "color_id": 8,
-      "category": "[\"5d697679-79f2-4053-b460-ff6f771ed1b6\"]",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
-    },
-    {
-      "id": "932805c1-2449-4d26-8c98-796821f4d888",
-      "name": "sleep",
-      "icon": "sleep",
-      "color_id": 1,
-      "category": "[\"5d697679-79f2-4053-b460-ff6f771ed1b6\"]",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
-    },
-    {
-      "id": "5b8eb0dc-7115-4e6c-8340-979321db9d8e",
-      "name": "pause",
-      "icon": "pause",
-      "color_id": 14,
-      "category": "[\"5d697679-79f2-4053-b460-ff6f771ed1b6\"]",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
-    },
-    {
-      "id": "733cb350-71b2-4508-a4d6-bad2ab42de4c",
-      "name": "cooking",
-      "icon": "cooking",
-      "color_id": 15,
-      "category": "[\"f6aa2c03-cc15-48ce-af50-eefcd90ddf26\"]",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
-    },
-    {
-      "id": "49303e2d-7039-433c-905a-900b7ed3942c",
-      "name": "breakfast",
-      "icon": "breakfast",
-      "color_id": 15,
-      "category": "[\"f6aa2c03-cc15-48ce-af50-eefcd90ddf26\"]",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
-    },
-    {
-      "id": "c3e2e093-127d-43d6-95c4-9acc75ffe58d",
-      "name": "lunch",
-      "icon": "lunch",
-      "color_id": 15,
-      "category": "[\"f6aa2c03-cc15-48ce-af50-eefcd90ddf26\"]",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
-    },
-    {
-      "id": "9b151a93-5cc3-415c-8fcf-dcf4c4dc528f",
-      "name": "dinner",
-      "icon": "dinner",
-      "color_id": 15,
-      "category": "[\"f6aa2c03-cc15-48ce-af50-eefcd90ddf26\"]",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
-    },
-    {
-      "id": "446a0a5d-0837-494b-a008-e75f82c016ed",
-      "name": "youtube",
-      "icon": "youtube",
-      "color_id": 2,
-      "category": "[\"e04fd225-b982-426e-a28c-0074e7abc472\"]",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
-    },
-    {
-      "id": "7cc02e2e-c6b1-44eb-9857-cb13dbcb43b8",
-      "name": "games",
-      "icon": "games",
-      "color_id": 3,
-      "category": "[\"e04fd225-b982-426e-a28c-0074e7abc472\"]",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
-    },
-    {
-      "id": "8d569e3d-0bfa-448e-9c1f-d16395650cb9",
-      "name": "social",
-      "icon": "social",
-      "color_id": 7,
-      "category": "[\"cc002734-c019-4aa7-8f11-38b55ef6e572\"]",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
-    },
-    {
-      "id": "2190e418-86f0-4d65-868f-e7d7eecc07ff",
-      "name": "tinkering",
-      "icon": "tinkering",
-      "color_id": 13,
-      "category": "[\"cc002734-c019-4aa7-8f11-38b55ef6e572\"]",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
-    },
-    {
-      "id": "1927c28b-dd78-4c25-aff4-84a2bace641e",
-      "name": "exercise",
-      "icon": "exercise",
-      "color_id": 4,
-      "category": "[\"cc002734-c019-4aa7-8f11-38b55ef6e572\"]",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
-    },
-    {
-      "id": "838518c9-5fdd-4559-ae8e-f8a59e9dbcc8",
-      "name": "egitarre",
-      "icon": "egitarre",
-      "color_id": 16,
-      "category": "[\"cc002734-c019-4aa7-8f11-38b55ef6e572\"]",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
-    },
-    {
-      "id": "8e33d7e1-11c3-4bf3-98c4-11b50750cefd",
-      "name": "read",
-      "icon": "read",
-      "color_id": 5,
-      "category": "[\"cc002734-c019-4aa7-8f11-38b55ef6e572\"]",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
-    },
-    {
-      "id": "b5073b17-27dc-43b5-ab7a-083297927370",
-      "name": "oma besucht diesen monat",
-      "icon": "oma",
-      "color_id": 6,
-      "category": "[\"cc002734-c019-4aa7-8f11-38b55ef6e572\"]",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
-    },
-    {
-      "id": "ec513627-83c2-4326-babb-1cd08315fd59",
+      "id": "74f02a2c-86f7-4df4-a029-998e684e9740",
       "name": "thermo",
       "icon": "diploma",
       "color_id": 9,
-      "category": "[\"51bd57fa-9679-4ff3-9045-d87a401ea247\"]",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "category": "[\"15f26a3e-9931-4d4d-807a-8876f19bbf4e\"]",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "fa578669-d987-4d04-b701-a5fbcbb9f4d3",
+      "id": "c058e922-6dd6-4839-a9fe-c7930f0d20d9",
       "name": "get2",
       "icon": "diploma",
-      "color_id": 11,
-      "category": "[\"51bd57fa-9679-4ff3-9045-d87a401ea247\"]",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "color_id": 6,
+      "category": "[\"15f26a3e-9931-4d4d-807a-8876f19bbf4e\"]",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "3ae93c89-c4b3-4500-b739-80b531ab0b8c",
+      "id": "dc21a540-23cf-4f8c-982b-bffa817f901e",
       "name": "ente",
       "icon": "diploma",
-      "color_id": 12,
-      "category": "[\"51bd57fa-9679-4ff3-9045-d87a401ea247\"]",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "color_id": 10,
+      "category": "[\"15f26a3e-9931-4d4d-807a-8876f19bbf4e\"]",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "f489a1d9-ac43-40da-bbb8-7d97e20c4f84",
+      "id": "32f12255-9337-4955-8163-9df18b4297c2",
       "name": "wust",
       "icon": "diploma",
-      "color_id": 10,
-      "category": "[\"51bd57fa-9679-4ff3-9045-d87a401ea247\"]",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "color_id": 4,
+      "category": "[\"15f26a3e-9931-4d4d-807a-8876f19bbf4e\"]",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "771b6804-9fd1-46c4-bd79-d8423bb78702",
+      "id": "b62c38f4-58b5-4b42-9698-a401ee878a3a",
       "name": "strömi",
       "icon": "diploma",
       "color_id": 18,
-      "category": "[\"51bd57fa-9679-4ff3-9045-d87a401ea247\"]",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "category": "[\"15f26a3e-9931-4d4d-807a-8876f19bbf4e\"]",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "ec7e3365-62a4-40a6-bae5-eedeed9b0f87",
+      "id": "39127902-aba8-4621-8da5-24d1a63963c5",
       "name": "Mess",
       "icon": "diploma",
-      "color_id": 19,
-      "category": "[\"51bd57fa-9679-4ff3-9045-d87a401ea247\"]",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "color_id": 12,
+      "category": "[\"15f26a3e-9931-4d4d-807a-8876f19bbf4e\"]",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "ea4d5685-49b2-4020-8782-7ce2e10f1b38",
+      "name": "java",
+      "icon": "diploma",
+      "color_id": 11,
+      "category": "[\"15f26a3e-9931-4d4d-807a-8876f19bbf4e\"]",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "d39183c2-44fe-4f47-a13c-c82bb1c4f16e",
+      "name": "sleep",
+      "icon": "sleep",
+      "color_id": 1,
+      "category": "[\"f94edd5b-e936-428c-9f56-8464545592d9\"]",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "f83baad6-abf3-41cf-84ed-7f338cd8e3be",
+      "name": "bio",
+      "icon": "bio",
+      "color_id": 14,
+      "category": "[\"f94edd5b-e936-428c-9f56-8464545592d9\"]",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "427f7c17-f682-4d51-a634-1acc41f14e15",
+      "name": "chores",
+      "icon": "chores",
+      "color_id": 17,
+      "category": "[\"f94edd5b-e936-428c-9f56-8464545592d9\"]",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "3001f255-10c7-4ca5-8b72-218564b8de8d",
+      "name": "commute",
+      "icon": "commute",
+      "color_id": 8,
+      "category": "[\"f94edd5b-e936-428c-9f56-8464545592d9\"]",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "85626af3-1812-4945-b2e3-a6ff3d1c4e81",
+      "name": "pause",
+      "icon": "pause",
+      "color_id": 14,
+      "category": "[\"f94edd5b-e936-428c-9f56-8464545592d9\"]",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "0ed94de9-1ac8-43d6-a829-39fe9a0c3672",
+      "name": "breakfast",
+      "icon": "breakfast",
+      "color_id": 14,
+      "category": "[\"f94edd5b-e936-428c-9f56-8464545592d9\", \"4d64b3cb-2754-4b84-96f9-b6b5ef11c755\"]",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "66f348ae-74e1-479f-8fb6-e204575dd3bf",
+      "name": "lunch",
+      "icon": "lunch",
+      "color_id": 15,
+      "category": "[\"f94edd5b-e936-428c-9f56-8464545592d9\", \"4d64b3cb-2754-4b84-96f9-b6b5ef11c755\"]",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "fa8561d6-1734-4ef2-8f17-0eeb019d493c",
+      "name": "dinner",
+      "icon": "dinner",
+      "color_id": 16,
+      "category": "[\"f94edd5b-e936-428c-9f56-8464545592d9\", \"4d64b3cb-2754-4b84-96f9-b6b5ef11c755\"]",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "08700f71-ed48-4b03-ae35-a12e6ecd1867",
+      "name": "cooking",
+      "icon": "cooking",
+      "color_id": 15,
+      "category": "[\"f94edd5b-e936-428c-9f56-8464545592d9\", \"4d64b3cb-2754-4b84-96f9-b6b5ef11c755\"]",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "ef2e8f83-30f6-4b59-bd4b-6b263188a103",
+      "name": "exercise",
+      "icon": "exercise",
+      "color_id": 4,
+      "category": "[\"ae614b66-eeab-46c9-8504-1b2d9232ea56\"]",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "8cf8186e-ad67-44e5-827d-323faea060be",
+      "name": "egitarre",
+      "icon": "egitarre",
+      "color_id": 16,
+      "category": "[\"ae614b66-eeab-46c9-8504-1b2d9232ea56\"]",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "0fc33439-c782-4cdf-96f0-20b5ceb452f4",
+      "name": "read",
+      "icon": "read",
+      "color_id": 5,
+      "category": "[\"ae614b66-eeab-46c9-8504-1b2d9232ea56\"]",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "543cbf92-8ab7-4284-9fa3-fefdc857ae55",
+      "name": "tinkering",
+      "icon": "tinkering",
+      "color_id": 13,
+      "category": "[\"ae614b66-eeab-46c9-8504-1b2d9232ea56\"]",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "27d55b97-d6ff-44c0-97fa-37b0845872a1",
+      "name": "social",
+      "icon": "social",
+      "color_id": 7,
+      "category": "[\"ae614b66-eeab-46c9-8504-1b2d9232ea56\"]",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "f9c97cac-ffc7-43ff-a5bc-aa91b03f6663",
+      "name": "oma besucht diesen monat",
+      "icon": "oma",
+      "color_id": 6,
+      "category": "[\"ae614b66-eeab-46c9-8504-1b2d9232ea56\"]",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "42c994c5-ff33-46a6-bd9c-cb30d23177f6",
+      "name": "youtube",
+      "icon": "youtube",
+      "color_id": 2,
+      "category": "[\"265aedb4-706f-44db-94df-9b6cab7c7a02\"]",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "be6c219c-4958-477e-aebf-466a66a7250d",
+      "name": "games",
+      "icon": "games",
+      "color_id": 3,
+      "category": "[\"265aedb4-706f-44db-94df-9b6cab7c7a02\"]",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     }
   ],
   "categories": [
     {
-      "id": "f6aa2c03-cc15-48ce-af50-eefcd90ddf26",
-      "name": "Essen",
-      "color_id": 15,
-      "note": "Kochen, Mahlzeiten",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
-    },
-    {
-      "id": "e04fd225-b982-426e-a28c-0074e7abc472",
-      "name": "Zeitverschwendung",
-      "color_id": 2,
-      "note": "YouTube, Gaming",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
-    },
-    {
-      "id": "51bd57fa-9679-4ff3-9045-d87a401ea247",
+      "id": "15f26a3e-9931-4d4d-807a-8876f19bbf4e",
       "name": "Uni",
       "color_id": 10,
-      "note": "Vorlesungen, Übungen, Lernen",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "note": "Vorlesungen, Übungen, Tutorien, Lernen",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "cc002734-c019-4aa7-8f11-38b55ef6e572",
+      "id": "f94edd5b-e936-428c-9f56-8464545592d9",
+      "name": "Alltag",
+      "color_id": 15,
+      "note": "Schlaf, Mahlzeiten, Haushalt, Hygiene",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "ae614b66-eeab-46c9-8504-1b2d9232ea56",
       "name": "Freizeit",
       "color_id": 4,
-      "note": "Sport, Musik, Basteln, Lesen",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "note": "Sport, Musik, Lesen, Hobbys",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "5d697679-79f2-4053-b460-ff6f771ed1b6",
-      "name": "Alltag",
-      "color_id": 1,
-      "note": "Schlaf, Haushalt, Pendeln, Hygiene",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "id": "4d64b3cb-2754-4b84-96f9-b6b5ef11c755",
+      "name": "Essen",
+      "color_id": 16,
+      "note": "Frühstück, Mittagessen, Abendessen, Kochen",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "265aedb4-706f-44db-94df-9b6cab7c7a02",
+      "name": "Zeitverschwendung",
+      "color_id": 3,
+      "note": "Social Media, Gaming, Prokrastination",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     }
   ],
   "timetable_events": [
     {
-      "id": "f8c79963-e51a-429e-9194-6792c2af13f6",
+      "id": "3168295f-4c66-4628-a784-526e3df1673a",
       "name": "thermo",
       "day_of_week": 1,
       "start_time": 495,
       "end_time": 585,
       "room": "HS 1",
       "type": 0,
-      "activity_sync_id": "ec513627-83c2-4326-babb-1cd08315fd59",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "activity_sync_id": "74f02a2c-86f7-4df4-a029-998e684e9740",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "68df9394-c555-4581-b526-07ad215e63a6",
+      "id": "cf817786-23d3-43ac-9acf-0bfc1425c482",
       "name": "get2",
       "day_of_week": 1,
       "start_time": 615,
       "end_time": 705,
       "room": "HS 2",
       "type": 0,
-      "activity_sync_id": "fa578669-d987-4d04-b701-a5fbcbb9f4d3",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "activity_sync_id": "c058e922-6dd6-4839-a9fe-c7930f0d20d9",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "65c7d8a4-2ede-4034-a017-2f298478014e",
+      "id": "6eebd50f-8969-4ded-9b97-5a648ff584e6",
+      "name": "java",
+      "day_of_week": 1,
+      "start_time": 855,
+      "end_time": 945,
+      "room": "HS 3",
+      "type": 0,
+      "activity_sync_id": "ea4d5685-49b2-4020-8782-7ce2e10f1b38",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "f2025f28-1896-4e22-b68a-4f41adfaae83",
       "name": "get2",
       "day_of_week": 2,
       "start_time": 495,
       "end_time": 585,
       "room": "R 0.014",
       "type": 1,
-      "activity_sync_id": "fa578669-d987-4d04-b701-a5fbcbb9f4d3",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "activity_sync_id": "c058e922-6dd6-4839-a9fe-c7930f0d20d9",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "225c45dd-52be-4753-8b11-05ad7acc2530",
+      "id": "b4c17028-bb4f-417e-9a6c-956e34b95707",
       "name": "ente",
       "day_of_week": 2,
       "start_time": 720,
       "end_time": 810,
-      "room": "Audimax",
+      "room": "HS 1",
       "type": 0,
-      "activity_sync_id": "3ae93c89-c4b3-4500-b739-80b531ab0b8c",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "activity_sync_id": "dc21a540-23cf-4f8c-982b-bffa817f901e",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "bfa64c22-0265-4a48-a347-b342c7a1593f",
+      "id": "9d38aca3-7f51-4d62-ab50-b81ea50bcdcc",
       "name": "wust",
       "day_of_week": 3,
       "start_time": 555,
       "end_time": 645,
       "room": "HS 1",
       "type": 0,
-      "activity_sync_id": "f489a1d9-ac43-40da-bbb8-7d97e20c4f84",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "activity_sync_id": "32f12255-9337-4955-8163-9df18b4297c2",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "40c4dd72-8fa1-485d-87c8-31b1c71633ab",
+      "id": "e23c397c-0509-4508-ae8b-5e918a93bd08",
+      "name": "java",
+      "day_of_week": 3,
+      "start_time": 855,
+      "end_time": 945,
+      "room": "R 1.05",
+      "type": 1,
+      "activity_sync_id": "ea4d5685-49b2-4020-8782-7ce2e10f1b38",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "75dc6c09-1bf9-4fc9-a032-d01ab61928ec",
       "name": "thermo",
       "day_of_week": 4,
       "start_time": 495,
       "end_time": 585,
       "room": "R 2.104",
       "type": 1,
-      "activity_sync_id": "ec513627-83c2-4326-babb-1cd08315fd59",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "activity_sync_id": "74f02a2c-86f7-4df4-a029-998e684e9740",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "737f8f55-ce44-4dc5-88ce-93641e54efff",
+      "id": "4eec87f5-f8e0-4d5f-81eb-7eadc02f2fbc",
       "name": "wust",
       "day_of_week": 4,
       "start_time": 855,
       "end_time": 945,
       "room": "R 2.201",
       "type": 1,
-      "activity_sync_id": "f489a1d9-ac43-40da-bbb8-7d97e20c4f84",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "activity_sync_id": "32f12255-9337-4955-8163-9df18b4297c2",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "aecc8073-bf31-4419-bd55-e19019fe3865",
+      "id": "a5bde06f-bb9f-4df3-9a71-97f0403b7eed",
       "name": "Mess",
       "day_of_week": 5,
       "start_time": 615,
       "end_time": 705,
-      "room": "HS 2",
+      "room": "HS 3",
       "type": 0,
-      "activity_sync_id": "ec7e3365-62a4-40a6-bae5-eedeed9b0f87",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "activity_sync_id": "39127902-aba8-4621-8da5-24d1a63963c5",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "5cc37620-399e-46d0-a5ec-0597362f46dd",
+      "id": "c317bbae-2c9a-4c47-a444-2c222b8917b9",
       "name": "thermo",
       "day_of_week": 5,
       "start_time": 780,
       "end_time": 870,
       "room": "R 0.014",
       "type": 2,
-      "activity_sync_id": "ec513627-83c2-4326-babb-1cd08315fd59",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "activity_sync_id": "74f02a2c-86f7-4df4-a029-998e684e9740",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     }
   ],
   "timetable_overrides": [
     {
-      "id": "16d299a4-61c7-41bf-a1ce-2abd98091a9c",
-      "event_sync_id": "225c45dd-52be-4753-8b11-05ad7acc2530",
+      "id": "dc984352-df29-48f9-9a25-4ea835215f46",
+      "event_sync_id": "b4c17028-bb4f-417e-9a6c-956e34b95707",
       "date": "2026-09-29",
       "cancelled": true,
-      "comment": "Dozent krank",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "comment": "Dozent auf Fachtagung",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "abec999f-77b4-4261-9c98-9e796a110b99",
-      "event_sync_id": "bfa64c22-0265-4a48-a347-b342c7a1593f",
+      "id": "34020537-e39c-467a-bcfb-ec1be8499cca",
+      "event_sync_id": "9d38aca3-7f51-4d62-ab50-b81ea50bcdcc",
       "date": "2026-09-30",
       "cancelled": false,
-      "room": "Neuer Hörsaal",
-      "comment": "Raumverlegung",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "room": "Audimax",
+      "comment": "Hörsaalwechsel wegen Bauarbeiten",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "3afe5625-831b-4088-92bf-ed9d3da11b64",
+      "event_sync_id": "75dc6c09-1bf9-4fc9-a032-d01ab61928ec",
+      "date": "2026-10-01",
+      "cancelled": false,
+      "start_time": 510,
+      "end_time": 600,
+      "room": "R 2.104",
+      "comment": "30 Min verschoben",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     }
   ],
   "timetable_days": [
     {
-      "id": "15034a3b-7773-4bde-909c-557fd83e2861",
+      "id": "e2e7e144-4b0f-4927-8294-032f3dba5c41",
       "date": "2026-10-04",
-      "free_day": false,
-      "name": "Vorlesungstag",
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "free_day": true,
+      "name": "Vorlesungsfreier Hochschulsporttag",
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     }
   ],
   "timetable_todos": [
     {
-      "id": "ed7873db-17f7-4c04-a486-8f278ccaff5f",
-      "event_sync_id": "f8c79963-e51a-429e-9194-6792c2af13f6",
-      "date": "2026-10-07",
-      "text": "Skript Kapitel 3 durcharbeiten",
-      "type": 0,
-      "done": false,
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
-    },
-    {
-      "id": "74cc2339-58b6-41d7-aa49-f1a93fd31130",
-      "event_sync_id": "40c4dd72-8fa1-485d-87c8-31b1c71633ab",
-      "date": "2026-10-08",
-      "text": "Übungsblatt 4 Aufgaben 1-3 rechnen",
-      "type": 0,
-      "done": false,
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
-    },
-    {
-      "id": "7ed384bd-1ef8-4a60-931a-5056bda27606",
-      "event_sync_id": "5cc37620-399e-46d0-a5ec-0597362f46dd",
-      "date": "2026-10-10",
-      "text": "Fragen zu Aufgabe 2 für Tutor notieren",
-      "type": 0,
-      "done": false,
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
-    },
-    {
-      "id": "6db1077c-4a7f-430b-9230-6c5629b7f2e8",
-      "event_sync_id": "68df9394-c555-4581-b526-07ad215e63a6",
-      "date": "2026-10-09",
-      "text": "Formelsammlung Wechselstrom ergänzen",
-      "type": 1,
-      "done": false,
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
-    },
-    {
-      "id": "738ddbb1-01fb-4abf-a0bb-3d7a1c61964a",
-      "event_sync_id": "737f8f55-ce44-4dc5-88ce-93641e54efff",
-      "date": "2026-10-11",
-      "text": "R-Skript zur Chi-Quadrat-Verteilung testen",
-      "type": 2,
-      "done": false,
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
-    },
-    {
-      "id": "ff64b925-17a9-40e1-b121-5dfdcb99647d",
-      "event_sync_id": "225c45dd-52be-4753-8b11-05ad7acc2530",
-      "date": "2026-09-28",
-      "text": "BHKW Kenndaten recherchieren",
-      "type": 1,
-      "done": true,
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
-    },
-    {
-      "id": "b376845b-349e-4662-9259-5895e18a6505",
-      "event_sync_id": "aecc8073-bf31-4419-bd55-e19019fe3865",
-      "date": "2026-10-01",
-      "text": "Oszilloskop Kalibrierungsprotokoll abgeben",
-      "type": 2,
-      "done": true,
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
-    },
-    {
-      "id": "1e24b128-7ab5-4474-9d20-76d36f627283",
-      "event_sync_id": "f8c79963-e51a-429e-9194-6792c2af13f6",
+      "id": "c934f7bc-2818-4078-824e-8dad1a60fadc",
+      "event_sync_id": "3168295f-4c66-4628-a784-526e3df1673a",
       "date": "2026-09-28",
       "text": "Zustandsgleichung idealer Gase wiederholen",
       "type": 0,
       "done": true,
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "a3337a5b-4981-458b-8f41-3df1cd946830",
+      "event_sync_id": "3168295f-4c66-4628-a784-526e3df1673a",
+      "date": "2026-10-07",
+      "text": "Skript Kapitel 3 durcharbeiten",
+      "type": 0,
+      "done": false,
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "6f0ee95c-6f2e-456a-a359-d15444b5a374",
+      "event_sync_id": "75dc6c09-1bf9-4fc9-a032-d01ab61928ec",
+      "date": "2026-10-08",
+      "text": "Übungsblatt 4 Aufgaben 1-3 rechnen",
+      "type": 0,
+      "done": false,
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "22f6ff35-d0d3-4491-9042-603f6cb41096",
+      "event_sync_id": "c317bbae-2c9a-4c47-a444-2c222b8917b9",
+      "date": "2026-10-10",
+      "text": "Fragen zu Aufgabe 2 für Tutor notieren",
+      "type": 0,
+      "done": false,
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "d612813b-c00a-49de-bbcf-55e164d5a791",
+      "event_sync_id": "6eebd50f-8969-4ded-9b97-5a648ff584e6",
+      "date": "2026-10-12",
+      "text": "Generics & Bounded Type Parameters lesen",
+      "type": 0,
+      "done": false,
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "b994003f-57cc-4dbf-853e-01ade05c753d",
+      "event_sync_id": "b4c17028-bb4f-417e-9a6c-956e34b95707",
+      "date": "2026-09-28",
+      "text": "BHKW Kenndaten recherchieren",
+      "type": 1,
+      "done": true,
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "2df1f039-0cfe-4342-874f-ba1b664fee11",
+      "event_sync_id": "cf817786-23d3-43ac-9acf-0bfc1425c482",
+      "date": "2026-10-09",
+      "text": "Formelsammlung Wechselstrom ergänzen",
+      "type": 1,
+      "done": false,
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "3087f1ac-056a-43f3-8673-8b0d43b722a2",
+      "event_sync_id": "e23c397c-0509-4508-ae8b-5e918a93bd08",
+      "date": "2026-10-11",
+      "text": "JUnit Testfälle für Stack-Implementierung abgeben",
+      "type": 1,
+      "done": false,
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "7b68c425-0486-4a3f-9291-3c5ba91faf3e",
+      "event_sync_id": "a5bde06f-bb9f-4df3-9a71-97f0403b7eed",
+      "date": "2026-10-01",
+      "text": "Oszilloskop Kalibrierungsprotokoll abgeben",
+      "type": 2,
+      "done": true,
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "2a1c67a2-91bf-432c-925c-789a440f162b",
+      "event_sync_id": "4eec87f5-f8e0-4d5f-81eb-7eadc02f2fbc",
+      "date": "2026-10-11",
+      "text": "R-Skript zur Chi-Quadrat-Verteilung testen",
+      "type": 2,
+      "done": false,
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "9eb376a2-6902-46e1-8378-006221f08703",
+      "event_sync_id": "3168295f-4c66-4628-a784-526e3df1673a",
+      "date": "",
+      "text": "Klausuranmeldung im Prüfungsamt verifizieren",
+      "type": 2,
+      "done": false,
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     }
   ],
   "subject_goals": [
     {
-      "id": "c17f4f65-3518-4792-be22-6d3ad50cf16d",
-      "activity_sync_id": "ec513627-83c2-4326-babb-1cd08315fd59",
+      "id": "9e8ac798-05b8-46ec-8976-2c42261897e2",
+      "activity_sync_id": "74f02a2c-86f7-4df4-a029-998e684e9740",
       "target_seconds": 540000,
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "d1e08d17-8fe6-4829-9cbd-66e9da8b1048",
-      "activity_sync_id": "fa578669-d987-4d04-b701-a5fbcbb9f4d3",
+      "id": "9b07c9d9-09f6-4532-a637-7079ff02cdd5",
+      "activity_sync_id": "c058e922-6dd6-4839-a9fe-c7930f0d20d9",
       "target_seconds": 540000,
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "233efffb-5f3f-48e2-aa80-7f6a0d61f01b",
-      "activity_sync_id": "3ae93c89-c4b3-4500-b739-80b531ab0b8c",
+      "id": "0ded53a5-911a-4629-a58f-3b501a6e36ea",
+      "activity_sync_id": "dc21a540-23cf-4f8c-982b-bffa817f901e",
       "target_seconds": 540000,
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "74e4c927-d7d3-4056-a262-b31900b73be8",
-      "activity_sync_id": "f489a1d9-ac43-40da-bbb8-7d97e20c4f84",
+      "id": "942b5f43-eb72-42d5-bdd0-8440a52cb845",
+      "activity_sync_id": "32f12255-9337-4955-8163-9df18b4297c2",
       "target_seconds": 540000,
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "86027554-7a4d-49a5-809a-dc70762ffd6c",
-      "activity_sync_id": "771b6804-9fd1-46c4-bd79-d8423bb78702",
+      "id": "cd174995-bd7b-42b2-ab95-15af52f5d5b8",
+      "activity_sync_id": "b62c38f4-58b5-4b42-9698-a401ee878a3a",
       "target_seconds": 432000,
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     },
     {
-      "id": "728ecc1e-67de-4e94-a296-c225a3b82cf4",
-      "activity_sync_id": "ec7e3365-62a4-40a6-bae5-eedeed9b0f87",
+      "id": "ffcbd8b3-20d1-4192-b8dc-f032d1e485b5",
+      "activity_sync_id": "39127902-aba8-4621-8da5-24d1a63963c5",
       "target_seconds": 324000,
-      "updated_at": "2026-10-06T00:56:44.733473+02:00"
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
+    },
+    {
+      "id": "594a2fc6-cb5d-4689-af06-b3b25f561ba2",
+      "activity_sync_id": "ea4d5685-49b2-4020-8782-7ce2e10f1b38",
+      "target_seconds": 540000,
+      "updated_at": "2026-10-06T01:23:47.529610+02:00"
     }
   ],
   "tags": [],
-  "server_time": "2026-10-06T00:56:44.733473+02:00"
+  "server_time": "2026-10-06T01:23:47.529610+02:00"
 }

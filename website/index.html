@@ -151,7 +151,7 @@ tr:last-child td { border-bottom: 0; }
 .dayCalHeaderTracked { width: 55%; padding-left: 8px; line-height: 26px; }
 .dayCalPlanLane { position: absolute; left: 48px; width: 44%; top: 26px; bottom: 0; }
 .dayCalTrackLane { position: absolute; left: calc(48px + 45%); right: 8px; top: 26px; bottom: 0; }
-.dayCalSlot { position: absolute; border-radius: 6px; padding: 3px 6px; font-size: 11px; overflow: hidden; box-sizing: border-box; transition: transform 0.12s, box-shadow 0.12s; box-shadow: 0 1px 4px rgba(0,0,0,0.18); line-height: 1.25; z-index: 3; color: #fff; cursor: pointer; }
+.dayCalSlot { position: absolute; border-radius: 6px; padding: 3px 6px; font-size: 11px; overflow: hidden; box-sizing: border-box; transition: transform 0.12s, box-shadow 0.12s; box-shadow: 0 1px 4px rgba(0,0,0,0.18); line-height: 1.25; z-index: 3; cursor: pointer; }
 .dayCalSlot:hover { transform: scale(1.02); z-index: 100 !important; box-shadow: 0 6px 18px rgba(0,0,0,0.5); min-width: 140px; height: auto !important; min-height: 38px; overflow: visible !important; }
 .dayCalSlot:hover div { white-space: normal !important; overflow: visible !important; }
 .monoIcon { display: inline-block; vertical-align: -2px; width: 15px; height: 15px; fill: currentColor; flex-shrink: 0; }
@@ -163,6 +163,21 @@ tr:last-child td { border-bottom: 0; }
 .dayCalSlotMissed { background: rgba(196, 90, 90, 0.22) !important; border: 2px dashed var(--red) !important; color: var(--red) !important; cursor: default; }
 .dayCalNowLine { position: absolute; left: 44px; right: 0; height: 2px; background: var(--red); z-index: 15; pointer-events: none; }
 .dayCalNowDot { position: absolute; left: -4px; top: -4px; width: 10px; height: 10px; border-radius: 50%; background: var(--red); }
+
+/* Type Kürzel Badges (V = Vorlesung, Ü = Übung, T = Tutorium, S = Selbststudium) */
+.typeBadge { display: inline-flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; width: 17px; height: 17px; border-radius: 4px; line-height: 1; flex-shrink: 0; letter-spacing: -0.3px; text-transform: uppercase; margin-right: 2px; }
+.typeBadge_V { background: rgba(59, 130, 246, 0.25); color: #60a5fa; border: 1px solid rgba(96, 165, 250, 0.5); }
+.typeBadge_Ü { background: rgba(16, 185, 129, 0.25); color: #34d399; border: 1px solid rgba(52, 211, 153, 0.5); }
+.typeBadge_T { background: rgba(245, 158, 11, 0.25); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.5); }
+.typeBadge_S { background: rgba(168, 85, 247, 0.25); color: #c084fc; border: 1px solid rgba(192, 132, 252, 0.5); }
+:root[data-theme="light"] .typeBadge_V { background: #dbeafe; color: #1d4ed8; border-color: #93c5fd; }
+:root[data-theme="light"] .typeBadge_Ü { background: #d1fae5; color: #047857; border-color: #6ee7b7; }
+:root[data-theme="light"] .typeBadge_T { background: #fef3c7; color: #b45309; border-color: #fcd34d; }
+:root[data-theme="light"] .typeBadge_S { background: #f3e8ff; color: #7e22ce; border-color: #d8b4fe; }
+
+/* Slot Subtext (Unterschrift) High Contrast Readability */
+.dayCalSub { font-size: 10px; font-weight: 500; line-height: 1.25; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dayCalPlanSub { font-size: 10px; font-weight: 500; line-height: 1.25; color: var(--text); opacity: 0.88; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 /* Week View Grid */
 .dayCalWeekHeader { display: grid; grid-template-columns: 48px repeat(5, 1fr); position: sticky; top: 0; height: 28px; border-bottom: 1px solid var(--line); background: var(--card); font-size: 11px; font-weight: 700; color: var(--muted); z-index: 25; }
@@ -682,6 +697,38 @@ const FALLBACK_COLOR = "#7a7a7a";
 function activityColor(activity) {
   const id = activity && activity.color_id;
   return (typeof id === "number" && PALETTE[id]) || FALLBACK_COLOR;
+}
+
+const TYPE_SHORT = {0: "V", 1: "Ü", 2: "T", 3: "S"};
+
+/** Computes crisp text and subtext colors depending on background luminance (YIQ) */
+function getContrastColor(hexColor) {
+  if (!hexColor || typeof hexColor !== "string") {
+    return { text: "#ffffff", sub: "rgba(255,255,255,0.88)", badgeBg: "rgba(255,255,255,0.22)", badgeText: "#ffffff" };
+  }
+  let hex = hexColor.trim().replace("#", "");
+  if (hex.length === 3) hex = hex.split("").map((c) => c + c).join("");
+  const r = parseInt(hex.substring(0, 2), 16) || 0;
+  const g = parseInt(hex.substring(2, 4), 16) || 0;
+  const b = parseInt(hex.substring(4, 6), 16) || 0;
+  const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+  if (yiq >= 135) {
+    // Bright background (Yellow, Lime, Light Green, Cyan, Amber) -> Crisp dark text
+    return {
+      text: "#111111",
+      sub: "rgba(0, 0, 0, 0.78)",
+      badgeBg: "rgba(0, 0, 0, 0.14)",
+      badgeText: "#111111"
+    };
+  } else {
+    // Dark background (Navy, Purple, Dark Green, Dark Slate, Brown) -> Crisp white text
+    return {
+      text: "#ffffff",
+      sub: "rgba(255, 255, 255, 0.88)",
+      badgeBg: "rgba(255, 255, 255, 0.22)",
+      badgeText: "#ffffff"
+    };
+  }
 }
 
 const DRAWABLE_ICON_MAP = {
@@ -1813,12 +1860,14 @@ function renderDayCalendar(entries, actById) {
         const hoverTitle = escapeHtml(ev.name) + " (" + fmtMin(sMinutes) + "–" + fmtMin(eMinutes) + (room ? ", " + room : "") + ")" + (isCancelled ? " · Ausfall" : "");
 
         const isPastOrMissed = calDateStr < todayStr || (calDateStr === todayStr && eMinutes <= nowMinutes);
+        const typeShort = ev.type === 0 ? "V" : ev.type === 1 ? "Ü" : ev.type === 2 ? "T" : "S";
         planHtml += "<div class='dayCalSlot dayCalSlotPlan" + compactClass + "' style='top:" + topPx.toFixed(1) + "px;height:" + boxHeight.toFixed(1) + "px;border-left-color:" + color + ";" + cancelStyle + "cursor:pointer;' onclick=\"openManualAttendanceModal('" + ev.activity_sync_id + "','" + calDateStr + "','" + fmtMin(sMinutes) + "','" + fmtMin(eMinutes) + "','" + (isPastOrMissed ? "Nachgearbeitet" : "Termin besucht") + "')\" title=\"" + hoverTitle + "\">" +
-          "<div style='font-weight:600;display:flex;align-items:center;gap:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap'>" +
+          "<div style='font-weight:600;display:flex;align-items:center;gap:4px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap'>" +
           "<span>" + icon + "</span>" +
+          "<span class='typeBadge typeBadge_" + typeShort + "' title='" + (TYPE_LABEL[ev.type] || "Veranstaltung") + "'>" + typeShort + "</span>" +
           "<span>" + escapeHtml(ev.name) + "</span>" + cancelTag + ovTag +
           "</div>" +
-          "<div class='small muted' style='font-size:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap'>" +
+          "<div class='dayCalPlanSub'>" +
           fmtMin(sMinutes) + "–" + fmtMin(eMinutes) + (room ? " · " + escapeHtml(room) : "") +
           "</div>" +
           "</div>";
@@ -1866,6 +1915,7 @@ function renderDayCalendar(entries, actById) {
       const compactClass = isCompact ? " compact" : "";
       const act = actById[e.activity_id];
       const color = activityColor(act);
+      const contrast = getContrastColor(color);
       const icon = getActivityIcon(act);
       const isRunning = !e.ended_at;
       const sTime = s.toLocaleTimeString("de-DE", {hour: "2-digit", minute: "2-digit"});
@@ -1876,13 +1926,13 @@ function renderDayCalendar(entries, actById) {
 
       const leftStyle = slot.totalCols > 1 ? "left:" + slot.leftPct.toFixed(1) + "%;width:calc(" + slot.widthPct.toFixed(1) + "% - 4px);" : "left:3px;right:3px;";
 
-      trackHtml += "<div class='dayCalSlot" + compactClass + "' style='top:" + topPx.toFixed(1) + "px;height:" + boxHeight.toFixed(1) + "px;" + leftStyle + "background:" + color + glow + "' onclick=\"openEditEntryModal('" + e.id + "')\" title=\"" + escapeHtml(hoverTitle) + "\">" +
-        "<div style='font-weight:700;display:flex;align-items:center;gap:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap'>" +
-        "<span>" + icon + "</span>" +
+      trackHtml += "<div class='dayCalSlot" + compactClass + "' style='top:" + topPx.toFixed(1) + "px;height:" + boxHeight.toFixed(1) + "px;" + leftStyle + "background:" + color + glow + ";color:" + contrast.text + ";' onclick=\"openEditEntryModal('" + e.id + "')\" title=\"" + escapeHtml(hoverTitle) + "\">" +
+        "<div style='font-weight:700;display:flex;align-items:center;gap:4px;color:" + contrast.text + ";overflow:hidden;text-overflow:ellipsis;white-space:nowrap'>" +
+        "<span style='fill:" + contrast.text + ";display:inline-flex'>" + icon + "</span>" +
         "<span>" + escapeHtml(act ? act.name : "Aktivität") + "</span>" +
-        (isRunning ? "<span style='font-size:9px;background:rgba(0,0,0,0.35);padding:1px 4px;border-radius:4px;font-weight:700;margin-left:2px'>läuft</span>" : "") +
+        (isRunning ? "<span style='font-size:9px;background:" + contrast.badgeBg + ";color:" + contrast.badgeText + ";padding:1px 4px;border-radius:4px;font-weight:700;margin-left:2px'>läuft</span>" : "") +
         "</div>" +
-        "<div class='small' style='font-size:10px;opacity:0.95;overflow:hidden;text-overflow:ellipsis;white-space:nowrap'>" +
+        "<div class='dayCalSub' style='color:" + contrast.sub + "'>" +
         sTime + "–" + eTime + " (" + durText + ")" + (e.comment ? " · " + escapeHtml(e.comment) : "") +
         "</div>" +
         "</div>";
@@ -2076,25 +2126,28 @@ function renderDayCalendar(entries, actById) {
           const glow = isRunning ? ";box-shadow:0 0 10px " + color + ";border:2px solid #fff" : "";
           const hoverTitle = escapeHtml(act ? act.name : "Aktivität") + " (" + sTime + "–" + eTime + ", " + durText + ")" + (e.comment ? " · " + e.comment : "") + " — Klick zum Bearbeiten";
 
-          html += "<div class='dayCalSlot" + compactClass + "' style='top:" + topPx.toFixed(1) + "px;height:" + boxHeight.toFixed(1) + "px;" + leftStyle + "background:" + color + glow + "' onclick=\"openEditEntryModal('" + e.id + "')\" title=\"" + escapeHtml(hoverTitle) + "\">" +
-            "<div style='font-weight:700;display:flex;align-items:center;gap:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap'>" +
-            "<span>" + icon + "</span>" +
+          const contrast = getContrastColor(color);
+          html += "<div class='dayCalSlot" + compactClass + "' style='top:" + topPx.toFixed(1) + "px;height:" + boxHeight.toFixed(1) + "px;" + leftStyle + "background:" + color + glow + ";color:" + contrast.text + ";' onclick=\"openEditEntryModal('" + e.id + "')\" title=\"" + escapeHtml(hoverTitle) + "\">" +
+            "<div style='font-weight:700;display:flex;align-items:center;gap:3px;color:" + contrast.text + ";overflow:hidden;text-overflow:ellipsis;white-space:nowrap'>" +
+            "<span style='fill:" + contrast.text + ";display:inline-flex'>" + icon + "</span>" +
             (isCompact ? "" : "<span>" + escapeHtml(act ? act.name : "Aktivität") + "</span>") +
             "</div>" +
-            (!isCompact ? "<div style='font-size:10px;opacity:0.95'>" + sTime + "–" + eTime + "</div>" : "") +
+            (!isCompact ? "<div class='dayCalSub' style='color:" + contrast.sub + "'>" + sTime + "–" + eTime + "</div>" : "") +
             "</div>";
         } else if (slot.type === "missed") {
           const ev = slot.ev;
           const act = actById[ev.activity_sync_id];
           const icon = getActivityIcon(act);
+          const typeShort = ev.type === 0 ? "V" : ev.type === 1 ? "Ü" : ev.type === 2 ? "T" : "S";
           const hoverTitle = escapeHtml(ev.name) + " (" + fmtMin(slot.sMinutes) + "–" + fmtMin(slot.eMinutes) + ") · Nicht besucht — Klick zum Nachtragen";
 
           html += "<div class='dayCalSlot dayCalSlotMissed" + compactClass + "' style='top:" + topPx.toFixed(1) + "px;height:" + boxHeight.toFixed(1) + "px;" + leftStyle + "cursor:pointer;' onclick=\"openManualAttendanceModal('" + ev.activity_sync_id + "','" + dStr + "','" + fmtMin(slot.sMinutes) + "','" + fmtMin(slot.eMinutes) + "','Nachgearbeitet')\" title=\"" + hoverTitle + "\">" +
             "<div style='font-weight:700;display:flex;align-items:center;gap:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap'>" +
             "<span class='tag' style='background:var(--red);color:#fff;font-size:9px;padding:1px 3px'>Verpasst</span>" +
+            "<span class='typeBadge typeBadge_" + typeShort + "'>" + typeShort + "</span>" +
             "<span>" + escapeHtml(ev.name) + "</span>" +
             "</div>" +
-            (!isCompact ? "<div style='font-size:10px'>" + fmtMin(slot.sMinutes) + "–" + fmtMin(slot.eMinutes) + " · ➕ Nachtragen</div>" : "") +
+            (!isCompact ? "<div style='font-size:10px;font-weight:600;color:var(--red);line-height:1.2'>" + fmtMin(slot.sMinutes) + "–" + fmtMin(slot.eMinutes) + " · ➕ Nachtragen</div>" : "") +
             "</div>";
         } else if (slot.type === "plan") {
           const ev = slot.ev;
@@ -2102,17 +2155,19 @@ function renderDayCalendar(entries, actById) {
           const act = actById[ev.activity_sync_id];
           const color = activityColor(act);
           const icon = getActivityIcon(act);
+          const typeShort = ev.type === 0 ? "V" : ev.type === 1 ? "Ü" : ev.type === 2 ? "T" : "S";
           const cancelStyle = slot.isCancelled ? "text-decoration:line-through;opacity:0.65;" : "";
           const cancelTag = slot.isCancelled ? "<span class='tag' style='color:var(--red);font-size:9px'>Ausfall</span>" : "";
           const ovTag = (ov && ov.room) ? "<span class='tag' style='color:var(--accent);font-size:9px'>Raum: " + escapeHtml(ov.room) + "</span>" : "";
           const hoverTitle = escapeHtml(ev.name) + " (" + fmtMin(slot.sMinutes) + "–" + fmtMin(slot.eMinutes) + (slot.room ? ", " + slot.room : "") + ")";
 
-          html += "<div class='dayCalSlot dayCalSlotPlan" + compactClass + "' style='top:" + topPx.toFixed(1) + "px;height:" + boxHeight.toFixed(1) + "px;" + leftStyle + "border-left-color:" + color + ";" + cancelStyle + "' title=\"" + hoverTitle + "\">" +
-            "<div style='font-weight:600;display:flex;align-items:center;gap:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap'>" +
+          html += "<div class='dayCalSlot dayCalSlotPlan" + compactClass + "' style='top:" + topPx.toFixed(1) + "px;height:" + boxHeight.toFixed(1) + "px;" + leftStyle + "border-left-color:" + color + ";" + cancelStyle + "cursor:pointer;' onclick=\"openManualAttendanceModal('" + ev.activity_sync_id + "','" + dStr + "','" + fmtMin(slot.sMinutes) + "','" + fmtMin(slot.eMinutes) + "','Termin besucht')\" title=\"" + hoverTitle + "\">" +
+            "<div style='font-weight:600;display:flex;align-items:center;gap:3px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap'>" +
             "<span>" + icon + "</span>" +
+            "<span class='typeBadge typeBadge_" + typeShort + "' title='" + (TYPE_LABEL[ev.type] || "Veranstaltung") + "'>" + typeShort + "</span>" +
             (isCompact ? "" : "<span>" + escapeHtml(ev.name) + "</span>" + cancelTag + ovTag) +
             "</div>" +
-            (!isCompact ? "<div class='small muted' style='font-size:10px'>" + fmtMin(slot.sMinutes) + "–" + fmtMin(slot.eMinutes) + (slot.room ? " · " + escapeHtml(slot.room) : "") + "</div>" : "") +
+            (!isCompact ? "<div class='dayCalPlanSub'>" + fmtMin(slot.sMinutes) + "–" + fmtMin(slot.eMinutes) + (slot.room ? " · " + escapeHtml(slot.room) : "") + "</div>" : "") +
             "</div>";
         }
       }
