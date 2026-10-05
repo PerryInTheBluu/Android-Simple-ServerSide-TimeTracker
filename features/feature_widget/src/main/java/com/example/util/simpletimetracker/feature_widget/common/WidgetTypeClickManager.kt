@@ -31,7 +31,7 @@ class WidgetTypeClickManager @Inject constructor(
         onWidgetUpdate: () -> Unit,
     ) {
         if (recordTypeId == REPEAT_BUTTON_ITEM_ID) {
-            recordRepeatInteractor.repeatExternal()
+            recordRepeatInteractor.repeatForQuickTileExternal()
             return
         }
 

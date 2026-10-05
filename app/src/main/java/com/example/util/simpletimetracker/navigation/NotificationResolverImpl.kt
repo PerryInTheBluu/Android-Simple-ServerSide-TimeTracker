@@ -6,6 +6,8 @@ import android.app.Dialog
 import android.content.Context
 import android.graphics.Color
 import android.graphics.Rect
+import android.os.Handler
+import android.os.Looper
 import android.view.View
 import android.view.View.MeasureSpec
 import android.view.ViewGroup
@@ -43,7 +45,16 @@ class NotificationResolverImpl @Inject constructor(
     }
 
     private fun showSystemMessage(data: ToastParams) {
-        Toast.makeText(context, data.message, Toast.LENGTH_LONG).show()
+        // Toasts need a thread with a looper; external callers (widget,
+        // quick settings tile, broadcast receivers) may run on worker
+        // threads, so post to the main thread when needed.
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            Toast.makeText(context, data.message, Toast.LENGTH_LONG).show()
+        } else {
+            Handler(Looper.getMainLooper()).post {
+                Toast.makeText(context, data.message, Toast.LENGTH_LONG).show()
+            }
+        }
     }
 
     @SuppressLint("WrongConstant")

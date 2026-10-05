@@ -55,29 +55,47 @@ class RecordRepeatInteractor @Inject constructor(
             .filter { it.defaultDuration != 0L }
             .map(RecordType::id)
         val running = runningRecordInteractor.getAll()
-        val prev = recordInteractor.getPrev(
+        val runningTypeIds = running.map { it.id }.toSet()
+
+        // Nothing runs: the last finished activity is usually the break
+        // that just ended, so continue with the one before it. With
+        // several activities running (multitasking) the running ones are
+        // the most recent ones, so the target is the last finished
+        // activity that none of the running ones is currently tracking.
+        var candidate = recordInteractor.getPrev(
             timeStarted = System.currentTimeMillis(),
             ignoreTypeIds = defaultTypeIds,
         )
-        // Nothing runs: the last finished activity is usually the break
-        // that just ended, so continue with the one before it.
-        val target = if (running.isEmpty()) {
-            prev?.let {
+        var target: com.example.util.simpletimetracker.domain.record.model.Record? = null
+        if (running.isEmpty()) {
+            // Skip the last finished activity: it is the break.
+            candidate = candidate?.let {
                 recordInteractor.getPrev(
                     timeStarted = it.timeEnded - 1,
                     ignoreTypeIds = defaultTypeIds,
                 )
             }
+            target = candidate
         } else {
-            prev
+            // Walk back until the activity was not running just now;
+            // with one running activity this is the last finished one,
+            // with several it is the one from before all of them.
+            var lookAt = candidate
+            while (lookAt != null && lookAt.typeId in runningTypeIds) {
+                lookAt = recordInteractor.getPrev(
+                    timeStarted = lookAt.timeEnded - 1,
+                    ignoreTypeIds = defaultTypeIds,
+                )
+            }
+            target = lookAt
         }
         if (target == null) {
             messageShower(R.string.running_records_repeat_no_prev_record)
             return
         }
-        // Something runs: stop everything first, then start the target
-        // activity; stopping first would make the running one the last
-        // finished record.
+        // Stop everything first, then start the target activity; the
+        // target is resolved before stopping so the just stopped
+        // records cannot shadow it.
         running.forEach { removeRunningRecordMediator.removeWithRecordAdd(it) }
         addRunningRecordMediator.startTimer(
             typeId = target.typeId,

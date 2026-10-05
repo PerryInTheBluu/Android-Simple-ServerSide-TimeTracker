@@ -190,6 +190,7 @@ class SyncDebugReceiver : BroadcastReceiver() {
                         val value = intent.getBooleanExtra(EXTRA_VALUE, false)
                         when (key) {
                             "enablePomodoroMode" -> prefsInteractor.setEnablePomodoroMode(value)
+                            "allowMultitasking" -> prefsInteractor.setAllowMultitasking(value)
                             "enableRepeatButton" -> prefsInteractor.setEnableRepeatButton(value)
                             "reverseOrderInCalendar" -> prefsInteractor.setReverseOrderInCalendar(value)
                             "showGoalsSeparately" -> prefsInteractor.setShowGoalsSeparately(value)
