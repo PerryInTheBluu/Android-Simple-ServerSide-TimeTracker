@@ -18,9 +18,11 @@ import com.example.util.simpletimetracker.domain.prefs.interactor.PrefsInteracto
 import com.example.util.simpletimetracker.domain.record.interactor.RecordsContainerMultiselectInteractor
 import com.example.util.simpletimetracker.domain.record.interactor.RecordsShareUpdateInteractor
 import com.example.util.simpletimetracker.domain.record.interactor.RecordsUpdateInteractor
+import com.example.util.simpletimetracker.domain.record.interactor.AddRunningRecordMediator
 import com.example.util.simpletimetracker.domain.record.interactor.RunningRecordInteractor
 import com.example.util.simpletimetracker.domain.record.interactor.RecordInteractor
 import com.example.util.simpletimetracker.domain.record.model.Record
+import com.example.util.simpletimetracker.domain.record.model.RecordBase
 import com.example.util.simpletimetracker.domain.notifications.interactor.UpdateExternalViewsInteractor
 import com.example.util.simpletimetracker.domain.record.interactor.UpdateRunningRecordsInteractor
 import com.example.util.simpletimetracker.domain.record.model.MultiSelectedRecordId
@@ -56,6 +58,8 @@ import com.example.util.simpletimetracker.navigation.params.screen.ChangeRecordP
 import com.example.util.simpletimetracker.navigation.params.screen.ChangeRunningRecordFromMainParams
 import com.example.util.simpletimetracker.navigation.params.screen.ChangeRunningRecordParams
 import com.example.util.simpletimetracker.navigation.params.screen.RecordQuickActionsParams
+import com.example.util.simpletimetracker.navigation.params.screen.RecordTagSelectionParams
+import com.example.util.simpletimetracker.navigation.params.notification.ToastParams
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -69,6 +73,7 @@ class RecordsViewModel @Inject constructor(
     private val router: Router,
     private val recordsViewDataInteractor: RecordsViewDataInteractor,
     private val prefsInteractor: PrefsInteractor,
+    private val addRunningRecordMediator: AddRunningRecordMediator,
     private val runningRecordInteractor: RunningRecordInteractor,
     private val recordInteractor: RecordInteractor,
     private val updateExternalViewsInteractor: UpdateExternalViewsInteractor,
@@ -157,6 +162,15 @@ class RecordsViewModel @Inject constructor(
                         done = todo.done,
                     )
                 }
+            // The activity of the slot can be tracked directly from
+            // the dialog while the slot is not over yet and nothing is
+            // running for it already.
+            val canTrackNow = slot.activityTypeId != null &&
+                (
+                    slot.state == RecordsCalendarViewData.Slot.STATE_UPCOMING ||
+                        slot.state == RecordsCalendarViewData.Slot.STATE_RUNNING
+                    ) &&
+                runningRecordInteractor.get(slot.activityTypeId) == null
             router.navigate(
                 TimetableSlotDialogParams(
                     slot = slot,
@@ -164,9 +178,37 @@ class RecordsViewModel @Inject constructor(
                     info = info,
                     canNachtragen = slot.state == RecordsCalendarViewData.Slot.STATE_MISSED,
                     btnNachtragen = resourceRepo.getString(R.string.timetable_dialog_nachtragen),
+                    canTrackNow = canTrackNow,
+                    btnTrackNow = resourceRepo.getString(R.string.timetable_dialog_track_now),
                     todos = todos,
                 ),
             )
+        }
+    }
+
+    fun onSlotTrackNow(slot: RecordsCalendarViewData.Slot) {
+        viewModelScope.launch {
+            val typeId = slot.activityTypeId ?: return@launch
+            val wasStarted = addRunningRecordMediator.tryStartTimer(
+                typeId = typeId,
+                onNeedToShowTagSelection = { result ->
+                    router.navigate(
+                        RecordTagSelectionParams(
+                            typeId = typeId,
+                            fields = result.fields.toParams(),
+                            preselectedTags = result.preselectedTags.map(RecordBase.Tag::toParams),
+                            requiredValueSelectionTagIds = result.requiredValueSelectionTagIds,
+                        ),
+                    )
+                },
+            )
+            if (wasStarted) {
+                router.show(
+                    ToastParams(
+                        message = resourceRepo.getString(R.string.timetable_dialog_track_now_started),
+                    ),
+                )
+            }
         }
     }
 

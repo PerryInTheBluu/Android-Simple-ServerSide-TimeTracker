@@ -52,6 +52,8 @@ class TimetableSlotDialogFragment : BaseBottomSheetFragment<Binding>() {
         tvTimetableSlotInfo.text = params.info
         btnTimetableSlotNachtragen.visible = params.canNachtragen
         btnTimetableSlotNachtragen.text = params.btnNachtragen
+        btnTimetableSlotTrackNow.visible = params.canTrackNow
+        btnTimetableSlotTrackNow.text = params.btnTrackNow
         todos.clear()
         todos += params.todos
         renderTodos()
@@ -60,6 +62,10 @@ class TimetableSlotDialogFragment : BaseBottomSheetFragment<Binding>() {
     override fun initUx(): Unit = with(binding) {
         btnTimetableSlotNachtragen.setOnClick {
             params.slot?.let { slot -> listeners.forEach { it.onSlotNachtragen(slot) } }
+            dismiss()
+        }
+        btnTimetableSlotTrackNow.setOnClick {
+            params.slot?.let { slot -> listeners.forEach { it.onSlotTrackNow(slot) } }
             dismiss()
         }
         btnTimetableSlotOk.setOnClick { dismiss() }

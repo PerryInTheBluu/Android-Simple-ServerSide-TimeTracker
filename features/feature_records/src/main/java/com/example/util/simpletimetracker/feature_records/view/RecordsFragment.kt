@@ -182,6 +182,13 @@ class RecordsFragment :
         (slot as? RecordsCalendarViewData.Slot)?.let(viewModel::onTimetableSlotNachtragen)
     }
 
+    override fun onSlotTrackNow(slot: Parcelable) {
+        // Several day pages of the pager are alive at once and all
+        // receive the dialog result; only the visible page handles it.
+        if (!isResumed) return
+        (slot as? RecordsCalendarViewData.Slot)?.let(viewModel::onSlotTrackNow)
+    }
+
     override fun onSlotTodoToggle(todoId: Long) {
         // Several day pages of the pager are alive at once and all
         // receive the dialog result; only the visible page handles it.

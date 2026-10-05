@@ -76,6 +76,17 @@
             tools:visibility="visible" />
 
         <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnTimetableSlotTrackNow"
+            style="@style/AppButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="4dp"
+            android:layout_weight="1"
+            android:text="@string/timetable_dialog_track_now"
+            android:visibility="gone"
+            tools:visibility="visible" />
+
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnTimetableSlotOk"
             style="@style/AppButtonActive"
             android:layout_width="0dp"

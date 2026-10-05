@@ -17,6 +17,8 @@ data class TimetableSlotDialogParams(
     val info: String = "",
     val canNachtragen: Boolean = false,
     val btnNachtragen: String = "",
+    val canTrackNow: Boolean = false,
+    val btnTrackNow: String = "",
     val todos: List<Todo> = emptyList(),
 ) : Parcelable, ScreenParams {
 

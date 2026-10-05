@@ -725,6 +725,8 @@ Beispiel:<br/>
     <string name="timetable_dialog_todos">Todos</string>
     <string name="timetable_dialog_comment">\nKommentar: %s</string>
     <string name="timetable_dialog_nachtragen">Nachtragen</string>
+    <string name="timetable_dialog_track_now">Jetzt tracken</string>
+    <string name="timetable_dialog_track_now_started">Tracking gestartet</string>
     <string name="timetable_notification_channel">Stundenplan</string>
     <string name="timetable_notification_prep_title">Vorbereitung: %s</string>
     <string name="timetable_notification_prep_text">Beginnt um %s</string>
