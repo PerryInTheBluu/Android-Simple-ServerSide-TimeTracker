@@ -596,6 +596,7 @@ class RecordsViewDataInteractor @Inject constructor(
                 startTimestamp = slotStartAbs,
                 endTimestamp = slotEndAbs,
                 activityTypeId = event.activityTypeId,
+                eventId = event.id,
             )
         }
     }

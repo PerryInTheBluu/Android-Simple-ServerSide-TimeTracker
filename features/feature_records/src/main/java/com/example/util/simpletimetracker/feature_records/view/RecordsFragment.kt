@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.util.simpletimetracker.core.base.BaseFragment
 import com.example.util.simpletimetracker.core.di.BaseViewModelFactory
 import com.example.util.simpletimetracker.feature_dialogs.api.ChartFilterDialogListener
+import com.example.util.simpletimetracker.feature_dialogs.api.OptionsListDialogListener
 import com.example.util.simpletimetracker.feature_dialogs.api.RecordQuickActionDialogListener
 import com.example.util.simpletimetracker.feature_dialogs.api.StandardDialogListener
 import com.example.util.simpletimetracker.core.sharedViewModel.MainTabsViewModel
@@ -34,6 +35,7 @@ import com.example.util.simpletimetracker.feature_records.R
 import com.example.util.simpletimetracker.feature_records.databinding.RecordsFragmentShareBinding
 import com.example.util.simpletimetracker.feature_records.extra.RecordsExtra
 import com.example.util.simpletimetracker.feature_records.model.RecordsShareState
+import com.example.util.simpletimetracker.feature_records.model.TimetableAction
 import com.example.util.simpletimetracker.feature_records.model.RecordsState
 import com.example.util.simpletimetracker.feature_records.customView.RecordsCalendarViewData
 import com.example.util.simpletimetracker.feature_records.viewModel.RecordsViewModel
@@ -42,6 +44,7 @@ import com.example.util.simpletimetracker.feature_views.extension.animateAlpha
 import com.example.util.simpletimetracker.feature_views.extension.getThemedAttr
 import com.example.util.simpletimetracker.feature_views.extension.visible
 import com.example.util.simpletimetracker.navigation.params.screen.RecordsParams
+import com.example.util.simpletimetracker.navigation.params.screen.OptionsListParams
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import com.example.util.simpletimetracker.feature_records.databinding.RecordsFragmentBinding as Binding
@@ -51,6 +54,7 @@ class RecordsFragment :
     BaseFragment<Binding>(),
     RecordQuickActionDialogListener,
     ChartFilterDialogListener,
+    OptionsListDialogListener,
     StandardDialogListener {
 
     override val inflater: (LayoutInflater, ViewGroup?, Boolean) -> Binding =
@@ -91,6 +95,8 @@ class RecordsFragment :
         binding.viewRecordsCalendar.root.setClickListener(viewModel::onCalendarClick)
         binding.viewRecordsCalendar.root.setLongClickListener(viewModel::onCalendarLongClick)
         binding.viewRecordsCalendar.root.setSlotClickListener(viewModel::onTimetableSlotClick)
+        binding.viewRecordsCalendar.root.setSlotLongClickListener(viewModel::onTimetableSlotLongClick)
+        binding.viewRecordsCalendar.root.setEmptyLongPressListener(viewModel::onCalendarEmptyLongPress)
     }
 
     override fun initViewModel() {
@@ -139,6 +145,15 @@ class RecordsFragment :
 
     override fun onChartFilterDialogDismissed() {
         viewModel.onNeedUpdate()
+    }
+
+    override fun onOptionsItemClick(id: OptionsListParams.Item.Id) {
+        // Several day pages of the pager are alive at once and all
+        // receive the dialog result; only the visible page handles it.
+        if (!isResumed) return
+        if (id is TimetableAction) {
+            viewModel.onTimetableAction(id)
+        }
     }
 
     override fun onPositiveClick(tag: String?, data: Any?) {

@@ -153,6 +153,8 @@ class RecordsCalendarView @JvmOverloads constructor(
     private val iconView: IconView = IconView(ContextThemeWrapper(context, R.style.AppTheme))
     private var clickListener: (ViewHolderType) -> Unit = {}
     private var slotClickListener: (RecordsCalendarViewData.Slot) -> Unit = {}
+    private var slotLongClickListener: (RecordsCalendarViewData.Slot) -> Unit = {}
+    private var emptyLongPressListener: () -> Unit = {}
     private var slotBoxes: List<Pair<RectF, RecordsCalendarViewData.Slot>> = emptyList()
     private var longClickListener: (ViewHolderType) -> Unit = {}
 
@@ -295,6 +297,14 @@ class RecordsCalendarView @JvmOverloads constructor(
 
     fun setSlotClickListener(listener: (RecordsCalendarViewData.Slot) -> Unit) {
         this.slotClickListener = listener
+    }
+
+    fun setSlotLongClickListener(listener: (RecordsCalendarViewData.Slot) -> Unit) {
+        this.slotLongClickListener = listener
+    }
+
+    fun setEmptyLongPressListener(listener: () -> Unit) {
+        this.emptyLongPressListener = listener
     }
 
     fun setData(viewData: RecordsCalendarViewData) {
@@ -1101,13 +1111,26 @@ class RecordsCalendarView @JvmOverloads constructor(
     }
 
     private fun onEventLongClick(event: MotionEvent) {
-        val selected = findDataPoint(x = event.x, y = event.y)
-            ?.point?.data ?: return
-        resetSelectedRecordRunnable?.let(::removeCallbacks)
-        resetSelectedRecordRunnable = null
-        selectedRecord = selected
-        animateSelectedRecord(selected)
-        longClickListener(selected.value)
+        // A long press on a timetable slot opens the per date exceptions.
+        val slot = slotBoxes.firstOrNull { (bounds, slotData) ->
+            event.x > bounds.left && event.x < bounds.right &&
+                event.y > bounds.top && event.y < bounds.bottom
+        }?.second
+        if (slot != null) {
+            slotLongClickListener(slot)
+            return
+        }
+        val selected = findDataPoint(x = event.x, y = event.y)?.point?.data
+        if (selected != null) {
+            resetSelectedRecordRunnable?.let(::removeCallbacks)
+            resetSelectedRecordRunnable = null
+            selectedRecord = selected
+            animateSelectedRecord(selected)
+            longClickListener(selected.value)
+            return
+        }
+        // A long press on an empty chart area opens the day exceptions.
+        emptyLongPressListener()
     }
 
     private fun onEventScaleStart() {

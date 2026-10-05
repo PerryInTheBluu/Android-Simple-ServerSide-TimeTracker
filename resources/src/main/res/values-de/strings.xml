@@ -741,6 +741,11 @@ Beispiel:<br/>
     <string name="subject_goal_unit_hours">Stunden</string>
     <string name="todos_tab_name">Todos</string>
     <string name="todos_empty_hint">Keine offenen Todos. Vorbereitungs- und Nachbereitungsfragen erscheinen hier.</string>
+    <string name="timetable_action_cancel">Fällt an diesem Datum aus</string>
+    <string name="timetable_action_restore">Ausnahme für dieses Datum aufheben</string>
+    <string name="timetable_action_restore_slot">%1$s an diesem Datum wiederherstellen</string>
+    <string name="timetable_action_free_day">Als vorlesungsfreien Tag eintragen</string>
+    <string name="timetable_action_remove_free_day">Vorlesungsfreien Tag aufheben</string>
     <string name="settings_timetable_import">Stundenplan importieren</string>
     <string name="settings_timetable_import_description">Importiert eine ICS-Datei und ersetzt den aktuellen Stundenplan. Veranstaltungen werden per Name einer Aktivität zugeordnet.</string>
     <string name="settings_timetable_import_alert">Der aktuelle Stundenplan wird ersetzt. Fortfahren?</string>

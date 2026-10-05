@@ -34,6 +34,14 @@ import com.example.util.simpletimetracker.feature_records.extra.RecordsExtra
 import com.example.util.simpletimetracker.feature_records.interactor.RecordsViewDataInteractor
 import com.example.util.simpletimetracker.feature_records.mapper.RecordsViewDataMapper
 import com.example.util.simpletimetracker.feature_records.model.RecordsShareState
+import com.example.util.simpletimetracker.feature_records.model.TimetableAction
+import com.example.util.simpletimetracker.domain.timetable.model.TimetableDay
+import com.example.util.simpletimetracker.domain.timetable.model.TimetableEventOverride
+import com.example.util.simpletimetracker.domain.timetable.notification.TimetableNotificationInteractor
+import com.example.util.simpletimetracker.domain.timetable.repo.TimetableRepo
+import com.example.util.simpletimetracker.domain.notifications.interactor.LocalDataChangedBus
+import com.example.util.simpletimetracker.navigation.params.screen.OptionsListParams
+import java.time.LocalDate
 import com.example.util.simpletimetracker.feature_records.R
 import com.example.util.simpletimetracker.navigation.params.screen.StandardDialogParams
 import com.example.util.simpletimetracker.feature_records.customView.RecordsCalendarViewData
@@ -69,6 +77,8 @@ class RecordsViewModel @Inject constructor(
     private val getChangeRecordNavigationParamsInteractor: GetChangeRecordNavigationParamsInteractor,
     private val recordsContainerMultiselectInteractor: RecordsContainerMultiselectInteractor,
     private val themeChangedInteractor: ThemeChangedInteractor,
+    private val timetableRepo: TimetableRepo,
+    private val timetableNotificationInteractor: TimetableNotificationInteractor,
 ) : BaseViewModel() {
 
     override var delayDataLoad: Boolean = false
@@ -172,6 +182,106 @@ class RecordsViewModel @Inject constructor(
             )
             updateRecords()
         }
+    }
+
+    fun onTimetableSlotLongClick(slot: RecordsCalendarViewData.Slot) = viewModelScope.launch {
+        val date = LocalDate.now().plusDays(shift.toLong()).toString()
+        val hasOverride = timetableRepo.getOverrides(date).any { it.eventId == slot.eventId }
+        val items = buildList {
+            if (hasOverride) {
+                add(
+                    OptionsListParams.Item(
+                        id = TimetableAction(TimetableAction.Type.RESTORE_SLOT, date, slot.eventId),
+                        text = resourceRepo.getString(R.string.timetable_action_restore),
+                        icon = null,
+                    ),
+                )
+            } else {
+                add(
+                    OptionsListParams.Item(
+                        id = TimetableAction(TimetableAction.Type.CANCEL_SLOT, date, slot.eventId),
+                        text = resourceRepo.getString(R.string.timetable_action_cancel),
+                        icon = null,
+                    ),
+                )
+            }
+        }
+        router.navigate(OptionsListParams(items))
+    }
+
+    fun onCalendarEmptyLongPress() = viewModelScope.launch {
+        val date = LocalDate.now().plusDays(shift.toLong()).toString()
+        val freeDay = timetableRepo.getDays().firstOrNull { it.date == date && it.freeDay }
+        val dayItem = OptionsListParams.Item(
+            id = if (freeDay != null) {
+                TimetableAction(TimetableAction.Type.REMOVE_FREE_DAY, date)
+            } else {
+                TimetableAction(TimetableAction.Type.ADD_FREE_DAY, date)
+            },
+            text = resourceRepo.getString(
+                if (freeDay != null) {
+                    R.string.timetable_action_remove_free_day
+                } else {
+                    R.string.timetable_action_free_day
+                },
+            ),
+            icon = null,
+        )
+        // Cancelled slots are not rendered, so their exceptions are
+        // reachable from the day menu.
+        val events = timetableRepo.getAllEvents().associateBy { it.id }
+        val restoreItems = timetableRepo.getOverrides(date)
+            .filter { events[it.eventId] != null }
+            .map { override ->
+                OptionsListParams.Item(
+                    id = TimetableAction(TimetableAction.Type.RESTORE_SLOT, date, override.eventId),
+                    text = resourceRepo.getString(
+                        R.string.timetable_action_restore_slot,
+                        events[override.eventId]?.name.orEmpty(),
+                    ),
+                    icon = null,
+                )
+            }
+        router.navigate(OptionsListParams(listOf(dayItem) + restoreItems))
+    }
+
+    fun onTimetableAction(action: TimetableAction) = viewModelScope.launch {
+        when (action.action) {
+            TimetableAction.Type.CANCEL_SLOT -> {
+                timetableRepo.addOverride(
+                    TimetableEventOverride(
+                        date = action.date,
+                        eventId = action.eventId,
+                        room = "",
+                        startTime = 0,
+                        endTime = 0,
+                        cancelled = true,
+                        note = "",
+                    ),
+                )
+            }
+            TimetableAction.Type.RESTORE_SLOT -> {
+                timetableRepo.getOverrides(action.date)
+                    .firstOrNull { it.eventId == action.eventId }
+                    ?.let { timetableRepo.removeOverride(it.id) }
+            }
+            TimetableAction.Type.ADD_FREE_DAY -> {
+                val exists = timetableRepo.getDays().any { it.date == action.date && it.freeDay }
+                if (!exists) {
+                    timetableRepo.addDay(
+                        TimetableDay(date = action.date, freeDay = true, note = ""),
+                    )
+                }
+            }
+            TimetableAction.Type.REMOVE_FREE_DAY -> {
+                timetableRepo.getDays()
+                    .firstOrNull { it.date == action.date && it.freeDay }
+                    ?.let { timetableRepo.removeDay(it.id) }
+            }
+        }
+        timetableNotificationInteractor.rescheduleAll()
+        LocalDataChangedBus.publish()
+        updateRecords()
     }
 
     fun onCalendarLongClick(item: ViewHolderType) {

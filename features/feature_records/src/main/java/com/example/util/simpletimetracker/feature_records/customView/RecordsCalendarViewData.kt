@@ -46,6 +46,8 @@ data class RecordsCalendarViewData(
         val endTimestamp: Long = 0L,
         // Linked activity, used to add a record on demand.
         val activityTypeId: Long? = null,
+        // Linked timetable event, used for per date exceptions.
+        val eventId: Long = 0L,
     ) : Parcelable {
         companion object {
             const val STATE_UPCOMING = 0
