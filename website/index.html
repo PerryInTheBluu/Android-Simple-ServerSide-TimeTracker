@@ -12,19 +12,19 @@
   --line: #2a2a2a; --headline: #333; --chip: #2c2c2c; --chartline: #2c2c2c;
 }
 /* Light theme: used when the theme is set to light, or auto with a
-   light system preference. */
+   light system preference. Pure white background as requested. */
 :root[data-theme="light"] {
-  --bg: #f2f3f5; --card: #ffffff; --card2: #ececec; --text: #1a1a1a;
+  --bg: #ffffff; --card: #ffffff; --card2: #f7f8fa; --text: #1a1a1a;
   --muted: #666666; --green: #4d8a35; --red: #b04343; --gray: #9a9a9a;
   --accent: #5d8a3d; --pink: #b04068; --blue: #3d6f9e;
-  --line: #e2e2e2; --headline: #d5d5d5; --chip: #e4e4e4; --chartline: #d8d8d8;
+  --line: #e5e7eb; --headline: #d5d5d5; --chip: #f1f2f4; --chartline: #e8e8e8;
 }
 @media (prefers-color-scheme: light) {
   :root[data-theme="auto"] {
-    --bg: #f2f3f5; --card: #ffffff; --card2: #ececec; --text: #1a1a1a;
+    --bg: #ffffff; --card: #ffffff; --card2: #f7f8fa; --text: #1a1a1a;
     --muted: #666666; --green: #4d8a35; --red: #b04343; --gray: #9a9a9a;
     --accent: #5d8a35; --pink: #b04068; --blue: #3d6f9e;
-    --line: #e2e2e2; --headline: #d5d5d5; --chip: #e4e4e4; --chartline: #d8d8d8;
+    --line: #e5e7eb; --headline: #d5d5d5; --chip: #f1f2f4; --chartline: #e8e8e8;
   }
 }
 * { box-sizing: border-box; }
@@ -37,7 +37,7 @@ h2 { font-size: 17px; font-weight: 600; margin: 0 0 14px; color: var(--text); }
 .card { background: var(--card); border-radius: 12px; padding: 18px 22px; margin-bottom: 22px; }
 .row { display: flex; gap: 22px; flex-wrap: wrap; align-items: flex-end; }
 label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 4px; }
-input[type=text], input[type=date] { background: var(--card2); color: var(--text);
+input[type=text], input[type=date], select { background: var(--card2); color: var(--text);
   border: 1px solid var(--headline); border-radius: 8px; padding: 8px 10px; font-size: 14px; }
 input[type=text] { width: 340px; }
 button { background: var(--accent); color: #111; border: 0; border-radius: 8px;
@@ -87,7 +87,7 @@ tr:last-child td { border-bottom: 0; }
 .legend span { font-size: 12px; color: var(--muted); display: inline-flex; align-items: center; gap: 6px; }
 .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; }
 .themeBtn { background: var(--chip); color: var(--text); padding: 8px 14px; font-size: 13px; }
-.hide { display: none; }
+.hide { display: none !important; }
 .modeBtn { background: var(--chip); color: var(--muted); padding: 5px 14px; font-size: 12px; font-weight: 500; }
 .modeBtn.on { background: #3a4a2e; color: var(--accent); }
 .timerCard { border-left: 4px solid var(--accent); transition: border-color 0.2s; }
@@ -104,7 +104,7 @@ tr:last-child td { border-bottom: 0; }
 .tileTitle { font-size: 15px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 8px; word-break: break-word; }
 .tileSub { font-size: 12px; color: var(--muted); margin-top: 8px; display: flex; justify-content: space-between; align-items: center; }
 .tileRunningBadge { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 700; color: var(--green); font-family: ui-monospace, SFMono-Regular, monospace; }
-.tileStopBtn { background: var(--red); color: #fff; border: 0; border-radius: 6px; padding: 3px 8px; font-size: 11px; font-weight: 600; cursor: pointer; }
+.tileStopBtn { background: var(--red); color: #fff; border: 0; border-radius: 6px; padding: 4px 10px; font-size: 12px; font-weight: 700; cursor: pointer; }
 .quickOffsets { display: flex; align-items: center; gap: 4px; }
 .offsetChip { background: var(--chip); color: var(--muted); border: 0; border-radius: 6px; padding: 4px 8px; font-size: 12px; font-weight: 500; cursor: pointer; }
 .offsetChip.on { background: var(--accent); color: #111; font-weight: 600; }
@@ -119,28 +119,40 @@ tr:last-child td { border-bottom: 0; }
 .todayEntryRow:last-child { border-bottom: 0; }
 .todoCheck { cursor: pointer; accent-color: var(--accent); width: 16px; height: 16px; vertical-align: middle; }
 .todoDone { text-decoration: line-through; opacity: 0.55; }
+
+/* Day Calendar View */
+.dayCalendar { position: relative; background: var(--card2); border-radius: 10px; border: 1px solid var(--line); overflow-x: auto; overflow-y: hidden; margin-bottom: 16px; }
+.dayCalInner { position: relative; min-width: 640px; height: 560px; }
+.dayCalGridLine { position: absolute; left: 52px; right: 0; border-top: 1px dashed var(--line); }
+.dayCalHourLabel { position: absolute; left: 6px; width: 40px; font-size: 11px; color: var(--muted); text-align: right; transform: translateY(-50%); font-variant-numeric: tabular-nums; }
+.dayCalHeaderLanes { display: flex; position: absolute; top: 0; left: 52px; right: 0; height: 26px; border-bottom: 1px solid var(--line); font-size: 11px; font-weight: 600; color: var(--muted); }
+.dayCalHeaderPlan { width: 45%; padding-left: 8px; line-height: 26px; }
+.dayCalHeaderTracked { width: 55%; padding-left: 8px; line-height: 26px; }
+.dayCalPlanLane { position: absolute; left: 52px; width: 44%; top: 26px; bottom: 0; }
+.dayCalTrackLane { position: absolute; left: calc(52px + 45%); right: 8px; top: 26px; bottom: 0; }
+.dayCalSlot { position: absolute; left: 3px; right: 3px; border-radius: 6px; padding: 4px 8px; font-size: 11px; overflow: hidden; box-sizing: border-box; transition: transform 0.15s; box-shadow: 0 1px 4px rgba(0,0,0,0.15); line-height: 1.25; z-index: 2; color: #fff; }
+.dayCalSlot:hover { transform: scale(1.02); z-index: 5; }
+.dayCalSlotPlan { background: #2f3e46; border-left: 4px solid var(--blue); color: var(--text); }
+:root[data-theme="light"] .dayCalSlotPlan { background: #e8ecf1; color: #1a1a1a; }
+.dayCalNowLine { position: absolute; left: 48px; right: 0; height: 2px; background: var(--red); z-index: 10; pointer-events: none; }
+.dayCalNowDot { position: absolute; left: -4px; top: -4px; width: 10px; height: 10px; border-radius: 50%; background: var(--red); }
+
+/* Donut Chart */
+.donutContainer { display: flex; align-items: center; justify-content: center; gap: 28px; flex-wrap: wrap; margin-top: 8px; }
+.donutSvg { width: 200px; height: 200px; transform: rotate(-90deg); flex-shrink: 0; }
+.donutLegend { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 220px; }
+.donutLegendItem { display: flex; align-items: center; justify-content: space-between; font-size: 13px; padding: 5px 8px; border-radius: 6px; cursor: default; }
+.donutLegendItem:hover { background: var(--card2); }
+
+/* Sync Button */
+.syncBtn { background: var(--accent); color: #111; border: 0; border-radius: 8px; width: 38px; height: 38px; padding: 0; font-size: 20px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
+.syncBtn.spinning { animation: spin 0.8s linear infinite; }
+@keyframes spin { 100% { transform: rotate(360deg); } }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>Stundenplan-Auswertung & Zeiterfassung</h1>
-  <div class="sub">Uni-Anwesenheit, Stunden pro Fach und Live-Tracking für Laptop und Smartphone. Daten bleiben lokal im Browser.</div>
-
-  <div class="card">
-    <div class="row">
-      <div><label>API-Token</label><input type="text" id="token" placeholder="Token"></div>
-      <div><label>Seit (lokal)</label><input type="date" id="from"></div>
-      <div><label>Bis (lokal)</label><input type="date" id="to"></div>
-    <div class="row" style="margin-left:auto">
-      <div><button id="theme" class="themeBtn" title="Design: Automatisch / Dunkel / Hell">Design</button></div>
-      <div><button id="share" title="Link mit Token und Zeitraum kopieren">Link kopieren</button></div>
-      <div><button id="csv" style="background:#333;color:var(--text)">CSV</button></div>
-      <div><button id="load">Laden</button></div>
-    </div>
-    </div>
-    <div id="error" class="error hide"></div>
-  </div>
-
+  <!-- Live-Tracking & Kacheln (ganz oben) -->
   <div id="timerCard" class="card timerCard">
     <!-- Active Timer Banner (shown when a timer is running) -->
     <div id="runningTimerBar" class="hide" style="padding-bottom:14px;margin-bottom:14px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
@@ -163,15 +175,15 @@ tr:last-child td { border-bottom: 0; }
           <button class="offsetBtn" id="adjPlus5" title="Start 5 Min später (+5m)">+5m</button>
         </div>
         <input type="text" id="runningCommentInput" placeholder="Notiz ändern…" style="width:140px;padding:6px 10px;font-size:13px">
-        <button id="saveRunningCommentBtn" class="offsetBtn">Speichern</button>
-        <button id="timerStopBtn" style="background:var(--red);color:#fff;padding:8px 18px;border-radius:8px;font-weight:600">⏹ Stoppen</button>
+        <button id="saveRunningCommentBtn" class="offsetBtn" title="Notiz auf laufendem Eintrag speichern">Speichern</button>
+        <button id="timerStopBtn" title="Timer stoppen" style="background:var(--red);color:#fff;padding:8px 16px;border-radius:8px;font-weight:700;font-size:16px;line-height:1">⏹</button>
       </div>
     </div>
 
-    <!-- 1-Click Tiles Header with quick offset selector and note -->
+    <!-- Activity Tiles Header -->
     <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:6px">
       <div style="display:flex;align-items:center;gap:10px">
-        <h2 style="margin:0;font-size:16px;font-weight:600">Aktivität aufzeichnen (1-Klick)</h2>
+        <h2 style="margin:0;font-size:16px;font-weight:600">Aktivität aufzeichnen</h2>
         <span id="syncBadge" class="syncBadge ok">✓ Synchronisiert</span>
         <span id="conflictBadge" class="syncBadge warn hide">⚠️ Konflikt</span>
       </div>
@@ -197,23 +209,67 @@ tr:last-child td { border-bottom: 0; }
 
     <!-- The Activity Tiles Grid -->
     <div id="activityTiles" class="tilesGrid">
-      <div class="muted small" style="padding:10px 0">Token eingeben und „Laden“ klicken, um Aktivitäten anzuzeigen.</div>
+      <div class="muted small" style="padding:10px 0">Token eingeben und „↻“ klicken, um Aktivitäten anzuzeigen.</div>
     </div>
   </div>
 
+  <div class="card" style="margin-bottom:18px">
+    <div class="row">
+      <div><label>API-Token</label><input type="text" id="token" placeholder="Token" style="width:260px"></div>
+      <div><label>Seit (lokal)</label><input type="date" id="from"></div>
+      <div><label>Bis (lokal)</label><input type="date" id="to"></div>
+      <div class="row" style="margin-left:auto;align-items:flex-end">
+        <div><button id="theme" class="themeBtn" title="Design: Automatisch / Dunkel / Hell">Design</button></div>
+        <div><button id="csv" style="background:#333;color:var(--text)">CSV</button></div>
+        <div><button id="load" class="syncBtn" title="Daten synchronisieren">↻</button></div>
+      </div>
+    </div>
+    <div id="error" class="error hide"></div>
+  </div>
+
   <div id="conflictsBox" class="card hide" style="border-left:4px solid var(--red)">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-      <h2 style="margin:0;font-size:15px;color:var(--red)">Sync-Konflikte</h2>
-      <button id="closeConflictsBtn" class="themeBtn" style="padding:4px 10px;font-size:12px">Schließen</button>
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:8px">
+      <div>
+        <h2 style="margin:0;font-size:15px;color:var(--red)">Sync-Konflikte</h2>
+        <div class="small muted" style="margin-top:2px">Server-Auditprotokoll früherer Datensatz-Konflikte (z.B. Schutz vor Wiederauferstehung gelöschter Einträge).</div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button id="dismissAllConflictsBtn" class="themeBtn" style="background:var(--accent);color:#111;font-weight:600">✓ Als gelöst markieren / Bereinigen</button>
+        <button id="closeConflictsBtn" class="themeBtn" style="padding:4px 10px;font-size:12px">Schließen</button>
+      </div>
     </div>
     <div id="conflictsList" class="small"></div>
   </div>
 
-  <!-- Heute-Timeline Card -->
+  <!-- Heute-Timeline Card mit Kalender-Tagesansicht -->
   <div id="todayCard" class="card hide">
-    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:12px">
-      <h2 style="margin:0;font-size:16px" id="todayTitle">Heute</h2>
-      <div class="small muted" id="todaySummary">0 h getrackt</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:12px">
+      <div style="display:flex;align-items:center;gap:12px">
+        <h2 style="margin:0;font-size:16px" id="todayTitle">Heute</h2>
+        <div class="small muted" id="todaySummary">0 h getrackt</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-size:12px;color:var(--muted)">Schicht:</span>
+        <select id="shiftStart" style="padding:4px 8px;font-size:12px">
+          <option value="4">04:00</option>
+          <option value="5">05:00</option>
+          <option value="6" selected>06:00</option>
+          <option value="7">07:00</option>
+          <option value="8">08:00</option>
+          <option value="9">09:00</option>
+        </select>
+        <span style="font-size:12px;color:var(--muted)">bis</span>
+        <select id="shiftEnd" style="padding:4px 8px;font-size:12px">
+          <option value="20">20:00</option>
+          <option value="21">21:00</option>
+          <option value="22">22:00</option>
+          <option value="23" selected>23:00</option>
+          <option value="24">24:00</option>
+        </select>
+      </div>
+    </div>
+    <div id="dayCalendar" class="dayCalendar">
+      <div id="dayCalInner" class="dayCalInner"></div>
     </div>
     <div id="todayVisualBar" class="todayBarContainer" style="margin-bottom:14px"></div>
     <div id="todayEntriesList"></div>
@@ -221,7 +277,7 @@ tr:last-child td { border-bottom: 0; }
 
   <div id="filterCard" class="card hide">
     <h2>Filter</h2>
-    <div class="small" style="margin-bottom:10px">Klick: neutral &rarr; <span style="color:var(--green)">nur diese</span> &rarr; <span style="color:var(--red)">ohne diese</span> &rarr; neutral. Gilt für Statistiken, Stunden-Chart, Aktivitäten und Essenszeiten; die Uni-Anwesenheit bleibt immer ungefiltert.</div>
+    <div class="small" style="margin-bottom:10px">Klick: neutral &rarr; <span style="color:var(--green)">nur diese</span> &rarr; <span style="color:var(--red)">ohne diese</span> &rarr; neutral. Gilt für Statistiken, Stunden-Chart, Aktivitäten und Auswertungen; die Uni-Anwesenheit bleibt immer ungefiltert.</div>
     <div class="small" id="filterHint" style="margin-bottom:6px"></div>
     <div id="filterCats"></div>
     <div id="filterActs" style="margin-top:6px"></div>
@@ -256,8 +312,14 @@ tr:last-child td { border-bottom: 0; }
     </div>
 
     <div class="card">
-      <h2>Essenszeiten</h2>
-      <div class="small" style="margin-bottom:10px">Startzeitpunkte von Essen-Aktivit&auml;ten im Zeitraum, gruppiert nach Stunde. Typische Fenster: 6&ndash;10 (Fr&uuml;hst&uuml;ck), 11&ndash;14 (Mittag), 17&ndash;20 (Abend).</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:8px">
+        <h2 style="margin:0">Tageszeit-Verteilung (Starts nach Uhrzeit)</h2>
+        <div style="display:flex;align-items:center;gap:8px">
+          <label for="distributionTarget" style="margin:0;font-size:12px;color:var(--muted)">Filter:</label>
+          <select id="distributionTarget" style="font-size:13px;padding:5px 10px"></select>
+        </div>
+      </div>
+      <div class="small" style="margin-bottom:10px" id="distributionSub">Startzeitpunkte im Zeitraum, gruppiert nach Tagesstunde (0–23 Uhr).</div>
       <div id="mealChart"></div>
     </div>
 
@@ -272,7 +334,8 @@ tr:last-child td { border-bottom: 0; }
         <h2>Stunden pro Fach</h2>
         <table id="goals"></table>
         <h2 style="margin-top:22px">Alle Aktivitäten (im Zeitraum)</h2>
-        <table id="activities"></table>
+        <div id="activitiesDonut" class="donutContainer"></div>
+        <table id="activities" class="hide"></table>
       </div>
       <div class="card">
         <h2>Vorbereitung / Nachbereitung</h2>
@@ -301,6 +364,74 @@ const FALLBACK_COLOR = "#7a7a7a";
 function activityColor(activity) {
   const id = activity && activity.color_id;
   return (typeof id === "number" && PALETTE[id]) || FALLBACK_COLOR;
+}
+
+const DRAWABLE_ICON_MAP = {
+  "ic_free_breakfast_24px": "☕",
+  "ic_restaurant_24px": "🍴",
+  "ic_single_bed_24px": "🛏️",
+  "ic_hotel_24px": "🛏️",
+  "ic_fitness_center_24px": "🏋️",
+  "ic_menu_book_24px": "📖",
+  "ic_book_24px": "📚",
+  "ic_school_24px": "🎓",
+  "ic_work_24px": "💼",
+  "ic_computer_24px": "💻",
+  "ic_laptop_24px": "💻",
+  "ic_code_24px": "💻",
+  "ic_commute_24px": "🚌",
+  "ic_directions_car_24px": "🚗",
+  "ic_directions_bike_24px": "🚲",
+  "ic_directions_walk_24px": "🚶",
+  "ic_cleaning_services_24px": "🧹",
+  "ic_local_grocery_store_24px": "🛒",
+  "ic_shopping_cart_24px": "🛒",
+  "ic_kitchen_24px": "🍳",
+  "ic_ondemand_video_24px": "📺",
+  "ic_sports_esports_24px": "🎮",
+  "ic_games_24px": "🎮",
+  "ic_music_note_24px": "🎵",
+  "ic_brush_24px": "🎨",
+  "ic_self_improvement_24px": "🧘",
+  "ic_local_cafe_24px": "☕",
+  "ic_fastfood_24px": "🍔",
+  "ic_local_dining_24px": "🍽️",
+  "ic_local_bar_24px": "🍻",
+  "ic_accessibility_24px": "🚶",
+  "ic_build_24px": "🔧",
+  "ic_people_24px": "👥",
+  "ic_wc_24px": "🚻",
+};
+
+function getActivityIcon(activity) {
+  if (!activity) return "⏱️";
+  const raw = (activity.icon || "").trim();
+  if (DRAWABLE_ICON_MAP[raw]) return DRAWABLE_ICON_MAP[raw];
+  if (raw === "Thermo") return "🌡️";
+  if (raw === "Analysis") return "📐";
+  if (raw === "Java") return "☕";
+  if (raw === "TheoInfo") return "💡";
+  if (/\p{Emoji}/u.test(raw) && raw.length <= 4) return raw;
+  const name = (activity.name || "").toLowerCase();
+  if (/pause|kaffee|break/i.test(name)) return "☕";
+  if (/ess|mahlzeit|mittag|abendbrot|dinner|lunch/i.test(name)) return "🍴";
+  if (/schlaf|bett|sleep/i.test(name)) return "🛏️";
+  if (/sport|fitness|gym|workout|lauf|joggen/i.test(name)) return "🏋️";
+  if (/les|buch|reading/i.test(name)) return "📖";
+  if (/thermo/i.test(name)) return "🌡️";
+  if (/analysis|mathe/i.test(name)) return "📐";
+  if (/java|code|programm|dev/i.test(name)) return "💻";
+  if (/theoinfo|info/i.test(name)) return "💡";
+  if (/lern|stud|vorlesung|uni|klausur/i.test(name)) return "📚";
+  if (/arbeit|job|work/i.test(name)) return "💼";
+  if (/haushalt|putz|clean/i.test(name)) return "🧹";
+  if (/spiel|game|gaming/i.test(name)) return "🎮";
+  if (/serie|film|tv|movie/i.test(name)) return "📺";
+  if (/musik|music/i.test(name)) return "🎵";
+  if (/einkauf|shop/i.test(name)) return "🛒";
+  if (/pendel|bahn|bus|zug/i.test(name)) return "🚌";
+  if (raw && raw.length <= 4) return raw;
+  return "⏱️";
 }
 
 let DATA = null;
@@ -422,7 +553,7 @@ function renderActivityTiles(activities) {
   const list = activities || (DATA ? active(DATA.activities) : []);
   const sorted = [...list].filter((a) => !a.archived).sort((a, b) => a.name.localeCompare(b.name));
   if (!sorted.length) {
-    container.innerHTML = "<div class='muted small' style='padding:10px 0'>Keine aktiven Aktivitäten geladen. Bitte oben „Laden“ klicken.</div>";
+    container.innerHTML = "<div class='muted small' style='padding:10px 0'>Keine aktiven Aktivitäten geladen. Bitte oben „↻“ klicken.</div>";
     return;
   }
 
@@ -433,6 +564,7 @@ function renderActivityTiles(activities) {
   for (const act of sorted) {
     const isRunning = currentActId === act.id;
     const color = activityColor(act);
+    const icon = getActivityIcon(act);
     const secs = todayTracked[act.id] || 0;
     const durText = formatDuration(secs);
 
@@ -441,9 +573,10 @@ function renderActivityTiles(activities) {
       ? "style=\"border-left-color:" + color + ";border-color:" + color + ";box-shadow:0 0 14px " + color + "55\""
       : "style=\"border-left-color:" + color + "\"";
 
-    html += "<div class=\"tile" + activeClass + "\" " + borderStyle + " onclick=\"handleTileClick('" + act.id + "')\" title=\"" + (isRunning ? "Klick zum Stoppen" : "1-Klick Start: " + escapeHtml(act.name)) + "\">";
+    html += "<div class=\"tile" + activeClass + "\" " + borderStyle + " onclick=\"handleTileClick('" + act.id + "')\" title=\"" + (isRunning ? "Klick zum Stoppen" : "Starten: " + escapeHtml(act.name)) + "\">";
     html += "<div class=\"tileTitle\">";
     html += "<span style=\"display:inline-block;width:12px;height:12px;border-radius:3px;background:" + color + ";flex-shrink:0\"></span>";
+    html += "<span style=\"font-size:16px;line-height:1\">" + icon + "</span>";
     html += "<span>" + escapeHtml(act.name) + "</span>";
     html += "</div>";
 
@@ -451,7 +584,7 @@ function renderActivityTiles(activities) {
     if (isRunning) {
       const elapsed = CURRENT_TIMER && CURRENT_TIMER.entry ? Math.max(0, Math.floor((Date.now() - new Date(CURRENT_TIMER.entry.started_at).getTime()) / 1000)) : 0;
       html += "<span class=\"tileRunningBadge\" style=\"color:" + color + "\">▶ <span id=\"tileLiveClock_" + act.id + "\">" + formatElapsedSeconds(elapsed) + "</span></span>";
-      html += "<button class=\"tileStopBtn\" onclick=\"event.stopPropagation();stopTimer()\">⏹ Stop</button>";
+      html += "<button class=\"tileStopBtn\" onclick=\"event.stopPropagation();stopTimer()\" title=\"Stoppen\">⏹</button>";
     } else {
       html += "<span>Heute: " + durText + "</span>";
       html += "<span style=\"font-size:13px;color:var(--muted);font-weight:700\">▶</span>";
@@ -517,6 +650,7 @@ function renderTimerState(state) {
   if (state && state.running && state.entry) {
     const act = state.entry.activity;
     const color = act ? (PALETTE[act.color_id] || act.color || "var(--green)") : "var(--green)";
+    const icon = getActivityIcon(act);
     if (dot) {
       dot.className = "timerDot active";
       if (dot.style) {
@@ -527,7 +661,7 @@ function renderTimerState(state) {
     if (card && card.style) card.style.borderLeftColor = color;
     if (display) {
       const actName = act ? act.name : "Aktivität";
-      display.innerHTML = `<span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:${color}"></span> <span>${escapeHtml(actName)}</span>` +
+      display.innerHTML = `<span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:${color}"></span> <span style="font-size:18px;line-height:1">${icon}</span> <span>${escapeHtml(actName)}</span>` +
         (state.entry.comment ? ` <span class="muted" style="font-size:14px;font-weight:400">(${escapeHtml(state.entry.comment)})</span>` : "");
     }
     if (runningBar && runningBar.classList) runningBar.classList.remove("hide");
@@ -565,13 +699,37 @@ async function fetchCurrentTimer() {
     if (res.ok) {
       const data = await res.json();
       renderTimerState(data);
+      return;
+    }
+    if (res.status === 404) {
+      await fallbackFetchCurrentTimer(token);
     }
   } catch (e) {
     // Network background error ignored
   }
 }
 
+async function fallbackFetchCurrentTimer(token) {
+  try {
+    const res = await fetch("/api/time-entries", {
+      headers: {Authorization: "Bearer " + token},
+    });
+    if (!res.ok) return;
+    const entries = await res.json();
+    const running = entries.find((e) => e.ended_at === null && !e.deleted_at);
+    if (!running) {
+      renderTimerState({running: false, entry: null});
+      return;
+    }
+    const activities = DATA ? active(DATA.activities) : [];
+    const act = activities.find((a) => a.id === running.activity_id);
+    running.activity = act || null;
+    renderTimerState({running: true, entry: running});
+  } catch (err) {}
+}
+
 async function startTimer(actId) {
+  clearError();
   const token = $("token") ? $("token").value.trim() : "";
   if (!token) { showError("Bitte API-Token eintragen."); return; }
   const selectedActId = actId || ($("timerActivitySelect") ? $("timerActivitySelect").value : "");
@@ -596,6 +754,10 @@ async function startTimer(actId) {
       },
       body: JSON.stringify(body),
     });
+    if (res.status === 404) {
+      await fallbackStartTimer(token, selectedActId, comment, startedAt);
+      return;
+    }
     if (!res.ok) {
       const text = await res.text();
       throw new Error(res.status + " " + text);
@@ -611,7 +773,48 @@ async function startTimer(actId) {
   }
 }
 
+async function fallbackStartTimer(token, selectedActId, comment, startedAt) {
+  if (CURRENT_TIMER && CURRENT_TIMER.running && CURRENT_TIMER.entry) {
+    await fallbackStopTimer(token);
+  }
+  const now = new Date();
+  const newId = (typeof crypto !== "undefined" && crypto.randomUUID) ? crypto.randomUUID() : (Math.random().toString(36).substring(2) + Date.now().toString(36));
+  const newEntry = {
+    id: newId,
+    activity_id: selectedActId,
+    parent_activity_ids: "",
+    started_at: startedAt || now.toISOString(),
+    ended_at: null,
+    duration_seconds: 0,
+    comment: comment || "",
+    tags: "",
+    created_at: now.toISOString(),
+    updated_at: now.toISOString()
+  };
+  const res = await fetch("/api/time-entries", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + token,
+    },
+    body: JSON.stringify(newEntry)
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(res.status + " " + text);
+  }
+  const created = await res.json();
+  const activities = DATA ? active(DATA.activities) : [];
+  created.activity = activities.find((a) => a.id === selectedActId) || null;
+  setStartOffset(0);
+  if ($("tileCommentInput")) $("tileCommentInput").value = "";
+  if ($("timerCommentInput")) $("timerCommentInput").value = "";
+  renderTimerState({running: true, entry: created});
+  if (DATA) load();
+}
+
 async function stopTimer() {
+  clearError();
   const token = $("token") ? $("token").value.trim() : "";
   if (!token) { showError("Bitte API-Token eintragen."); return; }
 
@@ -624,6 +827,10 @@ async function stopTimer() {
       },
       body: JSON.stringify({}),
     });
+    if (res.status === 404) {
+      await fallbackStopTimer(token);
+      return;
+    }
     if (!res.ok) {
       const text = await res.text();
       throw new Error(res.status + " " + text);
@@ -634,6 +841,48 @@ async function stopTimer() {
   } catch (err) {
     showError("Timer-Stopp fehlgeschlagen: " + err.message);
   }
+}
+
+async function fallbackStopTimer(token) {
+  let entry = CURRENT_TIMER && CURRENT_TIMER.entry;
+  if (!entry) {
+    const listRes = await fetch("/api/time-entries", { headers: {Authorization: "Bearer " + token} });
+    if (listRes.ok) {
+      const all = await listRes.json();
+      entry = all.find((e) => e.ended_at === null && !e.deleted_at);
+    }
+  }
+  if (!entry) {
+    renderTimerState({running: false, entry: null});
+    return;
+  }
+  const now = new Date();
+  const s = new Date(entry.started_at);
+  const dur = Math.max(0, Math.floor((now - s) / 1000));
+  const patchBody = {
+    activity_id: entry.activity_id,
+    parent_activity_ids: entry.parent_activity_ids || "",
+    started_at: entry.started_at,
+    ended_at: now.toISOString(),
+    duration_seconds: dur,
+    comment: entry.comment || "",
+    tags: entry.tags || "",
+    updated_at: now.toISOString()
+  };
+  const res = await fetch("/api/time-entries/" + encodeURIComponent(entry.id), {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + token,
+    },
+    body: JSON.stringify(patchBody)
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(res.status + " " + text);
+  }
+  renderTimerState({running: false, entry: null});
+  if (DATA) load();
 }
 
 async function adjustRunningOffset(deltaMinutes) {
@@ -678,9 +927,11 @@ async function adjustRunningOffset(deltaMinutes) {
 }
 
 async function saveRunningComment() {
+  clearError();
   const token = $("token") ? $("token").value.trim() : "";
   if (!token || !CURRENT_TIMER || !CURRENT_TIMER.running || !CURRENT_TIMER.entry) return;
   const newComment = $("runningCommentInput") ? $("runningCommentInput").value.trim() : "";
+  const saveBtn = $("saveRunningCommentBtn");
 
   try {
     const entry = CURRENT_TIMER.entry;
@@ -705,6 +956,15 @@ async function saveRunningComment() {
     if (!res.ok) throw new Error(res.status + " " + (await res.text()));
     CURRENT_TIMER.entry.comment = newComment;
     renderTimerState(CURRENT_TIMER);
+    if (saveBtn) {
+      const orig = saveBtn.textContent;
+      saveBtn.textContent = "✓";
+      if (saveBtn.style) saveBtn.style.color = "var(--green)";
+      setTimeout(() => {
+        saveBtn.textContent = orig;
+        if (saveBtn.style) saveBtn.style.color = "";
+      }, 1200);
+    }
     if (DATA) load();
   } catch (err) {
     showError("Notiz speichern fehlgeschlagen: " + err.message);
@@ -778,6 +1038,16 @@ async function toggleTodo(todoId) {
   }
 }
 
+let dismissedConflictIds = new Set();
+try {
+  const stored = JSON.parse(localStorage.getItem("tt_dismissed_conflicts") || "[]");
+  if (Array.isArray(stored)) dismissedConflictIds = new Set(stored);
+} catch (e) {}
+
+function getActiveConflicts() {
+  return CONFLICTS.filter((c) => !dismissedConflictIds.has(c.id || (c.entity_type + "_" + c.entity_id + "_" + c.created_at)));
+}
+
 async function fetchConflicts() {
   const token = $("token") ? $("token").value.trim() : "";
   if (!token) return;
@@ -796,13 +1066,26 @@ function updateConflictBadge() {
   const syncBadge = $("syncBadge");
   const conflictBadge = $("conflictBadge");
   if (!syncBadge || !conflictBadge) return;
-  if (CONFLICTS.length > 0) {
-    conflictBadge.textContent = "⚠️ " + CONFLICTS.length + " Konflikt" + (CONFLICTS.length === 1 ? "" : "e");
+  const activeList = getActiveConflicts();
+  if (activeList.length > 0) {
+    conflictBadge.textContent = "⚠️ " + activeList.length + " Konflikt" + (activeList.length === 1 ? "" : "e");
     conflictBadge.classList.remove("hide");
     renderConflictsList();
   } else {
     conflictBadge.classList.add("hide");
+    syncBadge.textContent = "✓ Synchronisiert";
   }
+}
+
+function dismissAllConflicts() {
+  for (const c of CONFLICTS) {
+    const key = c.id || (c.entity_type + "_" + c.entity_id + "_" + c.created_at);
+    dismissedConflictIds.add(key);
+  }
+  localStorage.setItem("tt_dismissed_conflicts", JSON.stringify([...dismissedConflictIds]));
+  updateConflictBadge();
+  const box = $("conflictsBox");
+  if (box) box.classList.add("hide");
 }
 
 function toggleConflictsModal() {
@@ -816,23 +1099,142 @@ function toggleConflictsModal() {
   }
 }
 
+const RESOLUTION_EXPLANATIONS = {
+  "tombstone_kept": "Eintrag war auf dem Server bereits gelöscht und wurde beibehalten (Schutz vor Wiederauferstehung).",
+  "unknown_type": "Datensatz-Typ war der Server-Version zum Sync-Zeitpunkt noch unbekannt (Audit-Eintrag).",
+  "server_kept_newer": "Der Server hatte bereits einen neueren Stand des Datensatzes gespeichert.",
+  "rejected": "Der Zugriff auf diesen Datensatz wurde abgelehnt.",
+  "invalid": "Pflichtfelder waren unvollständig.",
+};
+
 function renderConflictsList() {
   const el = $("conflictsList");
   if (!el) return;
-  if (!CONFLICTS.length) {
-    el.innerHTML = "<div>Keine Sync-Konflikte vorhanden.</div>";
+  const activeList = getActiveConflicts();
+  if (!activeList.length) {
+    el.innerHTML = "<div class='muted small' style='padding:8px 0'>Alle Sync-Konflikte wurden als gelöst markiert. Keine offenen Konflikte.</div>";
     return;
   }
-  let html = "<table style='margin-top:8px'><tr><th>Zeit</th><th>Typ</th><th>ID</th><th>Auflösung</th><th>Details</th></tr>";
-  for (const c of CONFLICTS.slice(0, 10)) {
+  let html = "<table style='margin-top:8px'><tr><th>Zeit</th><th>Typ</th><th>ID</th><th>Auflösung</th><th>Bedeutung / Details</th></tr>";
+  for (const c of activeList.slice(0, 20)) {
     const dt = c.created_at ? new Date(c.created_at).toLocaleString("de-DE") : "–";
+    const expl = RESOLUTION_EXPLANATIONS[c.resolution] || c.detail || "–";
     html += "<tr><td class=muted>" + dt + "</td><td>" + escapeHtml(c.entity_type) + "</td>" +
       "<td class=muted>" + escapeHtml(c.entity_id ? c.entity_id.slice(0, 8) : "") + "</td>" +
       "<td><span class=tag style='color:var(--red)'>" + escapeHtml(c.resolution) + "</span></td>" +
-      "<td class=small>" + escapeHtml(c.detail || "–") + "</td></tr>";
+      "<td class=small>" + escapeHtml(expl) + "</td></tr>";
   }
   html += "</table>";
   el.innerHTML = html;
+}
+
+function renderDayCalendar(entries, actById) {
+  const container = $("dayCalInner");
+  if (!container) return;
+  const now = new Date();
+  const startHour = $("shiftStart") ? parseInt($("shiftStart").value, 10) : 6;
+  const endHour = $("shiftEnd") ? parseInt($("shiftEnd").value, 10) : 23;
+  const startMin = startHour * 60;
+  const endMin = endHour * 60;
+  const totalMin = Math.max(60, endMin - startMin);
+
+  const hoursCount = endHour - startHour;
+  if (container.style) container.style.height = Math.max(480, hoursCount * 36 + 32) + "px";
+
+  let html = "";
+  html += "<div class='dayCalHeaderLanes'>" +
+    "<div class='dayCalHeaderPlan'>Plan (Stundenplan & WebDAV)</div>" +
+    "<div class='dayCalHeaderTracked'>Getrackt (Zeiterfassung)</div>" +
+    "</div>";
+
+  for (let h = startHour; h <= endHour; h++) {
+    const minFromStart = (h - startHour) * 60;
+    const topPct = (minFromStart / totalMin) * 100;
+    const hLabel = String(h).padStart(2, "0") + ":00";
+    html += "<div class='dayCalHourLabel' style='top:calc(26px + " + topPct.toFixed(2) + "%)'>" + hLabel + "</div>";
+    html += "<div class='dayCalGridLine' style='top:calc(26px + " + topPct.toFixed(2) + "%)'></div>";
+  }
+
+  const todayDow = now.getDay() === 0 ? 7 : now.getDay();
+  const todayStr = localDateStr(now);
+  const events = DATA ? active(DATA.timetable_events).filter((e) => e.day_of_week === todayDow) : [];
+  const overrides = DATA ? active(DATA.timetable_overrides).filter((o) => o.date === todayStr) : [];
+  const freeDays = DATA ? new Set(active(DATA.timetable_days).filter((d) => d.free_day).map((d) => d.date)) : new Set();
+  const isFreeDay = freeDays.has(todayStr);
+
+  let planHtml = "<div class='dayCalPlanLane'>";
+  for (const ev of events) {
+    const ov = overrides.find((o) => o.event_sync_id === ev.id);
+    const isCancelled = isFreeDay || (ov && ov.cancelled);
+    const sMinutes = ov && ov.start_time ? ov.start_time : ev.start_time;
+    const eMinutes = ov && ov.end_time ? ov.end_time : ev.end_time;
+    const room = (ov && ov.room) || ev.room || "";
+
+    if (eMinutes > startMin && sMinutes < endMin) {
+      const topPct = Math.max(0, (sMinutes - startMin) / totalMin) * 100;
+      const heightPct = Math.min(100 - topPct, (eMinutes - Math.max(startMin, sMinutes)) / totalMin) * 100;
+      const act = actById[ev.activity_sync_id];
+      const color = activityColor(act);
+      const icon = getActivityIcon(act);
+
+      const cancelStyle = isCancelled ? "text-decoration:line-through;opacity:0.65;" : "";
+      const cancelTag = isCancelled ? "<span class='tag' style='color:var(--red);margin-left:4px'>Ausfall</span>" : "";
+
+      planHtml += "<div class='dayCalSlot dayCalSlotPlan' style='top:" + topPct.toFixed(2) + "%;height:" + Math.max(22, heightPct).toFixed(2) + "%;border-left-color:" + color + ";" + cancelStyle + "'>" +
+        "<div style='font-weight:600;display:flex;align-items:center;gap:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap'>" +
+        "<span>" + icon + "</span>" +
+        "<span>" + escapeHtml(ev.name) + "</span>" +
+        cancelTag +
+        "</div>" +
+        "<div class='small muted' style='font-size:10px'>" + fmtMin(sMinutes) + "–" + fmtMin(eMinutes) + (room ? " · " + escapeHtml(room) : "") + "</div>" +
+        "</div>";
+    }
+  }
+  planHtml += "</div>";
+  html += planHtml;
+
+  let trackHtml = "<div class='dayCalTrackLane'>";
+  for (const e of entries) {
+    const s = new Date(e.started_at);
+    const end = e.ended_at ? new Date(e.ended_at) : now;
+    const sMinutes = s.getHours() * 60 + s.getMinutes();
+    const eMinutes = end.getHours() * 60 + end.getMinutes();
+
+    if (eMinutes > startMin && sMinutes < endMin) {
+      const topPct = Math.max(0, (sMinutes - startMin) / totalMin) * 100;
+      const heightPct = Math.max(2.5, Math.min(100 - topPct, (eMinutes - Math.max(startMin, sMinutes)) / totalMin) * 100);
+      const act = actById[e.activity_id];
+      const color = activityColor(act);
+      const icon = getActivityIcon(act);
+      const isRunning = !e.ended_at;
+      const sTime = s.toLocaleTimeString("de-DE", {hour: "2-digit", minute: "2-digit"});
+      const eTime = e.ended_at ? end.toLocaleTimeString("de-DE", {hour: "2-digit", minute: "2-digit"}) : "jetzt";
+      const durText = formatDuration(Math.max(0, (end - s) / 1000));
+      const glow = isRunning ? ";box-shadow:0 0 10px " + color + ";border:2px solid #fff" : "";
+
+      trackHtml += "<div class='dayCalSlot' style='top:" + topPct.toFixed(2) + "%;height:" + heightPct.toFixed(2) + "%;background:" + color + glow + "'>" +
+        "<div style='font-weight:700;display:flex;align-items:center;gap:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap'>" +
+        "<span>" + icon + "</span>" +
+        "<span>" + escapeHtml(act ? act.name : "Aktivität") + "</span>" +
+        (isRunning ? "<span style='font-size:9px;background:rgba(0,0,0,0.35);padding:1px 4px;border-radius:4px;font-weight:700'>läuft</span>" : "") +
+        "</div>" +
+        "<div style='font-size:10px;opacity:0.95'>" + sTime + "–" + eTime + " (" + durText + ")" +
+        (e.comment ? " · " + escapeHtml(e.comment) : "") + "</div>" +
+        "</div>";
+    }
+  }
+  trackHtml += "</div>";
+  html += trackHtml;
+
+  const nowMinutes = now.getHours() * 60 + now.getMinutes();
+  if (nowMinutes >= startMin && nowMinutes <= endMin) {
+    const nowPct = ((nowMinutes - startMin) / totalMin) * 100;
+    html += "<div class='dayCalNowLine' style='top:calc(26px + " + nowPct.toFixed(2) + "%)'>" +
+      "<div class='dayCalNowDot'></div>" +
+      "</div>";
+  }
+
+  container.innerHTML = html;
 }
 
 function renderTodayTimeline() {
@@ -876,6 +1278,8 @@ function renderTodayTimeline() {
     summaryEl.textContent = fmtHours(totalSecsToday) + " getrackt (" + entries.length + " Einträge)";
   }
 
+  renderDayCalendar(entries, actById);
+
   const barEl = $("todayVisualBar");
   if (barEl) {
     if (!entries.length) {
@@ -885,6 +1289,7 @@ function renderTodayTimeline() {
       for (const e of entries) {
         const act = actById[e.activity_id];
         const color = activityColor(act);
+        const icon = getActivityIcon(act);
         const s = new Date(e.started_at);
         const end = e.ended_at ? new Date(e.ended_at) : now;
         const dur = Math.max(1, (end - s) / 1000);
@@ -909,6 +1314,7 @@ function renderTodayTimeline() {
         const e = entries[i];
         const act = actById[e.activity_id];
         const color = activityColor(act);
+        const icon = getActivityIcon(act);
         const actName = act ? act.name : "Unbekannt";
         const s = new Date(e.started_at);
         const end = e.ended_at ? new Date(e.ended_at) : now;
@@ -920,6 +1326,7 @@ function renderTodayTimeline() {
         listHtml += "<div class='todayEntryRow'>" +
           "<div style='display:flex;align-items:center;gap:10px'>" +
           "<span style='display:inline-block;width:10px;height:10px;border-radius:3px;background:" + color + ";flex-shrink:0'></span>" +
+          "<span style='font-size:16px;line-height:1'>" + icon + "</span>" +
           "<strong>" + escapeHtml(actName) + "</strong>" +
           "<span class='muted' style='font-size:13px'>" + sTime + " – " + eTime + "</span>" +
           (e.comment ? "<span class='tag' style='margin-left:0'>" + escapeHtml(e.comment) + "</span>" : "") +
@@ -950,8 +1357,11 @@ async function load() {
   const token = $("token").value.trim();
   if (!token) { showError("Bitte API-Token eintragen."); return; }
   localStorage.setItem("tt_token", token);
-  $("load").disabled = true;
-  $("load").textContent = "Lädt…";
+  const loadBtn = $("load");
+  if (loadBtn) {
+    loadBtn.disabled = true;
+    loadBtn.classList.add("spinning");
+  }
   try {
     const since = encodeURIComponent("1970-01-01T00:00:00+00:00");
     const response = await fetch("/api/sync/pull?since=" + since, {
@@ -967,8 +1377,11 @@ async function load() {
   } catch (error) {
     showError("Laden fehlgeschlagen: " + error.message);
   } finally {
-    $("load").disabled = false;
-    $("load").textContent = "Laden";
+    if (loadBtn) {
+      loadBtn.disabled = false;
+      loadBtn.classList.remove("spinning");
+      loadBtn.textContent = "↻";
+    }
   }
 }
 
@@ -1181,8 +1594,11 @@ function render() {
     const pct = target > 0 ? Math.min(100, Math.round((tracked / target) * 100)) : 0;
     const ects = target > 0 ? (Math.round((target / ECTS_SECONDS) * 10) / 10).toLocaleString("de-DE") : "–";
     const subjectColor = activityColor(activitiesById[goal.activity_sync_id]);
+    const icon = getActivityIcon(activitiesById[goal.activity_sync_id]);
     g += "<tr><td class=name><span style='display:inline-block;width:12px;height:12px;border-radius:3px;" +
-      "background:" + subjectColor + ";margin-right:8px;vertical-align:middle'></span>" + escapeHtml(name) +
+      "background:" + subjectColor + ";margin-right:8px;vertical-align:middle'></span>" +
+      "<span style='font-size:15px;margin-right:6px;vertical-align:middle'>" + icon + "</span>" +
+      escapeHtml(name) +
       (subjects.has(goal.activity_sync_id) ? "" : "<span class=tag>kein Stundenplan-Eintrag</span>") +
       "</td><td>" + ects + "</td>" +
       "<td><div class=bar><i style=width:" + pct + "%></i></div><div class=small>" + pct + " %</div></td>" +
@@ -1195,12 +1611,15 @@ function render() {
   for (const [id, seconds] of acts) {
     const share = totalTracked > 0 ? Math.round((seconds / totalTracked) * 100) : 0;
     const color = activityColor(activitiesById[id]);
+    const icon = getActivityIcon(activitiesById[id]);
     a += "<tr><td class=name><span style='display:inline-block;width:12px;height:12px;border-radius:3px;" +
       "background:" + color + ";margin-right:8px;vertical-align:middle'></span>" +
+      "<span style='font-size:15px;margin-right:6px;vertical-align:middle'>" + icon + "</span>" +
       escapeHtml(activityName[id] || "Unbekannt (" + id.slice(0, 8) + ")") +
       "</td><td class=num>" + fmtHours(seconds) + "</td><td class=num>" + share + " %</td></tr>";
   }
   $("activities").innerHTML = a;
+  renderDonutChart(acts, totalTracked, activitiesById);
 
   // ---- hours per category (independent of the filter) --------------------------
   {
@@ -1269,17 +1688,9 @@ function render() {
     $("weeks").innerHTML = html;
   }
 
-  // ---- meal times ----------------------------------------------------------------
-  {
-    const mealActivities = activities.filter((a) => /ess|fr\u00fc|hauptmahl/i.test(a.name));
-    const mealIds = new Set(mealActivities.map((a) => a.id));
-    const perHour = new Array(24).fill(0);
-    for (const e of filteredEntries) {
-      if (!mealIds.has(e.act)) continue;
-      perHour[e.start.getHours()]++;
-    }
-    renderMealChart(perHour, mealActivities);
-  }
+  // ---- flexible distribution / hourly analysis -----------------------------------
+  populateDistributionOptions(activities, allCategories);
+  renderDistributionChart(activities, allCategories, categoriesOf, filteredEntries);
 
   // ---- todos -------------------------------------------------------------------
   let t = ""; 
@@ -1351,16 +1762,163 @@ function renderChartLegend(activityOrder, activitiesById) {
   for (const id of activityOrder) {
     const a = activitiesById[id];
     if (!a) continue;
-    parts.push("<span><i style='background:" + activityColor(a) + "'></i>" + escapeHtml(a.name) + "</span>");
+    const icon = getActivityIcon(a);
+    parts.push("<span><i style='background:" + activityColor(a) + "'></i>" +
+      "<span style='font-size:14px;margin-right:4px'>" + icon + "</span>" +
+      escapeHtml(a.name) + "</span>");
   }
   $("chartLegend").innerHTML = parts.join("");
 }
 
-/** Horizontal bar chart of meal start times per hour of day. */
-function renderMealChart(perHour, mealActivities) {
+function renderDonutChart(acts, totalTracked, activitiesById) {
+  const container = $("activitiesDonut");
+  if (!container) return;
+  if (!acts.length || totalTracked <= 0) {
+    container.innerHTML = "<div class='small muted' style='padding:20px 0;text-align:center'>Keine Aktivitäten im Zeitraum getrackt.</div>";
+    return;
+  }
+
+  const radius = 70;
+  const strokeWidth = 30;
+  const circumference = 2 * Math.PI * radius;
+  let currentOffset = 0;
+
+  let circlesSvg = "";
+  let legendHtml = "";
+
+  for (const [id, seconds] of acts) {
+    const act = activitiesById[id];
+    const name = act ? act.name : "Unbekannt (" + id.slice(0, 8) + ")";
+    const icon = getActivityIcon(act);
+    const color = activityColor(act);
+    const share = totalTracked > 0 ? (seconds / totalTracked) : 0;
+    const sharePct = Math.round(share * 100);
+    const dashLength = share * circumference;
+
+    circlesSvg += "<circle cx='100' cy='100' r='" + radius + "' fill='none' " +
+      "stroke='" + color + "' stroke-width='" + strokeWidth + "' " +
+      "stroke-dasharray='" + dashLength.toFixed(2) + " " + (circumference - dashLength).toFixed(2) + "' " +
+      "stroke-dashoffset='" + (-currentOffset).toFixed(2) + "'>" +
+      "<title>" + escapeHtml(name) + ": " + fmtHours(seconds) + " (" + sharePct + "%)</title>" +
+      "</circle>";
+    currentOffset += dashLength;
+
+    legendHtml += "<div class='donutLegendItem'>" +
+      "<div style='display:flex;align-items:center;gap:8px'>" +
+      "<span style='display:inline-block;width:10px;height:10px;border-radius:3px;background:" + color + "'></span>" +
+      "<span style='font-size:15px'>" + icon + "</span>" +
+      "<span style='font-weight:600'>" + escapeHtml(name) + "</span>" +
+      "</div>" +
+      "<div style='display:flex;align-items:center;gap:12px'>" +
+      "<span class='num'>" + fmtHours(seconds) + "</span>" +
+      "<span class='tag'>" + sharePct + " %</span>" +
+      "</div>" +
+      "</div>";
+  }
+
+  const totalHoursStr = fmtHours(totalTracked);
+  const svg = "<svg class='donutSvg' viewBox='0 0 200 200'>" +
+    "<circle cx='100' cy='100' r='" + radius + "' fill='none' stroke='var(--chip)' stroke-width='" + strokeWidth + "' />" +
+    circlesSvg +
+    "</svg>";
+
+  container.innerHTML = "<div style='position:relative;display:flex;align-items:center;justify-content:center'>" +
+    svg +
+    "<div style='position:absolute;text-align:center;pointer-events:none'>" +
+    "<div style='font-size:18px;font-weight:700'>" + totalHoursStr + "</div>" +
+    "<div style='font-size:11px;color:var(--muted)'>Gesamt</div>" +
+    "</div>" +
+    "</div>" +
+    "<div class='donutLegend'>" + legendHtml + "</div>";
+}
+
+function populateDistributionOptions(activities, allCategories) {
+  const select = $("distributionTarget");
+  if (!select) return;
+  const current = select.value || localStorage.getItem("tt_dist_target") || "preset_meals";
+  let html = "<option value='preset_meals'>Essenszeiten (Standard-Filter)</option>" +
+    "<option value='preset_uni'>Alle Vorlesungen / Uni</option>" +
+    "<option value='all'>Alle getrackten Aktivitäten</option>";
+
+  if (allCategories && allCategories.length) {
+    html += "<optgroup label='Kategorien'>";
+    for (const c of allCategories) {
+      html += "<option value='cat_" + c.id + "'>Kategorie: " + escapeHtml(c.name) + "</option>";
+    }
+    html += "</optgroup>";
+  }
+
+  if (activities && activities.length) {
+    html += "<optgroup label='Aktivitäten'>";
+    for (const a of activities) {
+      html += "<option value='act_" + a.id + "'>" + getActivityIcon(a) + " " + escapeHtml(a.name) + "</option>";
+    }
+    html += "</optgroup>";
+  }
+
+  select.innerHTML = html;
+  if (select.options && typeof select.options[Symbol.iterator] === "function") {
+    if ([...select.options].some((o) => o.value === current)) {
+      select.value = current;
+    } else {
+      select.value = "preset_meals";
+    }
+  } else {
+    select.value = current || "preset_meals";
+  }
+}
+
+function renderDistributionChart(activities, allCategories, categoriesOf, filteredEntries) {
+  const select = $("distributionTarget");
+  const target = (select && select.value) || localStorage.getItem("tt_dist_target") || "preset_meals";
+
+  const acts = activities || (DATA ? active(DATA.activities) : []);
+  const cats = allCategories || (DATA ? active(DATA.categories) : []);
+  const entries = filteredEntries || (LAST ? LAST.filteredEntries : []);
+
+  let matchedActs = [];
+  let filterName = "";
+
+  if (target === "preset_meals") {
+    matchedActs = acts.filter((a) => /ess|fr\u00fc|hauptmahl/i.test(a.name));
+    filterName = "Essenszeiten";
+  } else if (target === "preset_uni") {
+    matchedActs = acts.filter((a) => (categoriesOf && categoriesOf[a.id] ? categoriesOf[a.id].some((cid) => {
+      const c = cats.find((x) => x.id === cid);
+      return c && /uni|stud/i.test(c.name);
+    }) : false) || /analysis|thermo|java|theoinfo/i.test(a.name));
+    filterName = "Uni / Studium";
+  } else if (target === "all") {
+    matchedActs = acts;
+    filterName = "Alle Aktivitäten";
+  } else if (target.startsWith("cat_")) {
+    const catId = target.slice(4);
+    const cat = cats.find((c) => c.id === catId);
+    matchedActs = acts.filter((a) => (categoriesOf && categoriesOf[a.id] ? categoriesOf[a.id].includes(catId) : false));
+    filterName = "Kategorie: " + (cat ? cat.name : catId);
+  } else if (target.startsWith("act_")) {
+    const actId = target.slice(4);
+    const act = acts.find((a) => a.id === actId);
+    matchedActs = act ? [act] : [];
+    filterName = act ? act.name : "Aktivität";
+  }
+
+  const actIds = new Set(matchedActs.map((a) => a.id));
+  const perHour = new Array(24).fill(0);
+  for (const e of entries) {
+    if (actIds.has(e.act)) {
+      perHour[e.start.getHours()]++;
+    }
+  }
+
+  renderMealChart(perHour, matchedActs, filterName);
+}
+
+/** Horizontal bar chart of start times per hour of day. */
+function renderMealChart(perHour, mealActivities, customTitle) {
   const el = $("mealChart");
   if (!mealActivities.length) {
-    el.innerHTML = "<div class=small>Keine Aktivit&auml;t mit Essen im Namen gefunden.</div>";
+    el.innerHTML = "<div class=small>Keine Aktivitäten für diesen Filter gefunden.</div>";
     return;
   }
   const names = mealActivities.map((a) => a.name).join(", ");
@@ -1377,7 +1935,8 @@ function renderMealChart(perHour, mealActivities) {
   let svg = "<svg viewBox=\"0 0 " + width + " " + height + "\" style=\"width:100%;height:auto\">";
   const max = Math.max(1, ...perHour);
   const barW = width - labelW - 60;
-  const typical = (h) => (h >= 6 && h < 10) || (h >= 11 && h < 14) || (h >= 17 && h < 20);
+  const isMeal = customTitle ? customTitle.includes("Essen") : true;
+  const typical = (h) => isMeal ? ((h >= 6 && h < 10) || (h >= 11 && h < 14) || (h >= 17 && h < 20)) : false;
   for (let h = 0; h < 24; h++) {
     const y = h * (barH + gap) + 6;
     const w = (perHour[h] / max) * barW;
@@ -1389,14 +1948,12 @@ function renderMealChart(perHour, mealActivities) {
       svg += "<rect x=\"" + labelW + "\" y=\"" + y + "\" width=\"" + w.toFixed(1) + "\" height=\"" + barH +
         "\" fill=\"" + (typical(h) ? "var(--accent)" : "var(--blue)") + "\" rx=\"4\"><title>" +
         perHour[h] + " Starts um " + String(h).padStart(2, "0") + ":00</title></rect>";
-    }
-    if (perHour[h] > 0) {
       svg += "<text x=\"" + (labelW + w + 8).toFixed(1) + "\" y=\"" + (y + 15) +
         "\" fill=\"var(--muted)\" font-size=\"11\">" + perHour[h] + "</text>";
     }
   }
   svg += "</svg>";
-  el.innerHTML = "<div class=small style=margin-bottom:6px>Aktivit&auml;ten: " + escapeHtml(names) +
+  el.innerHTML = "<div class=small style=margin-bottom:6px>Aktivitäten: " + escapeHtml(names) +
     " &middot; " + total + " Starts</div>" + svg;
 }
 
@@ -1645,8 +2202,8 @@ $("chartWeek").addEventListener("click", () => setChartMode("week"));
 $("chartMonth").addEventListener("click", () => setChartMode("month"));
 $("theme").addEventListener("click", nextTheme);
 updateChartModeButtons();
-$("csv").addEventListener("click", exportCsv);
-$("share").addEventListener("click", copyShareLink);
+if ($("csv")) $("csv").addEventListener("click", exportCsv);
+if ($("share")) $("share").addEventListener("click", copyShareLink);
 if ($("timerStartBtn")) $("timerStartBtn").addEventListener("click", () => startTimer());
 if ($("timerStopBtn")) $("timerStopBtn").addEventListener("click", stopTimer);
 
@@ -1665,6 +2222,26 @@ on("off15", "click", () => setStartOffset(15));
 on("off30", "click", () => setStartOffset(30));
 on("conflictBadge", "click", toggleConflictsModal);
 on("closeConflictsBtn", "click", toggleConflictsModal);
+on("dismissAllConflictsBtn", "click", dismissAllConflicts);
+on("shiftStart", "change", () => {
+  localStorage.setItem("tt_shift_start", $("shiftStart").value);
+  renderTodayTimeline();
+});
+on("shiftEnd", "change", () => {
+  localStorage.setItem("tt_shift_end", $("shiftEnd").value);
+  renderTodayTimeline();
+});
+on("distributionTarget", "change", () => {
+  localStorage.setItem("tt_dist_target", $("distributionTarget").value);
+  const activities = DATA ? active(DATA.activities) : [];
+  const allCategories = DATA ? active(DATA.categories) : [];
+  const categoriesOf = LAST ? LAST.categoriesOf : {};
+  const filteredEntries = LAST ? LAST.filteredEntries : [];
+  renderDistributionChart(activities, allCategories, categoriesOf, filteredEntries);
+});
+
+if ($("shiftStart")) $("shiftStart").value = localStorage.getItem("tt_shift_start") || "6";
+if ($("shiftEnd")) $("shiftEnd").value = localStorage.getItem("tt_shift_end") || "23";
 
 if ($("token").value.trim()) {
   startTimerPolling();
