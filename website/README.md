@@ -37,6 +37,16 @@ Server nötig. Nur Python-Standardbibliothek, keine Abhängigkeiten.
 - **Alle Aktivitäten**: Stunden und Anteil je Aktivität.
 - **Vorbereitung / Nachbereitung / Todos**: Erfüllungsquote je Art und
   Liste der offenen.
+- **Getrackte Stunden pro Tag**: Balkendiagramm des Zeitraums mit
+  Stunden-Achse und Tooltip pro Tag (Einträge über Mitternacht werden
+  sauber auf Tage aufgeteilt).
+- **CSV-Export**: lädt die Kennzahlen (Anwesenheit pro Veranstaltung,
+  Stunden pro Tag, Gesamtsumme) als Excel-kompatible Semikolon-CSV mit
+  BOM herunter.
+- **Link kopieren**: erzeugt eine URL mit Token und Zeitraum im Hash
+  (`#token=…&from=…&to=…`), die die Seite beim Öffen direkt lädt —
+  praktisch als Lesezeichen. Der Token steht dabei in der URL, also
+  nur auf eigenen Rechnern verwenden.
 
 Anwesenheit wird wie in der App gewertet: ein Eintrag der verknüpften
 Aktivität, der den Termin (ggf. mit Raum-/Zeit-Ausnahme) überlappt,

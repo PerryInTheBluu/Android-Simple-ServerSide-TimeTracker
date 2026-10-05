@@ -22,8 +22,9 @@ function makeEl(id) {
   return elements[id];
 }
 
-global.document = { getElementById: makeEl };
+global.document = { getElementById: makeEl, createElement: () => ({ style: {} }) };
 global.localStorage = { getItem: () => "", setItem: () => {} };
+global.location = { hash: "", origin: "http://x", pathname: "/" };
 const pullData = JSON.parse(fs.readFileSync(process.argv[2], "utf8"));
 global.fetch = async () => ({
   ok: true,
@@ -51,4 +52,8 @@ vm.runInThisContext(script);
   console.log(elements["activities"].innerHTML.replace(/></g, ">\n<"));
   console.log("=== todos ===");
   console.log(elements["todos"].innerHTML.replace(/></g, ">\n<"));
+  console.log("=== daily chart svg (first 400 chars) ===");
+  console.log(elements["dailyChart"].innerHTML.slice(0, 400));
+  console.log("=== csv ===");
+  console.log(buildCsv());
 })();
