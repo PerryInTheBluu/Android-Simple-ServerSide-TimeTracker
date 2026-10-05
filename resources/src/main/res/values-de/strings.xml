@@ -315,6 +315,8 @@ Dies ermöglicht es dir, zu sehen, wie viel Zeit du insgesamt für produktive ve
     <string name="running_records_repeat">Wiederholen</string>
     <string name="running_records_repeat_no_prev_record">Kein vorheriger Datensatz zum Neustart vorhanden</string>
     <string name="running_records_repeat_already_tracking">Verfolgen Sie diese Aktivität bereits</string>
+    <string name="running_records_repeat_started">Aktivität gestartet</string>
+    <string name="qs_tile_repeat">Tracking wiederholen</string>
 
     <!--  Settings  -->
     <string name="settings_display_title">Anzeige</string>

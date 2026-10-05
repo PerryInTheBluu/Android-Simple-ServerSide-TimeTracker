@@ -92,6 +92,9 @@ class SyncDebugReceiver : BroadcastReceiver() {
     @Inject
     lateinit var timetableNotificationInteractor: com.example.util.simpletimetracker.domain.timetable.notification.TimetableNotificationInteractor
 
+    @Inject
+    lateinit var recordRepeatInteractor: com.example.util.simpletimetracker.core.interactor.RecordRepeatInteractor
+
     override fun onReceive(context: Context, intent: Intent) {
         val pending = goAsync()
         CoroutineScope(Dispatchers.IO).launch {
@@ -150,6 +153,7 @@ class SyncDebugReceiver : BroadcastReceiver() {
                     ACTION_ADD_UNI_TEST_DATA -> addUniTestData()
                     ACTION_START_TIMER -> startTimer(intent.getStringExtra(EXTRA_NAME).orEmpty())
                     ACTION_STOP_ALL_TIMERS -> stopAllTimers()
+                    ACTION_QS_TILE_REPEAT -> qsTileRepeat()
                     ACTION_DUMP_RUNNING -> dumpRunning()
                     ACTION_SEED_TIMETABLE -> seedTimetable()
                     ACTION_IMPORT_ICS -> importIcs(intent.getStringExtra(EXTRA_PATH).orEmpty())
@@ -432,6 +436,12 @@ class SyncDebugReceiver : BroadcastReceiver() {
         Timber.i("DebugReceiver: stopped %d timers (without records)", running.size)
     }
 
+    // Executes the quick settings tile logic for testing.
+    private suspend fun qsTileRepeat() {
+        recordRepeatInteractor.repeatForQuickTileExternal()
+        Timber.i("DebugReceiver: qs tile repeat executed")
+    }
+
     private suspend fun dumpRunning() {
         val running = runningRecordRepo.getAll()
         val names = mutableListOf<String>()
@@ -484,6 +494,7 @@ class SyncDebugReceiver : BroadcastReceiver() {
         const val ACTION_ADD_UNI_TEST_DATA = "de.piusdischinger.timetracker.debug.ADD_UNI_TEST_DATA"
         const val ACTION_START_TIMER = "de.piusdischinger.timetracker.debug.START_TIMER"
         const val ACTION_STOP_ALL_TIMERS = "de.piusdischinger.timetracker.debug.STOP_ALL_TIMERS"
+        const val ACTION_QS_TILE_REPEAT = "de.piusdischinger.timetracker.debug.QS_TILE_REPEAT"
         const val ACTION_DUMP_RUNNING = "de.piusdischinger.timetracker.debug.DUMP_RUNNING"
         const val ACTION_SEED_TIMETABLE = "de.piusdischinger.timetracker.debug.SEED_TIMETABLE"
         const val ACTION_IMPORT_ICS = "de.piusdischinger.timetracker.debug.IMPORT_ICS"

@@ -3,6 +3,7 @@ package com.example.util.simpletimetracker.core.interactor
 import com.example.util.simpletimetracker.core.R
 import com.example.util.simpletimetracker.core.repo.ResourceRepo
 import com.example.util.simpletimetracker.domain.record.interactor.AddRunningRecordMediator
+import com.example.util.simpletimetracker.domain.record.interactor.RemoveRunningRecordMediator
 import com.example.util.simpletimetracker.domain.prefs.interactor.PrefsInteractor
 import com.example.util.simpletimetracker.domain.record.interactor.RecordInteractor
 import com.example.util.simpletimetracker.domain.record.interactor.RunningRecordInteractor
@@ -20,6 +21,7 @@ class RecordRepeatInteractor @Inject constructor(
     private val recordTypeInteractor: RecordTypeInteractor,
     private val runningRecordInteractor: RunningRecordInteractor,
     private val addRunningRecordMediator: AddRunningRecordMediator,
+    private val removeRunningRecordMediator: RemoveRunningRecordMediator,
     private val prefsInteractor: PrefsInteractor,
     private val router: Router,
     private val resourceRepo: ResourceRepo,
@@ -32,6 +34,57 @@ class RecordRepeatInteractor @Inject constructor(
                 duration = SnackBarParams.Duration.Short,
             ).let(router::show)
         }
+    }
+
+    /**
+     * Quick settings tile behaviour: when nothing runs, start the before
+     * last finished activity (the last one is usually the break that
+     * just ended); when something runs, stop it and start the last
+     * finished activity (the one from before the current activity).
+     */
+    suspend fun repeatForQuickTileExternal() {
+        executeTileAction { messageResId ->
+            ToastParams(
+                message = resourceRepo.getString(messageResId),
+            ).let(router::show)
+        }
+    }
+
+    private suspend fun executeTileAction(messageShower: (messageResId: Int) -> Unit) {
+        val defaultTypeIds = recordTypeInteractor.getAll()
+            .filter { it.defaultDuration != 0L }
+            .map(RecordType::id)
+        val running = runningRecordInteractor.getAll()
+        val prev = recordInteractor.getPrev(
+            timeStarted = System.currentTimeMillis(),
+            ignoreTypeIds = defaultTypeIds,
+        )
+        // Nothing runs: the last finished activity is usually the break
+        // that just ended, so continue with the one before it.
+        val target = if (running.isEmpty()) {
+            prev?.let {
+                recordInteractor.getPrev(
+                    timeStarted = it.timeEnded - 1,
+                    ignoreTypeIds = defaultTypeIds,
+                )
+            }
+        } else {
+            prev
+        }
+        if (target == null) {
+            messageShower(R.string.running_records_repeat_no_prev_record)
+            return
+        }
+        // Something runs: stop everything first, then start the target
+        // activity; stopping first would make the running one the last
+        // finished record.
+        running.forEach { removeRunningRecordMediator.removeWithRecordAdd(it) }
+        addRunningRecordMediator.startTimer(
+            typeId = target.typeId,
+            tags = target.tags,
+            comment = target.comment,
+        )
+        messageShower(R.string.running_records_repeat_started)
     }
 
     // Can be used than app is closed (ex. from widget).

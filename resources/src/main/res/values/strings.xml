@@ -315,6 +315,8 @@ This allows you to see how much time you\'re spending on productive versus unpro
     <string name="running_records_repeat">Repeat</string>
     <string name="running_records_repeat_no_prev_record">No previous record to restart</string>
     <string name="running_records_repeat_already_tracking">Already tracking this activity</string>
+    <string name="running_records_repeat_started">Activity started</string>
+    <string name="qs_tile_repeat">Repeat tracking</string>
 
     <!--  Settings  -->
     <string name="settings_display_title">Display</string>
