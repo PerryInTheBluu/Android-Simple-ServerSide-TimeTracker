@@ -90,12 +90,17 @@ tr:last-child td { border-bottom: 0; }
 .hide { display: none; }
 .modeBtn { background: var(--chip); color: var(--muted); padding: 5px 14px; font-size: 12px; font-weight: 500; }
 .modeBtn.on { background: #3a4a2e; color: var(--accent); }
+.timerCard { border-left: 4px solid var(--accent); transition: border-color 0.2s; }
+.timerDot { width: 14px; height: 14px; border-radius: 50%; background: var(--gray); display: inline-block; flex-shrink: 0; }
+.timerDot.active { background: var(--green); box-shadow: 0 0 10px var(--green); animation: pulse 2s infinite; }
+@keyframes pulse { 0% { transform: scale(0.95); opacity: 0.8; } 50% { transform: scale(1.15); opacity: 1; } 100% { transform: scale(0.95); opacity: 0.8; } }
+.timerClock { font-size: 24px; font-weight: 700; font-variant-numeric: tabular-nums; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; letter-spacing: 1px; color: var(--accent); margin-left: 10px; }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>Stundenplan-Auswertung</h1>
-  <div class="sub">Uni-Anwesenheit, Stunden pro Fach und Todo-Erfüllung aus dem Time-Tracker-Server. Daten bleiben lokal im Browser.</div>
+  <h1>Stundenplan-Auswertung & Zeiterfassung</h1>
+  <div class="sub">Uni-Anwesenheit, Stunden pro Fach und Live-Tracking für Laptop und Smartphone. Daten bleiben lokal im Browser.</div>
 
   <div class="card">
     <div class="row">
@@ -110,6 +115,30 @@ tr:last-child td { border-bottom: 0; }
     </div>
     </div>
     <div id="error" class="error hide"></div>
+  </div>
+
+  <div id="timerCard" class="card timerCard">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px">
+      <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+        <div id="timerDot" class="timerDot"></div>
+        <div>
+          <div style="font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.5px" id="timerStatusLabel">Live-Tracking</div>
+          <div style="font-size:18px;font-weight:700;display:flex;align-items:center;gap:10px" id="timerActivityDisplay">
+            <span>Kein Timer aktiv</span>
+          </div>
+        </div>
+        <div id="timerLiveClock" class="timerClock hide">00:00:00</div>
+      </div>
+
+      <div id="timerControls" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <select id="timerActivitySelect" style="background:var(--card2);color:var(--text);border:1px solid var(--headline);border-radius:8px;padding:8px 12px;font-size:14px;min-width:180px">
+          <option value="">Aktivität wählen…</option>
+        </select>
+        <input type="text" id="timerCommentInput" placeholder="Notiz (optional)" style="width:160px;padding:8px 10px;font-size:14px">
+        <button id="timerStartBtn" style="background:var(--accent);color:#111">▶ Starten</button>
+        <button id="timerStopBtn" class="hide" style="background:var(--red);color:#fff">⏹ Stoppen</button>
+      </div>
+    </div>
   </div>
 
   <div id="filterCard" class="card hide">
@@ -256,6 +285,193 @@ function showError(msg) {
 }
 function clearError() { $("error").classList.add("hide"); }
 
+let CURRENT_TIMER = null;
+let timerTickInterval = null;
+let timerPollInterval = null;
+
+function formatElapsedSeconds(totalSeconds) {
+  const s = Math.max(0, Math.floor(totalSeconds));
+  const hrs = Math.floor(s / 3600);
+  const mins = Math.floor((s % 3600) / 60);
+  const secs = s % 60;
+  return (
+    String(hrs).padStart(2, "0") + ":" +
+    String(mins).padStart(2, "0") + ":" +
+    String(secs).padStart(2, "0")
+  );
+}
+
+function updateTimerClock() {
+  if (!CURRENT_TIMER || !CURRENT_TIMER.running || !CURRENT_TIMER.entry) return;
+  const startedAt = new Date(CURRENT_TIMER.entry.started_at).getTime();
+  const now = Date.now();
+  const elapsed = Math.floor((now - startedAt) / 1000);
+  const clockEl = $("timerLiveClock");
+  if (clockEl) clockEl.textContent = formatElapsedSeconds(elapsed);
+}
+
+function populateTimerActivities(activities) {
+  const select = $("timerActivitySelect");
+  if (!select) return;
+  const currentVal = select.value;
+  let html = '<option value="">Aktivität wählen…</option>';
+  const sorted = [...(activities || [])].filter((a) => !a.archived).sort((a, b) => a.name.localeCompare(b.name));
+  for (const act of sorted) {
+    html += `<option value="${act.id}">${act.name}</option>`;
+  }
+  select.innerHTML = html;
+  if (currentVal) select.value = currentVal;
+}
+
+function renderTimerState(state) {
+  CURRENT_TIMER = state;
+  const dot = $("timerDot");
+  const display = $("timerActivityDisplay");
+  const clock = $("timerLiveClock");
+  const select = $("timerActivitySelect");
+  const comment = $("timerCommentInput");
+  const startBtn = $("timerStartBtn");
+  const stopBtn = $("timerStopBtn");
+  const card = $("timerCard");
+
+  if (timerTickInterval) {
+    clearInterval(timerTickInterval);
+    timerTickInterval = null;
+  }
+
+  if (state && state.running && state.entry) {
+    const act = state.entry.activity;
+    const color = act ? (PALETTE[act.color_id] || act.color || "var(--green)") : "var(--green)";
+    if (dot) {
+      dot.className = "timerDot active";
+      dot.style.background = color;
+      dot.style.boxShadow = "0 0 10px " + color;
+    }
+    if (card) card.style.borderLeftColor = color;
+    if (display) {
+      const actName = act ? act.name : "Aktivität";
+      display.innerHTML = `<span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:${color}"></span> <span>${actName}</span>` +
+        (state.entry.comment ? ` <span class="muted" style="font-size:14px;font-weight:400">(${state.entry.comment})</span>` : "");
+    }
+    if (clock && clock.classList) clock.classList.remove("hide");
+    if (select && select.classList) select.classList.add("hide");
+    if (comment && comment.classList) comment.classList.add("hide");
+    if (startBtn && startBtn.classList) startBtn.classList.add("hide");
+    if (stopBtn && stopBtn.classList) stopBtn.classList.remove("hide");
+
+    updateTimerClock();
+    timerTickInterval = setInterval(updateTimerClock, 1000);
+  } else {
+    if (dot) {
+      dot.className = "timerDot";
+      dot.style.background = "var(--gray)";
+      dot.style.boxShadow = "none";
+    }
+    if (card) card.style.borderLeftColor = "var(--accent)";
+    if (display) display.innerHTML = "<span>Kein Timer aktiv</span>";
+    if (clock && clock.classList) clock.classList.add("hide");
+    if (select && select.classList) select.classList.remove("hide");
+    if (comment && comment.classList) comment.classList.remove("hide");
+    if (startBtn && startBtn.classList) startBtn.classList.remove("hide");
+    if (stopBtn && stopBtn.classList) stopBtn.classList.add("hide");
+  }
+}
+
+async function fetchCurrentTimer() {
+  const token = $("token") ? $("token").value.trim() : "";
+  if (!token) return;
+  try {
+    const res = await fetch("/api/timer/current", {
+      headers: {Authorization: "Bearer " + token},
+    });
+    if (res.ok) {
+      const data = await res.json();
+      renderTimerState(data);
+    }
+  } catch (e) {
+    // Background polling network error ignored
+  }
+}
+
+async function startTimer() {
+  const token = $("token") ? $("token").value.trim() : "";
+  if (!token) { showError("Bitte API-Token eintragen."); return; }
+  const actId = $("timerActivitySelect") ? $("timerActivitySelect").value : "";
+  if (!actId) { showError("Bitte eine Aktivität zum Starten auswählen."); return; }
+  const comment = $("timerCommentInput") ? $("timerCommentInput").value.trim() : "";
+
+  if ($("timerStartBtn")) {
+    $("timerStartBtn").disabled = true;
+    $("timerStartBtn").textContent = "Startet…";
+  }
+  try {
+    const res = await fetch("/api/timer/start", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token,
+      },
+      body: JSON.stringify({activity_id: actId, comment: comment}),
+    });
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(res.status + " " + text);
+    }
+    const data = await res.json();
+    renderTimerState(data);
+    if ($("timerCommentInput")) $("timerCommentInput").value = "";
+    if (DATA) load();
+  } catch (err) {
+    showError("Timer-Start fehlgeschlagen: " + err.message);
+  } finally {
+    if ($("timerStartBtn")) {
+      $("timerStartBtn").disabled = false;
+      $("timerStartBtn").textContent = "▶ Starten";
+    }
+  }
+}
+
+async function stopTimer() {
+  const token = $("token") ? $("token").value.trim() : "";
+  if (!token) { showError("Bitte API-Token eintragen."); return; }
+
+  if ($("timerStopBtn")) {
+    $("timerStopBtn").disabled = true;
+    $("timerStopBtn").textContent = "Stoppt…";
+  }
+  try {
+    const res = await fetch("/api/timer/stop", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token,
+      },
+      body: JSON.stringify({}),
+    });
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(res.status + " " + text);
+    }
+    const data = await res.json();
+    renderTimerState(data);
+    if (DATA) load();
+  } catch (err) {
+    showError("Timer-Stopp fehlgeschlagen: " + err.message);
+  } finally {
+    if ($("timerStopBtn")) {
+      $("timerStopBtn").disabled = false;
+      $("timerStopBtn").textContent = "⏹ Stoppen";
+    }
+  }
+}
+
+function startTimerPolling() {
+  if (typeof window === "undefined") return;
+  if (timerPollInterval) clearInterval(timerPollInterval);
+  fetchCurrentTimer();
+  timerPollInterval = setInterval(fetchCurrentTimer, 5000);
+}
+
 async function load() {
   clearError();
   const token = $("token").value.trim();
@@ -274,6 +490,7 @@ async function load() {
     }
     DATA = await response.json();
     render();
+    startTimerPolling();
   } catch (error) {
     showError("Laden fehlgeschlagen: " + error.message);
   } finally {
@@ -323,6 +540,7 @@ function render() {
   const activityName0 = {};
   for (const a of activities) activityName0[a.id] = a.name;
   renderFilterChips(activities, allCategories, categoriesOf);
+  populateTimerActivities(activities);
 
   // ---- window -------------------------------------------------------------
   let fromStr = $("from").value;
@@ -953,6 +1171,11 @@ $("theme").addEventListener("click", nextTheme);
 updateChartModeButtons();
 $("csv").addEventListener("click", exportCsv);
 $("share").addEventListener("click", copyShareLink);
+if ($("timerStartBtn")) $("timerStartBtn").addEventListener("click", startTimer);
+if ($("timerStopBtn")) $("timerStopBtn").addEventListener("click", stopTimer);
+if ($("token").value.trim()) {
+  startTimerPolling();
+}
 // Auto load from url hash: #token=...&from=yyyy-mm-dd&to=yyyy-mm-dd
 {
   const hash = location.hash.slice(1);

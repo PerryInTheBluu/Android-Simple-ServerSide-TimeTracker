@@ -5,7 +5,7 @@ import json
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response
+from fastapi import APIRouter, Body, Depends, HTTPException, Query, Request, Response
 from pydantic import BaseModel, Field
 from sqlalchemy import func
 from sqlalchemy.orm import Session
@@ -397,6 +397,123 @@ def delete_time_entry(entry_id: str, db: Session = Depends(get_db), user_id: str
     entry.sync_status = "synced"
     db.commit()
     return {"ok": True}
+
+
+# ---------------------------------------------------------------------------
+# Timer (Start / Stop / Current)
+# ---------------------------------------------------------------------------
+
+class TimerStartIn(BaseModel):
+    activity_id: str
+    comment: Optional[str] = ""
+    tags: Optional[str] = ""
+    started_at: Optional[str] = None
+
+
+class TimerStopIn(BaseModel):
+    entry_id: Optional[str] = None
+    ended_at: Optional[str] = None
+
+
+@api_router.get("/timer/current")
+def get_current_timer(db: Session = Depends(get_db), user_id: str = Depends(require_user)):
+    running = (
+        db.query(TimeEntry)
+        .filter(
+            TimeEntry.user_id == user_id,
+            TimeEntry.ended_at.is_(None),
+            TimeEntry.deleted_at.is_(None),
+        )
+        .order_by(TimeEntry.started_at.desc())
+        .first()
+    )
+    if not running:
+        return {"running": False, "entry": None}
+    activity = db.query(Activity).filter(Activity.id == running.activity_id, Activity.user_id == user_id).first()
+    data = entry_out(running)
+    data["activity"] = activity_out(activity) if activity else None
+    now = utcnow()
+    started = _aware(running.started_at)
+    data["duration_seconds"] = max(0, int((now - started).total_seconds()))
+    return {"running": True, "entry": data}
+
+
+@api_router.post("/timer/start")
+def start_timer(body: TimerStartIn, db: Session = Depends(get_db), user_id: str = Depends(require_user)):
+    activity = db.query(Activity).filter(Activity.id == body.activity_id, Activity.user_id == user_id).first()
+    if activity is None:
+        raise HTTPException(status_code=404, detail="Activity not found")
+    now = utcnow()
+    start_dt = parse_dt(body.started_at) if body.started_at else now
+
+    # Stop any running timers for this user first
+    active_entries = (
+        db.query(TimeEntry)
+        .filter(
+            TimeEntry.user_id == user_id,
+            TimeEntry.ended_at.is_(None),
+            TimeEntry.deleted_at.is_(None),
+        )
+        .all()
+    )
+    for active in active_entries:
+        active.ended_at = start_dt
+        active.duration_seconds = max(0, int((_aware(start_dt) - _aware(active.started_at)).total_seconds()))
+        active.updated_at = now
+        active.sync_status = "synced"
+
+    entry = TimeEntry(
+        id=new_id(),
+        user_id=user_id,
+        activity_id=activity.id,
+        parent_activity_ids=activity.parent_activity_id or "",
+        started_at=start_dt,
+        ended_at=None,
+        duration_seconds=0,
+        comment=body.comment or "",
+        tags=body.tags or "",
+        created_at=now,
+        updated_at=now,
+        sync_status="synced",
+    )
+    db.add(entry)
+    db.commit()
+
+    data = entry_out(entry)
+    data["activity"] = activity_out(activity)
+    data["duration_seconds"] = max(0, int((now - _aware(entry.started_at)).total_seconds()))
+    return {"running": True, "entry": data}
+
+
+@api_router.post("/timer/stop")
+def stop_timer(body: Optional[TimerStopIn] = Body(default=None), db: Session = Depends(get_db), user_id: str = Depends(require_user)):
+    now = utcnow()
+    entry_id = body.entry_id if body else None
+    stop_dt = parse_dt(body.ended_at) if (body and body.ended_at) else now
+
+    query = db.query(TimeEntry).filter(
+        TimeEntry.user_id == user_id,
+        TimeEntry.ended_at.is_(None),
+        TimeEntry.deleted_at.is_(None),
+    )
+    if entry_id:
+        query = query.filter(TimeEntry.id == entry_id)
+
+    running_entries = query.order_by(TimeEntry.started_at.desc()).all()
+    if not running_entries:
+        return {"running": False, "stopped": None}
+
+    stopped_entries = []
+    for entry in running_entries:
+        entry.ended_at = stop_dt
+        entry.duration_seconds = max(0, int((_aware(stop_dt) - _aware(entry.started_at)).total_seconds()))
+        entry.updated_at = now
+        entry.sync_status = "synced"
+        stopped_entries.append(entry_out(entry))
+
+    db.commit()
+    return {"running": False, "stopped": stopped_entries[0] if stopped_entries else None}
+
 
 
 # ---------------------------------------------------------------------------

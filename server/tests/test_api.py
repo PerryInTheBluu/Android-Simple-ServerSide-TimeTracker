@@ -24,10 +24,17 @@ def seed_user() -> None:
     db.close()
 
 
+_cached_token = None
+
 def login(client: TestClient) -> str:
+    global _cached_token
+    if _cached_token is not None:
+        return _cached_token
     response = client.post("/api/auth/login", json={"username": "test", "password": "password123"})
     assert response.status_code == 200, response.text
-    return response.json()["access_token"]
+    _cached_token = response.json()["access_token"]
+    return _cached_token
+
 
 
 def auth_headers(token: str) -> dict:
@@ -518,3 +525,123 @@ def test_tombstone_not_resurrected_by_stale_push():
     pulled = client.get("/api/sync/pull", headers=auth_headers(token)).json()
     todo = next(t for t in pulled["timetable_todos"] if t["id"] == "todo-res-0001")
     assert todo["deleted_at"] is not None
+
+
+def test_timer_flow_start_stop_current():
+    ensure_seed_user()
+    client = TestClient(app)
+    token = login(client)
+
+    # Create an activity
+    push_item(
+        client,
+        token,
+        "activity",
+        {"id": "act-timer-1", "name": "Lernen", "color": "#4CAF50", "updated_at": "2026-01-01T00:00:00+00:00"},
+    )
+
+    # 1. Initially no timer running
+    current = client.get("/api/timer/current", headers=auth_headers(token)).json()
+    assert current["running"] is False
+    assert current["entry"] is None
+
+    # 2. Start timer
+    start_resp = client.post(
+        "/api/timer/start",
+        json={"activity_id": "act-timer-1", "comment": "Mathe Kapitel 3"},
+        headers=auth_headers(token),
+    )
+    assert start_resp.status_code == 200
+    started_data = start_resp.json()
+    assert started_data["running"] is True
+    assert started_data["entry"]["activity_id"] == "act-timer-1"
+    assert started_data["entry"]["comment"] == "Mathe Kapitel 3"
+    assert started_data["entry"]["ended_at"] is None
+    entry_id = started_data["entry"]["id"]
+
+    # 3. GET current should report it running
+    current2 = client.get("/api/timer/current", headers=auth_headers(token)).json()
+    assert current2["running"] is True
+    assert current2["entry"]["id"] == entry_id
+    assert current2["entry"]["activity"]["name"] == "Lernen"
+
+    # 4. Stop timer
+    stop_resp = client.post(
+        "/api/timer/stop",
+        headers=auth_headers(token),
+    )
+    assert stop_resp.status_code == 200
+    stop_data = stop_resp.json()
+    assert stop_data["running"] is False
+    assert stop_data["stopped"]["id"] == entry_id
+    assert stop_data["stopped"]["ended_at"] is not None
+
+    # 5. Current timer is now None
+    current3 = client.get("/api/timer/current", headers=auth_headers(token)).json()
+    assert current3["running"] is False
+    assert current3["entry"] is None
+
+
+def test_timer_start_switches_active_timer():
+    ensure_seed_user()
+    client = TestClient(app)
+    token = login(client)
+
+    push_item(
+        client,
+        token,
+        "activity",
+        {"id": "act-timer-a", "name": "Vorlesung", "updated_at": "2026-01-01T00:00:00+00:00"},
+    )
+    push_item(
+        client,
+        token,
+        "activity",
+        {"id": "act-timer-b", "name": "Pause", "updated_at": "2026-01-01T00:00:00+00:00"},
+    )
+
+    # Start A
+    resp_a = client.post(
+        "/api/timer/start",
+        json={"activity_id": "act-timer-a"},
+        headers=auth_headers(token),
+    ).json()
+    id_a = resp_a["entry"]["id"]
+
+    # Start B (should auto-stop A)
+    resp_b = client.post(
+        "/api/timer/start",
+        json={"activity_id": "act-timer-b"},
+        headers=auth_headers(token),
+    ).json()
+    id_b = resp_b["entry"]["id"]
+    assert id_a != id_b
+
+    # Current should be B
+    curr = client.get("/api/timer/current", headers=auth_headers(token)).json()
+    assert curr["entry"]["id"] == id_b
+    assert curr["entry"]["activity"]["name"] == "Pause"
+
+    # A should now be finished in time entries
+    pulled = client.get("/api/sync/pull", headers=auth_headers(token)).json()
+    entry_a = next(e for e in pulled["time_entries"] if e["id"] == id_a)
+    assert entry_a["ended_at"] is not None
+
+    # Clean up by stopping B
+    client.post("/api/timer/stop", headers=auth_headers(token))
+
+
+def test_timer_stop_when_no_timer_running():
+    ensure_seed_user()
+    client = TestClient(app)
+    token = login(client)
+
+    # Make sure no timers running
+    client.post("/api/timer/stop", headers=auth_headers(token))
+
+    resp = client.post("/api/timer/stop", headers=auth_headers(token))
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["running"] is False
+    assert data["stopped"] is None
+

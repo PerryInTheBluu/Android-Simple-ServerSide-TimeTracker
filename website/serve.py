@@ -37,6 +37,19 @@ class Handler(BaseHTTPRequestHandler):
         else:
             self.send_error(404)
 
+    def do_PATCH(self):
+        if self.path.startswith("/api/"):
+            self.proxy("PATCH")
+        else:
+            self.send_error(404)
+
+    def do_DELETE(self):
+        if self.path.startswith("/api/"):
+            self.proxy("DELETE")
+        else:
+            self.send_error(404)
+
+
     def serve_file(self, path):
         if path in ("/", "/index.html"):
             name = "index.html"
