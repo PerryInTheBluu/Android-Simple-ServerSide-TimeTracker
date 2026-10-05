@@ -35,36 +35,33 @@ Server nötig. Nur Python-Standardbibliothek, keine Abhängigkeiten.
   Fortschrittsbalken gegen das Stundenziel (inkl. ECTS-Schätzung,
   1 ECTS = 30 h).
 - **Alle Aktivitäten**: Stunden und Anteil je Aktivität.
-- **Vorbereitung / Nachbereitung / Todos**: Erfüllungsquote je Art und
-  Liste der offenen.
-- **Getrackte Stunden (Tag/Woche)**: gestapeltes Balkendiagramm des
-  Zeitraums mit Stunden-Achse — ein Segment je Aktivität in der Farbe
-  der Aktivität (gleiche Palette wie in der App), Tooltip pro Tag mit
-  Aufteilung; Einträge über Mitternacht werden sauber aufgeteilt.
-  Die Aktivitäts- und Zieltabellen zeigen passende Farbpunkte, unter dem
-  Chart gibt es eine Farb-Legende. Umschalter Tag/Woche (Kalenderwoche
-  Mo–So)/Monat, Auswahl bleibt gespeichert.
-- **Filter**: Kategorie- und Aktivitäts-Chips mit drei Zuständen —
-  neutral, „nur diese" (grün) und „ohne diese" (rot). Der Filter wirkt
-  auf Statistiken, Stunden-Chart, Aktivitäten-Tabelle und Essenszeiten
-  (z. B. „nicht Uni" oder „nur eine Kategorie"); die Uni-Anwesenheit
-  bleibt immer ungefiltert. Auswahl bleibt gespeichert.
-- **Zeit pro Kategorie**: Stunden und Anteil je Kategorie inklusive
-  „Ohne Kategorie" — der Uni-vs-Rest-Vergleich, unabhängig vom Filter.
-- **Termine pro Woche**: erwartete, besuchte, verpasste und bevorstehende
-  Termine je Kalenderwoche (Montag beginnend) mit Quote.
-- **Essenszeiten**: Histogramm der Startzeitpunkte von Essen-Aktivitäten
-  nach Stunde; typische Fenster (6–10, 11–14, 17–20) sind farblich
-  hervorgehoben.
-- **Design hell/dunkel**: folgt automatisch dem Geräte-Design
-  (prefers-color-scheme), per Knopf manuell umschaltbar.
-- **CSV-Export**: lädt die Kennzahlen (Anwesenheit pro Veranstaltung,
-  Stunden pro Tag, Zeit pro Kategorie, Termine pro Woche, Gesamtsumme)
-  als Excel-kompatible Semikolon-CSV mit BOM herunter.
-- **Link kopieren**: erzeugt eine URL mit Token und Zeitraum im Hash
-  (`#token=…&from=…&to=…`), die die Seite beim Öffen direkt lädt —
-  praktisch als Lesezeichen. Der Token steht dabei in der URL, also
-  nur auf eigenen Rechnern verwenden.
+- **1-Klick Kacheln (Live-Tracking ohne Dropdowns)**:
+  Alle aktiven Aktivitäten werden als übersichtliche Kacheln dargestellt.
+  Ein Klick auf eine Kachel startet die Aktivität sofort (oder wechselt
+  direkt dorthin, falls bereits ein Timer läuft). Ein Klick auf die
+  laufende Kachel stoppt die Erfassung sofort (1-Klick Stop). Jede Kachel
+  zeigt die heute getrackte Dauer des jeweiligen Fachs.
+- **Max. 2-Klick Start mit Offset oder Notiz**:
+  Vor dem Klick auf eine Kachel kann per Schnell-Chip ein Start-Offset
+  gewählt werden (`Sofort`, `vor 5m`, `vor 15m`, `vor 30m`) sowie eine
+  optionale Notiz eingegeben werden. Nach dem Start wird der Offset
+  automatisch wieder auf `Sofort` zurückgesetzt.
+- **Nachträgliche Offset-Korrektur & Notiz während des Laufs**:
+  Bei laufendem Timer kann die Startzeit über Schnell-Knöpfe (`-15m`,
+  `-5m`, `+5m`) direkt im Backend korrigiert und Notizen aktualisiert werden.
+- **Heute-Timeline**:
+  Direkt unter den Kacheln: Anzeige aller heutigen Zeiteinträge in
+  chronologischer Reihenfolge, farbiger Tagesfortschrittsbalken mit
+  Live-Pulsieren für aktive Timer, Gesamtdauer für heute und Möglichkeit,
+  Fehleinträge direkt zu löschen.
+- **Abhakbare Todos (Vorbereitung / Nachbereitung)**:
+  Stundenplan-Todos können per Klick auf die Checkbox direkt als erledigt/offen
+  markiert werden. Die Änderung wird via Sync-Push sofort an den Server
+  übertragen und steht bei der nächsten Synchronisation auch in der Android-App bereit.
+- **Sync-Status & Konflikt-Anzeige**:
+  Zeigt den Status der Serversynchronisation an. Bei etwaigen Konflikten
+  (z. B. gleichzeitige Bearbeitung auf Handy und Web) können die
+  Auflösungsdetails per Klick eingesehen werden.
 
 Anwesenheit wird wie in der App gewertet: ein Eintrag der verknüpften
 Aktivität, der den Termin (ggf. mit Raum-/Zeit-Ausnahme) überlappt,

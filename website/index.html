@@ -95,6 +95,30 @@ tr:last-child td { border-bottom: 0; }
 .timerDot.active { background: var(--green); box-shadow: 0 0 10px var(--green); animation: pulse 2s infinite; }
 @keyframes pulse { 0% { transform: scale(0.95); opacity: 0.8; } 50% { transform: scale(1.15); opacity: 1; } 100% { transform: scale(0.95); opacity: 0.8; } }
 .timerClock { font-size: 24px; font-weight: 700; font-variant-numeric: tabular-nums; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; letter-spacing: 1px; color: var(--accent); margin-left: 10px; }
+/* 1-Click Activity Tiles (Kacheln) */
+.tilesGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; margin-top: 14px; }
+.tile { background: var(--card2); border: 1px solid var(--line); border-left: 5px solid var(--gray); border-radius: 10px; padding: 12px 14px; cursor: pointer; transition: all 0.15s ease-in-out; display: flex; flex-direction: column; justify-content: space-between; min-height: 82px; user-select: none; }
+.tile:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.18); border-color: var(--headline); }
+.tile.active { background: rgba(123, 182, 97, 0.12); border: 2px solid var(--green); box-shadow: 0 0 14px rgba(123, 182, 97, 0.25); }
+:root[data-theme="light"] .tile.active { background: rgba(77, 138, 53, 0.12); border-color: var(--green); }
+.tileTitle { font-size: 15px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 8px; word-break: break-word; }
+.tileSub { font-size: 12px; color: var(--muted); margin-top: 8px; display: flex; justify-content: space-between; align-items: center; }
+.tileRunningBadge { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 700; color: var(--green); font-family: ui-monospace, SFMono-Regular, monospace; }
+.tileStopBtn { background: var(--red); color: #fff; border: 0; border-radius: 6px; padding: 3px 8px; font-size: 11px; font-weight: 600; cursor: pointer; }
+.quickOffsets { display: flex; align-items: center; gap: 4px; }
+.offsetChip { background: var(--chip); color: var(--muted); border: 0; border-radius: 6px; padding: 4px 8px; font-size: 12px; font-weight: 500; cursor: pointer; }
+.offsetChip.on { background: var(--accent); color: #111; font-weight: 600; }
+.offsetBtn { background: var(--chip); color: var(--text); border: 1px solid var(--line); border-radius: 6px; padding: 5px 10px; font-size: 12px; font-weight: 600; cursor: pointer; }
+.offsetBtn:hover { background: var(--card2); }
+.syncBadge { font-size: 11px; padding: 3px 9px; border-radius: 10px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; }
+.syncBadge.ok { background: rgba(123, 182, 97, 0.2); color: var(--green); }
+.syncBadge.warn { background: rgba(196, 90, 90, 0.2); color: var(--red); cursor: pointer; }
+.todayBarContainer { background: var(--card2); border-radius: 8px; height: 18px; width: 100%; display: flex; overflow: hidden; border: 1px solid var(--line); }
+.todayBarSeg { height: 100%; transition: width 0.3s; }
+.todayEntryRow { display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; border-bottom: 1px solid var(--line); font-size: 14px; }
+.todayEntryRow:last-child { border-bottom: 0; }
+.todoCheck { cursor: pointer; accent-color: var(--accent); width: 16px; height: 16px; vertical-align: middle; }
+.todoDone { text-decoration: line-through; opacity: 0.55; }
 </style>
 </head>
 <body>
@@ -118,27 +142,81 @@ tr:last-child td { border-bottom: 0; }
   </div>
 
   <div id="timerCard" class="card timerCard">
-    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px">
+    <!-- Active Timer Banner (shown when a timer is running) -->
+    <div id="runningTimerBar" class="hide" style="padding-bottom:14px;margin-bottom:14px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
       <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
-        <div id="timerDot" class="timerDot"></div>
+        <div id="timerDot" class="timerDot active"></div>
         <div>
-          <div style="font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.5px" id="timerStatusLabel">Live-Tracking</div>
+          <div style="font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.5px" id="timerStatusLabel">Aktiv läuft:</div>
           <div style="font-size:18px;font-weight:700;display:flex;align-items:center;gap:10px" id="timerActivityDisplay">
-            <span>Kein Timer aktiv</span>
+            <span>–</span>
           </div>
         </div>
-        <div id="timerLiveClock" class="timerClock hide">00:00:00</div>
+        <div id="timerLiveClock" class="timerClock">00:00:00</div>
       </div>
 
-      <div id="timerControls" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-        <select id="timerActivitySelect" style="background:var(--card2);color:var(--text);border:1px solid var(--headline);border-radius:8px;padding:8px 12px;font-size:14px;min-width:180px">
-          <option value="">Aktivität wählen…</option>
-        </select>
-        <input type="text" id="timerCommentInput" placeholder="Notiz (optional)" style="width:160px;padding:8px 10px;font-size:14px">
-        <button id="timerStartBtn" style="background:var(--accent);color:#111">▶ Starten</button>
-        <button id="timerStopBtn" class="hide" style="background:var(--red);color:#fff">⏹ Stoppen</button>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <div title="Startzeit nachträglich korrigieren (Offset)">
+          <span style="font-size:12px;color:var(--muted);margin-right:2px">Start:</span>
+          <button class="offsetBtn" id="adjMinus15" title="Start 15 Min früher (-15m)">-15m</button>
+          <button class="offsetBtn" id="adjMinus5" title="Start 5 Min früher (-5m)">-5m</button>
+          <button class="offsetBtn" id="adjPlus5" title="Start 5 Min später (+5m)">+5m</button>
+        </div>
+        <input type="text" id="runningCommentInput" placeholder="Notiz ändern…" style="width:140px;padding:6px 10px;font-size:13px">
+        <button id="saveRunningCommentBtn" class="offsetBtn">Speichern</button>
+        <button id="timerStopBtn" style="background:var(--red);color:#fff;padding:8px 18px;border-radius:8px;font-weight:600">⏹ Stoppen</button>
       </div>
     </div>
+
+    <!-- 1-Click Tiles Header with quick offset selector and note -->
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:6px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <h2 style="margin:0;font-size:16px;font-weight:600">Aktivität aufzeichnen (1-Klick)</h2>
+        <span id="syncBadge" class="syncBadge ok">✓ Synchronisiert</span>
+        <span id="conflictBadge" class="syncBadge warn hide">⚠️ Konflikt</span>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <div class="quickOffsets">
+          <span style="font-size:12px;color:var(--muted);margin-right:2px">Offset:</span>
+          <button class="offsetChip on" id="off0">Sofort</button>
+          <button class="offsetChip" id="off5">vor 5m</button>
+          <button class="offsetChip" id="off15">vor 15m</button>
+          <button class="offsetChip" id="off30">vor 30m</button>
+        </div>
+        <input type="text" id="tileCommentInput" placeholder="Notiz (optional)…" style="width:130px;padding:6px 10px;font-size:13px">
+      </div>
+    </div>
+
+    <!-- Hidden fallback controls for compatibility -->
+    <div id="timerControls" class="hide">
+      <select id="timerActivitySelect"><option value="">Aktivität wählen…</option></select>
+      <input type="text" id="timerCommentInput">
+      <button id="timerStartBtn">Starten</button>
+    </div>
+
+    <!-- The Activity Tiles Grid -->
+    <div id="activityTiles" class="tilesGrid">
+      <div class="muted small" style="padding:10px 0">Token eingeben und „Laden“ klicken, um Aktivitäten anzuzeigen.</div>
+    </div>
+  </div>
+
+  <div id="conflictsBox" class="card hide" style="border-left:4px solid var(--red)">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <h2 style="margin:0;font-size:15px;color:var(--red)">Sync-Konflikte</h2>
+      <button id="closeConflictsBtn" class="themeBtn" style="padding:4px 10px;font-size:12px">Schließen</button>
+    </div>
+    <div id="conflictsList" class="small"></div>
+  </div>
+
+  <!-- Heute-Timeline Card -->
+  <div id="todayCard" class="card hide">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:12px">
+      <h2 style="margin:0;font-size:16px" id="todayTitle">Heute</h2>
+      <div class="small muted" id="todaySummary">0 h getrackt</div>
+    </div>
+    <div id="todayVisualBar" class="todayBarContainer" style="margin-bottom:14px"></div>
+    <div id="todayEntriesList"></div>
   </div>
 
   <div id="filterCard" class="card hide">
@@ -288,6 +366,9 @@ function clearError() { $("error").classList.add("hide"); }
 let CURRENT_TIMER = null;
 let timerTickInterval = null;
 let timerPollInterval = null;
+let conflictPollInterval = null;
+let startOffsetMinutes = 0;
+let CONFLICTS = [];
 
 function formatElapsedSeconds(totalSeconds) {
   const s = Math.max(0, Math.floor(totalSeconds));
@@ -301,16 +382,112 @@ function formatElapsedSeconds(totalSeconds) {
   );
 }
 
+function formatDuration(seconds) {
+  const s = Math.max(0, Math.floor(seconds));
+  const hrs = Math.floor(s / 3600);
+  const mins = Math.floor((s % 3600) / 60);
+  if (hrs > 0) return hrs + " h " + mins + " m";
+  if (mins > 0) return mins + " m";
+  if (s > 0) return "< 1 m";
+  return "0 m";
+}
+
+function setStartOffset(minutes) {
+  startOffsetMinutes = minutes;
+  for (const m of [0, 5, 15, 30]) {
+    const el = $("off" + m);
+    if (el) el.className = "offsetChip" + (startOffsetMinutes === m ? " on" : "");
+  }
+}
+
+function getTodayTrackedByActivity() {
+  const map = {};
+  if (!DATA || !DATA.time_entries) return map;
+  const todayStr = localDateStr(new Date());
+  const now = new Date();
+  for (const e of active(DATA.time_entries)) {
+    const start = new Date(e.started_at);
+    if (localDateStr(start) === todayStr) {
+      const end = e.ended_at ? new Date(e.ended_at) : now;
+      const secs = Math.max(0, (end - start) / 1000);
+      map[e.activity_id] = (map[e.activity_id] || 0) + secs;
+    }
+  }
+  return map;
+}
+
+function renderActivityTiles(activities) {
+  const container = $("activityTiles");
+  if (!container) return;
+  const list = activities || (DATA ? active(DATA.activities) : []);
+  const sorted = [...list].filter((a) => !a.archived).sort((a, b) => a.name.localeCompare(b.name));
+  if (!sorted.length) {
+    container.innerHTML = "<div class='muted small' style='padding:10px 0'>Keine aktiven Aktivitäten geladen. Bitte oben „Laden“ klicken.</div>";
+    return;
+  }
+
+  const todayTracked = getTodayTrackedByActivity();
+  const currentActId = CURRENT_TIMER && CURRENT_TIMER.running && CURRENT_TIMER.entry ? CURRENT_TIMER.entry.activity_id : null;
+
+  let html = "";
+  for (const act of sorted) {
+    const isRunning = currentActId === act.id;
+    const color = activityColor(act);
+    const secs = todayTracked[act.id] || 0;
+    const durText = formatDuration(secs);
+
+    const activeClass = isRunning ? " active" : "";
+    const borderStyle = isRunning
+      ? "style=\"border-left-color:" + color + ";border-color:" + color + ";box-shadow:0 0 14px " + color + "55\""
+      : "style=\"border-left-color:" + color + "\"";
+
+    html += "<div class=\"tile" + activeClass + "\" " + borderStyle + " onclick=\"handleTileClick('" + act.id + "')\" title=\"" + (isRunning ? "Klick zum Stoppen" : "1-Klick Start: " + escapeHtml(act.name)) + "\">";
+    html += "<div class=\"tileTitle\">";
+    html += "<span style=\"display:inline-block;width:12px;height:12px;border-radius:3px;background:" + color + ";flex-shrink:0\"></span>";
+    html += "<span>" + escapeHtml(act.name) + "</span>";
+    html += "</div>";
+
+    html += "<div class=\"tileSub\">";
+    if (isRunning) {
+      const elapsed = CURRENT_TIMER && CURRENT_TIMER.entry ? Math.max(0, Math.floor((Date.now() - new Date(CURRENT_TIMER.entry.started_at).getTime()) / 1000)) : 0;
+      html += "<span class=\"tileRunningBadge\" style=\"color:" + color + "\">▶ <span id=\"tileLiveClock_" + act.id + "\">" + formatElapsedSeconds(elapsed) + "</span></span>";
+      html += "<button class=\"tileStopBtn\" onclick=\"event.stopPropagation();stopTimer()\">⏹ Stop</button>";
+    } else {
+      html += "<span>Heute: " + durText + "</span>";
+      html += "<span style=\"font-size:13px;color:var(--muted);font-weight:700\">▶</span>";
+    }
+    html += "</div>";
+    html += "</div>";
+  }
+  container.innerHTML = html;
+}
+
+async function handleTileClick(actId) {
+  if (CURRENT_TIMER && CURRENT_TIMER.running && CURRENT_TIMER.entry && CURRENT_TIMER.entry.activity_id === actId) {
+    await stopTimer();
+  } else {
+    await startTimer(actId);
+  }
+}
+
 function updateTimerClock() {
   if (!CURRENT_TIMER || !CURRENT_TIMER.running || !CURRENT_TIMER.entry) return;
   const startedAt = new Date(CURRENT_TIMER.entry.started_at).getTime();
   const now = Date.now();
   const elapsed = Math.floor((now - startedAt) / 1000);
+  const formatted = formatElapsedSeconds(elapsed);
   const clockEl = $("timerLiveClock");
-  if (clockEl) clockEl.textContent = formatElapsedSeconds(elapsed);
+  if (clockEl) clockEl.textContent = formatted;
+
+  const actId = CURRENT_TIMER.entry.activity_id;
+  if (actId) {
+    const tileClock = $("tileLiveClock_" + actId);
+    if (tileClock) tileClock.textContent = formatted;
+  }
 }
 
 function populateTimerActivities(activities) {
+  renderActivityTiles(activities);
   const select = $("timerActivitySelect");
   if (!select) return;
   const currentVal = select.value;
@@ -328,10 +505,8 @@ function renderTimerState(state) {
   const dot = $("timerDot");
   const display = $("timerActivityDisplay");
   const clock = $("timerLiveClock");
-  const select = $("timerActivitySelect");
-  const comment = $("timerCommentInput");
-  const startBtn = $("timerStartBtn");
-  const stopBtn = $("timerStopBtn");
+  const runningBar = $("runningTimerBar");
+  const commentInput = $("runningCommentInput");
   const card = $("timerCard");
 
   if (timerTickInterval) {
@@ -344,37 +519,40 @@ function renderTimerState(state) {
     const color = act ? (PALETTE[act.color_id] || act.color || "var(--green)") : "var(--green)";
     if (dot) {
       dot.className = "timerDot active";
-      dot.style.background = color;
-      dot.style.boxShadow = "0 0 10px " + color;
+      if (dot.style) {
+        dot.style.background = color;
+        dot.style.boxShadow = "0 0 10px " + color;
+      }
     }
-    if (card) card.style.borderLeftColor = color;
+    if (card && card.style) card.style.borderLeftColor = color;
     if (display) {
       const actName = act ? act.name : "Aktivität";
-      display.innerHTML = `<span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:${color}"></span> <span>${actName}</span>` +
-        (state.entry.comment ? ` <span class="muted" style="font-size:14px;font-weight:400">(${state.entry.comment})</span>` : "");
+      display.innerHTML = `<span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:${color}"></span> <span>${escapeHtml(actName)}</span>` +
+        (state.entry.comment ? ` <span class="muted" style="font-size:14px;font-weight:400">(${escapeHtml(state.entry.comment)})</span>` : "");
     }
+    if (runningBar && runningBar.classList) runningBar.classList.remove("hide");
     if (clock && clock.classList) clock.classList.remove("hide");
-    if (select && select.classList) select.classList.add("hide");
-    if (comment && comment.classList) comment.classList.add("hide");
-    if (startBtn && startBtn.classList) startBtn.classList.add("hide");
-    if (stopBtn && stopBtn.classList) stopBtn.classList.remove("hide");
+    if (commentInput) commentInput.value = state.entry.comment || "";
 
     updateTimerClock();
-    timerTickInterval = setInterval(updateTimerClock, 1000);
+    if (typeof window !== "undefined") {
+      timerTickInterval = setInterval(updateTimerClock, 1000);
+    }
   } else {
     if (dot) {
       dot.className = "timerDot";
-      dot.style.background = "var(--gray)";
-      dot.style.boxShadow = "none";
+      if (dot.style) {
+        dot.style.background = "var(--gray)";
+        dot.style.boxShadow = "none";
+      }
     }
-    if (card) card.style.borderLeftColor = "var(--accent)";
+    if (card && card.style) card.style.borderLeftColor = "var(--accent)";
     if (display) display.innerHTML = "<span>Kein Timer aktiv</span>";
-    if (clock && clock.classList) clock.classList.add("hide");
-    if (select && select.classList) select.classList.remove("hide");
-    if (comment && comment.classList) comment.classList.remove("hide");
-    if (startBtn && startBtn.classList) startBtn.classList.remove("hide");
-    if (stopBtn && stopBtn.classList) stopBtn.classList.add("hide");
+    if (runningBar && runningBar.classList) runningBar.classList.add("hide");
   }
+
+  renderActivityTiles(DATA ? active(DATA.activities) : []);
+  renderTodayTimeline();
 }
 
 async function fetchCurrentTimer() {
@@ -389,45 +567,47 @@ async function fetchCurrentTimer() {
       renderTimerState(data);
     }
   } catch (e) {
-    // Background polling network error ignored
+    // Network background error ignored
   }
 }
 
-async function startTimer() {
+async function startTimer(actId) {
   const token = $("token") ? $("token").value.trim() : "";
   if (!token) { showError("Bitte API-Token eintragen."); return; }
-  const actId = $("timerActivitySelect") ? $("timerActivitySelect").value : "";
-  if (!actId) { showError("Bitte eine Aktivität zum Starten auswählen."); return; }
-  const comment = $("timerCommentInput") ? $("timerCommentInput").value.trim() : "";
+  const selectedActId = actId || ($("timerActivitySelect") ? $("timerActivitySelect").value : "");
+  if (!selectedActId) { showError("Bitte eine Aktivität zum Starten auswählen."); return; }
 
-  if ($("timerStartBtn")) {
-    $("timerStartBtn").disabled = true;
-    $("timerStartBtn").textContent = "Startet…";
+  let startedAt = null;
+  if (startOffsetMinutes > 0) {
+    startedAt = new Date(Date.now() - startOffsetMinutes * 60 * 1000).toISOString();
   }
+  const comment = ($("tileCommentInput") && $("tileCommentInput").value.trim()) ||
+    ($("timerCommentInput") && $("timerCommentInput").value.trim()) || "";
+
   try {
+    const body = {activity_id: selectedActId, comment: comment};
+    if (startedAt) body.started_at = startedAt;
+
     const res = await fetch("/api/timer/start", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: "Bearer " + token,
       },
-      body: JSON.stringify({activity_id: actId, comment: comment}),
+      body: JSON.stringify(body),
     });
     if (!res.ok) {
       const text = await res.text();
       throw new Error(res.status + " " + text);
     }
     const data = await res.json();
-    renderTimerState(data);
+    setStartOffset(0);
+    if ($("tileCommentInput")) $("tileCommentInput").value = "";
     if ($("timerCommentInput")) $("timerCommentInput").value = "";
+    renderTimerState(data);
     if (DATA) load();
   } catch (err) {
     showError("Timer-Start fehlgeschlagen: " + err.message);
-  } finally {
-    if ($("timerStartBtn")) {
-      $("timerStartBtn").disabled = false;
-      $("timerStartBtn").textContent = "▶ Starten";
-    }
   }
 }
 
@@ -435,10 +615,6 @@ async function stopTimer() {
   const token = $("token") ? $("token").value.trim() : "";
   if (!token) { showError("Bitte API-Token eintragen."); return; }
 
-  if ($("timerStopBtn")) {
-    $("timerStopBtn").disabled = true;
-    $("timerStopBtn").textContent = "Stoppt…";
-  }
   try {
     const res = await fetch("/api/timer/stop", {
       method: "POST",
@@ -457,10 +633,304 @@ async function stopTimer() {
     if (DATA) load();
   } catch (err) {
     showError("Timer-Stopp fehlgeschlagen: " + err.message);
-  } finally {
-    if ($("timerStopBtn")) {
-      $("timerStopBtn").disabled = false;
-      $("timerStopBtn").textContent = "⏹ Stoppen";
+  }
+}
+
+async function adjustRunningOffset(deltaMinutes) {
+  const token = $("token") ? $("token").value.trim() : "";
+  if (!token || !CURRENT_TIMER || !CURRENT_TIMER.running || !CURRENT_TIMER.entry) return;
+
+  const currentStart = new Date(CURRENT_TIMER.entry.started_at);
+  const newStart = new Date(currentStart.getTime() + deltaMinutes * 60 * 1000);
+  if (newStart.getTime() > Date.now()) {
+    showError("Startzeit kann nicht in der Zukunft liegen.");
+    return;
+  }
+
+  try {
+    const entry = CURRENT_TIMER.entry;
+    const body = {
+      activity_id: entry.activity_id,
+      parent_activity_ids: entry.parent_activity_ids || "",
+      started_at: newStart.toISOString(),
+      ended_at: null,
+      duration_seconds: Math.max(0, Math.floor((Date.now() - newStart.getTime()) / 1000)),
+      comment: entry.comment || "",
+      tags: entry.tags || "",
+      updated_at: new Date().toISOString(),
+    };
+    const res = await fetch("/api/time-entries/" + encodeURIComponent(entry.id), {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token,
+      },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) throw new Error(res.status + " " + (await res.text()));
+    const updated = await res.json();
+    CURRENT_TIMER.entry.started_at = updated.started_at;
+    updateTimerClock();
+    if (DATA) load();
+  } catch (err) {
+    showError("Offset-Anpassung fehlgeschlagen: " + err.message);
+  }
+}
+
+async function saveRunningComment() {
+  const token = $("token") ? $("token").value.trim() : "";
+  if (!token || !CURRENT_TIMER || !CURRENT_TIMER.running || !CURRENT_TIMER.entry) return;
+  const newComment = $("runningCommentInput") ? $("runningCommentInput").value.trim() : "";
+
+  try {
+    const entry = CURRENT_TIMER.entry;
+    const body = {
+      activity_id: entry.activity_id,
+      parent_activity_ids: entry.parent_activity_ids || "",
+      started_at: entry.started_at,
+      ended_at: null,
+      duration_seconds: Math.max(0, Math.floor((Date.now() - new Date(entry.started_at).getTime()) / 1000)),
+      comment: newComment,
+      tags: entry.tags || "",
+      updated_at: new Date().toISOString(),
+    };
+    const res = await fetch("/api/time-entries/" + encodeURIComponent(entry.id), {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token,
+      },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) throw new Error(res.status + " " + (await res.text()));
+    CURRENT_TIMER.entry.comment = newComment;
+    renderTimerState(CURRENT_TIMER);
+    if (DATA) load();
+  } catch (err) {
+    showError("Notiz speichern fehlgeschlagen: " + err.message);
+  }
+}
+
+async function deleteTimeEntry(entryId) {
+  if (typeof window !== "undefined" && !confirm("Diesen Zeiteintrag wirklich löschen?")) return;
+  const token = $("token") ? $("token").value.trim() : "";
+  if (!token) return;
+  try {
+    const res = await fetch("/api/time-entries/" + encodeURIComponent(entryId), {
+      method: "DELETE",
+      headers: {Authorization: "Bearer " + token},
+    });
+    if (!res.ok) throw new Error(res.status + " " + (await res.text()));
+    if (DATA) load();
+  } catch (err) {
+    showError("Eintrag löschen fehlgeschlagen: " + err.message);
+  }
+}
+
+async function toggleTodo(todoId) {
+  const token = $("token") ? $("token").value.trim() : "";
+  if (!token) { showError("Bitte API-Token eintragen."); return; }
+  if (!DATA || !DATA.timetable_todos) return;
+
+  const todo = DATA.timetable_todos.find((t) => t.id === todoId);
+  if (!todo) return;
+
+  todo.done = !todo.done;
+  todo.updated_at = new Date().toISOString();
+  render();
+
+  try {
+    const res = await fetch("/api/sync/push", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token,
+      },
+      body: JSON.stringify({
+        items: [
+          {
+            entity_type: "timetable_todo",
+            data: {
+              id: todo.id,
+              event_sync_id: todo.event_sync_id,
+              date: todo.date,
+              text: todo.text,
+              done: todo.done,
+              type: todo.type,
+              updated_at: todo.updated_at,
+            },
+          },
+        ],
+      }),
+    });
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(res.status + " " + text);
+    }
+    const result = await res.json();
+    if (result.conflicts && result.conflicts.length) {
+      fetchConflicts();
+    }
+  } catch (err) {
+    showError("Todo-Update fehlgeschlagen: " + err.message);
+    todo.done = !todo.done;
+    render();
+  }
+}
+
+async function fetchConflicts() {
+  const token = $("token") ? $("token").value.trim() : "";
+  if (!token) return;
+  try {
+    const res = await fetch("/api/sync/conflicts", {
+      headers: {Authorization: "Bearer " + token},
+    });
+    if (res.ok) {
+      CONFLICTS = await res.json();
+      updateConflictBadge();
+    }
+  } catch (e) {}
+}
+
+function updateConflictBadge() {
+  const syncBadge = $("syncBadge");
+  const conflictBadge = $("conflictBadge");
+  if (!syncBadge || !conflictBadge) return;
+  if (CONFLICTS.length > 0) {
+    conflictBadge.textContent = "⚠️ " + CONFLICTS.length + " Konflikt" + (CONFLICTS.length === 1 ? "" : "e");
+    conflictBadge.classList.remove("hide");
+    renderConflictsList();
+  } else {
+    conflictBadge.classList.add("hide");
+  }
+}
+
+function toggleConflictsModal() {
+  const box = $("conflictsBox");
+  if (!box) return;
+  if (box.classList.contains("hide")) {
+    renderConflictsList();
+    box.classList.remove("hide");
+  } else {
+    box.classList.add("hide");
+  }
+}
+
+function renderConflictsList() {
+  const el = $("conflictsList");
+  if (!el) return;
+  if (!CONFLICTS.length) {
+    el.innerHTML = "<div>Keine Sync-Konflikte vorhanden.</div>";
+    return;
+  }
+  let html = "<table style='margin-top:8px'><tr><th>Zeit</th><th>Typ</th><th>ID</th><th>Auflösung</th><th>Details</th></tr>";
+  for (const c of CONFLICTS.slice(0, 10)) {
+    const dt = c.created_at ? new Date(c.created_at).toLocaleString("de-DE") : "–";
+    html += "<tr><td class=muted>" + dt + "</td><td>" + escapeHtml(c.entity_type) + "</td>" +
+      "<td class=muted>" + escapeHtml(c.entity_id ? c.entity_id.slice(0, 8) : "") + "</td>" +
+      "<td><span class=tag style='color:var(--red)'>" + escapeHtml(c.resolution) + "</span></td>" +
+      "<td class=small>" + escapeHtml(c.detail || "–") + "</td></tr>";
+  }
+  html += "</table>";
+  el.innerHTML = html;
+}
+
+function renderTodayTimeline() {
+  const card = $("todayCard");
+  if (!card) return;
+  if (!DATA || !DATA.time_entries) {
+    card.classList.add("hide");
+    return;
+  }
+  card.classList.remove("hide");
+
+  const todayStr = localDateStr(new Date());
+  const now = new Date();
+  const entries = active(DATA.time_entries)
+    .filter((e) => {
+      const s = localDateStr(new Date(e.started_at));
+      const end = e.ended_at ? localDateStr(new Date(e.ended_at)) : todayStr;
+      return s === todayStr || end === todayStr;
+    })
+    .sort((a, b) => new Date(a.started_at) - new Date(b.started_at));
+
+  const activities = active(DATA.activities);
+  const actById = {};
+  for (const a of activities) actById[a.id] = a;
+
+  let totalSecsToday = 0;
+  for (const e of entries) {
+    const s = new Date(e.started_at);
+    const end = e.ended_at ? new Date(e.ended_at) : now;
+    totalSecsToday += Math.max(0, (end - s) / 1000);
+  }
+
+  const titleEl = $("todayTitle");
+  if (titleEl) {
+    const dayNames = ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"];
+    const d = new Date();
+    titleEl.textContent = "Heute (" + dayNames[d.getDay()] + ", " + d.toLocaleDateString("de-DE", {day: "2-digit", month: "2-digit"}) + ")";
+  }
+  const summaryEl = $("todaySummary");
+  if (summaryEl) {
+    summaryEl.textContent = fmtHours(totalSecsToday) + " getrackt (" + entries.length + " Einträge)";
+  }
+
+  const barEl = $("todayVisualBar");
+  if (barEl) {
+    if (!entries.length) {
+      barEl.innerHTML = "<div class='small muted' style='padding:2px 8px;line-height:18px'>Noch keine Zeiteinträge heute.</div>";
+    } else {
+      let barHtml = "";
+      for (const e of entries) {
+        const act = actById[e.activity_id];
+        const color = activityColor(act);
+        const s = new Date(e.started_at);
+        const end = e.ended_at ? new Date(e.ended_at) : now;
+        const dur = Math.max(1, (end - s) / 1000);
+        const pct = totalSecsToday > 0 ? (dur / totalSecsToday) * 100 : 0;
+        const sTime = s.toLocaleTimeString("de-DE", {hour: "2-digit", minute: "2-digit"});
+        const eTime = e.ended_at ? end.toLocaleTimeString("de-DE", {hour: "2-digit", minute: "2-digit"}) : "jetzt";
+        const title = (act ? act.name : "Aktivität") + ": " + sTime + " – " + eTime + " (" + formatDuration(dur) + ")";
+        const anim = !e.ended_at ? ";animation:pulse 2s infinite" : "";
+        barHtml += "<div class='todayBarSeg' title=\"" + escapeHtml(title) + "\" style='background:" + color + ";width:" + pct.toFixed(1) + "%" + anim + "'></div>";
+      }
+      barEl.innerHTML = barHtml;
+    }
+  }
+
+  const listEl = $("todayEntriesList");
+  if (listEl) {
+    if (!entries.length) {
+      listEl.innerHTML = "";
+    } else {
+      let listHtml = "";
+      for (let i = entries.length - 1; i >= 0; i--) {
+        const e = entries[i];
+        const act = actById[e.activity_id];
+        const color = activityColor(act);
+        const actName = act ? act.name : "Unbekannt";
+        const s = new Date(e.started_at);
+        const end = e.ended_at ? new Date(e.ended_at) : now;
+        const dur = Math.max(0, (end - s) / 1000);
+        const sTime = s.toLocaleTimeString("de-DE", {hour: "2-digit", minute: "2-digit"});
+        const eTime = e.ended_at ? end.toLocaleTimeString("de-DE", {hour: "2-digit", minute: "2-digit"}) : "läuft…";
+        const isRunning = !e.ended_at;
+
+        listHtml += "<div class='todayEntryRow'>" +
+          "<div style='display:flex;align-items:center;gap:10px'>" +
+          "<span style='display:inline-block;width:10px;height:10px;border-radius:3px;background:" + color + ";flex-shrink:0'></span>" +
+          "<strong>" + escapeHtml(actName) + "</strong>" +
+          "<span class='muted' style='font-size:13px'>" + sTime + " – " + eTime + "</span>" +
+          (e.comment ? "<span class='tag' style='margin-left:0'>" + escapeHtml(e.comment) + "</span>" : "") +
+          "</div>" +
+          "<div style='display:flex;align-items:center;gap:12px'>" +
+          "<span style='font-weight:600;font-variant-numeric:tabular-nums'>" + formatDuration(dur) + "</span>" +
+          (!isRunning ? "<button style='background:transparent;color:var(--muted);border:0;padding:2px 6px;cursor:pointer;font-size:14px' onclick=\"deleteTimeEntry('" + e.id + "')\" title='Eintrag löschen'>✕</button>" : "") +
+          "</div>" +
+          "</div>";
+      }
+      listEl.innerHTML = listHtml;
     }
   }
 }
@@ -468,8 +938,11 @@ async function stopTimer() {
 function startTimerPolling() {
   if (typeof window === "undefined") return;
   if (timerPollInterval) clearInterval(timerPollInterval);
+  if (conflictPollInterval) clearInterval(conflictPollInterval);
   fetchCurrentTimer();
+  fetchConflicts();
   timerPollInterval = setInterval(fetchCurrentTimer, 5000);
+  conflictPollInterval = setInterval(fetchConflicts, 30000);
 }
 
 async function load() {
@@ -818,19 +1291,22 @@ function render() {
     t += "<div class=donut><span style='display:inline-block;width:14px;height:14px;border-radius:3px;background:" + color + "'></span>" +
       "<span class=lbl style=flex:1>" + TODO_LABEL[type] + "</span>" +
       "<span class=lbl>" + done + " / " + list.length + " erledigt (" + pct + " %)</span></div>";
-    const open = list.filter((x) => !x.done);
-    if (open.length) {
+    if (list.length) {
       t += "<table style=margin-bottom:16px>";
-      for (const todo of open.slice(0, 12)) {
+      for (const todo of list.slice(0, 16)) {
         const evName = events.find((e) => e.id === todo.event_sync_id);
-        t += "<tr><td class=muted>" + (todo.date || "") + "</td><td>" +
-          escapeHtml(evName ? evName.name : "") + "</td><td>" + escapeHtml(todo.text || "–") + "</td></tr>";
+        const checked = todo.done ? "checked" : "";
+        const strike = todo.done ? " class='todoDone'" : "";
+        t += "<tr><td style='width:28px'><input type='checkbox' class='todoCheck' " + checked + " onchange=\"toggleTodo('" + todo.id + "')\"></td>" +
+          "<td class=muted style='width:95px'>" + (todo.date || "") + "</td><td>" +
+          escapeHtml(evName ? evName.name : "") + "</td><td" + strike + ">" + escapeHtml(todo.text || "–") + "</td></tr>";
       }
       t += "</table>";
-      if (open.length > 12) t += "<div class=small>… und " + (open.length - 12) + " weitere offene</div>";
+      if (list.length > 16) t += "<div class=small>… und " + (list.length - 16) + " weitere Einträge</div>";
     }
   }
   $("todos").innerHTML = t;
+  renderTodayTimeline();
 }
 
 /** Renders the category and activity filter chips. */
@@ -1171,10 +1647,30 @@ $("theme").addEventListener("click", nextTheme);
 updateChartModeButtons();
 $("csv").addEventListener("click", exportCsv);
 $("share").addEventListener("click", copyShareLink);
-if ($("timerStartBtn")) $("timerStartBtn").addEventListener("click", startTimer);
+if ($("timerStartBtn")) $("timerStartBtn").addEventListener("click", () => startTimer());
 if ($("timerStopBtn")) $("timerStopBtn").addEventListener("click", stopTimer);
+
+function on(id, ev, fn) {
+  const el = $(id);
+  if (el && el.addEventListener) el.addEventListener(ev, fn);
+}
+on("adjMinus15", "click", () => adjustRunningOffset(-15));
+on("adjMinus5", "click", () => adjustRunningOffset(-5));
+on("adjPlus5", "click", () => adjustRunningOffset(5));
+on("saveRunningCommentBtn", "click", saveRunningComment);
+on("runningCommentInput", "keydown", (e) => { if (e.key === "Enter") saveRunningComment(); });
+on("off0", "click", () => setStartOffset(0));
+on("off5", "click", () => setStartOffset(5));
+on("off15", "click", () => setStartOffset(15));
+on("off30", "click", () => setStartOffset(30));
+on("conflictBadge", "click", toggleConflictsModal);
+on("closeConflictsBtn", "click", toggleConflictsModal);
+
 if ($("token").value.trim()) {
   startTimerPolling();
+  if (typeof window !== "undefined") {
+    load();
+  }
 }
 // Auto load from url hash: #token=...&from=yyyy-mm-dd&to=yyyy-mm-dd
 {
