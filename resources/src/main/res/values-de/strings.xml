@@ -719,6 +719,7 @@ Beispiel:<br/>
     <string name="timetable_type_exercise">Übung</string>
     <string name="timetable_type_tutorium">Tutorium</string>
     <string name="timetable_dialog_room">\nRaum: %s</string>
+    <string name="timetable_dialog_todos">Todos</string>
     <string name="timetable_dialog_comment">\nKommentar: %s</string>
     <string name="timetable_dialog_nachtragen">Nachtragen</string>
     <string name="timetable_notification_channel">Stundenplan</string>

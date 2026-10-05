@@ -735,6 +735,7 @@ Example:<br/>
     <string name="timetable_type_exercise">Exercise</string>
     <string name="timetable_type_tutorium">Tutorium</string>
     <string name="timetable_dialog_room">\nRoom: %s</string>
+    <string name="timetable_dialog_todos">Todos</string>
     <string name="timetable_dialog_comment">\nComment: %s</string>
     <string name="timetable_dialog_nachtragen">Add attendance</string>
     <string name="timetable_notification_channel">Timetable</string>

@@ -14,7 +14,8 @@ import com.example.util.simpletimetracker.feature_dialogs.api.OptionsListDialogL
 import com.example.util.simpletimetracker.feature_dialogs.api.DateTimeDialogListener
 import com.example.util.simpletimetracker.feature_dialogs.api.TextInputListener
 import com.example.util.simpletimetracker.feature_dialogs.api.RecordQuickActionDialogListener
-import com.example.util.simpletimetracker.feature_dialogs.api.StandardDialogListener
+import android.os.Parcelable
+import com.example.util.simpletimetracker.feature_dialogs.api.TimetableSlotDialogListener
 import com.example.util.simpletimetracker.core.sharedViewModel.MainTabsViewModel
 import com.example.util.simpletimetracker.core.sharedViewModel.RemoveRecordViewModel
 import com.example.util.simpletimetracker.core.utils.InsetConfiguration
@@ -59,7 +60,7 @@ class RecordsFragment :
     OptionsListDialogListener,
     DateTimeDialogListener,
     TextInputListener,
-    StandardDialogListener {
+    TimetableSlotDialogListener {
 
     override val inflater: (LayoutInflater, ViewGroup?, Boolean) -> Binding =
         Binding::inflate
@@ -174,13 +175,18 @@ class RecordsFragment :
         viewModel.onSlotRoomInput(text, tag)
     }
 
-    override fun onPositiveClick(tag: String?, data: Any?) {
+    override fun onSlotNachtragen(slot: Parcelable) {
         // Several day pages of the pager are alive at once and all
         // receive the dialog result; only the visible page handles it.
         if (!isResumed) return
-        if (tag == RecordsViewModel.TIMETABLE_SLOT_DIALOG_TAG && data is RecordsCalendarViewData.Slot) {
-            viewModel.onTimetableSlotNachtragen(data)
-        }
+        (slot as? RecordsCalendarViewData.Slot)?.let(viewModel::onTimetableSlotNachtragen)
+    }
+
+    override fun onSlotTodoToggle(todoId: Long) {
+        // Several day pages of the pager are alive at once and all
+        // receive the dialog result; only the visible page handles it.
+        if (!isResumed) return
+        viewModel.onSlotTodoToggle(todoId)
     }
 
     private fun switchState(isCalendarView: Boolean) = with(binding) {

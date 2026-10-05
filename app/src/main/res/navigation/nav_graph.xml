@@ -324,6 +324,11 @@
         android:label="TextInputDialog"
         tools:layout="@layout/text_input_dialog_fragment" />
     <dialog
+        android:id="@+id/timetableSlotDialogFragment"
+        android:name="com.example.util.simpletimetracker.feature_dialogs.timetableSlot.view.TimetableSlotDialogFragment"
+        android:label="TimetableSlotDialog"
+        tools:layout="@layout/timetable_slot_dialog_fragment" />
+    <dialog
         android:id="@+id/durationDialog"
         android:name="com.example.util.simpletimetracker.feature_dialogs.duration.view.DurationDialogFragment"
         android:label="DurationDialog"

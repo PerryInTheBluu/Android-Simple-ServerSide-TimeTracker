@@ -18,6 +18,8 @@ import com.example.util.simpletimetracker.feature_dialogs.recordTagSelection.Rec
 import com.example.util.simpletimetracker.feature_dialogs.recordTagValueSelection.view.RecordTagValueSelectionDialogFragment
 import com.example.util.simpletimetracker.feature_dialogs.standard.StandardDialogFragment
 import com.example.util.simpletimetracker.feature_dialogs.textInput.view.TextInputDialogFragment
+import com.example.util.simpletimetracker.feature_dialogs.timetableSlot.view.TimetableSlotDialogFragment
+import com.example.util.simpletimetracker.navigation.params.screen.TimetableSlotDialogParams
 import com.example.util.simpletimetracker.feature_dialogs.typesSelection.view.TypesSelectionDialogFragment
 import com.example.util.simpletimetracker.feature_records_filter.view.RecordsFilterFragment
 import com.example.util.simpletimetracker.feature_settings.customizeOptionsMenu.CustomizeOptionsMenuDialogFragment
@@ -106,6 +108,16 @@ class NavigationDialogMapModule {
         return NavigationData(
             R.id.textInputDialogFragment,
             bundleCreatorDelegate(TextInputDialogFragment::createBundle),
+        )
+    }
+
+    @IntoMap
+    @Provides
+    @ScreenKey(TimetableSlotDialogParams::class)
+    fun timetableSlotDialog(): NavigationData {
+        return NavigationData(
+            R.id.timetableSlotDialogFragment,
+            bundleCreatorDelegate(TimetableSlotDialogFragment::createBundle),
         )
     }
 

@@ -47,7 +47,7 @@ import com.example.util.simpletimetracker.navigation.params.screen.DateTimeDialo
 import java.time.ZoneId
 import java.time.LocalDate
 import com.example.util.simpletimetracker.feature_records.R
-import com.example.util.simpletimetracker.navigation.params.screen.StandardDialogParams
+import com.example.util.simpletimetracker.navigation.params.screen.TimetableSlotDialogParams
 import com.example.util.simpletimetracker.feature_records.customView.RecordsCalendarViewData
 import com.example.util.simpletimetracker.feature_records.model.RecordsState
 import com.example.util.simpletimetracker.navigation.Router
@@ -138,35 +138,51 @@ class RecordsViewModel @Inject constructor(
             val commentText = slot.comment.takeIf { it.isNotEmpty() }
                 ?.let { comment -> resourceRepo.getString(R.string.timetable_dialog_comment, comment) }
                 .orEmpty()
-            val message = buildString {
-                append(slot.name)
-                append(" (")
-                append(typeLabel)
-                append(")\n")
+            val info = buildString {
                 append(slot.time)
                 append(roomText)
                 append(commentText)
                 append("\n\n")
                 append(stateText)
             }
+            val date = LocalDate.now().plusDays(shift.toLong()).toString()
+            val todos = timetableRepo.getTodos(slot.eventId)
+                .filter { it.date == date }
+                .map { todo ->
+                    TimetableSlotDialogParams.Todo(
+                        id = todo.id,
+                        text = todoText(todo),
+                        done = todo.done,
+                    )
+                }
             router.navigate(
-                StandardDialogParams(
-                    tag = TIMETABLE_SLOT_DIALOG_TAG,
-                    data = slot.takeIf { it.state == RecordsCalendarViewData.Slot.STATE_MISSED },
-                    message = message,
-                    btnPositive = if (slot.state == RecordsCalendarViewData.Slot.STATE_MISSED) {
-                        resourceRepo.getString(R.string.timetable_dialog_nachtragen)
-                    } else {
-                        resourceRepo.getString(R.string.ok)
-                    },
-                    btnNegative = if (slot.state == RecordsCalendarViewData.Slot.STATE_MISSED) {
-                        resourceRepo.getString(R.string.cancel)
-                    } else {
-                        ""
-                    },
+                TimetableSlotDialogParams(
+                    slot = slot,
+                    title = slot.name + " (" + typeLabel + ")",
+                    info = info,
+                    canNachtragen = slot.state == RecordsCalendarViewData.Slot.STATE_MISSED,
+                    btnNachtragen = resourceRepo.getString(R.string.timetable_dialog_nachtragen),
+                    todos = todos,
                 ),
             )
         }
+    }
+
+    private fun todoText(todo: com.example.util.simpletimetracker.domain.timetable.model.TimetableTodo): String {
+        return when (todo.type) {
+            com.example.util.simpletimetracker.domain.timetable.model.TimetableTodo.Type.PREPARATION ->
+                resourceRepo.getString(R.string.timetable_todo_preparation)
+            com.example.util.simpletimetracker.domain.timetable.model.TimetableTodo.Type.FOLLOW_UP ->
+                resourceRepo.getString(R.string.timetable_todo_follow_up)
+            else -> todo.text
+        }
+    }
+
+    fun onSlotTodoToggle(todoId: Long) = viewModelScope.launch {
+        val todo = timetableRepo.getAllTodos().firstOrNull { it.id == todoId } ?: return@launch
+        timetableRepo.setTodoDone(todoId, !todo.done)
+        LocalDataChangedBus.publish()
+        updateRecords()
     }
 
     fun onTimetableSlotNachtragen(slot: RecordsCalendarViewData.Slot) {
@@ -714,7 +730,6 @@ class RecordsViewModel @Inject constructor(
     }
 
     companion object {
-        const val TIMETABLE_SLOT_DIALOG_TAG = "TIMETABLE_SLOT_DIALOG_TAG"
         private const val TAG_ROOM = "TIMETABLE_ROOM_"
         private const val TAG_TIME_START = "TIMETABLE_TIME_START_"
         private const val TAG_TIME_END = "TIMETABLE_TIME_END_"
