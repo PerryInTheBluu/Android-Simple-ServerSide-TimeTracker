@@ -17,6 +17,7 @@ import com.example.util.simpletimetracker.feature_dialogs.recordQuickActions.vie
 import com.example.util.simpletimetracker.feature_dialogs.recordTagSelection.RecordTagSelectionDialogFragment
 import com.example.util.simpletimetracker.feature_dialogs.recordTagValueSelection.view.RecordTagValueSelectionDialogFragment
 import com.example.util.simpletimetracker.feature_dialogs.standard.StandardDialogFragment
+import com.example.util.simpletimetracker.feature_dialogs.textInput.view.TextInputDialogFragment
 import com.example.util.simpletimetracker.feature_dialogs.typesSelection.view.TypesSelectionDialogFragment
 import com.example.util.simpletimetracker.feature_records_filter.view.RecordsFilterFragment
 import com.example.util.simpletimetracker.feature_settings.customizeOptionsMenu.CustomizeOptionsMenuDialogFragment
@@ -54,6 +55,7 @@ import com.example.util.simpletimetracker.navigation.params.screen.RecordTagValu
 import com.example.util.simpletimetracker.navigation.params.screen.RecordsFilterParams
 import com.example.util.simpletimetracker.navigation.params.screen.StatisticsTagValuesSettingsParams
 import com.example.util.simpletimetracker.navigation.params.screen.StandardDialogParams
+import com.example.util.simpletimetracker.navigation.params.screen.TextInputDialogParams
 import com.example.util.simpletimetracker.navigation.params.screen.SyncServerDialogParams
 import com.example.util.simpletimetracker.navigation.params.screen.SettingsOptionsParams
 import com.example.util.simpletimetracker.navigation.params.screen.TypesSelectionDialogParams
@@ -94,6 +96,16 @@ class NavigationDialogMapModule {
         return NavigationData(
             R.id.dateTimeDialog,
             bundleCreatorDelegate(DateTimeDialogFragment::createBundle),
+        )
+    }
+
+    @IntoMap
+    @Provides
+    @ScreenKey(TextInputDialogParams::class)
+    fun textInputDialog(): NavigationData {
+        return NavigationData(
+            R.id.textInputDialogFragment,
+            bundleCreatorDelegate(TextInputDialogFragment::createBundle),
         )
     }
 

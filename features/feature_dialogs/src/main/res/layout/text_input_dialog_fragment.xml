@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?appDialogBackground"
+    android:orientation="vertical">
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="8dp"
+        android:src="@drawable/dialog_arrow"
+        android:tint="?appContrastColor" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tvTextInputTitle"
+        style="@style/DialogTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:text="Raum" />
+
+    <com.example.util.simpletimetracker.feature_views.DividerFullView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvTextInputList"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginBottom="4dp"
+        android:layout_weight="1"
+        tools:itemCount="1"
+        tools:listitem="@layout/item_comment_field" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:layout_marginBottom="4dp"
+        android:background="?appDividerColor" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnTextInputSave"
+        style="@style/AppButtonActive"
+        android:layout_width="match_parent"
+        android:layout_marginHorizontal="8dp"
+        android:text="@string/duration_dialog_save" />
+
+</androidx.appcompat.widget.LinearLayoutCompat>

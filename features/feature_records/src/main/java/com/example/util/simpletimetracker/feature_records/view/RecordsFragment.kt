@@ -11,6 +11,8 @@ import com.example.util.simpletimetracker.core.base.BaseFragment
 import com.example.util.simpletimetracker.core.di.BaseViewModelFactory
 import com.example.util.simpletimetracker.feature_dialogs.api.ChartFilterDialogListener
 import com.example.util.simpletimetracker.feature_dialogs.api.OptionsListDialogListener
+import com.example.util.simpletimetracker.feature_dialogs.api.DateTimeDialogListener
+import com.example.util.simpletimetracker.feature_dialogs.api.TextInputListener
 import com.example.util.simpletimetracker.feature_dialogs.api.RecordQuickActionDialogListener
 import com.example.util.simpletimetracker.feature_dialogs.api.StandardDialogListener
 import com.example.util.simpletimetracker.core.sharedViewModel.MainTabsViewModel
@@ -55,6 +57,8 @@ class RecordsFragment :
     RecordQuickActionDialogListener,
     ChartFilterDialogListener,
     OptionsListDialogListener,
+    DateTimeDialogListener,
+    TextInputListener,
     StandardDialogListener {
 
     override val inflater: (LayoutInflater, ViewGroup?, Boolean) -> Binding =
@@ -154,6 +158,20 @@ class RecordsFragment :
         if (id is TimetableAction) {
             viewModel.onTimetableAction(id)
         }
+    }
+
+    override fun onDateTimeSet(timestamp: Long, tag: String?) {
+        // Several day pages of the pager are alive at once and all
+        // receive the dialog result; only the visible page handles it.
+        if (!isResumed) return
+        viewModel.onSlotTimeSet(timestamp, tag)
+    }
+
+    override fun onTextInput(text: String, tag: String?) {
+        // Several day pages of the pager are alive at once and all
+        // receive the dialog result; only the visible page handles it.
+        if (!isResumed) return
+        viewModel.onSlotRoomInput(text, tag)
     }
 
     override fun onPositiveClick(tag: String?, data: Any?) {

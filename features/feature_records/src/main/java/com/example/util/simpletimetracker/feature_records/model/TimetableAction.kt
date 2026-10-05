@@ -23,6 +23,12 @@ data class TimetableAction(
         // Remove the per date exception of the slot.
         RESTORE_SLOT,
 
+        // Change the times of the slot on this date.
+        CHANGE_TIME,
+
+        // Change the room of the slot on this date.
+        CHANGE_ROOM,
+
         // Mark the day as free of lectures.
         ADD_FREE_DAY,
 

@@ -760,6 +760,9 @@ Example:<br/>
     <string name="timetable_action_cancel">Cancelled on this date</string>
     <string name="timetable_action_restore">Remove this date exception</string>
     <string name="timetable_action_restore_slot">Restore %1$s on this date</string>
+    <string name="timetable_action_change_time">Change times on this date</string>
+    <string name="timetable_action_change_room">Change room on this date</string>
+    <string name="timetable_action_change_room_hint">e.g. H11</string>
     <string name="timetable_action_free_day">Mark as free of lectures</string>
     <string name="timetable_action_remove_free_day">Remove the free of lectures mark</string>
     <string name="settings_timetable_import">Import timetable</string>

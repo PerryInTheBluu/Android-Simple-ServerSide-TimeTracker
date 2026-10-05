@@ -41,6 +41,10 @@ import com.example.util.simpletimetracker.domain.timetable.notification.Timetabl
 import com.example.util.simpletimetracker.domain.timetable.repo.TimetableRepo
 import com.example.util.simpletimetracker.domain.notifications.interactor.LocalDataChangedBus
 import com.example.util.simpletimetracker.navigation.params.screen.OptionsListParams
+import com.example.util.simpletimetracker.navigation.params.screen.TextInputDialogParams
+import com.example.util.simpletimetracker.navigation.params.screen.DateTimeDialogParams
+import com.example.util.simpletimetracker.navigation.params.screen.DateTimeDialogType
+import java.time.ZoneId
 import java.time.LocalDate
 import com.example.util.simpletimetracker.feature_records.R
 import com.example.util.simpletimetracker.navigation.params.screen.StandardDialogParams
@@ -98,6 +102,7 @@ class RecordsViewModel @Inject constructor(
 
     private var isVisible: Boolean = false
     private var timerJob: Job? = null
+    private var pendingTimeChange: Triple<Long, String, Int>? = null
     private var updateJob: Job? = null
     private val shift: Int get() = extra?.shift.orZero()
 
@@ -205,6 +210,20 @@ class RecordsViewModel @Inject constructor(
                     ),
                 )
             }
+            add(
+                OptionsListParams.Item(
+                    id = TimetableAction(TimetableAction.Type.CHANGE_TIME, date, slot.eventId),
+                    text = resourceRepo.getString(R.string.timetable_action_change_time),
+                    icon = null,
+                ),
+            )
+            add(
+                OptionsListParams.Item(
+                    id = TimetableAction(TimetableAction.Type.CHANGE_ROOM, date, slot.eventId),
+                    text = resourceRepo.getString(R.string.timetable_action_change_room),
+                    icon = null,
+                ),
+            )
         }
         router.navigate(OptionsListParams(items))
     }
@@ -265,6 +284,26 @@ class RecordsViewModel @Inject constructor(
                     .firstOrNull { it.eventId == action.eventId }
                     ?.let { timetableRepo.removeOverride(it.id) }
             }
+            TimetableAction.Type.CHANGE_TIME -> openSlotTimeDialog(
+                eventId = action.eventId,
+                date = action.date,
+                isStart = true,
+            )
+            TimetableAction.Type.CHANGE_ROOM -> {
+                val event = timetableRepo.getAllEvents().firstOrNull { it.id == action.eventId }
+                val currentRoom = timetableRepo.getOverrides(action.date)
+                    .firstOrNull { it.eventId == action.eventId }
+                    ?.room?.takeIf { it.isNotEmpty() }
+                    ?: event?.room.orEmpty()
+                router.navigate(
+                    TextInputDialogParams(
+                        tag = TAG_ROOM + action.eventId + "_" + action.date,
+                        title = resourceRepo.getString(R.string.timetable_action_change_room),
+                        prefill = currentRoom,
+                        hint = resourceRepo.getString(R.string.timetable_action_change_room_hint),
+                    ),
+                )
+            }
             TimetableAction.Type.ADD_FREE_DAY -> {
                 val exists = timetableRepo.getDays().any { it.date == action.date && it.freeDay }
                 if (!exists) {
@@ -282,6 +321,99 @@ class RecordsViewModel @Inject constructor(
         timetableNotificationInteractor.rescheduleAll()
         LocalDataChangedBus.publish()
         updateRecords()
+    }
+
+    fun onSlotTimeSet(timestamp: Long, tag: String?) = viewModelScope.launch {
+        if (tag.orEmpty().startsWith(TAG_TIME_START)) {
+            val (eventId, date) = parseSlotTag(tag.orEmpty(), TAG_TIME_START)
+            pendingTimeChange = Triple(eventId, date, minutesOfDay(timestamp))
+            openSlotTimeDialog(eventId, date, isStart = false)
+        } else if (tag.orEmpty().startsWith(TAG_TIME_END)) {
+            val (eventId, date) = parseSlotTag(tag.orEmpty(), TAG_TIME_END)
+            val pending = pendingTimeChange
+            if (pending != null && pending.first == eventId && pending.second == date) {
+                setSlotOverride(eventId, date, startTime = pending.third, endTime = minutesOfDay(timestamp))
+                pendingTimeChange = null
+            }
+        }
+    }
+
+    fun onSlotRoomInput(room: String, tag: String?) = viewModelScope.launch {
+        if (!tag.orEmpty().startsWith(TAG_ROOM)) return@launch
+        val (eventId, date) = parseSlotTag(tag.orEmpty(), TAG_ROOM)
+        setSlotOverride(eventId, date, room = room)
+    }
+
+    // Replaces the existing exception of the slot with a merged one, so
+    // room and time changes do not wipe each other.
+    private suspend fun setSlotOverride(
+        eventId: Long,
+        date: String,
+        room: String? = null,
+        startTime: Int? = null,
+        endTime: Int? = null,
+    ) {
+        val event = timetableRepo.getAllEvents().firstOrNull { it.id == eventId } ?: return
+        val existing = timetableRepo.getOverrides(date).firstOrNull { it.eventId == eventId }
+        val newOverride = TimetableEventOverride(
+            date = date,
+            eventId = eventId,
+            room = room ?: existing?.room.takeIf { it?.isNotEmpty() == true } ?: "",
+            startTime = startTime ?: existing?.startTime ?: 0,
+            endTime = endTime ?: existing?.endTime ?: 0,
+            cancelled = false,
+            note = "",
+        )
+        if (existing != null) {
+            timetableRepo.removeOverride(existing.id)
+        }
+        // An override without room, time or cancel information would only
+        // shadow the event; do not keep it.
+        val carriesInformation = newOverride.room.isNotEmpty() ||
+            newOverride.startTime != 0 ||
+            newOverride.endTime != 0
+        if (carriesInformation) {
+            timetableRepo.addOverride(newOverride)
+        }
+        timetableNotificationInteractor.rescheduleAll()
+        LocalDataChangedBus.publish()
+        updateRecords()
+    }
+
+    private suspend fun openSlotTimeDialog(
+        eventId: Long,
+        date: String,
+        isStart: Boolean,
+    ) {
+        val event = timetableRepo.getAllEvents().firstOrNull { it.id == eventId } ?: return
+        val existing = timetableRepo.getOverrides(date).firstOrNull { it.eventId == eventId }
+        val minutes = if (isStart) {
+            existing?.startTime?.takeIf { it != 0 } ?: event.startTime
+        } else {
+            pendingTimeChange?.third?.plus(60)
+                ?: (existing?.endTime?.takeIf { it != 0 } ?: event.endTime)
+        }
+        val base = LocalDate.parse(date).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
+        val tag = (if (isStart) TAG_TIME_START else TAG_TIME_END) + eventId + "_" + date
+        router.navigate(
+            DateTimeDialogParams(
+                tag = tag,
+                type = DateTimeDialogType.TIME,
+                timestamp = base + minutes * 60_000L,
+                useMilitaryTime = prefsInteractor.getUseMilitaryTimeFormat(),
+            ),
+        )
+    }
+
+    private fun parseSlotTag(tag: String, prefix: String): Pair<Long, String> {
+        val payload = tag.removePrefix(prefix)
+        val parts = payload.split("_")
+        return (parts.getOrNull(0)?.toLongOrNull() ?: 0L) to (parts.getOrNull(1) ?: "")
+    }
+
+    private fun minutesOfDay(timestamp: Long): Int {
+        val time = java.time.Instant.ofEpochMilli(timestamp).atZone(ZoneId.systemDefault()).toLocalTime()
+        return time.hour * 60 + time.minute
     }
 
     fun onCalendarLongClick(item: ViewHolderType) {
@@ -571,6 +703,9 @@ class RecordsViewModel @Inject constructor(
 
     companion object {
         const val TIMETABLE_SLOT_DIALOG_TAG = "TIMETABLE_SLOT_DIALOG_TAG"
+        private const val TAG_ROOM = "TIMETABLE_ROOM_"
+        private const val TAG_TIME_START = "TIMETABLE_TIME_START_"
+        private const val TAG_TIME_END = "TIMETABLE_TIME_END_"
         private const val TIMER_UPDATE = 1000L
         private const val SHARING_NAME = "stt_records"
     }

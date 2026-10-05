@@ -458,8 +458,8 @@ class RecordsViewDataInteractor @Inject constructor(
         return timetableRepo.getEvents(isoDay).mapNotNull { event ->
             val override = overrides[event.id]
             if (override?.cancelled == true) return@mapNotNull null
-            val startTime = override?.startTime ?: event.startTime
-            val endTime = override?.endTime ?: event.endTime
+            val startTime = override?.startTime?.takeIf { it != 0 } ?: event.startTime
+            val endTime = override?.endTime?.takeIf { it != 0 } ?: event.endTime
             val slotStart = midnight + startTime * minuteInMillis
             val slotEnd = midnight + endTime * minuteInMillis
             val typeId = event.activityTypeId
@@ -493,7 +493,7 @@ class RecordsViewDataInteractor @Inject constructor(
                     timetableViewDataMapper.map(
                         eventId = event.id,
                         name = event.name,
-                        room = override?.room ?: event.room,
+                        room = override?.room?.takeIf { it.isNotEmpty() } ?: event.room,
                         comment = event.comment,
                         slotStart = slotStart,
                         slotEnd = slotEnd,
@@ -535,8 +535,8 @@ class RecordsViewDataInteractor @Inject constructor(
         return timetableRepo.getEvents(isoDay).mapNotNull { event ->
             val override = overrides[event.id]
             if (override?.cancelled == true) return@mapNotNull null
-            val startTime = override?.startTime ?: event.startTime
-            val endTime = override?.endTime ?: event.endTime
+            val startTime = override?.startTime?.takeIf { it != 0 } ?: event.startTime
+            val endTime = override?.endTime?.takeIf { it != 0 } ?: event.endTime
 
             val color = event.activityTypeId
                 ?.let { recordTypes[it] }?.color
@@ -591,7 +591,7 @@ class RecordsViewDataInteractor @Inject constructor(
                     end = slotEndAbs,
                     useMilitaryTime = prefsInteractor.getUseMilitaryTimeFormat(),
                 ),
-                room = override?.room ?: event.room,
+                room = override?.room?.takeIf { it.isNotEmpty() } ?: event.room,
                 comment = event.comment,
                 startTimestamp = slotStartAbs,
                 endTimestamp = slotEndAbs,
