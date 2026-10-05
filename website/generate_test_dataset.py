@@ -241,6 +241,7 @@ def generate(output_file="/tmp/test_dataset_10days.json"):
     return payload
 
 if __name__ == "__main__":
-    import sys
-    target = sys.argv[1] if len(sys.argv) > 1 else "/tmp/test_dataset_10days.json"
+    import os, sys
+    default_out = os.path.join(os.path.dirname(__file__), "test_dataset_10days.json")
+    target = sys.argv[1] if len(sys.argv) > 1 else default_out
     generate(target)

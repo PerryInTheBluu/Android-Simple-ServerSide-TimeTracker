@@ -97,13 +97,23 @@ tr:last-child td { border-bottom: 0; }
 .timerClock { font-size: 24px; font-weight: 700; font-variant-numeric: tabular-nums; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; letter-spacing: 1px; color: var(--accent); margin-left: 10px; }
 /* 1-Click Activity Tiles (Kacheln) */
 .tilesGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; margin-top: 14px; }
+.tilesGridCompact { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px; margin-top: 8px; }
 .tile { background: var(--card2); border: 1px solid var(--line); border-left: 5px solid var(--gray); border-radius: 10px; padding: 12px 14px; cursor: pointer; transition: all 0.15s ease-in-out; display: flex; flex-direction: column; justify-content: space-between; min-height: 74px; user-select: none; }
-.tile:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.18); border-color: var(--headline); }
-.tile.active { background: rgba(123, 182, 97, 0.12); border: 2px solid var(--green); box-shadow: 0 0 14px rgba(123, 182, 97, 0.25); }
-:root[data-theme="light"] .tile.active { background: rgba(77, 138, 53, 0.12); border-color: var(--green); }
-.tileTitle { font-size: 15px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 8px; word-break: break-word; }
-.tileSub { font-size: 12px; color: var(--muted); margin-top: 8px; display: flex; justify-content: space-between; align-items: center; }
-.tileRunningBadge { font-size: 12px; font-weight: 700; color: var(--green); font-family: ui-monospace, SFMono-Regular, monospace; }
+.tileCompact { background: var(--card2); border: 1px solid var(--line); border-left: 4px solid var(--gray); border-radius: 8px; padding: 7px 10px; cursor: pointer; transition: all 0.15s ease-in-out; display: flex; flex-direction: column; justify-content: space-between; min-height: 48px; user-select: none; }
+.tile:hover, .tileCompact:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.18); border-color: var(--headline); }
+.tile.active, .tileCompact.active { background: rgba(123, 182, 97, 0.12); border: 2px solid var(--green); box-shadow: 0 0 14px rgba(123, 182, 97, 0.25); }
+:root[data-theme="light"] .tile.active, :root[data-theme="light"] .tileCompact.active { background: rgba(77, 138, 53, 0.12); border-color: var(--green); }
+.tileTitle, .tileCompactTitle { font-size: 13px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 6px; word-break: break-word; }
+.tileSub, .tileCompactSub { font-size: 11px; color: var(--muted); margin-top: 4px; display: flex; justify-content: space-between; align-items: center; }
+.tileRunningBadge { font-size: 11px; font-weight: 700; color: var(--green); font-family: ui-monospace, SFMono-Regular, monospace; }
+
+/* Tracking Split View (1-Day vs Week) */
+.trackingSplit { display: grid; grid-template-columns: 1fr 340px; gap: 16px; align-items: start; }
+.trackingSplit.weekMode { grid-template-columns: 1fr; }
+@media (max-width: 990px) {
+  .trackingSplit { grid-template-columns: 1fr !important; }
+}
+
 .quickOffsets { display: flex; align-items: center; gap: 4px; }
 .offsetChip { background: var(--chip); color: var(--muted); border: 0; border-radius: 6px; padding: 4px 8px; font-size: 12px; font-weight: 500; cursor: pointer; }
 .offsetChip.on { background: var(--accent); color: #111; font-weight: 600; }
@@ -130,21 +140,32 @@ tr:last-child td { border-bottom: 0; }
 .zoomControls { display: flex; align-items: center; gap: 4px; }
 .zoomBtn { background: var(--chip); color: var(--text); border: 0; border-radius: 6px; padding: 4px 9px; font-size: 12px; font-weight: 600; cursor: pointer; }
 .zoomBtn:hover { background: var(--line); }
-.dayCalendar { position: relative; background: var(--card2); border-radius: 10px; border: 1px solid var(--line); overflow-x: auto; overflow-y: auto; max-height: 580px; margin-bottom: 16px; scroll-behavior: smooth; }
-.dayCalInner { position: relative; min-width: 640px; height: 560px; }
-.dayCalGridLine { position: absolute; left: 52px; right: 0; border-top: 1px dashed var(--line); }
-.dayCalHourLabel { position: absolute; left: 6px; width: 40px; font-size: 11px; color: var(--muted); text-align: right; transform: translateY(-50%); font-variant-numeric: tabular-nums; }
-.dayCalHeaderLanes { display: flex; position: absolute; top: 0; left: 52px; right: 0; height: 26px; border-bottom: 1px solid var(--line); font-size: 11px; font-weight: 600; color: var(--muted); background: var(--card); z-index: 15; }
+.dayCalendar { position: relative; background: var(--card2); border-radius: 10px; border: 1px solid var(--line); overflow-x: auto; overflow-y: auto; max-height: 580px; margin-bottom: 12px; scroll-behavior: smooth; }
+.dayCalInner { position: relative; min-width: 580px; }
+.dayCalGridLine { position: absolute; left: 48px; right: 0; border-top: 1px dashed var(--line); pointer-events: none; }
+.dayCalGridLineSub { position: absolute; left: 48px; right: 0; border-top: 1px dotted rgba(255,255,255,0.06); pointer-events: none; }
+:root[data-theme="light"] .dayCalGridLineSub { border-top: 1px dotted rgba(0,0,0,0.08); }
+.dayCalHourLabel { position: absolute; left: 4px; width: 38px; font-size: 11px; color: var(--muted); text-align: right; transform: translateY(-50%); font-variant-numeric: tabular-nums; user-select: none; }
+.dayCalHeaderLanes { display: flex; position: sticky; top: 0; left: 48px; right: 0; height: 26px; border-bottom: 1px solid var(--line); font-size: 11px; font-weight: 700; color: var(--muted); background: var(--card); z-index: 25; }
 .dayCalHeaderPlan { width: 45%; padding-left: 8px; line-height: 26px; }
 .dayCalHeaderTracked { width: 55%; padding-left: 8px; line-height: 26px; }
-.dayCalPlanLane { position: absolute; left: 52px; width: 44%; top: 26px; bottom: 0; }
-.dayCalTrackLane { position: absolute; left: calc(52px + 45%); right: 8px; top: 26px; bottom: 0; }
-.dayCalSlot { position: absolute; left: 3px; right: 3px; border-radius: 6px; padding: 4px 8px; font-size: 11px; overflow: hidden; box-sizing: border-box; transition: transform 0.15s; box-shadow: 0 1px 4px rgba(0,0,0,0.15); line-height: 1.25; z-index: 2; color: #fff; }
-.dayCalSlot:hover { transform: scale(1.02); z-index: 20; }
-.dayCalSlotPlan { background: #2f3e46; border-left: 4px solid var(--blue); color: var(--text); }
+.dayCalPlanLane { position: absolute; left: 48px; width: 44%; top: 26px; bottom: 0; }
+.dayCalTrackLane { position: absolute; left: calc(48px + 45%); right: 8px; top: 26px; bottom: 0; }
+.dayCalSlot { position: absolute; border-radius: 6px; padding: 3px 6px; font-size: 11px; overflow: hidden; box-sizing: border-box; transition: transform 0.12s, box-shadow 0.12s; box-shadow: 0 1px 4px rgba(0,0,0,0.18); line-height: 1.25; z-index: 3; color: #fff; cursor: pointer; }
+.dayCalSlot:hover { transform: scale(1.02); z-index: 30; box-shadow: 0 4px 12px rgba(0,0,0,0.35); }
+.dayCalSlotPlan { background: #2f3e46; border-left: 4px solid var(--blue); color: var(--text); cursor: default; }
 :root[data-theme="light"] .dayCalSlotPlan { background: #e8ecf1; color: #1a1a1a; }
-.dayCalNowLine { position: absolute; left: 48px; right: 0; height: 2px; background: var(--red); z-index: 10; pointer-events: none; }
+.dayCalSlotMissed { background: rgba(196, 90, 90, 0.22) !important; border: 2px dashed var(--red) !important; color: var(--red) !important; cursor: default; }
+.dayCalNowLine { position: absolute; left: 44px; right: 0; height: 2px; background: var(--red); z-index: 15; pointer-events: none; }
 .dayCalNowDot { position: absolute; left: -4px; top: -4px; width: 10px; height: 10px; border-radius: 50%; background: var(--red); }
+
+/* Week View Grid */
+.dayCalWeekHeader { display: grid; grid-template-columns: 48px repeat(5, 1fr); position: sticky; top: 0; height: 28px; border-bottom: 1px solid var(--line); background: var(--card); font-size: 11px; font-weight: 700; color: var(--muted); z-index: 25; }
+.dayCalWeekColHead { display: flex; align-items: center; justify-content: center; border-right: 1px solid var(--line); }
+.dayCalWeekColHead.today { color: var(--accent); background: rgba(229,169,59,0.1); }
+.dayCalWeekBody { display: grid; grid-template-columns: 48px repeat(5, 1fr); position: relative; }
+.dayCalWeekCol { position: relative; border-right: 1px solid var(--line); min-height: 100%; }
+.dayCalWeekCol.today { background: rgba(229,169,59,0.03); }
 
 /* Compact Slots for Short Durations */
 .dayCalSlot.compact { padding: 0 4px; overflow: hidden; }
@@ -152,12 +173,18 @@ tr:last-child td { border-bottom: 0; }
 .dayCalSlot.compact:hover { min-height: 48px; height: auto !important; z-index: 100; overflow: visible; box-shadow: 0 6px 18px rgba(0,0,0,0.5); padding: 4px 8px; }
 .dayCalSlot.compact:hover .slotFullText { display: block; }
 
-/* Donut Chart */
+/* Donut Chart & Inspector */
 .donutContainer { display: flex; align-items: center; justify-content: center; gap: 28px; flex-wrap: wrap; margin-top: 8px; }
-.donutSvg { width: 200px; height: 200px; transform: rotate(-90deg); flex-shrink: 0; }
+.donutSvg { width: 220px; height: 220px; transform: rotate(-90deg); flex-shrink: 0; cursor: pointer; }
+.donutSlice { cursor: pointer; transition: stroke-width 0.15s ease, opacity 0.15s ease; }
+.donutSlice:hover { stroke-width: 38 !important; filter: drop-shadow(0 0 6px rgba(0,0,0,0.5)); }
+.donutSlice.active { stroke-width: 40 !important; filter: drop-shadow(0 0 8px rgba(255,255,255,0.5)); }
+.donutSlice.dimmed { opacity: 0.3; }
 .donutLegend { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 220px; }
-.donutLegendItem { display: flex; align-items: center; justify-content: space-between; font-size: 13px; padding: 5px 8px; border-radius: 6px; cursor: default; }
+.donutLegendItem { display: flex; align-items: center; justify-content: space-between; font-size: 13px; padding: 5px 8px; border-radius: 6px; cursor: pointer; border: 1px solid transparent; transition: background 0.1s; }
 .donutLegendItem:hover { background: var(--card2); }
+.donutLegendItem.active { background: var(--card2); border-color: var(--accent); font-weight: 600; }
+.donutInspectorCard { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--line); }
 
 /* Modals */
 .modalBackdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(3px); }
@@ -204,7 +231,7 @@ tr:last-child td { border-bottom: 0; }
     <!-- Top Right Actions -->
     <div style="display:flex;align-items:center;gap:8px">
       <button id="load" class="syncBtn" title="Daten synchronisieren">↻</button>
-      <button id="settingsBtn" class="themeBtn" style="padding:8px 12px;font-size:13px;display:inline-flex;align-items:center;gap:6px" onclick="openSettingsModal()">⚙️ Einstellungen</button>
+      <button id="settingsBtn" class="themeBtn" style="padding:8px 10px;font-size:16px;line-height:1" onclick="openSettingsModal()" title="Einstellungen">⚙️</button>
     </div>
   </div>
 
@@ -227,10 +254,9 @@ tr:last-child td { border-bottom: 0; }
 
   <!-- TAB 1: ⏱️ Erfassen & Heute (Hauptseite) -->
   <div id="tabPaneTracking" class="tabPane active">
-    <!-- Live-Tracking & Kacheln (ganz oben) -->
-    <div id="timerCard" class="card timerCard">
-      <!-- Active Timer Banner (shown when a timer is running) -->
-      <div id="runningTimerBar" class="hide" style="padding-bottom:14px;margin-bottom:14px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+    <!-- Active Timer Banner (shown when a timer is running - ganz oben) -->
+    <div id="runningTimerBar" class="card timerCard hide" style="margin-bottom:14px;padding:12px 18px">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
         <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
           <div id="timerDot" class="timerDot active"></div>
           <div>
@@ -254,67 +280,80 @@ tr:last-child td { border-bottom: 0; }
           <button id="timerStopBtn" title="Timer stoppen" style="background:var(--red);color:#fff;padding:8px 16px;border-radius:8px;font-weight:700;font-size:16px;line-height:1">⏹</button>
         </div>
       </div>
-
-      <!-- Activity Tiles Header -->
-      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:6px">
-        <div style="display:flex;align-items:center;gap:10px">
-          <h2 style="margin:0;font-size:16px;font-weight:600">Aktivität aufzeichnen</h2>
-        </div>
-
-        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-          <div class="quickOffsets">
-            <span style="font-size:12px;color:var(--muted);margin-right:2px">Offset:</span>
-            <button class="offsetChip on" id="off0">Sofort</button>
-            <button class="offsetChip" id="off5">vor 5m</button>
-            <button class="offsetChip" id="off15">vor 15m</button>
-            <button class="offsetChip" id="off30">vor 30m</button>
-          </div>
-          <input type="text" id="tileCommentInput" placeholder="Notiz (optional)…" style="width:130px;padding:6px 10px;font-size:13px">
-        </div>
-      </div>
-
-      <!-- Hidden fallback controls for compatibility -->
-      <div id="timerControls" class="hide">
-        <select id="timerActivitySelect"><option value="">Aktivität wählen…</option></select>
-        <input type="text" id="timerCommentInput">
-        <button id="timerStartBtn">Starten</button>
-      </div>
-
-      <!-- The Activity Tiles Grid -->
-      <div id="activityTiles" class="tilesGrid">
-        <div class="muted small" style="padding:10px 0">Token eingeben und „↻“ klicken, um Aktivitäten anzuzeigen.</div>
-      </div>
     </div>
 
-    <!-- Heute-Timeline Card mit Kalender-Tagesansicht -->
-    <div id="todayCard" class="card hide">
-      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:12px">
-        <div style="display:flex;align-items:center;gap:12px">
-          <h2 style="margin:0;font-size:16px" id="todayTitle">Heute</h2>
-          <div class="small muted" id="todaySummary">0 h getrackt</div>
+    <!-- Alert for Out of Hours entries (<06:00 or >24:00) -->
+    <div id="outOfHoursBanner" class="hide" style="margin-bottom:14px"></div>
+
+    <!-- Split View: Links Tagesverlaufplan, Rechts Kacheln fürs Tracking -->
+    <div id="trackingSplit" class="trackingSplit">
+      <!-- LINKS: Tagesverlauf (Plan & Track) -->
+      <div id="todayCard" class="card" style="margin-bottom:0">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:10px">
+          <!-- Datum-Navigation & Titel -->
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <button class="zoomBtn" onclick="shiftCalendarDate(-1)" title="Zurück">◀</button>
+            <button class="zoomBtn" onclick="resetCalendarDate()" title="Auf Heute springen">Heute</button>
+            <button class="zoomBtn" onclick="shiftCalendarDate(1)" title="Vor">▶</button>
+            <span id="calDateLabel" style="font-weight:700;font-size:15px;margin-left:4px">Heute</span>
+            <span class="small muted" id="todaySummary" style="margin-left:6px">0 h getrackt</span>
+          </div>
+
+          <!-- Modus (Tag / Woche) & Zoom -->
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <div style="display:flex;gap:4px">
+              <button id="calViewDayBtn" class="modeBtn on" onclick="setCalendarViewMode('day')">Tag</button>
+              <button id="calViewWeekBtn" class="modeBtn" onclick="setCalendarViewMode('week')">Woche (Mo–Fr)</button>
+            </div>
+            <div class="zoomControls" title="Tagesverlauf zoomen">
+              <button class="zoomBtn" onclick="zoomDayCalendar(0.25)" title="Vergrößern (mehr Details)">🔍+</button>
+              <button class="zoomBtn" onclick="zoomDayCalendar(-0.25)" title="Verkleinern (mehr Übersicht)">🔍-</button>
+              <button class="zoomBtn" onclick="zoomDayCalendar(0, true)" title="Ganzen Tag einpassen">↺ Ganzer Tag</button>
+            </div>
+            <div style="font-size:12px;color:var(--muted);cursor:pointer" onclick="openSettingsModal()" title="Schichtzeiten in den Einstellungen anpassen">
+              Schicht: <span id="shiftDisplay" style="color:var(--text);font-weight:600">06:00 – 23:00</span>
+            </div>
+          </div>
         </div>
-        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
-          <div class="zoomControls" title="Tagesverlauf zoomen">
-            <span style="font-size:12px;color:var(--muted)">Zoom:</span>
-            <button class="zoomBtn" onclick="zoomDayCalendar(0.25)" title="Vergrößern (mehr Details)">🔍+</button>
-            <button class="zoomBtn" onclick="zoomDayCalendar(-0.25)" title="Verkleinern (mehr Übersicht)">🔍-</button>
-            <button class="zoomBtn" onclick="zoomDayCalendar(0, true)" title="Zoom zurücksetzen">↺</button>
-          </div>
-          <div style="font-size:12px;color:var(--muted);cursor:pointer" onclick="openSettingsModal()" title="Schichtzeiten in den Einstellungen anpassen">
-            Schicht: <span id="shiftDisplay" style="color:var(--text);font-weight:600">06:00 – 23:00</span> ⚙️
-          </div>
+
+        <div id="dayCalendar" class="dayCalendar">
+          <div id="dayCalInner" class="dayCalInner"></div>
+        </div>
+        <div id="todayEntriesList"></div>
+      </div>
+
+      <!-- RECHTS: Kacheln fürs Tracking (Kompakt ohne Playback-Icons) -->
+      <div id="timerCard" class="card" style="margin-bottom:0">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:8px">
+          <h2 style="margin:0;font-size:15px;font-weight:600">Aktivität aufzeichnen</h2>
+          <input type="text" id="tileCommentInput" placeholder="Notiz (optional)…" style="width:120px;padding:5px 8px;font-size:12px">
+        </div>
+        <div style="display:flex;align-items:center;gap:4px;margin-bottom:10px">
+          <span style="font-size:11px;color:var(--muted);margin-right:2px">Start:</span>
+          <button class="offsetChip on" id="off0">Sofort</button>
+          <button class="offsetChip" id="off5">vor 5m</button>
+          <button class="offsetChip" id="off15">vor 15m</button>
+          <button class="offsetChip" id="off30">vor 30m</button>
+        </div>
+
+        <!-- Hidden fallback controls for compatibility -->
+        <div id="timerControls" class="hide">
+          <select id="timerActivitySelect"><option value="">Aktivität wählen…</option></select>
+          <input type="text" id="timerCommentInput">
+          <button id="timerStartBtn">Starten</button>
+        </div>
+
+        <!-- The Compact Activity Tiles Grid -->
+        <div id="activityTiles" class="tilesGridCompact">
+          <div class="muted small" style="padding:10px 0">Token eingeben und „↻“ klicken.</div>
         </div>
       </div>
-      <div id="dayCalendar" class="dayCalendar">
-        <div id="dayCalInner" class="dayCalInner"></div>
-      </div>
-      <div id="todayEntriesList"></div>
     </div>
   </div>
 
   <!-- TAB 2: 📊 Auswertungen -->
   <div id="tabPaneAnalytics" class="tabPane">
-    <!-- Zeitbereich zur Auswertung direkt unter dem Tagesverlauf / im Auswertungs-Tab -->
+    <!-- Zeitbereich zur Auswertung -->
     <div class="card" style="margin-bottom:18px">
       <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:12px">
         <h2 style="margin:0;font-size:16px">Auswertungs-Zeitraum</h2>
@@ -346,8 +385,20 @@ tr:last-child td { border-bottom: 0; }
     <div id="content" class="hide">
       <div class="stats" id="stats"></div>
 
+      <!-- Donut-Diagramm als Haupt-Auswertung (interaktiv mit Klick auf Slice) -->
       <div class="card">
-        <h2 style="display:flex;align-items:center;gap:14px">Getrackte Stunden
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:6px">
+          <h2 style="margin:0">Getrackte Stunden & Aktivitäten</h2>
+          <div class="small muted">Klick auf ein Kreissegment listet alle Zeiteinträge der Aktivität auf</div>
+        </div>
+        <div id="activitiesDonut" class="donutContainer"></div>
+        <div id="donutActivityInspector"></div>
+        <table id="activities" class="hide"></table>
+      </div>
+
+      <!-- Ergänzendes Verlauf-Diagramm (Tag / Woche / Monat) -->
+      <div class="card" style="margin-top:16px">
+        <h2 style="display:flex;align-items:center;gap:14px">Verlauf im Zeitraum
           <span style="display:flex;gap:6px;margin-left:auto">
             <button id="chartDay" class="modeBtn">Tag</button>
             <button id="chartWeek" class="modeBtn">Woche</button>
@@ -358,26 +409,10 @@ tr:last-child td { border-bottom: 0; }
         <div class="legend" id="chartLegend"></div>
       </div>
 
-      <div class="cols2">
-        <div class="card">
-          <h2>Alle Aktivitäten (im Zeitraum)</h2>
-          <div id="activitiesDonut" class="donutContainer"></div>
-          <table id="activities" class="hide"></table>
-        </div>
-        <div class="card">
-          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:8px">
-            <h2 style="margin:0">Tageszeit-Verteilung</h2>
-            <div style="display:flex;align-items:center;gap:8px">
-              <label for="distributionTarget" style="margin:0;font-size:12px;color:var(--muted)">Filter:</label>
-              <select id="distributionTarget" style="font-size:13px;padding:5px 10px"></select>
-            </div>
-          </div>
-          <div class="small" style="margin-bottom:10px" id="distributionSub">Startzeitpunkte im Zeitraum, gruppiert nach Tagesstunde (0–23 Uhr).</div>
-          <div id="mealChart"></div>
-        </div>
-      </div>
+      <!-- Unsichtbarer Platzhalter für Abwärtskompatibilität von Testskripten -->
+      <div id="mealChart" class="hide"></div>
 
-      <div class="cols2">
+      <div class="cols2" style="margin-top:16px">
         <div class="card">
           <h2>Zeit pro Kategorie</h2>
           <div class="small" style="margin-bottom:10px">Vergleich unabhängig vom Filter oben.</div>
@@ -574,6 +609,49 @@ tr:last-child td { border-bottom: 0; }
       <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:12px">
         <button class="themeBtn" onclick="closeManualAttendanceModal()">Abbrechen</button>
         <button id="saveManualAttBtn" onclick="submitManualAttendance()" style="background:var(--accent);color:#111;font-weight:600">Eintragen & Speichern</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Zeiteintrag bearbeiten (✏️) -->
+<div id="editEntryModal" class="modalBackdrop hide">
+  <div class="modalCard">
+    <div class="modalHeader">
+      <h2 style="margin:0;font-size:18px">✏️ Zeiteintrag bearbeiten</h2>
+      <button class="modalClose" onclick="closeEditEntryModal()" title="Schließen">✕</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <input type="hidden" id="editEntryId">
+      <div>
+        <label>Aktivität:</label>
+        <select id="editEntryActivitySelect" style="width:100%"></select>
+      </div>
+      <div>
+        <label>Datum:</label>
+        <input type="date" id="editEntryDate" style="width:100%">
+      </div>
+      <div style="display:flex;gap:12px">
+        <div style="flex:1">
+          <label>Von (Uhrzeit):</label>
+          <input type="time" id="editEntryStartTime" style="width:100%">
+        </div>
+        <div style="flex:1">
+          <label>Bis (Uhrzeit):</label>
+          <input type="time" id="editEntryEndTime" style="width:100%">
+        </div>
+      </div>
+      <div>
+        <label>Notiz / Kommentar:</label>
+        <input type="text" id="editEntryComment" placeholder="Notiz zum Zeiteintrag…" style="width:100%">
+      </div>
+      <div id="editEntryError" class="error hide" style="margin-top:4px"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px">
+        <button class="themeBtn" style="color:var(--red);border-color:var(--red);background:rgba(196,90,90,0.15)" onclick="deleteEditEntry()">🗑️ Löschen</button>
+        <div style="display:flex;gap:10px">
+          <button class="themeBtn" onclick="closeEditEntryModal()">Abbrechen</button>
+          <button id="saveEditEntryBtn" onclick="saveEditEntry()" style="background:var(--accent);color:#111;font-weight:600">💾 Speichern</button>
+        </div>
       </div>
     </div>
   </div>
@@ -1382,13 +1460,77 @@ function renderConflictsList() {
 let dayCalZoom = 1.0;
 try {
   const z = parseFloat(localStorage.getItem("tt_day_zoom"));
-  if (!isNaN(z) && z >= 0.5 && z <= 3.0) dayCalZoom = z;
+  if (!isNaN(z) && z >= 0.3 && z <= 3.0) dayCalZoom = z;
 } catch (e) {}
 
-function zoomDayCalendar(delta, reset) {
-  if (reset) dayCalZoom = 1.0;
-  else dayCalZoom = Math.max(0.5, Math.min(2.5, Math.round((dayCalZoom + delta) * 100) / 100));
-  localStorage.setItem("tt_day_zoom", dayCalZoom.toString());
+let CALENDAR_DATE = new Date();
+let CALENDAR_VIEW_MODE = "day"; // "day" or "week"
+let DISMISSED_OUT_OF_HOURS = new Set();
+try {
+  const s = localStorage.getItem("tt_dismissed_ooh");
+  if (s) DISMISSED_OUT_OF_HOURS = new Set(JSON.parse(s));
+} catch (e) {}
+
+function shiftCalendarDate(delta) {
+  if (CALENDAR_VIEW_MODE === "week") {
+    CALENDAR_DATE.setDate(CALENDAR_DATE.getDate() + delta * 7);
+  } else {
+    CALENDAR_DATE.setDate(CALENDAR_DATE.getDate() + delta);
+  }
+  renderTodayTimeline();
+}
+
+function resetCalendarDate() {
+  CALENDAR_DATE = new Date();
+  renderTodayTimeline();
+}
+
+function setCalendarViewMode(mode) {
+  CALENDAR_VIEW_MODE = mode;
+  const split = $("trackingSplit");
+  if (split) {
+    if (mode === "week") split.classList.add("weekMode");
+    else split.classList.remove("weekMode");
+  }
+  const btnDay = $("calViewDayBtn");
+  const btnWeek = $("calViewWeekBtn");
+  if (btnDay) btnDay.className = "modeBtn" + (mode === "day" ? " on" : "");
+  if (btnWeek) btnWeek.className = "modeBtn" + (mode === "week" ? " on" : "");
+  renderTodayTimeline();
+}
+
+function dismissOutOfHours(id) {
+  DISMISSED_OUT_OF_HOURS.add(id);
+  try {
+    localStorage.setItem("tt_dismissed_ooh", JSON.stringify([...DISMISSED_OUT_OF_HOURS]));
+  } catch (e) {}
+  renderTodayTimeline();
+}
+
+function getKW(d) {
+  const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  const dayNum = date.getUTCDay() || 7;
+  date.setUTCDate(date.getUTCDate() + 4 - dayNum);
+  const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
+  return Math.ceil((((date - yearStart) / 86400000) + 1) / 7);
+}
+
+function zoomDayCalendar(delta, isFit) {
+  const startHour = $("shiftStart") ? parseInt($("shiftStart").value, 10) : 6;
+  const endHour = $("shiftEnd") ? parseInt($("shiftEnd").value, 10) : 23;
+  const hoursCount = Math.max(1, endHour - startHour);
+  const baseHourHeight = 48;
+  const calEl = $("dayCalendar");
+  const viewH = (calEl && calEl.clientHeight) ? calEl.clientHeight : 540;
+  const fitHeight = Math.max(20, Math.floor((viewH - 36) / hoursCount));
+  const fitZoom = Math.round((fitHeight / baseHourHeight) * 100) / 100;
+
+  if (isFit) {
+    dayCalZoom = fitZoom;
+  } else {
+    dayCalZoom = Math.max(fitZoom, Math.min(2.8, Math.round((dayCalZoom + delta) * 100) / 100));
+  }
+  try { localStorage.setItem("tt_day_zoom", dayCalZoom.toString()); } catch (e) {}
   renderTodayTimeline();
 }
 
@@ -1397,6 +1539,57 @@ function updateShiftDisplay() {
   const e = $("shiftEnd") ? $("shiftEnd").value : "23";
   const disp = $("shiftDisplay");
   if (disp) disp.textContent = String(s).padStart(2, "0") + ":00 – " + String(e).padStart(2, "0") + ":00";
+}
+
+/** Resolves visual overlap collisions by assigning sub-columns so ~2min activities don't overlap */
+function layoutVisualSlots(slots) {
+  if (!slots.length) return slots;
+  slots.sort((a, b) => a.topPx - b.topPx || b.heightPx - a.heightPx);
+  const clusters = [];
+  let currentCluster = [];
+  let clusterEnd = -1;
+
+  for (const slot of slots) {
+    const slotEnd = slot.topPx + slot.boxHeightPx;
+    if (currentCluster.length === 0) {
+      currentCluster.push(slot);
+      clusterEnd = slotEnd;
+    } else if (slot.topPx < clusterEnd) {
+      currentCluster.push(slot);
+      clusterEnd = Math.max(clusterEnd, slotEnd);
+    } else {
+      clusters.push(currentCluster);
+      currentCluster = [slot];
+      clusterEnd = slotEnd;
+    }
+  }
+  if (currentCluster.length > 0) clusters.push(currentCluster);
+
+  for (const cluster of clusters) {
+    const colEnds = [];
+    for (const slot of cluster) {
+      let placed = false;
+      for (let c = 0; c < colEnds.length; c++) {
+        if (slot.topPx >= colEnds[c]) {
+          slot.col = c;
+          colEnds[c] = slot.topPx + slot.boxHeightPx;
+          placed = true;
+          break;
+        }
+      }
+      if (!placed) {
+        slot.col = colEnds.length;
+        colEnds.push(slot.topPx + slot.boxHeightPx);
+      }
+    }
+    const totalCols = colEnds.length;
+    for (const slot of cluster) {
+      slot.totalCols = totalCols;
+      slot.leftPct = (slot.col / totalCols) * 100;
+      slot.widthPct = (1 / totalCols) * 100;
+    }
+  }
+  return slots;
 }
 
 function renderDayCalendar(entries, actById) {
@@ -1410,82 +1603,122 @@ function renderDayCalendar(entries, actById) {
   const totalMin = Math.max(60, endMin - startMin);
 
   const hoursCount = endHour - startHour;
-  const baseHourHeight = 44;
+  const baseHourHeight = 48;
   const hourHeight = Math.round(baseHourHeight * dayCalZoom);
-  const calHeight = Math.max(420, hoursCount * hourHeight + 36);
-  if (container.style) container.style.height = calHeight + "px";
+  const calHeight = hoursCount * hourHeight;
+  const ppm = hourHeight / 60; // exact pixels per minute
 
-  let html = "";
-  html += "<div class='dayCalHeaderLanes'>" +
-    "<div class='dayCalHeaderPlan'>Plan (Stundenplan & WebDAV)</div>" +
-    "<div class='dayCalHeaderTracked'>Getrackt (Zeiterfassung)</div>" +
-    "</div>";
+  if (container.style) container.style.height = (calHeight + 32) + "px";
 
-  for (let h = startHour; h <= endHour; h++) {
-    const minFromStart = (h - startHour) * 60;
-    const topPct = (minFromStart / totalMin) * 100;
-    const hLabel = String(h).padStart(2, "0") + ":00";
-    html += "<div class='dayCalHourLabel' style='top:calc(26px + " + topPct.toFixed(2) + "%)'>" + hLabel + "</div>";
-    html += "<div class='dayCalGridLine' style='top:calc(26px + " + topPct.toFixed(2) + "%)'></div>";
-  }
-
-  const todayDow = now.getDay() === 0 ? 7 : now.getDay();
   const todayStr = localDateStr(now);
-  const events = DATA ? active(DATA.timetable_events).filter((e) => e.day_of_week === todayDow) : [];
-  const overrides = DATA ? active(DATA.timetable_overrides).filter((o) => o.date === todayStr) : [];
-  const freeDays = DATA ? new Set(active(DATA.timetable_days).filter((d) => d.free_day).map((d) => d.date)) : new Set();
-  const isFreeDay = freeDays.has(todayStr);
+  const calDateStr = localDateStr(CALENDAR_DATE);
+  const nowMinutes = now.getHours() * 60 + now.getMinutes();
 
-  let planHtml = "<div class='dayCalPlanLane'>";
-  for (const ev of events) {
-    const ov = overrides.find((o) => o.event_sync_id === ev.id);
-    const isCancelled = isFreeDay || (ov && ov.cancelled);
-    const sMinutes = ov && ov.start_time ? ov.start_time : ev.start_time;
-    const eMinutes = ov && ov.end_time ? ov.end_time : ev.end_time;
-    const room = (ov && ov.room) || ev.room || "";
+  if (CALENDAR_VIEW_MODE === "day") {
+    // -------------------------------------------------------------------------
+    // 1-TAGES-ANSICHT (Plan links, Track rechts)
+    // -------------------------------------------------------------------------
+    let html = "";
+    html += "<div class='dayCalHeaderLanes'>" +
+      "<div class='dayCalHeaderPlan'>Plan</div>" +
+      "<div class='dayCalHeaderTracked'>Track</div>" +
+      "</div>";
 
-    if (eMinutes > startMin && sMinutes < endMin) {
-      const topPct = Math.max(0, (sMinutes - startMin) / totalMin) * 100;
-      const heightPct = Math.min(100 - topPct, (eMinutes - Math.max(startMin, sMinutes)) / totalMin) * 100;
-      const slotHeightPx = (heightPct / 100) * calHeight;
-      const isCompact = slotHeightPx < 28;
-      const compactClass = isCompact ? " compact" : "";
-      const act = actById[ev.activity_sync_id];
-      const color = activityColor(act);
-      const icon = getActivityIcon(act);
-
-      const cancelStyle = isCancelled ? "text-decoration:line-through;opacity:0.65;" : "";
-      const cancelTag = isCancelled ? "<span class='tag' style='color:var(--red);margin-left:4px'>Ausfall</span>" : "";
-      const hoverTitle = escapeHtml(ev.name) + " (" + fmtMin(sMinutes) + "–" + fmtMin(eMinutes) + (room ? ", " + room : "") + ")" + (isCancelled ? " · Ausfall" : "");
-
-      planHtml += "<div class='dayCalSlot dayCalSlotPlan" + compactClass + "' style='top:" + topPct.toFixed(2) + "%;height:" + Math.max(isCompact ? 10 : 22, heightPct).toFixed(2) + "%;border-left-color:" + color + ";" + cancelStyle + "' title=\"" + hoverTitle + "\">" +
-        "<div style='font-weight:600;display:flex;align-items:center;gap:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap'>" +
-        "<span>" + icon + "</span>" +
-        (isCompact ? "" : "<span>" + escapeHtml(ev.name) + "</span>" + cancelTag) +
-        "</div>" +
-        "<div class='slotFullText'>" +
-        "<div style='font-weight:600'>" + escapeHtml(ev.name) + cancelTag + "</div>" +
-        "<div class='small muted' style='font-size:10px'>" + fmtMin(sMinutes) + "–" + fmtMin(eMinutes) + (room ? " · " + escapeHtml(room) : "") + "</div>" +
-        "</div>" +
-        (!isCompact ? "<div class='small muted' style='font-size:10px'>" + fmtMin(sMinutes) + "–" + fmtMin(eMinutes) + (room ? " · " + escapeHtml(room) : "") + "</div>" : "") +
-        "</div>";
+    // Hour markings & grid lines (Pixel-exact)
+    for (let h = startHour; h <= endHour; h++) {
+      const y = 26 + (h - startHour) * hourHeight;
+      const hLabel = String(h).padStart(2, "0") + ":00";
+      html += "<div class='dayCalHourLabel' style='top:" + y + "px'>" + hLabel + "</div>";
+      html += "<div class='dayCalGridLine' style='top:" + y + "px'></div>";
+      if (hourHeight >= 46 && h < endHour) {
+        html += "<div class='dayCalGridLineSub' style='top:" + (y + Math.round(hourHeight / 2)) + "px'></div>";
+      }
     }
-  }
-  planHtml += "</div>";
-  html += planHtml;
 
-  let trackHtml = "<div class='dayCalTrackLane'>";
-  for (const e of entries) {
-    const s = new Date(e.started_at);
-    const end = e.ended_at ? new Date(e.ended_at) : now;
-    const sMinutes = s.getHours() * 60 + s.getMinutes();
-    const eMinutes = end.getHours() * 60 + end.getMinutes();
+    const todayDow = CALENDAR_DATE.getDay() === 0 ? 7 : CALENDAR_DATE.getDay();
+    const events = DATA ? active(DATA.timetable_events).filter((e) => e.day_of_week === todayDow) : [];
+    const overrides = DATA ? active(DATA.timetable_overrides).filter((o) => o.date === calDateStr) : [];
+    const freeDays = DATA ? new Set(active(DATA.timetable_days).filter((d) => d.free_day).map((d) => d.date)) : new Set();
+    const isFreeDay = freeDays.has(calDateStr);
 
-    if (eMinutes > startMin && sMinutes < endMin) {
-      const topPct = Math.max(0, (sMinutes - startMin) / totalMin) * 100;
-      const heightPct = Math.max(2.5, Math.min(100 - topPct, (eMinutes - Math.max(startMin, sMinutes)) / totalMin) * 100);
-      const slotHeightPx = (heightPct / 100) * calHeight;
-      const isCompact = slotHeightPx < 28;
+    // Plan Lane
+    let planHtml = "<div class='dayCalPlanLane'>";
+    for (const ev of events) {
+      const ov = overrides.find((o) => o.event_sync_id === ev.id);
+      const isCancelled = isFreeDay || (ov && ov.cancelled);
+      const sMinutes = ov && ov.start_time ? ov.start_time : ev.start_time;
+      const eMinutes = ov && ov.end_time ? ov.end_time : ev.end_time;
+      const room = (ov && ov.room) || ev.room || "";
+
+      if (eMinutes > startMin && sMinutes < endMin) {
+        const sClamped = Math.max(startMin, sMinutes);
+        const eClamped = Math.min(endMin, eMinutes);
+        const topPx = (sClamped - startMin) * ppm;
+        const exactHeight = (eClamped - sClamped) * ppm;
+        const boxHeight = Math.max(14, exactHeight);
+        const isCompact = exactHeight < 26;
+        const compactClass = isCompact ? " compact" : "";
+        const act = actById[ev.activity_sync_id];
+        const color = activityColor(act);
+        const icon = getActivityIcon(act);
+
+        const cancelStyle = isCancelled ? "text-decoration:line-through;opacity:0.65;" : "";
+        const cancelTag = isCancelled ? "<span class='tag' style='color:var(--red);margin-left:4px'>Ausfall</span>" : "";
+        const ovTag = (ov && ov.room) ? "<span class='tag' style='color:var(--accent);margin-left:4px'>Raum: " + escapeHtml(ov.room) + "</span>" : "";
+        const hoverTitle = escapeHtml(ev.name) + " (" + fmtMin(sMinutes) + "–" + fmtMin(eMinutes) + (room ? ", " + room : "") + ")" + (isCancelled ? " · Ausfall" : "");
+
+        planHtml += "<div class='dayCalSlot dayCalSlotPlan" + compactClass + "' style='top:" + topPx.toFixed(1) + "px;height:" + boxHeight.toFixed(1) + "px;border-left-color:" + color + ";" + cancelStyle + "' title=\"" + hoverTitle + "\">" +
+          "<div style='font-weight:600;display:flex;align-items:center;gap:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap'>" +
+          "<span>" + icon + "</span>" +
+          (isCompact ? "" : "<span>" + escapeHtml(ev.name) + "</span>" + cancelTag + ovTag) +
+          "</div>" +
+          "<div class='slotFullText'>" +
+          "<div style='font-weight:600'>" + escapeHtml(ev.name) + cancelTag + ovTag + "</div>" +
+          "<div class='small muted' style='font-size:10px'>" + fmtMin(sMinutes) + "–" + fmtMin(eMinutes) + (room ? " · " + escapeHtml(room) : "") + "</div>" +
+          "</div>" +
+          (!isCompact ? "<div class='small muted' style='font-size:10px'>" + fmtMin(sMinutes) + "–" + fmtMin(eMinutes) + (room ? " · " + escapeHtml(room) : "") + "</div>" : "") +
+          "</div>";
+      }
+    }
+    planHtml += "</div>";
+    html += planHtml;
+
+    // Track Lane (with collision sub-columns layout)
+    const rawTrackSlots = [];
+    for (const e of entries) {
+      const s = new Date(e.started_at);
+      const end = e.ended_at ? new Date(e.ended_at) : now;
+      const sMinutes = s.getHours() * 60 + s.getMinutes();
+      const eMinutes = end.getHours() * 60 + end.getMinutes();
+
+      if (eMinutes > startMin && sMinutes < endMin) {
+        const sClamped = Math.max(startMin, sMinutes);
+        const eClamped = Math.min(endMin, eMinutes);
+        const topPx = (sClamped - startMin) * ppm;
+        const exactHeight = (eClamped - sClamped) * ppm;
+        const boxHeight = Math.max(14, exactHeight);
+        rawTrackSlots.push({
+          entry: e,
+          s,
+          end,
+          sMinutes,
+          eMinutes,
+          topPx,
+          heightPx: exactHeight,
+          boxHeightPx: boxHeight,
+        });
+      }
+    }
+
+    const trackSlots = layoutVisualSlots(rawTrackSlots);
+    let trackHtml = "<div class='dayCalTrackLane'>";
+    for (const slot of trackSlots) {
+      const e = slot.entry;
+      const s = slot.s;
+      const end = slot.end;
+      const topPx = slot.topPx;
+      const boxHeight = slot.boxHeightPx;
+      const isCompact = slot.heightPx < 26;
       const compactClass = isCompact ? " compact" : "";
       const act = actById[e.activity_id];
       const color = activityColor(act);
@@ -1495,9 +1728,11 @@ function renderDayCalendar(entries, actById) {
       const eTime = e.ended_at ? end.toLocaleTimeString("de-DE", {hour: "2-digit", minute: "2-digit"}) : "jetzt";
       const durText = formatDuration(Math.max(0, (end - s) / 1000));
       const glow = isRunning ? ";box-shadow:0 0 10px " + color + ";border:2px solid #fff" : "";
-      const hoverTitle = escapeHtml(act ? act.name : "Aktivität") + " (" + sTime + "–" + eTime + ", " + durText + ")" + (e.comment ? " · " + e.comment : "");
+      const hoverTitle = escapeHtml(act ? act.name : "Aktivität") + " (" + sTime + "–" + eTime + ", " + durText + ")" + (e.comment ? " · " + e.comment : "") + " — Klick zum Bearbeiten";
 
-      trackHtml += "<div class='dayCalSlot" + compactClass + "' style='top:" + topPct.toFixed(2) + "%;height:" + Math.max(isCompact ? 10 : 20, heightPct).toFixed(2) + "%;background:" + color + glow + "' title=\"" + escapeHtml(hoverTitle) + "\">" +
+      const leftStyle = slot.totalCols > 1 ? "left:" + slot.leftPct.toFixed(1) + "%;width:calc(" + slot.widthPct.toFixed(1) + "% - 4px);" : "left:3px;right:3px;";
+
+      trackHtml += "<div class='dayCalSlot" + compactClass + "' style='top:" + topPx.toFixed(1) + "px;height:" + boxHeight.toFixed(1) + "px;" + leftStyle + "background:" + color + glow + "' onclick=\"openEditEntryModal('" + e.id + "')\" title=\"" + escapeHtml(hoverTitle) + "\">" +
         "<div style='font-weight:700;display:flex;align-items:center;gap:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap'>" +
         "<span>" + icon + "</span>" +
         (isCompact ? "" : "<span>" + escapeHtml(act ? act.name : "Aktivität") + "</span>" + (isRunning ? "<span style='font-size:9px;background:rgba(0,0,0,0.35);padding:1px 4px;border-radius:4px;font-weight:700'>läuft</span>" : "")) +
@@ -1509,23 +1744,255 @@ function renderDayCalendar(entries, actById) {
         (!isCompact ? "<div style='font-size:10px;opacity:0.95'>" + sTime + "–" + eTime + " (" + durText + ")" + (e.comment ? " · " + escapeHtml(e.comment) : "") + "</div>" : "") +
         "</div>";
     }
+    trackHtml += "</div>";
+    html += trackHtml;
+
+    // Jetzt-Linie
+    if (calDateStr === todayStr && nowMinutes >= startMin && nowMinutes <= endMin) {
+      const nowY = 26 + (nowMinutes - startMin) * ppm;
+      html += "<div class='dayCalNowLine' style='top:" + nowY.toFixed(1) + "px'>" +
+        "<div class='dayCalNowDot'></div>" +
+        "</div>";
+    }
+
+    container.innerHTML = html;
+  } else {
+    // -------------------------------------------------------------------------
+    // ARBEITSWOCHENANSICHT (Mo–Fr)
+    // Vergangenheit: Track + verpasste Plan-Termine rot hinterlegt (keine Räume)
+    // Zukunft: Plan mit Räumen und Hervorhebung von Overrides
+    // -------------------------------------------------------------------------
+    const dow = (CALENDAR_DATE.getDay() + 6) % 7;
+    const monday = new Date(CALENDAR_DATE);
+    monday.setDate(CALENDAR_DATE.getDate() - dow);
+    const workdays = [];
+    for (let i = 0; i < 5; i++) {
+      const d = new Date(monday);
+      d.setDate(monday.getDate() + i);
+      workdays.push(d);
+    }
+
+    let html = "<div class='dayCalWeekHeader'>";
+    html += "<div></div>"; // hour label spacer
+    const dayNamesShort = ["Mo", "Di", "Mi", "Do", "Fr"];
+    for (let i = 0; i < 5; i++) {
+      const d = workdays[i];
+      const dStr = localDateStr(d);
+      const isCur = dStr === todayStr;
+      html += "<div class='dayCalWeekColHead" + (isCur ? " today" : "") + "'>" +
+        dayNamesShort[i] + " " + d.toLocaleDateString("de-DE", {day: "2-digit", month: "2-digit"}) +
+        "</div>";
+    }
+    html += "</div>";
+
+    html += "<div class='dayCalWeekBody' style='height:" + calHeight + "px'>";
+
+    // Left Hour Labels
+    html += "<div style='position:relative;border-right:1px solid var(--line)'>";
+    for (let h = startHour; h <= endHour; h++) {
+      const y = (h - startHour) * hourHeight;
+      const hLabel = String(h).padStart(2, "0") + ":00";
+      html += "<div class='dayCalHourLabel' style='top:" + y + "px'>" + hLabel + "</div>";
+    }
+    html += "</div>";
+
+    // 5 Day Columns
+    for (let i = 0; i < 5; i++) {
+      const d = workdays[i];
+      const dStr = localDateStr(d);
+      const dowNum = i + 1; // 1 = Mon ... 5 = Fri
+      const isCur = dStr === todayStr;
+      const isPastDay = dStr < todayStr;
+      const isFutureDay = dStr > todayStr;
+
+      html += "<div class='dayCalWeekCol" + (isCur ? " today" : "") + "'>";
+
+      // Hour grid lines inside column
+      for (let h = startHour; h <= endHour; h++) {
+        const y = (h - startHour) * hourHeight;
+        html += "<div class='dayCalGridLine' style='left:0;top:" + y + "px'></div>";
+      }
+
+      // Collect events for this day
+      const dayEvents = DATA ? active(DATA.timetable_events).filter((e) => e.day_of_week === dowNum) : [];
+      const dayOverrides = DATA ? active(DATA.timetable_overrides).filter((o) => o.date === dStr) : [];
+      const freeDays = DATA ? new Set(active(DATA.timetable_days).filter((df) => df.free_day).map((df) => df.date)) : new Set();
+      const isFreeDay = freeDays.has(dStr);
+      const dayTrack = active(DATA ? DATA.time_entries : []).filter((e) => {
+        const s = localDateStr(new Date(e.started_at));
+        const end = e.ended_at ? localDateStr(new Date(e.ended_at)) : todayStr;
+        return s === dStr || end === dStr;
+      });
+
+      // 1. Process tracked entries (for past or today past/running)
+      const rawWeekSlots = [];
+      for (const e of dayTrack) {
+        const s = new Date(e.started_at);
+        const end = e.ended_at ? new Date(e.ended_at) : now;
+        const sMinutes = s.getHours() * 60 + s.getMinutes();
+        const eMinutes = end.getHours() * 60 + end.getMinutes();
+
+        // In week view: Show tracked content for past days or today up to now
+        if (isPastDay || (isCur && sMinutes <= nowMinutes)) {
+          if (eMinutes > startMin && sMinutes < endMin) {
+            const sClamped = Math.max(startMin, sMinutes);
+            const eClamped = Math.min(endMin, eMinutes);
+            const topPx = (sClamped - startMin) * ppm;
+            const exactHeight = (eClamped - sClamped) * ppm;
+            const boxHeight = Math.max(14, exactHeight);
+            rawWeekSlots.push({
+              type: "track",
+              entry: e,
+              s,
+              end,
+              topPx,
+              heightPx: exactHeight,
+              boxHeightPx: boxHeight,
+            });
+          }
+        }
+      }
+
+      // 2. Process timetable plan events
+      for (const ev of dayEvents) {
+        const ov = dayOverrides.find((o) => o.event_sync_id === ev.id);
+        const isCancelled = isFreeDay || (ov && ov.cancelled);
+        const sMinutes = ov && ov.start_time ? ov.start_time : ev.start_time;
+        const eMinutes = ov && ov.end_time ? ov.end_time : ev.end_time;
+        const room = (ov && ov.room) || ev.room || "";
+
+        if (eMinutes <= startMin || sMinutes >= endMin) continue;
+
+        const sClamped = Math.max(startMin, sMinutes);
+        const eClamped = Math.min(endMin, eMinutes);
+        const topPx = (sClamped - startMin) * ppm;
+        const exactHeight = (eClamped - sClamped) * ppm;
+        const boxHeight = Math.max(14, exactHeight);
+
+        const isEventPast = isPastDay || (isCur && eMinutes <= nowMinutes);
+
+        if (isEventPast) {
+          // Check if attended or missed
+          const attended = dayTrack.some((t) => {
+            if (t.activity_id !== ev.activity_sync_id) return false;
+            const ts = new Date(t.started_at);
+            const te = t.ended_at ? new Date(t.ended_at) : now;
+            const tsMin = ts.getHours() * 60 + ts.getMinutes();
+            const teMin = te.getHours() * 60 + te.getMinutes();
+            const overlap = Math.max(0, Math.min(eMinutes, teMin) - Math.max(sMinutes, tsMin));
+            return overlap >= 20 || overlap >= (eMinutes - sMinutes) * 0.4;
+          });
+
+          if (!attended && !isCancelled) {
+            // MISSED LECTURE -> ROT HINTERLEGT (KEINE RÄUME!)
+            rawWeekSlots.push({
+              type: "missed",
+              ev,
+              ov,
+              sMinutes,
+              eMinutes,
+              topPx,
+              heightPx: exactHeight,
+              boxHeightPx: boxHeight,
+            });
+          }
+        } else {
+          // FUTURE -> PLAN MIT RAUM & OVERRIDE-MARKIERUNG
+          rawWeekSlots.push({
+            type: "plan",
+            ev,
+            ov,
+            room,
+            isCancelled,
+            sMinutes,
+            eMinutes,
+            topPx,
+            heightPx: exactHeight,
+            boxHeightPx: boxHeight,
+          });
+        }
+      }
+
+      const weekSlots = layoutVisualSlots(rawWeekSlots);
+      for (const slot of weekSlots) {
+        const topPx = slot.topPx;
+        const boxHeight = slot.boxHeightPx;
+        const isCompact = slot.heightPx < 26;
+        const compactClass = isCompact ? " compact" : "";
+        const leftStyle = slot.totalCols > 1 ? "left:" + slot.leftPct.toFixed(1) + "%;width:calc(" + slot.widthPct.toFixed(1) + "% - 4px);" : "left:2px;right:2px;";
+
+        if (slot.type === "track") {
+          const e = slot.entry;
+          const act = actById[e.activity_id];
+          const color = activityColor(act);
+          const icon = getActivityIcon(act);
+          const isRunning = !e.ended_at;
+          const sTime = slot.s.toLocaleTimeString("de-DE", {hour: "2-digit", minute: "2-digit"});
+          const eTime = e.ended_at ? slot.end.toLocaleTimeString("de-DE", {hour: "2-digit", minute: "2-digit"}) : "jetzt";
+          const durText = formatDuration(Math.max(0, (slot.end - slot.s) / 1000));
+          const glow = isRunning ? ";box-shadow:0 0 10px " + color + ";border:2px solid #fff" : "";
+          const hoverTitle = escapeHtml(act ? act.name : "Aktivität") + " (" + sTime + "–" + eTime + ", " + durText + ")" + (e.comment ? " · " + e.comment : "") + " — Klick zum Bearbeiten";
+
+          html += "<div class='dayCalSlot" + compactClass + "' style='top:" + topPx.toFixed(1) + "px;height:" + boxHeight.toFixed(1) + "px;" + leftStyle + "background:" + color + glow + "' onclick=\"openEditEntryModal('" + e.id + "')\" title=\"" + escapeHtml(hoverTitle) + "\">" +
+            "<div style='font-weight:700;display:flex;align-items:center;gap:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap'>" +
+            "<span>" + icon + "</span>" +
+            (isCompact ? "" : "<span>" + escapeHtml(act ? act.name : "Aktivität") + "</span>") +
+            "</div>" +
+            (!isCompact ? "<div style='font-size:10px;opacity:0.95'>" + sTime + "–" + eTime + "</div>" : "") +
+            "</div>";
+        } else if (slot.type === "missed") {
+          const ev = slot.ev;
+          const act = actById[ev.activity_sync_id];
+          const icon = getActivityIcon(act);
+          const hoverTitle = escapeHtml(ev.name) + " (" + fmtMin(slot.sMinutes) + "–" + fmtMin(slot.eMinutes) + ") · Nicht besucht";
+
+          html += "<div class='dayCalSlot dayCalSlotMissed" + compactClass + "' style='top:" + topPx.toFixed(1) + "px;height:" + boxHeight.toFixed(1) + "px;" + leftStyle + "' title=\"" + hoverTitle + "\">" +
+            "<div style='font-weight:700;display:flex;align-items:center;gap:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap'>" +
+            "<span class='tag' style='background:var(--red);color:#fff;font-size:9px;padding:1px 3px'>Verpasst</span>" +
+            (isCompact ? "" : "<span>" + escapeHtml(ev.name) + "</span>") +
+            "</div>" +
+            (!isCompact ? "<div style='font-size:10px'>" + fmtMin(slot.sMinutes) + "–" + fmtMin(slot.eMinutes) + "</div>" : "") +
+            "</div>";
+        } else if (slot.type === "plan") {
+          const ev = slot.ev;
+          const ov = slot.ov;
+          const act = actById[ev.activity_sync_id];
+          const color = activityColor(act);
+          const icon = getActivityIcon(act);
+          const cancelStyle = slot.isCancelled ? "text-decoration:line-through;opacity:0.65;" : "";
+          const cancelTag = slot.isCancelled ? "<span class='tag' style='color:var(--red);font-size:9px'>Ausfall</span>" : "";
+          const ovTag = (ov && ov.room) ? "<span class='tag' style='color:var(--accent);font-size:9px'>Raum: " + escapeHtml(ov.room) + "</span>" : "";
+          const hoverTitle = escapeHtml(ev.name) + " (" + fmtMin(slot.sMinutes) + "–" + fmtMin(slot.eMinutes) + (slot.room ? ", " + slot.room : "") + ")";
+
+          html += "<div class='dayCalSlot dayCalSlotPlan" + compactClass + "' style='top:" + topPx.toFixed(1) + "px;height:" + boxHeight.toFixed(1) + "px;" + leftStyle + "border-left-color:" + color + ";" + cancelStyle + "' title=\"" + hoverTitle + "\">" +
+            "<div style='font-weight:600;display:flex;align-items:center;gap:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap'>" +
+            "<span>" + icon + "</span>" +
+            (isCompact ? "" : "<span>" + escapeHtml(ev.name) + "</span>" + cancelTag + ovTag) +
+            "</div>" +
+            (!isCompact ? "<div class='small muted' style='font-size:10px'>" + fmtMin(slot.sMinutes) + "–" + fmtMin(slot.eMinutes) + (slot.room ? " · " + escapeHtml(slot.room) : "") + "</div>" : "") +
+            "</div>";
+        }
+      }
+
+      // Jetzt-Linie on current day
+      if (isCur && nowMinutes >= startMin && nowMinutes <= endMin) {
+        const nowY = (nowMinutes - startMin) * ppm;
+        html += "<div class='dayCalNowLine' style='left:0;top:" + nowY.toFixed(1) + "px'>" +
+          "<div class='dayCalNowDot'></div>" +
+          "</div>";
+      }
+
+      html += "</div>"; // end day column
+    }
+
+    html += "</div>"; // end week body
+    container.innerHTML = html;
   }
-  trackHtml += "</div>";
-  html += trackHtml;
 
-  const nowMinutes = now.getHours() * 60 + now.getMinutes();
-  if (nowMinutes >= startMin && nowMinutes <= endMin) {
-    const nowPct = ((nowMinutes - startMin) / totalMin) * 100;
-    html += "<div class='dayCalNowLine' style='top:calc(26px + " + nowPct.toFixed(2) + "%)'>" +
-      "<div class='dayCalNowDot'></div>" +
-      "</div>";
-  }
-
-  container.innerHTML = html;
-
+  // Auto scroll to current time once on initial render
   const calEl = $("dayCalendar");
   if (calEl && typeof window !== "undefined" && !calEl.dataset.scrolled) {
-    const scrollTarget = ((nowMinutes - startMin) / totalMin) * calHeight - 140;
+    const scrollTarget = (nowMinutes - startMin) * ppm - 140;
     if (scrollTarget > 0) {
       calEl.scrollTop = scrollTarget;
       calEl.dataset.scrolled = "1";
@@ -1543,12 +2010,14 @@ function renderTodayTimeline() {
   card.classList.remove("hide");
 
   const todayStr = localDateStr(new Date());
+  const calDateStr = localDateStr(CALENDAR_DATE);
   const now = new Date();
+
   const entries = active(DATA.time_entries)
     .filter((e) => {
       const s = localDateStr(new Date(e.started_at));
       const end = e.ended_at ? localDateStr(new Date(e.ended_at)) : todayStr;
-      return s === todayStr || end === todayStr;
+      return s === calDateStr || end === calDateStr;
     })
     .sort((a, b) => new Date(a.started_at) - new Date(b.started_at));
 
@@ -1563,56 +2032,154 @@ function renderTodayTimeline() {
     totalSecsToday += Math.max(0, (end - s) / 1000);
   }
 
-  const titleEl = $("todayTitle");
-  if (titleEl) {
-    const dayNames = ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"];
-    const d = new Date();
-    titleEl.textContent = "Heute (" + dayNames[d.getDay()] + ", " + d.toLocaleDateString("de-DE", {day: "2-digit", month: "2-digit"}) + ")";
+  // Update date header label
+  const dateLabel = $("calDateLabel");
+  if (dateLabel) {
+    if (CALENDAR_VIEW_MODE === "day") {
+      const isToday = calDateStr === todayStr;
+      dateLabel.textContent = isToday
+        ? "Heute (" + CALENDAR_DATE.toLocaleDateString("de-DE", {weekday: "short", day: "2-digit", month: "2-digit"}) + ")"
+        : CALENDAR_DATE.toLocaleDateString("de-DE", {weekday: "short", day: "2-digit", month: "2-digit", year: "numeric"});
+    } else {
+      const dow = (CALENDAR_DATE.getDay() + 6) % 7;
+      const monday = new Date(CALENDAR_DATE);
+      monday.setDate(CALENDAR_DATE.getDate() - dow);
+      const friday = new Date(monday);
+      friday.setDate(monday.getDate() + 4);
+      dateLabel.textContent = "KW " + getKW(monday) + " · " + monday.toLocaleDateString("de-DE", {day: "2-digit", month: "2-digit"}) + " – " + friday.toLocaleDateString("de-DE", {day: "2-digit", month: "2-digit", year: "numeric"});
+    }
   }
+
   const summaryEl = $("todaySummary");
   if (summaryEl) {
     summaryEl.textContent = fmtHours(totalSecsToday) + " getrackt (" + entries.length + " Einträge)";
   }
 
-  updateShiftDisplay();
-  renderDayCalendar(entries, actById);
+  // Check for out of hours entries (<06:00 or >24:00)
+  const oohBanner = $("outOfHoursBanner");
+  if (oohBanner) {
+    const oohEntries = entries.filter((e) => {
+      if (DISMISSED_OUT_OF_HOURS.has(e.id)) return false;
+      const s = new Date(e.started_at);
+      const end = e.ended_at ? new Date(e.ended_at) : now;
+      return s.getHours() < 6 || (end.getHours() < 6 && (end - s) > 60000);
+    });
 
-  const listEl = $("todayEntriesList");
-  if (listEl) {
-    if (!entries.length) {
-      listEl.innerHTML = "";
-    } else {
-      let listHtml = "";
-      for (let i = entries.length - 1; i >= 0; i--) {
-        const e = entries[i];
+    if (oohEntries.length > 0) {
+      let bHtml = "";
+      for (const e of oohEntries) {
         const act = actById[e.activity_id];
-        const color = activityColor(act);
-        const icon = getActivityIcon(act);
-        const actName = act ? act.name : "Unbekannt";
         const s = new Date(e.started_at);
         const end = e.ended_at ? new Date(e.ended_at) : now;
-        const dur = Math.max(0, (end - s) / 1000);
         const sTime = s.toLocaleTimeString("de-DE", {hour: "2-digit", minute: "2-digit"});
-        const eTime = e.ended_at ? end.toLocaleTimeString("de-DE", {hour: "2-digit", minute: "2-digit"}) : "läuft…";
-        const isRunning = !e.ended_at;
-
-        listHtml += "<div class='todayEntryRow'>" +
-          "<div style='display:flex;align-items:center;gap:10px'>" +
-          "<span style='display:inline-block;width:10px;height:10px;border-radius:3px;background:" + color + ";flex-shrink:0'></span>" +
-          "<span style='font-size:16px;line-height:1'>" + icon + "</span>" +
-          "<strong>" + escapeHtml(actName) + "</strong>" +
-          "<span class='muted' style='font-size:13px'>" + sTime + " – " + eTime + "</span>" +
-          (e.comment ? "<span class='tag' style='margin-left:0'>" + escapeHtml(e.comment) + "</span>" : "") +
-          "</div>" +
-          "<div style='display:flex;align-items:center;gap:12px'>" +
-          "<span style='font-weight:600;font-variant-numeric:tabular-nums'>" + formatDuration(dur) + "</span>" +
-          (!isRunning ? "<button style='background:transparent;color:var(--muted);border:0;padding:2px 6px;cursor:pointer;font-size:14px' onclick=\"deleteTimeEntry('" + e.id + "')\" title='Eintrag löschen'>✕</button>" : "") +
-          "</div>" +
-          "</div>";
+        const eTime = e.ended_at ? end.toLocaleTimeString("de-DE", {hour: "2-digit", minute: "2-digit"}) : "jetzt";
+        bHtml += "<div class='card' style='border-left:4px solid var(--accent);background:rgba(229,169,59,0.12);padding:10px 14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px'>" +
+          "<div><span style='font-weight:700;color:var(--accent);margin-right:6px'>⚠️ Aufzeichnung außerhalb 06:00–24:00 Uhr:</span>" +
+          "<span>" + escapeHtml(act ? act.name : "Aktivität") + " (" + sTime + "–" + eTime + ")" + (e.comment ? " · " + escapeHtml(e.comment) : "") + "</span></div>" +
+          "<div style='display:flex;gap:6px'>" +
+          "<button class='themeBtn' style='padding:3px 8px;font-size:12px' onclick=\"openEditEntryModal('" + e.id + "')\">✏️ Bearbeiten</button>" +
+          "<button class='themeBtn' style='padding:3px 8px;font-size:12px;color:var(--red)' onclick=\"deleteTimeEntry('" + e.id + "')\">🗑️ Löschen</button>" +
+          "<button class='themeBtn' style='padding:3px 8px;font-size:12px' onclick=\"dismissOutOfHours('" + e.id + "')\">✕ Verwerfen</button>" +
+          "</div></div>";
       }
-      listEl.innerHTML = listHtml;
+      oohBanner.innerHTML = bHtml;
+      oohBanner.classList.remove("hide");
+    } else {
+      oohBanner.innerHTML = "";
+      oohBanner.classList.add("hide");
     }
   }
+
+  updateShiftDisplay();
+  renderDayCalendar(entries, actById);
+}
+
+function openEditEntryModal(entryId) {
+  const modal = $("editEntryModal");
+  if (!modal) return;
+  const entries = DATA ? active(DATA.time_entries) : [];
+  const entry = entries.find((e) => e.id === entryId);
+  if (!entry) return;
+
+  $("editEntryId").value = entry.id;
+  const s = new Date(entry.started_at);
+  $("editEntryDate").value = localDateStr(s);
+  $("editEntryStartTime").value = s.toLocaleTimeString("de-DE", {hour: "2-digit", minute: "2-digit"});
+  if (entry.ended_at) {
+    const end = new Date(entry.ended_at);
+    $("editEntryEndTime").value = end.toLocaleTimeString("de-DE", {hour: "2-digit", minute: "2-digit"});
+  } else {
+    $("editEntryEndTime").value = "";
+  }
+  $("editEntryComment").value = entry.comment || "";
+
+  const select = $("editEntryActivitySelect");
+  if (select && DATA && DATA.activities) {
+    const acts = active(DATA.activities).filter((a) => !a.archived).sort((a, b) => a.name.localeCompare(b.name));
+    select.innerHTML = acts.map((a) => "<option value=\"" + a.id + "\"" + (a.id === entry.activity_id ? " selected" : "") + ">" + escapeHtml(a.name) + "</option>").join("");
+  }
+  const errEl = $("editEntryError");
+  if (errEl) errEl.classList.add("hide");
+  modal.classList.remove("hide");
+}
+
+function closeEditEntryModal() {
+  const modal = $("editEntryModal");
+  if (modal) modal.classList.add("hide");
+}
+
+async function saveEditEntry() {
+  const id = $("editEntryId").value;
+  const token = $("token").value.trim();
+  const dateStr = $("editEntryDate").value;
+  const sTime = $("editEntryStartTime").value;
+  const eTime = $("editEntryEndTime").value;
+  const actId = $("editEntryActivitySelect").value;
+  const comment = $("editEntryComment").value.trim();
+  const errEl = $("editEntryError");
+
+  if (!id || !dateStr || !sTime) {
+    if (errEl) { errEl.textContent = "Bitte Datum und Startzeit angeben."; errEl.classList.remove("hide"); }
+    return;
+  }
+  const startedAt = new Date(dateStr + "T" + sTime + ":00").toISOString();
+  const endedAt = eTime ? new Date(dateStr + "T" + eTime + ":00").toISOString() : null;
+
+  try {
+    const res = await fetch("/api/time-entries/" + id, {
+      method: "PATCH",
+      headers: {"Content-Type": "application/json", Authorization: "Bearer " + token},
+      body: JSON.stringify({
+        activity_id: actId,
+        started_at: startedAt,
+        ended_at: endedAt,
+        comment: comment,
+      }),
+    });
+    if (!res.ok) throw new Error("Server antwortete mit Status " + res.status);
+    if (DATA && DATA.time_entries) {
+      const idx = DATA.time_entries.findIndex((e) => e.id === id);
+      if (idx !== -1) {
+        DATA.time_entries[idx].activity_id = actId;
+        DATA.time_entries[idx].started_at = startedAt;
+        DATA.time_entries[idx].ended_at = endedAt;
+        DATA.time_entries[idx].comment = comment;
+      }
+    }
+    closeEditEntryModal();
+    await load();
+  } catch (err) {
+    if (errEl) { errEl.textContent = "Fehler beim Speichern: " + err.message; errEl.classList.remove("hide"); }
+  }
+}
+
+async function deleteEditEntry() {
+  const id = $("editEntryId").value;
+  if (!id) return;
+  if (!confirm("Diesen Zeiteintrag wirklich löschen?")) return;
+  await deleteTimeEntry(id);
+  closeEditEntryModal();
+  await load();
 }
 
 function startTimerPolling() {
@@ -1974,9 +2541,6 @@ function render() {
     $("weeks").innerHTML = html;
   }
 
-  // ---- flexible distribution / hourly analysis -----------------------------------
-  populateDistributionOptions(activities, allCategories);
-  renderDistributionChart(activities, allCategories, categoriesOf, filteredEntries);
 
   // ---- todos -------------------------------------------------------------------
   let t = ""; 
@@ -2003,6 +2567,7 @@ function render() {
     }
   }
   $("todos").innerHTML = t;
+  if ($("mealChart")) $("mealChart").innerHTML = "";
   renderTodayTimeline();
   renderNotesExplorer();
   renderHistoryAccordion();
@@ -2058,11 +2623,93 @@ function renderChartLegend(activityOrder, activitiesById) {
   $("chartLegend").innerHTML = parts.join("");
 }
 
+let SELECTED_DONUT_ACT_ID = null;
+
+function selectDonutActivity(actId) {
+  if (SELECTED_DONUT_ACT_ID === actId) {
+    SELECTED_DONUT_ACT_ID = null;
+  } else {
+    SELECTED_DONUT_ACT_ID = actId;
+  }
+  const acts = LAST ? Object.entries(LAST.perActivity).sort((x, y) => y[1] - x[1]) : [];
+  const totalTracked = LAST ? LAST.totalTracked : 0;
+  const activities = DATA ? active(DATA.activities) : [];
+  const activitiesById = {};
+  for (const a of activities) activitiesById[a.id] = a;
+  renderDonutChart(acts, totalTracked, activitiesById);
+}
+
+function renderDonutInspector(activitiesById) {
+  const container = $("donutActivityInspector");
+  if (!container) return;
+  if (!SELECTED_DONUT_ACT_ID) {
+    container.innerHTML = "<div class='small muted' style='margin-top:14px;text-align:center;padding:12px;background:var(--card2);border-radius:8px'>💡 Tipp: Klicke auf ein Kreissegment im Donut oder auf eine Aktivität in der Legende, um die einzelnen Zeiteinträge zu durchsuchen.</div>";
+    return;
+  }
+
+  const act = activitiesById[SELECTED_DONUT_ACT_ID];
+  const actName = act ? act.name : "Unbekannt";
+  const icon = getActivityIcon(act);
+  const color = activityColor(act);
+
+  const filteredEntries = LAST ? LAST.filteredEntries.filter((e) => e.act === SELECTED_DONUT_ACT_ID) : [];
+  filteredEntries.sort((a, b) => b.start - a.start);
+
+  let totalSecs = 0;
+  for (const e of filteredEntries) {
+    totalSecs += Math.max(0, (e.end - e.start) / 1000);
+  }
+
+  let html = "<div class='donutInspectorCard'>" +
+    "<div style='display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:10px'>" +
+    "<div style='display:flex;align-items:center;gap:10px'>" +
+    "<span style='display:inline-block;width:12px;height:12px;border-radius:3px;background:" + color + "'></span>" +
+    "<span style='font-size:18px'>" + icon + "</span>" +
+    "<span style='font-size:16px;font-weight:700'>" + escapeHtml(actName) + "</span>" +
+    "<span class='tag' style='font-size:12px;font-weight:600'>" + fmtHours(totalSecs) + "</span>" +
+    "<span class='small muted'>(" + filteredEntries.length + " Einträge im Zeitraum)</span>" +
+    "</div>" +
+    "<button class='themeBtn' style='font-size:12px;padding:4px 10px' onclick='selectDonutActivity(null)'>✕ Filter aufheben / Alle anzeigen</button>" +
+    "</div>";
+
+  if (!filteredEntries.length) {
+    html += "<div class='small muted'>Keine Zeiteinträge für diese Aktivität im Zeitraum gefunden.</div>";
+  } else {
+    html += "<table><tr><th>Datum & Wochentag</th><th>Uhrzeit</th><th class=num>Dauer</th><th style='text-align:right'>Aktion</th></tr>";
+    const rawEntries = DATA ? active(DATA.time_entries) : [];
+    for (const e of filteredEntries) {
+      const orig = rawEntries.find((re) => {
+        const sTime = new Date(re.started_at).getTime();
+        return re.activity_id === e.act && Math.abs(sTime - e.start.getTime()) < 1000;
+      });
+      const s = e.start;
+      const end = e.end;
+      const durSecs = Math.max(0, (end - s) / 1000);
+      const isRunning = orig && !orig.ended_at;
+      const dateStr = s.toLocaleDateString("de-DE", { weekday: "short", day: "2-digit", month: "2-digit", year: "numeric" });
+      const timeStr = s.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" }) + " – " +
+        (isRunning ? "<span style='color:var(--green);font-weight:700'>läuft</span>" : end.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" }));
+      const commentStr = orig && orig.comment ? "<div class='small muted' style='margin-top:2px'>" + escapeHtml(orig.comment) + "</div>" : "";
+      const editBtn = orig ? "<button class='themeBtn' style='padding:3px 8px;font-size:11px' onclick=\"openEditEntryModal('" + orig.id + "')\">✏️ Bearbeiten</button>" : "";
+
+      html += "<tr><td class=muted>" + dateStr + "</td>" +
+        "<td>" + timeStr + commentStr + "</td>" +
+        "<td class=num style='font-weight:600'>" + fmtHours(durSecs) + "</td>" +
+        "<td style='text-align:right'>" + editBtn + "</td></tr>";
+    }
+    html += "</table>";
+  }
+  html += "</div>";
+  container.innerHTML = html;
+}
+
 function renderDonutChart(acts, totalTracked, activitiesById) {
   const container = $("activitiesDonut");
   if (!container) return;
   if (!acts.length || totalTracked <= 0) {
     container.innerHTML = "<div class='small muted' style='padding:20px 0;text-align:center'>Keine Aktivitäten im Zeitraum getrackt.</div>";
+    const insp = $("donutActivityInspector");
+    if (insp) insp.innerHTML = "";
     return;
   }
 
@@ -2083,15 +2730,21 @@ function renderDonutChart(acts, totalTracked, activitiesById) {
     const sharePct = Math.round(share * 100);
     const dashLength = share * circumference;
 
-    circlesSvg += "<circle cx='100' cy='100' r='" + radius + "' fill='none' " +
+    const isSelected = SELECTED_DONUT_ACT_ID === id;
+    const isDimmed = SELECTED_DONUT_ACT_ID && !isSelected;
+    const sliceClass = "donutSlice" + (isSelected ? " active" : isDimmed ? " dimmed" : "");
+
+    circlesSvg += "<circle class='" + sliceClass + "' cx='100' cy='100' r='" + radius + "' fill='none' " +
       "stroke='" + color + "' stroke-width='" + strokeWidth + "' " +
       "stroke-dasharray='" + dashLength.toFixed(2) + " " + (circumference - dashLength).toFixed(2) + "' " +
-      "stroke-dashoffset='" + (-currentOffset).toFixed(2) + "'>" +
-      "<title>" + escapeHtml(name) + ": " + fmtHours(seconds) + " (" + sharePct + "%)</title>" +
+      "stroke-dashoffset='" + (-currentOffset).toFixed(2) + "' " +
+      "onclick=\"selectDonutActivity('" + id + "')\">" +
+      "<title>" + escapeHtml(name) + ": " + fmtHours(seconds) + " (" + sharePct + "%) — Klick zum Filtern</title>" +
       "</circle>";
     currentOffset += dashLength;
 
-    legendHtml += "<div class='donutLegendItem'>" +
+    const legendClass = "donutLegendItem" + (isSelected ? " active" : "");
+    legendHtml += "<div class='" + legendClass + "' onclick=\"selectDonutActivity('" + id + "')\">" +
       "<div style='display:flex;align-items:center;gap:8px'>" +
       "<span style='display:inline-block;width:10px;height:10px;border-radius:3px;background:" + color + "'></span>" +
       "<span style='font-size:15px'>" + icon + "</span>" +
@@ -2104,7 +2757,18 @@ function renderDonutChart(acts, totalTracked, activitiesById) {
       "</div>";
   }
 
-  const totalHoursStr = fmtHours(totalTracked);
+  let centerHtml = "";
+  if (SELECTED_DONUT_ACT_ID && activitiesById[SELECTED_DONUT_ACT_ID]) {
+    const selAct = activitiesById[SELECTED_DONUT_ACT_ID];
+    const selSecs = LAST && LAST.perActivity ? (LAST.perActivity[SELECTED_DONUT_ACT_ID] || 0) : 0;
+    centerHtml = "<div style='font-size:16px;line-height:1;margin-bottom:2px'>" + getActivityIcon(selAct) + "</div>" +
+      "<div style='font-size:16px;font-weight:700'>" + fmtHours(selSecs) + "</div>" +
+      "<div style='font-size:10px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;max-width:90px;white-space:nowrap'>" + escapeHtml(selAct.name) + "</div>";
+  } else {
+    centerHtml = "<div style='font-size:18px;font-weight:700'>" + fmtHours(totalTracked) + "</div>" +
+      "<div style='font-size:11px;color:var(--muted)'>Gesamt</div>";
+  }
+
   const svg = "<svg class='donutSvg' viewBox='0 0 200 200'>" +
     "<circle cx='100' cy='100' r='" + radius + "' fill='none' stroke='var(--chip)' stroke-width='" + strokeWidth + "' />" +
     circlesSvg +
@@ -2113,136 +2777,12 @@ function renderDonutChart(acts, totalTracked, activitiesById) {
   container.innerHTML = "<div style='position:relative;display:flex;align-items:center;justify-content:center'>" +
     svg +
     "<div style='position:absolute;text-align:center;pointer-events:none'>" +
-    "<div style='font-size:18px;font-weight:700'>" + totalHoursStr + "</div>" +
-    "<div style='font-size:11px;color:var(--muted)'>Gesamt</div>" +
+    centerHtml +
     "</div>" +
     "</div>" +
     "<div class='donutLegend'>" + legendHtml + "</div>";
-}
 
-function populateDistributionOptions(activities, allCategories) {
-  const select = $("distributionTarget");
-  if (!select) return;
-  const current = select.value || localStorage.getItem("tt_dist_target") || "preset_meals";
-  let html = "<option value='preset_meals'>Essenszeiten (Standard-Filter)</option>" +
-    "<option value='preset_uni'>Alle Vorlesungen / Uni</option>" +
-    "<option value='all'>Alle getrackten Aktivitäten</option>";
-
-  if (allCategories && allCategories.length) {
-    html += "<optgroup label='Kategorien'>";
-    for (const c of allCategories) {
-      html += "<option value='cat_" + c.id + "'>Kategorie: " + escapeHtml(c.name) + "</option>";
-    }
-    html += "</optgroup>";
-  }
-
-  if (activities && activities.length) {
-    html += "<optgroup label='Aktivitäten'>";
-    for (const a of activities) {
-      html += "<option value='act_" + a.id + "'>" + getActivityIcon(a) + " " + escapeHtml(a.name) + "</option>";
-    }
-    html += "</optgroup>";
-  }
-
-  select.innerHTML = html;
-  if (select.options && typeof select.options[Symbol.iterator] === "function") {
-    if ([...select.options].some((o) => o.value === current)) {
-      select.value = current;
-    } else {
-      select.value = "preset_meals";
-    }
-  } else {
-    select.value = current || "preset_meals";
-  }
-}
-
-function renderDistributionChart(activities, allCategories, categoriesOf, filteredEntries) {
-  const select = $("distributionTarget");
-  const target = (select && select.value) || localStorage.getItem("tt_dist_target") || "preset_meals";
-
-  const acts = activities || (DATA ? active(DATA.activities) : []);
-  const cats = allCategories || (DATA ? active(DATA.categories) : []);
-  const entries = filteredEntries || (LAST ? LAST.filteredEntries : []);
-
-  let matchedActs = [];
-  let filterName = "";
-
-  if (target === "preset_meals") {
-    matchedActs = acts.filter((a) => /ess|fr\u00fc|hauptmahl/i.test(a.name));
-    filterName = "Essenszeiten";
-  } else if (target === "preset_uni") {
-    matchedActs = acts.filter((a) => (categoriesOf && categoriesOf[a.id] ? categoriesOf[a.id].some((cid) => {
-      const c = cats.find((x) => x.id === cid);
-      return c && /uni|stud/i.test(c.name);
-    }) : false) || /analysis|thermo|java|theoinfo/i.test(a.name));
-    filterName = "Uni / Studium";
-  } else if (target === "all") {
-    matchedActs = acts;
-    filterName = "Alle Aktivitäten";
-  } else if (target.startsWith("cat_")) {
-    const catId = target.slice(4);
-    const cat = cats.find((c) => c.id === catId);
-    matchedActs = acts.filter((a) => (categoriesOf && categoriesOf[a.id] ? categoriesOf[a.id].includes(catId) : false));
-    filterName = "Kategorie: " + (cat ? cat.name : catId);
-  } else if (target.startsWith("act_")) {
-    const actId = target.slice(4);
-    const act = acts.find((a) => a.id === actId);
-    matchedActs = act ? [act] : [];
-    filterName = act ? act.name : "Aktivität";
-  }
-
-  const actIds = new Set(matchedActs.map((a) => a.id));
-  const perHour = new Array(24).fill(0);
-  for (const e of entries) {
-    if (actIds.has(e.act)) {
-      perHour[e.start.getHours()]++;
-    }
-  }
-
-  renderMealChart(perHour, matchedActs, filterName);
-}
-
-/** Horizontal bar chart of start times per hour of day. */
-function renderMealChart(perHour, mealActivities, customTitle) {
-  const el = $("mealChart");
-  if (!mealActivities.length) {
-    el.innerHTML = "<div class=small>Keine Aktivitäten für diesen Filter gefunden.</div>";
-    return;
-  }
-  const names = mealActivities.map((a) => a.name).join(", ");
-  const total = perHour.reduce((a, b) => a + b, 0);
-  if (!total) {
-    el.innerHTML = "<div class=small>Keine Starts im Zeitraum (" + escapeHtml(names) + ").</div>";
-    return;
-  }
-  const width = 1520;
-  const barH = 22;
-  const labelW = 40;
-  const gap = 4;
-  const height = 24 * (barH + gap) + 10;
-  let svg = "<svg viewBox=\"0 0 " + width + " " + height + "\" style=\"width:100%;height:auto\">";
-  const max = Math.max(1, ...perHour);
-  const barW = width - labelW - 60;
-  const isMeal = customTitle ? customTitle.includes("Essen") : true;
-  const typical = (h) => isMeal ? ((h >= 6 && h < 10) || (h >= 11 && h < 14) || (h >= 17 && h < 20)) : false;
-  for (let h = 0; h < 24; h++) {
-    const y = h * (barH + gap) + 6;
-    const w = (perHour[h] / max) * barW;
-    svg += "<text x=\"34\" y=\"" + (y + 15) + "\" text-anchor=\"end\" fill=\"var(--muted)\" font-size=\"11\">" +
-      String(h).padStart(2, "0") + "</text>";
-    svg += "<rect x=\"" + labelW + "\" y=\"" + y + "\" width=\"" + barW + "\" height=\"" + barH +
-      "\" fill=\"var(--chip)\" rx=\"4\"/>";
-    if (perHour[h] > 0) {
-      svg += "<rect x=\"" + labelW + "\" y=\"" + y + "\" width=\"" + w.toFixed(1) + "\" height=\"" + barH +
-        "\" fill=\"" + (typical(h) ? "var(--accent)" : "var(--blue)") + "\" rx=\"4\"><title>" +
-        perHour[h] + " Starts um " + String(h).padStart(2, "0") + ":00</title></rect>";
-      svg += "<text x=\"" + (labelW + w + 8).toFixed(1) + "\" y=\"" + (y + 15) +
-        "\" fill=\"var(--muted)\" font-size=\"11\">" + perHour[h] + "</text>";
-    }
-  }
-  svg += "</svg>";
-  el.innerHTML = "<div class=small style=margin-bottom:6px>Aktivitäten: " + escapeHtml(names) +
-    " &middot; " + total + " Starts</div>" + svg;
+  renderDonutInspector(activitiesById);
 }
 
 function statCard(value, label) {
@@ -2861,6 +3401,7 @@ if (typeof window !== "undefined") {
     if (e.key === "Escape") {
       closeSettingsModal();
       closeManualAttendanceModal();
+      closeEditEntryModal();
       const cBox = $("conflictsBox");
       if (cBox) cBox.classList.add("hide");
     }
@@ -2869,6 +3410,7 @@ if (typeof window !== "undefined") {
     if (e.target && e.target.classList && e.target.classList.contains("modalBackdrop")) {
       closeSettingsModal();
       closeManualAttendanceModal();
+      closeEditEntryModal();
     }
   });
 }
