@@ -54,6 +54,8 @@ tr:last-child td { border-bottom: 0; }
 .donut .lbl { font-size: 13px; }
 .small { font-size: 12px; color: var(--muted); }
 .hide { display: none; }
+.modeBtn { background: #2c2c2c; color: var(--muted); padding: 5px 14px; font-size: 12px; font-weight: 500; }
+.modeBtn.on { background: #3a4a2e; color: var(--accent); }
 </style>
 </head>
 <body>
@@ -79,7 +81,12 @@ tr:last-child td { border-bottom: 0; }
     <div class="stats" id="stats"></div>
 
     <div class="card">
-      <h2>Getrackte Stunden pro Tag</h2>
+      <h2 style="display:flex;align-items:center;gap:14px">Getrackte Stunden
+        <span style="display:flex;gap:6px;margin-left:auto">
+          <button id="chartDay" class="modeBtn">Tag</button>
+          <button id="chartWeek" class="modeBtn">Woche</button>
+        </span>
+      </h2>
       <div id="dailyChart"></div>
     </div>
 
@@ -127,6 +134,7 @@ function activityColor(activity) {
 
 let DATA = null;
 let LAST = null; // computed analysis of the last render, reused by csv export
+let chartMode = localStorage.getItem("tt_chart_mode") || "day";
 
 function showError(msg) {
   const el = $("error");
@@ -310,7 +318,7 @@ function render() {
   const activityOrder = Object.entries(perActivity)
     .sort((x, y) => y[1] - x[1])
     .map(([id]) => id);
-  renderDailyChart(daily, activityOrder, activitiesById);
+  renderDailyChart(buildBuckets(daily, chartMode), activityOrder, activitiesById);
 
   // keep the computed analysis for the csv export
   LAST = {rows, from: fromStr, to: toStr, totalTracked, daily};
@@ -415,6 +423,38 @@ function escapeHtml(text) {
     ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"})[c]);
 }
 
+/** Groups the days into day or calendar week (Mo-So) buckets. */
+function buildBuckets(daily, mode) {
+  if (mode !== "week") {
+    return daily.map((d) => ({
+      key: d.date,
+      label: d.date.slice(8, 10) + "." + d.date.slice(5, 7) + ".",
+      seconds: d.seconds,
+      perAct: d.perAct,
+    }));
+  }
+  const weeks = [];
+  let current = null;
+  for (const d of daily) {
+    const date = new Date(d.date + "T00:00:00");
+    const dow = (date.getDay() + 6) % 7; // 0 = Monday
+    if (dow === 0 || !current) {
+      current = {
+        key: d.date,
+        label: d.date.slice(8, 10) + "." + d.date.slice(5, 7) + ".",
+        seconds: 0,
+        perAct: {},
+      };
+      weeks.push(current);
+    }
+    current.seconds += d.seconds;
+    for (const [id, sec] of Object.entries(d.perAct)) {
+      current.perAct[id] = (current.perAct[id] || 0) + sec;
+    }
+  }
+  return weeks;
+}
+
 /** Vertical stacked bars of tracked hours per day as inline SVG. */
 function renderDailyChart(daily, activityOrder, activitiesById) {
   const el = $("dailyChart");
@@ -445,12 +485,12 @@ function renderDailyChart(daily, activityOrder, activitiesById) {
     const barH = (hours / maxHours) * innerH;
     const x = padding.left + i * (innerW / daily.length) + 1;
     let y = padding.top + innerH - barH;
-    const label = d.date.slice(8, 10) + "." + d.date.slice(5, 7) + ".";
+    const label = d.label;
     const tipParts = activityOrder
       .filter((id) => (d.perAct[id] || 0) > 0)
       .map((id) => (activitiesById[id] ? activitiesById[id].name : id.slice(0, 8)) +
         " " + (Math.round(d.perAct[id] / 360) / 10).toLocaleString("de-DE") + " h");
-    const tip = d.date + ": " + tipParts.join(", ") +
+    const tip = d.key + ": " + tipParts.join(", ") +
       " (gesamt " + (Math.round(hours * 10) / 10).toLocaleString("de-DE") + " h)";
     let remaining = Math.max(0, barH);
     for (const id of activityOrder) {
@@ -533,6 +573,19 @@ $("token").value = localStorage.getItem("tt_token") || "";
 $("load").addEventListener("click", load);
 $("token").addEventListener("keydown", (event) => { if (event.key === "Enter") load(); });
 // Auto load when the token is passed in the url hash: #token=...
+function setChartMode(mode) {
+  chartMode = mode;
+  localStorage.setItem("tt_chart_mode", mode);
+  updateChartModeButtons();
+  if (DATA) render();
+}
+function updateChartModeButtons() {
+  $("chartDay").className = "modeBtn" + (chartMode === "day" ? " on" : "");
+  $("chartWeek").className = "modeBtn" + (chartMode === "week" ? " on" : "");
+}
+$("chartDay").addEventListener("click", () => setChartMode("day"));
+$("chartWeek").addEventListener("click", () => setChartMode("week"));
+updateChartModeButtons();
 $("csv").addEventListener("click", exportCsv);
 $("share").addEventListener("click", copyShareLink);
 // Auto load from url hash: #token=...&from=yyyy-mm-dd&to=yyyy-mm-dd

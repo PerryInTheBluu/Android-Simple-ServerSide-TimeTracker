@@ -37,11 +37,12 @@ Server nötig. Nur Python-Standardbibliothek, keine Abhängigkeiten.
 - **Alle Aktivitäten**: Stunden und Anteil je Aktivität.
 - **Vorbereitung / Nachbereitung / Todos**: Erfüllungsquote je Art und
   Liste der offenen.
-- **Getrackte Stunden pro Tag**: gestapeltes Balkendiagramm des
+- **Getrackte Stunden (Tag/Woche)**: gestapeltes Balkendiagramm des
   Zeitraums mit Stunden-Achse — ein Segment je Aktivität in der Farbe
   der Aktivität (gleiche Palette wie in der App), Tooltip pro Tag mit
   Aufteilung; Einträge über Mitternacht werden sauber aufgeteilt.
-  Die Aktivitäts- und Zieltabellen zeigen passende Farbpunkte.
+  Die Aktivitäts- und Zieltabellen zeigen passende Farbpunkte. Umschalter
+  Tag/Woche (Kalenderwoche Mo–So), Auswahl bleibt gespeichert.
 - **CSV-Export**: lädt die Kennzahlen (Anwesenheit pro Veranstaltung,
   Stunden pro Tag, Gesamtsumme) als Excel-kompatible Semikolon-CSV mit
   BOM herunter.
