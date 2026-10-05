@@ -111,6 +111,20 @@ const TYPE_LABEL = {0: "Vorlesung", 1: "Übung", 2: "Tutorium"};
 const TODO_LABEL = {0: "Vorbereitung", 1: "Nachbereitung", 2: "Todo"};
 const ECTS_SECONDS = 108000;
 
+// App color palette, indexed by the color_id of the activities
+// (same order as the android app saves it in the database).
+const PALETTE = [
+  "#000000", "#F53639", "#E91E63", "#9C27B0", "#673AB7", "#3F51B5",
+  "#2196F3", "#03A9F4", "#00BCD4", "#009688", "#4CAF50", "#8BC34A",
+  "#CDDC39", "#FFEB3B", "#FFC107", "#FF9800", "#FF5722", "#785248",
+  "#607D8B",
+];
+const FALLBACK_COLOR = "#7a7a7a";
+function activityColor(activity) {
+  const id = activity && activity.color_id;
+  return (typeof id === "number" && PALETTE[id]) || FALLBACK_COLOR;
+}
+
 let DATA = null;
 let LAST = null; // computed analysis of the last render, reused by csv export
 
@@ -260,6 +274,11 @@ function render() {
     statCard(prepDone + " / " + (prepDone + prepOpen), "Vorbereitungen erledigt"),
   ].join("");
 
+  const perActivity = {};
+  for (const e of windowEntries) {
+    perActivity[e.act] = (perActivity[e.act] || 0) + Math.max(0, (e.end - e.start) / 1000);
+  }
+
   // ---- daily tracked hours chart ---------------------------------------------
   const daily = [];
   {
@@ -270,18 +289,28 @@ function render() {
         const dayKey = localDateStr(cursor);
         const nextMidnight = new Date(cursor);
         nextMidnight.setHours(24, 0, 0, 0);
-        const overlap = (Math.min(e.end, nextMidnight) - cursor) / 1000;
-        byDay.set(dayKey, (byDay.get(dayKey) || 0) + Math.max(0, overlap));
+        const overlap = Math.max(0, (Math.min(e.end, nextMidnight) - cursor) / 1000);
+        const day = byDay.get(dayKey) || {};
+        day[e.act] = (day[e.act] || 0) + overlap;
+        byDay.set(dayKey, day);
         cursor = nextMidnight;
       }
     }
     let cursor = new Date(from);
     while (cursor < to) {
-      daily.push({date: localDateStr(cursor), seconds: byDay.get(localDateStr(cursor)) || 0});
+      const perAct = byDay.get(localDateStr(cursor)) || {};
+      const seconds = Object.values(perAct).reduce((a, b) => a + b, 0);
+      daily.push({date: localDateStr(cursor), seconds: seconds, perAct: perAct});
       cursor.setDate(cursor.getDate() + 1);
     }
   }
-  renderDailyChart(daily);
+  // Stacking order: biggest activity overall at the bottom.
+  const activitiesById = {};
+  for (const a of activities) activitiesById[a.id] = a;
+  const activityOrder = Object.entries(perActivity)
+    .sort((x, y) => y[1] - x[1])
+    .map(([id]) => id);
+  renderDailyChart(daily, activityOrder, activitiesById);
 
   // keep the computed analysis for the csv export
   LAST = {rows, from: fromStr, to: toStr, totalTracked, daily};
@@ -311,10 +340,6 @@ function render() {
   $("attendance").innerHTML = html;
 
   // ---- hours per subject vs goals --------------------------------------------
-  const perActivity = {};
-  for (const e of windowEntries) {
-    perActivity[e.act] = (perActivity[e.act] || 0) + Math.max(0, (e.end - e.start) / 1000);
-  }
   const activityName = {};
   for (const a of activities) activityName[a.id] = a.name;
 
@@ -327,7 +352,9 @@ function render() {
     const target = goal.target_seconds || 0;
     const pct = target > 0 ? Math.min(100, Math.round((tracked / target) * 100)) : 0;
     const ects = target > 0 ? (Math.round((target / ECTS_SECONDS) * 10) / 10).toLocaleString("de-DE") : "–";
-    g += "<tr><td class=name>" + escapeHtml(name) +
+    const subjectColor = activityColor(activitiesById[goal.activity_sync_id]);
+    g += "<tr><td class=name><span style='display:inline-block;width:12px;height:12px;border-radius:3px;" +
+      "background:" + subjectColor + ";margin-right:8px;vertical-align:middle'></span>" + escapeHtml(name) +
       (subjects.has(goal.activity_sync_id) ? "" : "<span class=tag>kein Stundenplan-Eintrag</span>") +
       "</td><td>" + ects + "</td>" +
       "<td><div class=bar><i style=width:" + pct + "%></i></div><div class=small>" + pct + " %</div></td>" +
@@ -339,7 +366,10 @@ function render() {
   const acts = Object.entries(perActivity).sort((x, y) => y[1] - x[1]);
   for (const [id, seconds] of acts) {
     const share = totalTracked > 0 ? Math.round((seconds / totalTracked) * 100) : 0;
-    a += "<tr><td class=name>" + escapeHtml(activityName[id] || "Unbekannt (" + id.slice(0, 8) + ")") +
+    const color = activityColor(activitiesById[id]);
+    a += "<tr><td class=name><span style='display:inline-block;width:12px;height:12px;border-radius:3px;" +
+      "background:" + color + ";margin-right:8px;vertical-align:middle'></span>" +
+      escapeHtml(activityName[id] || "Unbekannt (" + id.slice(0, 8) + ")") +
       "</td><td class=num>" + fmtHours(seconds) + "</td><td class=num>" + share + " %</td></tr>";
   }
   $("activities").innerHTML = a;
@@ -385,8 +415,8 @@ function escapeHtml(text) {
     ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"})[c]);
 }
 
-/** Vertical bars of tracked hours per day as inline SVG. */
-function renderDailyChart(daily) {
+/** Vertical stacked bars of tracked hours per day as inline SVG. */
+function renderDailyChart(daily, activityOrder, activitiesById) {
   const el = $("dailyChart");
   if (!daily.length || daily.every((d) => d.seconds === 0)) {
     el.innerHTML = "<div class=small>Keine getrackte Zeit im Zeitraum.</div>";
@@ -409,16 +439,33 @@ function renderDailyChart(daily) {
     svg += "<text x=\"" + (padding.left - 8) + "\" y=\"" + (y + 4).toFixed(1) +
       "\" text-anchor=\"end\" fill=\"#9a9a9a\" font-size=\"11\">" + h + "</text>";
   }
-  // bars
+  // stacked bars, one segment per activity
   daily.forEach((d, i) => {
     const hours = d.seconds / 3600;
     const barH = (hours / maxHours) * innerH;
     const x = padding.left + i * (innerW / daily.length) + 1;
-    const y = padding.top + innerH - barH;
+    let y = padding.top + innerH - barH;
     const label = d.date.slice(8, 10) + "." + d.date.slice(5, 7) + ".";
-    const tip = d.date + ": " + (Math.round(hours * 10) / 10).toLocaleString("de-DE") + " h";
-    svg += "<rect x=\"" + x.toFixed(1) + "\" y=\"" + y.toFixed(1) + "\" width=\"" + barW.toFixed(1) +
-      "\" height=\"" + Math.max(0, barH).toFixed(1) + "\" rx=\"2\" fill=\"#7bb661\"><title>" + tip + "</title></rect>";
+    const tipParts = activityOrder
+      .filter((id) => (d.perAct[id] || 0) > 0)
+      .map((id) => (activitiesById[id] ? activitiesById[id].name : id.slice(0, 8)) +
+        " " + (Math.round(d.perAct[id] / 360) / 10).toLocaleString("de-DE") + " h");
+    const tip = d.date + ": " + tipParts.join(", ") +
+      " (gesamt " + (Math.round(hours * 10) / 10).toLocaleString("de-DE") + " h)";
+    let remaining = Math.max(0, barH);
+    for (const id of activityOrder) {
+      const partSeconds = d.perAct[id] || 0;
+      if (partSeconds <= 0 || remaining <= 0) continue;
+      const partH = Math.min(remaining, (partSeconds / 3600 / maxHours) * innerH);
+      svg += "<rect x=\"" + x.toFixed(1) + "\" y=\"" + y.toFixed(1) + "\" width=\"" + barW.toFixed(1) +
+        "\" height=\"" + Math.max(0, partH).toFixed(1) + "\" fill=\"" + activityColor(activitiesById[id]) +
+        "\"></rect>";
+      y += partH;
+      remaining -= partH;
+    }
+    // One invisible hit rect per day for the tooltip.
+    svg += "<rect x=\"" + x.toFixed(1) + "\" y=\"" + (padding.top + innerH - barH).toFixed(1) + "\" width=\"" + barW.toFixed(1) +
+      "\" height=\"" + Math.max(0, barH).toFixed(1) + "\" fill=\"transparent\"><title>" + tip + "</title></rect>";
     // date label below every bar, thinned out for long ranges
     const every = Math.ceil(daily.length / 20);
     if (i % every === 0) {

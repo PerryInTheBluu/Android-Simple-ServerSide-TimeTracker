@@ -53,7 +53,7 @@ vm.runInThisContext(script);
   console.log("=== todos ===");
   console.log(elements["todos"].innerHTML.replace(/></g, ">\n<"));
   console.log("=== daily chart svg (first 400 chars) ===");
-  console.log(elements["dailyChart"].innerHTML.slice(0, 400));
+  console.log(elements["dailyChart"].innerHTML);
   console.log("=== csv ===");
   console.log(buildCsv());
 })();
