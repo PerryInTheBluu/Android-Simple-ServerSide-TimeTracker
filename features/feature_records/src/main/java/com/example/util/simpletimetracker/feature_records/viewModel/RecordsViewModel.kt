@@ -130,6 +130,8 @@ class RecordsViewModel @Inject constructor(
                     resourceRepo.getString(R.string.timetable_state_attended)
                 RecordsCalendarViewData.Slot.STATE_MISSED ->
                     resourceRepo.getString(R.string.timetable_state_missed)
+                RecordsCalendarViewData.Slot.STATE_RUNNING ->
+                    resourceRepo.getString(R.string.timetable_state_running)
                 else -> resourceRepo.getString(R.string.timetable_state_upcoming)
             }
             val roomText = slot.room.takeIf { it.isNotEmpty() }

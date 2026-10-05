@@ -567,10 +567,13 @@ class RecordsViewDataInteractor @Inject constructor(
                             running.timeStarted < slotEndAbs
                     }
                 )
+            val now = System.currentTimeMillis()
             val state = when {
                 attended -> RecordsCalendarViewData.Slot.STATE_ATTENDED
-                System.currentTimeMillis() > slotEndAbs ->
-                    RecordsCalendarViewData.Slot.STATE_MISSED
+                now > slotEndAbs -> RecordsCalendarViewData.Slot.STATE_MISSED
+                // The slot has started but is not over yet and there is no
+                // attendance record: the lecture is currently running.
+                now >= slotStartAbs -> RecordsCalendarViewData.Slot.STATE_RUNNING
                 else -> RecordsCalendarViewData.Slot.STATE_UPCOMING
             }
 

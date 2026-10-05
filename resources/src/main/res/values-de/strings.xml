@@ -715,6 +715,7 @@ Beispiel:<br/>
     <string name="timetable_state_attended">anwesend</string>
     <string name="timetable_state_missed">verpasst</string>
     <string name="timetable_state_upcoming">bevorstehend</string>
+    <string name="timetable_state_running">läuft</string>
     <string name="timetable_type_lecture">Vorlesung</string>
     <string name="timetable_type_exercise">Übung</string>
     <string name="timetable_type_tutorium">Tutorium</string>

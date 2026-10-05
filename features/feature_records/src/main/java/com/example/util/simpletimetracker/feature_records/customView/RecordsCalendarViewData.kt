@@ -53,6 +53,7 @@ data class RecordsCalendarViewData(
             const val STATE_UPCOMING = 0
             const val STATE_ATTENDED = 1
             const val STATE_MISSED = 2
+            const val STATE_RUNNING = 3
         }
     }
 

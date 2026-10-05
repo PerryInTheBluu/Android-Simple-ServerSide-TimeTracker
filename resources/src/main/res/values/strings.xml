@@ -731,6 +731,7 @@ Example:<br/>
     <string name="timetable_state_attended">attended</string>
     <string name="timetable_state_missed">missed</string>
     <string name="timetable_state_upcoming">upcoming</string>
+    <string name="timetable_state_running">running</string>
     <string name="timetable_type_lecture">Lecture</string>
     <string name="timetable_type_exercise">Exercise</string>
     <string name="timetable_type_tutorium">Tutorium</string>

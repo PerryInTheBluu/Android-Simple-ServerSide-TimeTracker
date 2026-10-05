@@ -7,6 +7,7 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.Path
 import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.Typeface
@@ -564,6 +565,18 @@ class RecordsCalendarView @JvmOverloads constructor(
                     centerY + half,
                     slotSymbolPaint,
                 )
+            }
+            RecordsCalendarViewData.Slot.STATE_RUNNING -> {
+                slotSymbolPaint.color = slot.color
+                // Play triangle: the slot is currently running.
+                val half = size / 2.4f
+                val path = Path().apply {
+                    moveTo(centerX - half * 0.7f, centerY - half)
+                    lineTo(centerX - half * 0.7f, centerY + half)
+                    lineTo(centerX + half, centerY)
+                    close()
+                }
+                canvas.drawPath(path, slotSymbolPaint)
             }
             else -> {
                 slotSymbolPaint.color = slot.color
