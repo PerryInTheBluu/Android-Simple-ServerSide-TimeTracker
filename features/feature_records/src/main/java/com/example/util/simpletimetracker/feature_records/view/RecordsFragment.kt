@@ -203,8 +203,14 @@ class RecordsFragment :
                 viewRecordsCalendar.root.alpha = 0f
             }
             is RecordsState.CalendarData.Data -> {
-                loaderRecordsCalendar.root.animateAlpha(isVisible = false, duration = 200)
-                viewRecordsCalendar.root.animateAlpha(isVisible = true, duration = 100)
+                // The alpha animations are only needed for the first
+                // load; on regular updates the views already have their
+                // final alpha and starting animators every update would
+                // keep the UI busy for nothing.
+                if (viewRecordsCalendar.root.alpha != 1f) {
+                    loaderRecordsCalendar.root.animateAlpha(isVisible = false, duration = 200)
+                    viewRecordsCalendar.root.animateAlpha(isVisible = true, duration = 100)
+                }
                 viewRecordsCalendar.root.setData(state.data)
             }
         }

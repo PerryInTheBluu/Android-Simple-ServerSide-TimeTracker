@@ -101,6 +101,7 @@ class RecordsViewModel @Inject constructor(
     val previewUpdate: SingleLiveEvent<UpdateRunningRecordsInteractor.Update> = SingleLiveEvent()
 
     private var isVisible: Boolean = false
+    private var isCalendarMode: Boolean = false
     private var timerJob: Job? = null
     private var pendingTimeChange: Triple<Long, String, Int>? = null
     private var updateJob: Job? = null
@@ -663,7 +664,8 @@ class RecordsViewModel @Inject constructor(
     private fun updateRecords() {
         updateJob?.cancel()
         updateJob = viewModelScope.launch {
-            isCalendarView.set(prefsInteractor.getShowRecordsCalendar())
+            isCalendarMode = prefsInteractor.getShowRecordsCalendar()
+            isCalendarView.set(isCalendarMode)
 
             when (val state = loadRecordsViewData()) {
                 is RecordsState.RecordsData -> records.set(state.data)
@@ -687,10 +689,20 @@ class RecordsViewModel @Inject constructor(
                 updateRecords()
                 return@launch
             }
+            var lastMinute = -1L
             while (isActive) {
                 // Just in case update takes longer than timer period,
                 // otherwise will be canceled every tick.
-                if (updateJob?.isCompleted != false) updateRecords()
+                if (updateJob?.isCompleted != false) {
+                    // The calendar has nothing that changes per second;
+                    // its current time line only moves once a minute,
+                    // so a full rebuild is only needed on a minute change.
+                    val minute = System.currentTimeMillis() / MILLIS_PER_MINUTE
+                    if (!isCalendarMode || minute != lastMinute) {
+                        lastMinute = minute
+                        updateRecords()
+                    }
+                }
                 delay(TIMER_UPDATE)
             }
         }
@@ -707,6 +719,7 @@ class RecordsViewModel @Inject constructor(
         private const val TAG_TIME_START = "TIMETABLE_TIME_START_"
         private const val TAG_TIME_END = "TIMETABLE_TIME_END_"
         private const val TIMER_UPDATE = 1000L
+        private const val MILLIS_PER_MINUTE = 60_000L
         private const val SHARING_NAME = "stt_records"
     }
 }
