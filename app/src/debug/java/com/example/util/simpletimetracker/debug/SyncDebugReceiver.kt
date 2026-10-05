@@ -172,6 +172,11 @@ class SyncDebugReceiver : BroadcastReceiver() {
                         when (key) {
                             "endOfDayShift" -> prefsInteractor.setEndOfDayShift(value)
                             "timetablePrepLead" -> prefsInteractor.setTimetablePrepLead(value)
+                            "daysInCalendar" -> {
+                                val days = com.example.util.simpletimetracker.domain.daysOfWeek.model.DaysInCalendar.entries
+                                    .getOrNull(value.toInt())
+                                if (days != null) prefsInteractor.setDaysInCalendar(days)
+                            }
                             else -> Timber.w("DebugReceiver: unknown pref %s", key)
                         }
                         Timber.i("DebugReceiver: set %s=%d", key, value)

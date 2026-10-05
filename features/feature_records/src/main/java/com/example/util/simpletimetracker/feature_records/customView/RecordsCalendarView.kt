@@ -136,7 +136,6 @@ class RecordsCalendarView @JvmOverloads constructor(
     private val slotBounds: RectF = RectF(0f, 0f, 0f, 0f)
     private val slotTextPaint: Paint = Paint().apply {
         isAntiAlias = true
-        textSize = legendTextHeight * 0.9f
         isFakeBoldText = true
     }
     private val slotSymbolPaint: Paint = Paint().apply {
@@ -406,6 +405,14 @@ class RecordsCalendarView @JvmOverloads constructor(
             color = legendTextColor
             textSize = legendTextSize * 0.8f
         }
+        slotTextPaint.apply {
+            isAntiAlias = true
+            isFakeBoldText = true
+            // The constructor time legend height is not resolved yet, so
+            // the title size is set here; a slot title is slightly bigger
+            // than the legend text.
+            textSize = legendTextSize * 1.1f
+        }
         linePaint.apply {
             isAntiAlias = true
             color = legendLineColor
@@ -458,6 +465,10 @@ class RecordsCalendarView @JvmOverloads constructor(
         slots: List<RecordsCalendarViewData.Slot>,
         index: Int,
     ) {
+        // First pass: band fills and hit boxes. Texts and symbols are drawn
+        // in a second pass so overlapping bands never cover each other's
+        // decorations with their translucent fill.
+        val decorations = mutableListOf<Pair<RecordsCalendarViewData.Slot, RectF>>()
         slots.forEach { slot ->
             if (slot.start >= axisLen) return@forEach
             val clampedEnd = slot.end.coerceAtMost(axisLen)
@@ -488,10 +499,17 @@ class RecordsCalendarView @JvmOverloads constructor(
                 slotPaint,
             )
             slotBoxes = slotBoxes + (RectF(slotBounds) to slot)
-
-            drawSlotText(canvas, slot, boxTop, boxBottom, boxLeft, boxRight)
+            decorations += slot to RectF(slotBounds)
         }
+
+        // Second pass: titles and status symbols, protected against
+        // overlaps between bands.
+        slotTextRects.clear()
+        decorations.forEach { (slot, bounds) -> drawSlotText(canvas, slot, bounds) }
     }
+
+    /** Rects already used by slot titles of the current column draw. */
+    private val slotTextRects: MutableList<RectF> = mutableListOf()
 
     /**
      * Name and short type label on the band and a status symbol at the
@@ -500,23 +518,14 @@ class RecordsCalendarView @JvmOverloads constructor(
     private fun drawSlotText(
         canvas: Canvas,
         slot: RecordsCalendarViewData.Slot,
-        boxTop: Float,
-        boxBottom: Float,
-        boxLeft: Float,
-        boxRight: Float,
+        bounds: RectF,
     ) {
-        val text = "${slot.name} ${slot.typeLabel}"
-        val textY = boxTop + legendTextHeight
-        val textX = boxLeft + recordHorizontalPadding + legendTextPadding
-        slotTextPaint.color = slot.color
-        canvas.drawText(text, textX, textY, slotTextPaint)
-
         // Status symbol on the right edge of the band.
         val size = legendTextHeight * 1.6f
         slotSymbolPaint.strokeWidth = size / 8f
         val padding = recordHorizontalPadding
-        val centerX = boxRight - padding - size / 2
-        val centerY = (boxTop + boxBottom) / 2
+        val centerX = bounds.right - padding - size / 2
+        val centerY = bounds.centerY()
         when (slot.state) {
             RecordsCalendarViewData.Slot.STATE_ATTENDED -> {
                 slotSymbolPaint.color = slot.color
@@ -562,6 +571,59 @@ class RecordsCalendarView @JvmOverloads constructor(
                 canvas.drawCircle(centerX, centerY, size / 2, slotSymbolPaint)
             }
         }
+
+        // Title: name and short type label, drawn only if it fits the band
+        // and never on top of the title of another band of the same column.
+        val textSize = slotTextPaint.textSize
+        val minBandHeight = textSize * 1.6f
+        if (bounds.height() < minBandHeight) return
+
+        val symbolSpace = size + padding * 2
+        val maxTextWidth = bounds.width() - 2 * (recordHorizontalPadding + legendTextPadding) - symbolSpace
+        if (maxTextWidth <= 0) return
+
+        val fullText = "${'$'}{slot.name} ${'$'}{slot.typeLabel}"
+        var text = ellipsize(fullText, maxTextWidth)
+        if (text.isEmpty()) return
+
+        val textHeight = textSize * 0.75f
+        val textRect = RectF()
+        var textTop = bounds.top + padding / 2
+        // Move the title below titles that are already drawn so
+        // overlapping bands never produce overlapping texts.
+        slotTextRects.forEach { used ->
+            while (textTop < used.bottom && textTop + textHeight > used.top &&
+                used.intersects(bounds.left, textTop, bounds.right, textTop + textHeight)
+            ) {
+                textTop = used.bottom + 1f
+            }
+        }
+        if (textTop + textHeight > bounds.bottom) return
+
+        val textX = bounds.left + recordHorizontalPadding + legendTextPadding
+        val textY = textTop + textHeight * 0.9f
+        // The band fill is translucent, so the band color is hard to read;
+        // titles use the same text color as the record names.
+        slotTextPaint.color = nameTextColor
+        canvas.save()
+        // The title never leaves its band, even when the text would be
+        // wider than the band.
+        canvas.clipRect(bounds)
+        canvas.drawText(text, textX, textY, slotTextPaint)
+        canvas.restore()
+        textRect.set(bounds.left, textTop, bounds.left + slotTextPaint.measureText(text), textTop + textHeight)
+        slotTextRects.add(RectF(textRect))
+    }
+
+    /** Cuts the text with an ellipsis until it fits the given width. */
+    private fun ellipsize(text: String, maxWidth: Float): String {
+        if (slotTextPaint.measureText(text) <= maxWidth) return text
+        var length = text.length
+        while (length > 0 && slotTextPaint.measureText(text.substring(0, length) + "...") > maxWidth) {
+            length--
+        }
+        if (length == 0) return ""
+        return text.substring(0, length) + "..."
     }
 
     private fun drawData(
