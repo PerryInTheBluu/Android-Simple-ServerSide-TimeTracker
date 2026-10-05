@@ -5,6 +5,7 @@ import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.example.util.simpletimetracker.core.base.BaseBottomSheetFragment
 import com.example.util.simpletimetracker.core.extension.findListeners
@@ -37,7 +38,12 @@ class CustomRangeSelectionDialogFragment :
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        dialogListener = context.findListeners<CustomRangeSelectionDialogListener>().firstOrNull()
+        // Several tabs implement the listener; the result belongs to
+        // the fragment the user opened the dialog from, which is the
+        // currently resumed one.
+        dialogListener = context.findListeners<CustomRangeSelectionDialogListener>()
+            .filterIsInstance<Fragment>()
+            .firstOrNull { it.isResumed } as? CustomRangeSelectionDialogListener
     }
 
     override fun initDialog() {

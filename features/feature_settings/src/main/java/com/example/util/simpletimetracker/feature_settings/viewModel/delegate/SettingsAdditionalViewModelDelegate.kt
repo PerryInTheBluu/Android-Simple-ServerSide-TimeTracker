@@ -7,6 +7,8 @@ import com.example.util.simpletimetracker.core.extension.set
 import com.example.util.simpletimetracker.core.repo.ResourceRepo
 import com.example.util.simpletimetracker.domain.extension.flip
 import com.example.util.simpletimetracker.domain.prefs.interactor.PrefsInteractor
+import com.example.util.simpletimetracker.domain.record.model.Range
+import com.example.util.simpletimetracker.domain.timetable.model.VacationPeriod
 import com.example.util.simpletimetracker.domain.notifications.interactor.UpdateExternalViewsInteractor
 import com.example.util.simpletimetracker.domain.record.interactor.RecordsContainerUpdateInteractor
 import com.example.util.simpletimetracker.domain.record.interactor.RecordsUpdateInteractor
@@ -22,10 +24,14 @@ import com.example.util.simpletimetracker.navigation.Router
 import com.example.util.simpletimetracker.navigation.params.screen.ActivitySuggestionsParams
 import com.example.util.simpletimetracker.navigation.params.screen.ShortcutsParams
 import com.example.util.simpletimetracker.navigation.params.screen.ComplexRulesParams
+import com.example.util.simpletimetracker.navigation.params.screen.CustomRangeSelectionParams
 import com.example.util.simpletimetracker.navigation.params.screen.DataEditParams
 import com.example.util.simpletimetracker.navigation.params.screen.DurationDialogParams
+import com.example.util.simpletimetracker.navigation.params.screen.StandardDialogParams
 import com.example.util.simpletimetracker.navigation.params.screen.TypesSelectionDialogParams
 import kotlinx.coroutines.launch
+import java.time.Instant
+import java.time.ZoneId
 import javax.inject.Inject
 import kotlin.math.abs
 
@@ -69,6 +75,8 @@ class SettingsAdditionalViewModelDelegate @Inject constructor(
             SettingsBlock.AdditionalShiftEndOfDay -> onEndOfDayClicked()
             SettingsBlock.AdditionalTimetablePrepLead -> onPrepLeadClicked()
             SettingsBlock.AdditionalVacationMode -> onVacationModeClicked()
+            SettingsBlock.AdditionalVacationPeriods -> onVacationPeriodsClicked()
+            SettingsBlock.AdditionalVacationPeriodsRemove -> onVacationPeriodsRemoveClicked()
             SettingsBlock.AdditionalAutomatedTracking -> onAutomatedTrackingHelpClick()
             SettingsBlock.AdditionalShowTagSelection -> onShowRecordTagSelectionClicked()
             SettingsBlock.AdditionalCloseAfterOneTag -> onRecordTagSelectionCloseClicked()
@@ -189,6 +197,54 @@ class SettingsAdditionalViewModelDelegate @Inject constructor(
             recordsUpdateInteractor.send()
             parent?.updateContent()
         }
+    }
+
+    private fun onVacationPeriodsClicked() = delegateScope.launch {
+        val current = prefsInteractor.getVacationPeriods().firstOrNull()
+        val zone = ZoneId.systemDefault()
+        CustomRangeSelectionParams(
+            rangeStart = current?.start?.atStartOfDay(zone)?.toInstant()?.toEpochMilli(),
+            // The range dialog expects the day after the last vacation
+            // day as its exclusive end.
+            rangeEnd = current?.end?.plusDays(1)?.atStartOfDay(zone)?.toInstant()?.toEpochMilli(),
+        ).let(router::navigate)
+    }
+
+    private fun onVacationPeriodsRemoveClicked() = delegateScope.launch {
+        router.navigate(
+            StandardDialogParams(
+                tag = SettingsDialogTags.VACATION_PERIODS_REMOVE_DIALOG_TAG,
+                message = resourceRepo.getString(R.string.settings_vacation_periods_remove_dialog),
+                btnPositive = resourceRepo.getString(R.string.ok),
+                btnNegative = resourceRepo.getString(R.string.cancel),
+            ),
+        )
+    }
+
+    override fun onPositiveClick(tag: String?) {
+        if (tag == SettingsDialogTags.VACATION_PERIODS_REMOVE_DIALOG_TAG) {
+            delegateScope.launch {
+                prefsInteractor.setVacationPeriods(emptyList())
+                // Resume the timetable right away: rebuilds the alarms
+                // and drops the vacation resume alarm.
+                timetableNotificationInteractor.rescheduleAll()
+                recordsUpdateInteractor.send()
+                parent?.updateContent()
+            }
+        }
+    }
+
+    fun onCustomRangeSelected(range: Range) = delegateScope.launch {
+        val zone = ZoneId.systemDefault()
+        val start = Instant.ofEpochMilli(range.timeStarted).atZone(zone).toLocalDate()
+        // The range end is the start of the day after the vacation,
+        // so the period ends on the day before that.
+        val end = Instant.ofEpochMilli(range.timeEnded - 1).atZone(zone).toLocalDate()
+        if (end.isBefore(start)) return@launch
+        prefsInteractor.setVacationPeriods(listOf(VacationPeriod(start = start, end = end)))
+        timetableNotificationInteractor.rescheduleAll()
+        recordsUpdateInteractor.send()
+        parent?.updateContent()
     }
 
     private fun onStartOfDaySignClicked() {

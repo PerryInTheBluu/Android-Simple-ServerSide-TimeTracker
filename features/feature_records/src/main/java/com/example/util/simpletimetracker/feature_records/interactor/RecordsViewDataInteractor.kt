@@ -51,6 +51,7 @@ import com.example.util.simpletimetracker.feature_records.model.RecordsState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.lang.Long.min
+import java.time.LocalDate
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -448,8 +449,9 @@ class RecordsViewDataInteractor @Inject constructor(
     ): List<RecordHolder<Data>> {
         val dayTimestamp = range.timeStarted + startOfDayShiftSafe()
         val date = timetableViewDataMapper.dateString(dayTimestamp)
-        // Vacation mode pauses the timetable globally.
-        if (prefsInteractor.getVacationMode()) return emptyList()
+        // Vacation mode and planned vacation periods pause the
+        // timetable for this day.
+        if (prefsInteractor.isVacationDay(LocalDate.parse(date))) return emptyList()
         if (timetableRepo.getDays().any { it.date == date && it.freeDay }) return emptyList()
 
         val isoDay = timetableViewDataMapper.isoDayOfWeek(dayTimestamp)
@@ -527,8 +529,9 @@ class RecordsViewDataInteractor @Inject constructor(
     ): List<RecordsCalendarViewData.Slot> {
         val dayTimestamp = range.timeStarted + startOfDayShiftSafe()
         val date = timetableViewDataMapper.dateString(dayTimestamp)
-        // Vacation mode pauses the timetable globally.
-        if (prefsInteractor.getVacationMode()) return emptyList()
+        // Vacation mode and planned vacation periods pause the
+        // timetable for this day.
+        if (prefsInteractor.isVacationDay(LocalDate.parse(date))) return emptyList()
         if (timetableRepo.getDays().any { it.date == date && it.freeDay }) return emptyList()
 
         val isoDay = timetableViewDataMapper.isoDayOfWeek(dayTimestamp)

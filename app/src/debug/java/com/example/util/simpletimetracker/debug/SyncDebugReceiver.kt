@@ -21,6 +21,7 @@ import java.util.Calendar
 import com.example.util.simpletimetracker.domain.recordType.repo.RecordTypeRepo
 import com.example.util.simpletimetracker.domain.timetable.model.TimetableEvent
 import com.example.util.simpletimetracker.domain.timetable.model.TimetableTodo
+import com.example.util.simpletimetracker.domain.timetable.model.VacationPeriod
 import com.example.util.simpletimetracker.data_sync.db.SyncStateDao
 import com.example.util.simpletimetracker.data_sync.keystore.SyncCredentialStore
 import com.example.util.simpletimetracker.data_sync.work.SyncScheduler
@@ -184,6 +185,21 @@ class SyncDebugReceiver : BroadcastReceiver() {
                             else -> Timber.w("DebugReceiver: unknown pref %s", key)
                         }
                         Timber.i("DebugReceiver: set %s=%d", key, value)
+                    }
+                    ACTION_SET_VACATION_PERIOD -> {
+                        val start = intent.getStringExtra(EXTRA_START).orEmpty()
+                        val end = intent.getStringExtra(EXTRA_END).orEmpty()
+                        if (start.isNotEmpty() && end.isNotEmpty()) {
+                            val period = VacationPeriod(
+                                start = java.time.LocalDate.parse(start),
+                                end = java.time.LocalDate.parse(end),
+                            )
+                            prefsInteractor.setVacationPeriods(listOf(period))
+                        } else {
+                            prefsInteractor.setVacationPeriods(emptyList())
+                        }
+                        timetableNotificationInteractor.rescheduleAll()
+                        Timber.i("DebugReceiver: vacation period %s..%s", start, end)
                     }
                     ACTION_SET_PREF_BOOL -> {
                         val key = intent.getStringExtra(EXTRA_KEY).orEmpty()
@@ -504,6 +520,8 @@ class SyncDebugReceiver : BroadcastReceiver() {
         const val ACTION_TIMETABLE_TODO_DONE = "de.piusdischinger.timetracker.debug.TIMETABLE_TODO_DONE"
         const val ACTION_WIPE_ALL = "de.piusdischinger.timetracker.debug.WIPE_ALL"
         const val ACTION_SET_PREF_BOOL = "de.piusdischinger.timetracker.debug.SET_PREF_BOOL"
+        const val ACTION_SET_VACATION_PERIOD =
+            "de.piusdischinger.timetracker.debug.SET_VACATION_PERIOD"
         const val ACTION_SET_PREF_LONG = "de.piusdischinger.timetracker.debug.SET_PREF_LONG"
         const val EXTRA_KEY = "key"
         const val EXTRA_VALUE = "value"
@@ -515,6 +533,8 @@ class SyncDebugReceiver : BroadcastReceiver() {
         const val EXTRA_PATH = "path"
         const val EXTRA_EVENT_ID = "eventId"
         const val EXTRA_DATE = "date"
+        const val EXTRA_START = "start"
+        const val EXTRA_END = "end"
         const val EXTRA_TODO_TYPE = "todoType"
     }
 }

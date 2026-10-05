@@ -8,6 +8,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.LiveData
 import com.example.util.simpletimetracker.core.base.BaseFragment
 import com.example.util.simpletimetracker.core.di.BaseViewModelFactory
+import com.example.util.simpletimetracker.feature_dialogs.api.CustomRangeSelectionDialogListener
 import com.example.util.simpletimetracker.feature_dialogs.api.DataExportSettingsDialogListener
 import com.example.util.simpletimetracker.feature_dialogs.api.DateTimeDialogListener
 import com.example.util.simpletimetracker.feature_dialogs.api.DurationDialogListener
@@ -16,6 +17,7 @@ import com.example.util.simpletimetracker.feature_dialogs.api.StandardDialogList
 import com.example.util.simpletimetracker.feature_dialogs.api.TypesSelectionDialogListener
 import com.example.util.simpletimetracker.core.sharedViewModel.MainTabsViewModel
 import com.example.util.simpletimetracker.core.utils.InsetConfiguration
+import com.example.util.simpletimetracker.domain.record.model.Range
 import com.example.util.simpletimetracker.domain.record.model.RecordBase
 import com.example.util.simpletimetracker.feature_base_adapter.BaseRecyclerAdapter
 import com.example.util.simpletimetracker.feature_base_adapter.ViewHolderType
@@ -38,6 +40,7 @@ class SettingsFragment :
     DurationDialogListener,
     DateTimeDialogListener,
     DataExportSettingsDialogListener,
+    CustomRangeSelectionDialogListener,
     TypesSelectionDialogListener,
     OptionsListDialogListener,
     SettingsOptionsBlockClickListener,
@@ -98,6 +101,10 @@ class SettingsFragment :
 
     override fun onPositiveClick(tag: String?, data: Any?) {
         viewModel.onPositiveClick(tag)
+    }
+
+    override fun onCustomRangeSelected(range: Range) {
+        viewModel.onCustomRangeSelected(range)
     }
 
     override fun onDurationSet(durationSeconds: Long, tag: String?) {

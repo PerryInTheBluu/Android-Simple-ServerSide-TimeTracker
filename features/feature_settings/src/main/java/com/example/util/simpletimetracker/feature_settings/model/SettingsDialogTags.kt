@@ -20,4 +20,5 @@ object SettingsDialogTags {
     const val COMMENT_EXCLUDE_ACTIVITIES_TYPES_SELECTION = "comment_exclude_activities_types_selection"
     const val CLOSE_AFTER_ONE_TAG_EXCLUDE_ACTIVITIES_TYPES_SELECTION = "close_after_one_exclude_activities"
     const val SELECT_ACTIVITIES_TO_AUTOSTART_POMODORO = "select_activities_to_autostart_pomodoro"
+    const val VACATION_PERIODS_REMOVE_DIALOG_TAG = "vacation_periods_remove_dialog_tag"
 }

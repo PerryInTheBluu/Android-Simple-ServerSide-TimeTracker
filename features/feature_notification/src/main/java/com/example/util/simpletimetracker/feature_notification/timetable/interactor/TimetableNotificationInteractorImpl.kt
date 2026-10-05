@@ -40,10 +40,24 @@ class TimetableNotificationInteractorImpl @Inject constructor(
         val today = LocalDate.now(zone)
         val prepLead = prefsInteractor.getTimetablePrepLead()
 
+        // Alarms for days inside a planned vacation period that were
+        // scheduled earlier have to be cancelled explicitly.
+        val vacationPeriods = prefsInteractor.getVacationPeriods()
+        vacationPeriods.forEach { period ->
+            var day = if (period.start.isBefore(today)) today else period.start
+            while (!day.isAfter(period.end)) {
+                alarmScheduler.cancelDay(events = events, date = day.toString())
+                day = day.plusDays(1)
+            }
+        }
+
         for (dayOffset in 0..SCHEDULE_DAYS) {
             val day = today.plusDays(dayOffset.toLong())
             val date = day.toString()
             if (date in freeDays) continue
+            // Planned vacation periods pause the timetable for their
+            // days only; days before and after keep their alarms.
+            if (prefsInteractor.isVacationDay(day)) continue
             val overrides = timetableRepo.getOverrides(date).associateBy { it.eventId }
             events
                 .filter { it.dayOfWeek == day.dayOfWeek.value }
@@ -73,10 +87,31 @@ class TimetableNotificationInteractorImpl @Inject constructor(
                     }
                 }
         }
+        scheduleVacationResumeAlarms(now = now, prepLead = prepLead)
+    }
+
+    // Keeps a single alarm that re-schedules the regular timetable
+    // shortly before the first day after a vacation period. Without
+    // it the alarms for the days after the vacation would be missing
+    // if the app was not opened during the vacation.
+    private suspend fun scheduleVacationResumeAlarms(
+        now: Long,
+        prepLead: Long,
+    ) {
+        alarmScheduler.cancelVacationResume()
+        val zone = ZoneId.systemDefault()
+        prefsInteractor.getVacationPeriods()
+            .mapNotNull { period ->
+                val firstDayAfter = period.end.plusDays(1)
+                val trigger = firstDayAfter.atStartOfDay(zone).toInstant().toEpochMilli() - prepLead
+                if (trigger > now) trigger else null
+            }
+            .minOrNull()
+            ?.let(alarmScheduler::scheduleVacationResume)
     }
 
     override suspend fun onPreparationDue(eventId: Long, date: String) {
-        if (prefsInteractor.getVacationMode()) return
+        if (prefsInteractor.isVacationDay(parseDate(date))) return
         val event = getEvent(eventId) ?: return
         ensureTodo(eventId, date, TimetableTodo.Type.PREPARATION)
         val startTime = parseDate(date)
@@ -97,7 +132,7 @@ class TimetableNotificationInteractorImpl @Inject constructor(
     }
 
     override suspend fun onFollowUpDue(eventId: Long, date: String) {
-        if (prefsInteractor.getVacationMode()) return
+        if (prefsInteractor.isVacationDay(parseDate(date))) return
         val event = getEvent(eventId) ?: return
         ensureTodo(eventId, date, TimetableTodo.Type.FOLLOW_UP)
         val endTime = parseDate(date)

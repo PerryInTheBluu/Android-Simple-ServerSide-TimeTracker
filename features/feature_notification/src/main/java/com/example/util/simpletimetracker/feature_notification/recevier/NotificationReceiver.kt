@@ -129,6 +129,11 @@ class NotificationReceiver : BroadcastReceiver() {
                     timetableController.onTodoDone(eventId, date, type)
                 }
             }
+            ACTION_TIMETABLE_VACATION_RESUME -> {
+                // A vacation period is about to end: rebuild the
+                // regular schedule for the days after it.
+                timetableController.onVacationResume()
+            }
             ACTION_INACTIVITY_REMINDER -> {
                 inactivityController.onInactivityReminder()
             }
@@ -414,6 +419,8 @@ class NotificationReceiver : BroadcastReceiver() {
             "de.piusdischinger.timetracker.ACTION_TIMETABLE_FOLLOWUP_DUE"
         const val ACTION_TIMETABLE_TODO_DONE =
             "de.piusdischinger.timetracker.ACTION_TIMETABLE_TODO_DONE"
+        const val ACTION_TIMETABLE_VACATION_RESUME =
+            "de.piusdischinger.timetracker.ACTION_TIMETABLE_VACATION_RESUME"
 
         const val ACTION_QUICK_BOOT_POWER_ON = "android.intent.action.QUICKBOOT_POWERON"
         const val ACTION_HTC_QUICK_BOOT_POWER_ON = "com.htc.intent.action.QUICKBOOT_POWERON"

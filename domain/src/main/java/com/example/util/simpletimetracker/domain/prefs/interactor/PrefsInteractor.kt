@@ -24,9 +24,11 @@ import com.example.util.simpletimetracker.domain.statistics.model.StatisticsStre
 import com.example.util.simpletimetracker.domain.widget.model.GridWidgetData
 import com.example.util.simpletimetracker.domain.widget.model.StatisticsWidgetData
 import com.example.util.simpletimetracker.domain.widget.model.QuickSettingsWidgetType
+import com.example.util.simpletimetracker.domain.timetable.model.VacationPeriod
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
+import java.time.LocalDate
 
 class PrefsInteractor @Inject constructor(
     private val prefsRepo: PrefsRepo,
@@ -351,6 +353,22 @@ class PrefsInteractor @Inject constructor(
 
     suspend fun setVacationMode(isEnabled: Boolean) = withContext(Dispatchers.IO) {
         prefsRepo.vacationMode = isEnabled
+    }
+
+    suspend fun getVacationPeriods(): List<VacationPeriod> = withContext(Dispatchers.IO) {
+        VacationPeriod.deserialize(prefsRepo.vacationPeriods)
+    }
+
+    suspend fun setVacationPeriods(periods: List<VacationPeriod>) = withContext(Dispatchers.IO) {
+        prefsRepo.vacationPeriods = VacationPeriod.serialize(periods)
+    }
+
+    // The vacation mode toggle and the planned periods pause the
+    // timetable for the given day.
+    suspend fun isVacationDay(date: LocalDate): Boolean = withContext(Dispatchers.IO) {
+        prefsRepo.vacationMode || VacationPeriod
+            .deserialize(prefsRepo.vacationPeriods)
+            .any { it.contains(date) }
     }
 
     suspend fun setStartOfDayShift(startOfDay: Long) = withContext(Dispatchers.IO) {

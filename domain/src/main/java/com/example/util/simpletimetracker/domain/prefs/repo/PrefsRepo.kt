@@ -68,6 +68,10 @@ interface PrefsRepo {
     // shown and no preparation or follow up notifications fire.
     var vacationMode: Boolean
 
+    // Planned vacation periods that pause the timetable between start
+    // and end date; serialized by VacationPeriod.
+    var vacationPeriods: String
+
     var showUntrackedInRecords: Boolean
 
     var showUntrackedInStatistics: Boolean

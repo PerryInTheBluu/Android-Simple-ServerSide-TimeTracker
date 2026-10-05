@@ -30,6 +30,10 @@ class TimetableController @Inject constructor(
         timetableNotificationInteractor.onTodoDone(eventId, date, type)
     }
 
+    suspend fun onVacationResume() {
+        rescheduleAll()
+    }
+
     suspend fun onBootCompleted() {
         rescheduleAll()
     }

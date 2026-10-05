@@ -9,6 +9,7 @@ import com.example.util.simpletimetracker.core.extension.lazySuspend
 import com.example.util.simpletimetracker.core.extension.set
 import com.example.util.simpletimetracker.core.model.NavigationTab
 import com.example.util.simpletimetracker.domain.darkMode.interactor.ThemeChangedInteractor
+import com.example.util.simpletimetracker.domain.record.model.Range
 import com.example.util.simpletimetracker.domain.statistics.interactor.SettingsDataUpdateInteractor
 import com.example.util.simpletimetracker.feature_base_adapter.ViewHolderType
 import com.example.util.simpletimetracker.feature_settings.interactor.SettingsViewModelDelegatesProvider
@@ -68,6 +69,10 @@ class SettingsViewModel @Inject constructor(
 
     fun onSyncServerSaved(url: String, username: String, password: String) = viewModelScope.launch {
         syncDelegate.onSyncServerSaved(url, username, password)
+    }
+
+    fun onCustomRangeSelected(range: Range) = viewModelScope.launch {
+        additionalDelegate.onCustomRangeSelected(range)
     }
 
     fun onResetScreen() = viewModelScope.launch {

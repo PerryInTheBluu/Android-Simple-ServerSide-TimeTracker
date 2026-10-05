@@ -736,6 +736,10 @@ Beispiel:<br/>
     <string name="timetable_todo_general">Aufgabe</string>
     <string name="settings_timetable_prep_lead">Vorbereitungs-Vorlauf</string>
     <string name="settings_vacation_mode">Urlaub (Stundenplan pausieren)</string>
+    <string name="settings_vacation_periods">Urlaubszeitraum</string>
+    <string name="settings_vacation_periods_hint">Pausiert den Stundenplan zwischen den beiden Daten.</string>
+    <string name="settings_vacation_periods_remove">Urlaubszeitraum entfernen</string>
+    <string name="settings_vacation_periods_remove_dialog">Urlaubszeitraum entfernen? Der Stundenplan läuft danach wieder normal.</string>
     <string name="settings_timetable_prep_lead_hint">Wie lange vor einem Stundenplan-Termin die Vorbereitung angefragt wird.</string>
     <string name="settings_timetable_prep_lead_hint_value">Die Vorbereitung wird %s vorher angefragt; deaktiviert heißt zum Terminbeginn.</string>
     <string name="subject_goals_title">Stunden pro Fach</string>

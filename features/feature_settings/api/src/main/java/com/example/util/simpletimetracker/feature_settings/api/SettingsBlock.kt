@@ -105,6 +105,8 @@ enum class SettingsBlock {
     AdditionalTimetablePrepLead,
     AdditionalTimetablePrepLeadHint,
     AdditionalVacationMode,
+    AdditionalVacationPeriods,
+    AdditionalVacationPeriodsRemove,
     AdditionalAutomatedTracking,
     AdditionalSendEvents,
     AdditionalReceiveQueries,

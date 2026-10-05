@@ -21,6 +21,8 @@ import com.example.util.simpletimetracker.feature_settings.views.SettingsCheckbo
 import com.example.util.simpletimetracker.feature_settings.views.SettingsSpinnerViewData
 import com.example.util.simpletimetracker.feature_settings.views.SettingsTextViewData
 import com.example.util.simpletimetracker.feature_settings.views.SettingsTopViewData
+import com.example.util.simpletimetracker.domain.timetable.model.VacationPeriod
+import java.time.ZoneId
 import java.util.Calendar
 import javax.inject.Inject
 import kotlin.math.abs
@@ -146,14 +148,42 @@ class SettingsMainViewDataInteractor @Inject constructor(
             title = resourceRepo.getString(R.string.settings_vacation_mode),
             subtitle = "",
             isChecked = prefsInteractor.getVacationMode(),
-            bottomSpaceIsVisible = true,
+            bottomSpaceIsVisible = false,
             dividerIsVisible = false,
         )
+        val vacationPeriods = prefsInteractor.getVacationPeriods()
+        result += SettingsSelectorViewData(
+            block = SettingsBlock.AdditionalVacationPeriods,
+            title = resourceRepo.getString(R.string.settings_vacation_periods),
+            subtitle = resourceRepo.getString(R.string.settings_vacation_periods_hint),
+            selectedValue = loadVacationPeriodsValue(vacationPeriods),
+            bottomSpaceIsVisible = vacationPeriods.isEmpty(),
+            dividerIsVisible = false,
+        )
+        if (vacationPeriods.isNotEmpty()) {
+            result += SettingsSelectorViewData(
+                block = SettingsBlock.AdditionalVacationPeriodsRemove,
+                title = resourceRepo.getString(R.string.settings_vacation_periods_remove),
+                subtitle = "",
+                selectedValue = "",
+                bottomSpaceIsVisible = true,
+                dividerIsVisible = false,
+            )
+        }
         result += SettingsBottomViewData(
             block = SettingsBlock.MainBottom,
         )
 
         return result
+    }
+
+    private fun loadVacationPeriodsValue(periods: List<VacationPeriod>): String {
+        return periods.joinToString { period ->
+            val zone = ZoneId.systemDefault()
+            val start = period.start.atStartOfDay(zone).toInstant().toEpochMilli()
+            val end = period.end.atStartOfDay(zone).toInstant().toEpochMilli()
+            "${timeMapper.formatDate(start)} – ${timeMapper.formatDate(end)}"
+        }
     }
 
     private suspend fun loadDarkModeViewData(): DarkModeViewData {

@@ -752,6 +752,10 @@ Example:<br/>
     <string name="timetable_todo_general">Todo</string>
     <string name="settings_timetable_prep_lead">Preparation lead</string>
     <string name="settings_vacation_mode">Vacation (pause the timetable)</string>
+    <string name="settings_vacation_periods">Vacation period</string>
+    <string name="settings_vacation_periods_hint">Pauses the timetable between the two dates.</string>
+    <string name="settings_vacation_periods_remove">Remove vacation period</string>
+    <string name="settings_vacation_periods_remove_dialog">Remove the vacation period? The timetable resumes normally.</string>
     <string name="settings_timetable_prep_lead_hint">How long before a timetable slot the preparation question pops up.</string>
     <string name="settings_timetable_prep_lead_hint_value">Preparation is asked %s in advance; disabled means at slot start.</string>
     <string name="subject_goals_title">Hours per subject</string>

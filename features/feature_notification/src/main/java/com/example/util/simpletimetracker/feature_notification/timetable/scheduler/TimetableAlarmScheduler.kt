@@ -30,18 +30,28 @@ class TimetableAlarmScheduler @Inject constructor(
         val zone = ZoneId.systemDefault()
         val today = LocalDate.now(zone)
         for (dayOffset in 0..days) {
-            val date = today.plusDays(dayOffset.toLong()).toString()
-            events.forEach { event ->
-                TimetableTodo.Type.entries.forEach { type ->
-                    alarmManagerController.cancelSchedule(
-                        pendingIntent = getPendingIntent(
-                            action = actionOf(type),
-                            type = type,
-                            eventId = event.id,
-                            date = date,
-                        ),
-                    )
-                }
+            cancelDay(events = events, date = today.plusDays(dayOffset.toLong()).toString())
+        }
+    }
+
+    /**
+     * Cancels the preparation and follow up alarms of one date; used
+     * for days inside a planned vacation period.
+     */
+    fun cancelDay(
+        events: List<TimetableEvent>,
+        date: String,
+    ) {
+        events.forEach { event ->
+            TimetableTodo.Type.entries.forEach { type ->
+                alarmManagerController.cancelSchedule(
+                    pendingIntent = getPendingIntent(
+                        action = actionOf(type),
+                        type = type,
+                        eventId = event.id,
+                        date = date,
+                    ),
+                )
             }
         }
     }
@@ -65,6 +75,37 @@ class TimetableAlarmScheduler @Inject constructor(
             eventId = eventId,
             date = date,
             triggerTimestamp = triggerTimestamp,
+        )
+    }
+
+    /**
+     * One alarm at a time: fires shortly before the first day after a
+     * vacation period so the regular schedule is rebuilt even if the
+     * app was not opened during the vacation.
+     */
+    fun scheduleVacationResume(triggerTimestamp: Long) {
+        alarmManagerController.scheduleAtTime(
+            timestamp = triggerTimestamp,
+            pendingIntent = getVacationResumePendingIntent(),
+        )
+    }
+
+    fun cancelVacationResume() {
+        alarmManagerController.cancelSchedule(
+            pendingIntent = getVacationResumePendingIntent(),
+        )
+    }
+
+    private fun getVacationResumePendingIntent(): PendingIntent {
+        val intent = Intent(context, NotificationReceiver::class.java).apply {
+            action = NotificationReceiver.ACTION_TIMETABLE_VACATION_RESUME
+            data = "simpletimetracker://timetable/vacation-resume".toUri()
+        }
+        return PendingIntent.getBroadcast(
+            context,
+            0,
+            intent,
+            PendingIntents.getFlags(),
         )
     }
 
