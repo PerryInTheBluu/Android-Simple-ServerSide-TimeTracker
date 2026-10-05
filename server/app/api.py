@@ -336,16 +336,36 @@ def list_time_entries(
 @api_router.post("/time-entries")
 def create_time_entry(body: TimeEntryIn, db: Session = Depends(get_db), user_id: str = Depends(require_user)):
     ended = parse_dt(body.ended_at) if body.ended_at else None
+    if body.id:
+        existing = db.query(TimeEntry).filter(TimeEntry.id == body.id, TimeEntry.user_id == user_id).first()
+        if existing is not None:
+            if existing.deleted_at is not None:
+                # Restore previously deleted entry (e.g. Undo action)
+                existing.deleted_at = None
+                existing.activity_id = body.activity_id
+                existing.parent_activity_ids = body.parent_activity_ids or ""
+                existing.started_at = parse_dt(body.started_at)
+                existing.ended_at = ended
+                existing.duration_seconds = body.duration_seconds or 0
+                existing.comment = body.comment
+                existing.tags = body.tags or ""
+                existing.updated_at = utcnow()
+                existing.sync_status = "synced"
+                db.commit()
+                return entry_out(existing)
+            else:
+                raise HTTPException(status_code=409, detail="Time entry already exists")
+
     entry = TimeEntry(
         id=body.id or new_id(),
         user_id=user_id,
         activity_id=body.activity_id,
-        parent_activity_ids=body.parent_activity_ids,
+        parent_activity_ids=body.parent_activity_ids or "",
         started_at=parse_dt(body.started_at),
         ended_at=ended,
-        duration_seconds=body.duration_seconds,
+        duration_seconds=body.duration_seconds or 0,
         comment=body.comment,
-        tags=body.tags,
+        tags=body.tags or "",
         created_at=parse_dt(body.created_at) if body.created_at else utcnow(),
         updated_at=parse_dt(body.updated_at) if body.updated_at else utcnow(),
         sync_status="synced",

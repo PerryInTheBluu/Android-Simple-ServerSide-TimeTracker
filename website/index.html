@@ -549,6 +549,10 @@ tr:last-child td { border-bottom: 0; }
         <div>
           <label>Schichtstart:</label>
           <select id="shiftStart">
+            <option value="0">00:00</option>
+            <option value="1">01:00</option>
+            <option value="2">02:00</option>
+            <option value="3">03:00</option>
             <option value="4">04:00</option>
             <option value="5">05:00</option>
             <option value="6" selected>06:00</option>
@@ -941,11 +945,15 @@ function getTodayTrackedByActivity() {
   if (!DATA || !DATA.time_entries) return map;
   const todayStr = localDateStr(new Date());
   const now = new Date();
+  const dayStart = new Date(todayStr + "T00:00:00").getTime();
+  const dayEnd = dayStart + 86400000;
   for (const e of active(DATA.time_entries)) {
-    const start = new Date(e.started_at);
-    if (localDateStr(start) === todayStr) {
-      const end = e.ended_at ? new Date(e.ended_at) : now;
-      const secs = Math.max(0, (end - start) / 1000);
+    const start = new Date(e.started_at).getTime();
+    const end = e.ended_at ? new Date(e.ended_at).getTime() : now.getTime();
+    const segStart = Math.max(start, dayStart);
+    const segEnd = Math.min(end, dayEnd);
+    if (segStart < segEnd) {
+      const secs = (segEnd - segStart) / 1000;
       map[e.activity_id] = (map[e.activity_id] || 0) + secs;
     }
   }
@@ -1799,7 +1807,7 @@ function renderDayCalendar(entries, actById) {
   const endMin = endHour * 60;
   const totalMin = Math.max(60, endMin - startMin);
 
-  const hoursCount = endHour - startHour;
+  const hoursCount = Math.max(1, endHour - startHour);
   const baseHourHeight = 48;
   const hourHeight = Math.round(baseHourHeight * dayCalZoom);
   const calHeight = hoursCount * hourHeight;
@@ -1878,11 +1886,9 @@ function renderDayCalendar(entries, actById) {
 
     // Track Lane (with collision sub-columns layout)
     const rawTrackSlots = [];
-    for (const e of entries) {
-      const s = new Date(e.started_at);
-      const end = e.ended_at ? new Date(e.ended_at) : now;
-      const sMinutes = s.getHours() * 60 + s.getMinutes();
-      const eMinutes = end.getHours() * 60 + end.getMinutes();
+    for (const item of entries) {
+      const sMinutes = item.sMinutes;
+      const eMinutes = item.eMinutes;
 
       if (eMinutes > startMin && sMinutes < endMin) {
         const sClamped = Math.max(startMin, sMinutes);
@@ -1891,9 +1897,8 @@ function renderDayCalendar(entries, actById) {
         const exactHeight = (eClamped - sClamped) * ppm;
         const boxHeight = Math.max(14, exactHeight);
         rawTrackSlots.push({
-          entry: e,
-          s,
-          end,
+          item: item,
+          entry: item.entry,
           sMinutes,
           eMinutes,
           topPx,
@@ -1906,9 +1911,8 @@ function renderDayCalendar(entries, actById) {
     const trackSlots = layoutVisualSlots(rawTrackSlots);
     let trackHtml = "<div class='dayCalTrackLane'>";
     for (const slot of trackSlots) {
+      const item = slot.item;
       const e = slot.entry;
-      const s = slot.s;
-      const end = slot.end;
       const topPx = slot.topPx;
       const boxHeight = slot.boxHeightPx;
       const isCompact = slot.heightPx < 26;
@@ -1918,13 +1922,14 @@ function renderDayCalendar(entries, actById) {
       const contrast = getContrastColor(color);
       const icon = getActivityIcon(act);
       const isRunning = !e.ended_at;
-      const sTime = s.toLocaleTimeString("de-DE", {hour: "2-digit", minute: "2-digit"});
-      const eTime = e.ended_at ? end.toLocaleTimeString("de-DE", {hour: "2-digit", minute: "2-digit"}) : "jetzt";
-      const durText = formatDuration(Math.max(0, (end - s) / 1000));
+      const sTime = item.isCrossStart ? "00:00" : item.segStart.toLocaleTimeString("de-DE", {hour: "2-digit", minute: "2-digit"});
+      const eTime = isRunning ? "jetzt" : (item.isCrossEnd ? "24:00" : item.segEnd.toLocaleTimeString("de-DE", {hour: "2-digit", minute: "2-digit"}));
+      const durText = formatDuration(item.segSecs);
+      const totalDurNote = (item.isCrossStart || item.isCrossEnd) ? " (heute " + durText + ")" : " (" + durText + ")";
       const glow = isRunning ? ";box-shadow:0 0 10px " + color + ";border:2px solid #fff" : "";
-      const hoverTitle = escapeHtml(act ? act.name : "Aktivität") + " (" + sTime + "–" + eTime + ", " + durText + ")" + (e.comment ? " · " + e.comment : "") + " — Klick zum Bearbeiten";
+      const hoverTitle = escapeHtml(act ? act.name : "Aktivität") + " (" + sTime + "–" + eTime + ")" + totalDurNote + (e.comment ? " · " + e.comment : "") + " — Klick zum Bearbeiten";
 
-      const leftStyle = slot.totalCols > 1 ? "left:" + slot.leftPct.toFixed(1) + "%;width:calc(" + slot.widthPct.toFixed(1) + "% - 4px);" : "left:3px;right:3px;";
+      const leftStyle = slot.totalCols > 1 ? "left:calc(" + slot.leftPct.toFixed(1) + "% + 2px);width:calc(" + slot.widthPct.toFixed(1) + "% - 4px);" : "left:3px;right:3px;";
 
       trackHtml += "<div class='dayCalSlot" + compactClass + "' style='top:" + topPx.toFixed(1) + "px;height:" + boxHeight.toFixed(1) + "px;" + leftStyle + "background:" + color + glow + ";color:" + contrast.text + ";' onclick=\"openEditEntryModal('" + e.id + "')\" title=\"" + escapeHtml(hoverTitle) + "\">" +
         "<div style='font-weight:700;display:flex;align-items:center;gap:4px;color:" + contrast.text + ";overflow:hidden;text-overflow:ellipsis;white-space:nowrap'>" +
@@ -2011,37 +2016,42 @@ function renderDayCalendar(entries, actById) {
       const dayOverrides = DATA ? active(DATA.timetable_overrides).filter((o) => o.date === dStr) : [];
       const freeDays = DATA ? new Set(active(DATA.timetable_days).filter((df) => df.free_day).map((df) => df.date)) : new Set();
       const isFreeDay = freeDays.has(dStr);
-      const dayTrack = active(DATA ? DATA.time_entries : []).filter((e) => {
-        const s = localDateStr(new Date(e.started_at));
-        const end = e.ended_at ? localDateStr(new Date(e.ended_at)) : todayStr;
-        return s === dStr || end === dStr;
-      });
+      const colDayStart = new Date(dStr + "T00:00:00");
+      const colDayEnd = new Date(colDayStart);
+      colDayEnd.setDate(colDayStart.getDate() + 1);
 
-      // 1. Process tracked entries (for past or today past/running)
+      // 1. Process tracked entries (clipped to dStr [colDayStart, colDayEnd])
       const rawWeekSlots = [];
-      for (const e of dayTrack) {
-        const s = new Date(e.started_at);
-        const end = e.ended_at ? new Date(e.ended_at) : now;
-        const sMinutes = s.getHours() * 60 + s.getMinutes();
-        const eMinutes = end.getHours() * 60 + end.getMinutes();
-
-        // In week view: Show tracked content for past days or today up to now
-        if (isPastDay || (isCur && sMinutes <= nowMinutes)) {
-          if (eMinutes > startMin && sMinutes < endMin) {
-            const sClamped = Math.max(startMin, sMinutes);
-            const eClamped = Math.min(endMin, eMinutes);
-            const topPx = (sClamped - startMin) * ppm;
-            const exactHeight = (eClamped - sClamped) * ppm;
-            const boxHeight = Math.max(14, exactHeight);
-            rawWeekSlots.push({
-              type: "track",
-              entry: e,
-              s,
-              end,
-              topPx,
-              heightPx: exactHeight,
-              boxHeightPx: boxHeight,
-            });
+      for (const e of active(DATA ? DATA.time_entries : [])) {
+        const eStart = new Date(e.started_at);
+        const eEnd = e.ended_at ? new Date(e.ended_at) : now;
+        const segStart = new Date(Math.max(eStart.getTime(), colDayStart.getTime()));
+        const segEnd = new Date(Math.min(eEnd.getTime(), colDayEnd.getTime()));
+        if (segStart < segEnd) {
+          const sMinutes = segStart.getTime() === colDayStart.getTime() ? 0 : segStart.getHours() * 60 + segStart.getMinutes();
+          const eMinutes = segEnd.getTime() === colDayEnd.getTime() ? 1440 : segEnd.getHours() * 60 + segEnd.getMinutes();
+          // In week view: Show tracked content for past days or today up to now
+          if (isPastDay || (isCur && sMinutes <= nowMinutes)) {
+            if (eMinutes > startMin && sMinutes < endMin) {
+              const sClamped = Math.max(startMin, sMinutes);
+              const eClamped = Math.min(endMin, eMinutes);
+              const topPx = (sClamped - startMin) * ppm;
+              const exactHeight = (eClamped - sClamped) * ppm;
+              const boxHeight = Math.max(14, exactHeight);
+              rawWeekSlots.push({
+                type: "track",
+                entry: e,
+                segStart,
+                segEnd,
+                sMinutes,
+                eMinutes,
+                isCrossStart: eStart.getTime() < colDayStart.getTime(),
+                isCrossEnd: eEnd.getTime() > colDayEnd.getTime(),
+                topPx,
+                heightPx: exactHeight,
+                boxHeightPx: boxHeight,
+              });
+            }
           }
         }
       }
@@ -2065,15 +2075,14 @@ function renderDayCalendar(entries, actById) {
         const isEventPast = isPastDay || (isCur && eMinutes <= nowMinutes);
 
         if (isEventPast) {
-          // Check if attended or missed
-          const attended = dayTrack.some((t) => {
+          // Check if attended or missed (matches reference.py and render())
+          const eventStart = atMinutes(dStr, sMinutes);
+          const eventEnd = atMinutes(dStr, eMinutes);
+          const attended = active(DATA ? DATA.time_entries : []).some((t) => {
             if (t.activity_id !== ev.activity_sync_id) return false;
             const ts = new Date(t.started_at);
             const te = t.ended_at ? new Date(t.ended_at) : now;
-            const tsMin = ts.getHours() * 60 + ts.getMinutes();
-            const teMin = te.getHours() * 60 + te.getMinutes();
-            const overlap = Math.max(0, Math.min(eMinutes, teMin) - Math.max(sMinutes, tsMin));
-            return overlap >= 20 || overlap >= (eMinutes - sMinutes) * 0.4;
+            return ts < eventEnd && te > eventStart;
           });
 
           if (!attended && !isCancelled) {
@@ -2112,7 +2121,7 @@ function renderDayCalendar(entries, actById) {
         const boxHeight = slot.boxHeightPx;
         const isCompact = slot.heightPx < 26;
         const compactClass = isCompact ? " compact" : "";
-        const leftStyle = slot.totalCols > 1 ? "left:" + slot.leftPct.toFixed(1) + "%;width:calc(" + slot.widthPct.toFixed(1) + "% - 4px);" : "left:2px;right:2px;";
+        const leftStyle = slot.totalCols > 1 ? "left:calc(" + slot.leftPct.toFixed(1) + "% + 2px);width:calc(" + slot.widthPct.toFixed(1) + "% - 4px);" : "left:2px;right:2px;";
 
         if (slot.type === "track") {
           const e = slot.entry;
@@ -2120,9 +2129,9 @@ function renderDayCalendar(entries, actById) {
           const color = activityColor(act);
           const icon = getActivityIcon(act);
           const isRunning = !e.ended_at;
-          const sTime = slot.s.toLocaleTimeString("de-DE", {hour: "2-digit", minute: "2-digit"});
-          const eTime = e.ended_at ? slot.end.toLocaleTimeString("de-DE", {hour: "2-digit", minute: "2-digit"}) : "jetzt";
-          const durText = formatDuration(Math.max(0, (slot.end - slot.s) / 1000));
+          const sTime = slot.isCrossStart ? "00:00" : slot.segStart.toLocaleTimeString("de-DE", {hour: "2-digit", minute: "2-digit"});
+          const eTime = isRunning ? "jetzt" : (slot.isCrossEnd ? "24:00" : slot.segEnd.toLocaleTimeString("de-DE", {hour: "2-digit", minute: "2-digit"}));
+          const durText = formatDuration(Math.max(0, (slot.segEnd - slot.segStart) / 1000));
           const glow = isRunning ? ";box-shadow:0 0 10px " + color + ";border:2px solid #fff" : "";
           const hoverTitle = escapeHtml(act ? act.name : "Aktivität") + " (" + sTime + "–" + eTime + ", " + durText + ")" + (e.comment ? " · " + e.comment : "") + " — Klick zum Bearbeiten";
 
@@ -2130,9 +2139,9 @@ function renderDayCalendar(entries, actById) {
           html += "<div class='dayCalSlot" + compactClass + "' style='top:" + topPx.toFixed(1) + "px;height:" + boxHeight.toFixed(1) + "px;" + leftStyle + "background:" + color + glow + ";color:" + contrast.text + ";' onclick=\"openEditEntryModal('" + e.id + "')\" title=\"" + escapeHtml(hoverTitle) + "\">" +
             "<div style='font-weight:700;display:flex;align-items:center;gap:3px;color:" + contrast.text + ";overflow:hidden;text-overflow:ellipsis;white-space:nowrap'>" +
             "<span style='fill:" + contrast.text + ";display:inline-flex'>" + icon + "</span>" +
-            (isCompact ? "" : "<span>" + escapeHtml(act ? act.name : "Aktivität") + "</span>") +
+            "<span class='" + (isCompact ? "slotFullText" : "") + "'>" + escapeHtml(act ? act.name : "Aktivität") + "</span>" +
             "</div>" +
-            (!isCompact ? "<div class='dayCalSub' style='color:" + contrast.sub + "'>" + sTime + "–" + eTime + "</div>" : "") +
+            "<div class='dayCalSub " + (isCompact ? "slotFullText" : "") + "' style='color:" + contrast.sub + "'>" + sTime + "–" + eTime + "</div>" +
             "</div>";
         } else if (slot.type === "missed") {
           const ev = slot.ev;
@@ -2145,9 +2154,9 @@ function renderDayCalendar(entries, actById) {
             "<div style='font-weight:700;display:flex;align-items:center;gap:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap'>" +
             "<span class='tag' style='background:var(--red);color:#fff;font-size:9px;padding:1px 3px'>Verpasst</span>" +
             "<span class='typeBadge typeBadge_" + typeShort + "'>" + typeShort + "</span>" +
-            "<span>" + escapeHtml(ev.name) + "</span>" +
+            "<span class='" + (isCompact ? "slotFullText" : "") + "'>" + escapeHtml(ev.name) + "</span>" +
             "</div>" +
-            (!isCompact ? "<div style='font-size:10px;font-weight:600;color:var(--red);line-height:1.2'>" + fmtMin(slot.sMinutes) + "–" + fmtMin(slot.eMinutes) + " · ➕ Nachtragen</div>" : "") +
+            "<div class='" + (isCompact ? "slotFullText" : "") + "' style='font-size:10px;font-weight:600;color:var(--red);line-height:1.2'>" + fmtMin(slot.sMinutes) + "–" + fmtMin(slot.eMinutes) + " · ➕ Nachtragen</div>" +
             "</div>";
         } else if (slot.type === "plan") {
           const ev = slot.ev;
@@ -2165,9 +2174,9 @@ function renderDayCalendar(entries, actById) {
             "<div style='font-weight:600;display:flex;align-items:center;gap:3px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap'>" +
             "<span>" + icon + "</span>" +
             "<span class='typeBadge typeBadge_" + typeShort + "' title='" + (TYPE_LABEL[ev.type] || "Veranstaltung") + "'>" + typeShort + "</span>" +
-            (isCompact ? "" : "<span>" + escapeHtml(ev.name) + "</span>" + cancelTag + ovTag) +
+            "<span class='" + (isCompact ? "slotFullText" : "") + "'>" + escapeHtml(ev.name) + "</span>" + cancelTag + ovTag +
             "</div>" +
-            (!isCompact ? "<div class='dayCalPlanSub'>" + fmtMin(slot.sMinutes) + "–" + fmtMin(slot.eMinutes) + (slot.room ? " · " + escapeHtml(slot.room) : "") + "</div>" : "") +
+            "<div class='dayCalPlanSub " + (isCompact ? "slotFullText" : "") + "'>" + fmtMin(slot.sMinutes) + "–" + fmtMin(slot.eMinutes) + (slot.room ? " · " + escapeHtml(slot.room) : "") + "</div>" +
             "</div>";
         }
       }
@@ -2210,25 +2219,40 @@ function renderTodayTimeline() {
   const todayStr = localDateStr(new Date());
   const calDateStr = localDateStr(CALENDAR_DATE);
   const now = new Date();
+  const dayStart = new Date(calDateStr + "T00:00:00");
+  const dayEnd = new Date(dayStart);
+  dayEnd.setDate(dayStart.getDate() + 1);
 
-  const entries = active(DATA.time_entries)
-    .filter((e) => {
-      const s = localDateStr(new Date(e.started_at));
-      const end = e.ended_at ? localDateStr(new Date(e.ended_at)) : todayStr;
-      return s === calDateStr || end === calDateStr;
-    })
-    .sort((a, b) => new Date(a.started_at) - new Date(b.started_at));
+  // Clip each entry to the selected calendar day boundaries [dayStart, dayEnd]
+  const dayEntries = [];
+  let totalSecsToday = 0;
+  for (const e of active(DATA.time_entries)) {
+    const eStart = new Date(e.started_at);
+    const eEnd = e.ended_at ? new Date(e.ended_at) : now;
+    const segStart = new Date(Math.max(eStart.getTime(), dayStart.getTime()));
+    const segEnd = new Date(Math.min(eEnd.getTime(), dayEnd.getTime()));
+    if (segStart < segEnd) {
+      const segSecs = (segEnd.getTime() - segStart.getTime()) / 1000;
+      totalSecsToday += Math.max(0, segSecs);
+      const sMin = segStart.getTime() === dayStart.getTime() ? 0 : segStart.getHours() * 60 + segStart.getMinutes();
+      const eMin = segEnd.getTime() === dayEnd.getTime() ? 1440 : segEnd.getHours() * 60 + segEnd.getMinutes();
+      dayEntries.push({
+        entry: e,
+        segStart,
+        segEnd,
+        sMinutes: sMin,
+        eMinutes: eMin,
+        segSecs,
+        isCrossStart: eStart.getTime() < dayStart.getTime(),
+        isCrossEnd: eEnd.getTime() > dayEnd.getTime(),
+      });
+    }
+  }
+  dayEntries.sort((a, b) => a.segStart - b.segStart);
 
   const activities = active(DATA.activities);
   const actById = {};
   for (const a of activities) actById[a.id] = a;
-
-  let totalSecsToday = 0;
-  for (const e of entries) {
-    const s = new Date(e.started_at);
-    const end = e.ended_at ? new Date(e.ended_at) : now;
-    totalSecsToday += Math.max(0, (end - s) / 1000);
-  }
 
   // Update date header label
   const dateLabel = $("calDateLabel");
@@ -2250,29 +2274,34 @@ function renderTodayTimeline() {
 
   const summaryEl = $("todaySummary");
   if (summaryEl) {
-    summaryEl.textContent = fmtHours(totalSecsToday) + " getrackt (" + entries.length + " Einträge)";
+    summaryEl.textContent = fmtHours(totalSecsToday) + " getrackt (" + dayEntries.length + " Einträge)";
   }
 
-  // Check for out of hours entries (<06:00 or >24:00)
+  // Check for entries falling outside the configured shift hours
   const oohBanner = $("outOfHoursBanner");
   if (oohBanner) {
-    const oohEntries = entries.filter((e) => {
-      if (DISMISSED_OUT_OF_HOURS.has(e.id)) return false;
-      const s = new Date(e.started_at);
-      const end = e.ended_at ? new Date(e.ended_at) : now;
-      return s.getHours() < 6 || (end.getHours() < 6 && (end - s) > 60000);
+    const startHour = $("shiftStart") ? parseInt($("shiftStart").value, 10) : 6;
+    const endHour = $("shiftEnd") ? parseInt($("shiftEnd").value, 10) : 23;
+    const startMin = startHour * 60;
+    const endMin = endHour * 60;
+
+    const oohList = dayEntries.filter((item) => {
+      if (DISMISSED_OUT_OF_HOURS.has(item.entry.id)) return false;
+      return item.sMinutes < startMin || item.eMinutes > endMin;
     });
 
-    if (oohEntries.length > 0) {
+    if (oohList.length > 0) {
       let bHtml = "";
-      for (const e of oohEntries) {
+      const shiftLabel = String(startHour).padStart(2, "0") + ":00–" + String(endHour).padStart(2, "0") + ":00 Uhr";
+      for (const item of oohList) {
+        const e = item.entry;
         const act = actById[e.activity_id];
         const s = new Date(e.started_at);
         const end = e.ended_at ? new Date(e.ended_at) : now;
         const sTime = s.toLocaleTimeString("de-DE", {hour: "2-digit", minute: "2-digit"});
         const eTime = e.ended_at ? end.toLocaleTimeString("de-DE", {hour: "2-digit", minute: "2-digit"}) : "jetzt";
         bHtml += "<div class='card' style='border-left:4px solid var(--accent);background:rgba(229,169,59,0.12);padding:10px 14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px'>" +
-          "<div><span style='font-weight:700;color:var(--accent);margin-right:6px'>⚠️ Aufzeichnung außerhalb 06:00–24:00 Uhr:</span>" +
+          "<div><span style='font-weight:700;color:var(--accent);margin-right:6px'>⚠️ Aufzeichnung außerhalb Schichtzeit (" + shiftLabel + "):</span>" +
           "<span>" + escapeHtml(act ? act.name : "Aktivität") + " (" + sTime + "–" + eTime + ")" + (e.comment ? " · " + escapeHtml(e.comment) : "") + "</span></div>" +
           "<div style='display:flex;gap:6px'>" +
           "<button class='themeBtn' style='padding:3px 8px;font-size:12px' onclick=\"openEditEntryModal('" + e.id + "')\">✏️ Bearbeiten</button>" +
@@ -2289,7 +2318,7 @@ function renderTodayTimeline() {
   }
 
   updateShiftDisplay();
-  renderDayCalendar(entries, actById);
+  renderDayCalendar(dayEntries, actById);
 }
 
 function openEditEntryModal(entryId) {
@@ -2639,7 +2668,7 @@ function render() {
   // keep the computed analysis for the csv export
   const catNames = {};
   for (const id of Object.keys(categoriesById)) catNames[id] = categoriesById[id].name;
-  LAST = {rows, from: fromStr, to: toStr, totalTracked, daily, filteredEntries, windowEntries,
+  LAST = {rows, from: fromStr, to: toStr, totalTracked, daily, perActivity, filteredEntries, windowEntries,
     categoriesOf, catNames, filterActive: filterActive()};
 
   // ---- attendance table -----------------------------------------------------
@@ -2926,7 +2955,7 @@ function selectDonutActivity(actId) {
   } else {
     SELECTED_DONUT_ACT_ID = actId;
   }
-  const acts = LAST ? Object.entries(LAST.perActivity).sort((x, y) => y[1] - x[1]) : [];
+  const acts = (LAST && LAST.perActivity) ? Object.entries(LAST.perActivity).sort((x, y) => y[1] - x[1]) : [];
   const totalTracked = LAST ? LAST.totalTracked : 0;
   const activities = DATA ? active(DATA.activities) : [];
   const activitiesById = {};
@@ -3268,7 +3297,7 @@ function buildCsv() {
         const key = localDateStr(date);
         const w = weeks.get(key) || {expected: 0, attended: 0, missed: 0, upcoming: 0};
         w.expected++;
-        if (sl.status === "a") w.attended++;
+        if (sl.status === "a" || sl.status === "n") w.attended++;
         else if (sl.status === "m") w.missed++;
         else w.upcoming++;
         weeks.set(key, w);
@@ -3685,22 +3714,26 @@ on("conflictBadge", "click", toggleConflictsModal);
 on("closeConflictsBtn", "click", toggleConflictsModal);
 on("dismissAllConflictsBtn", "click", dismissAllConflicts);
 on("shiftStart", "change", () => {
+  const s = parseInt($("shiftStart").value, 10);
+  const e = parseInt($("shiftEnd").value, 10);
+  if (s >= e) {
+    $("shiftEnd").value = Math.min(24, s + 1).toString();
+    localStorage.setItem("tt_shift_end", $("shiftEnd").value);
+  }
   localStorage.setItem("tt_shift_start", $("shiftStart").value);
   updateShiftDisplay();
   renderTodayTimeline();
 });
 on("shiftEnd", "change", () => {
+  const s = parseInt($("shiftStart").value, 10);
+  const e = parseInt($("shiftEnd").value, 10);
+  if (e <= s) {
+    $("shiftStart").value = Math.max(0, e - 1).toString();
+    localStorage.setItem("tt_shift_start", $("shiftStart").value);
+  }
   localStorage.setItem("tt_shift_end", $("shiftEnd").value);
   updateShiftDisplay();
   renderTodayTimeline();
-});
-on("distributionTarget", "change", () => {
-  localStorage.setItem("tt_dist_target", $("distributionTarget").value);
-  const activities = DATA ? active(DATA.activities) : [];
-  const allCategories = DATA ? active(DATA.categories) : [];
-  const categoriesOf = LAST ? LAST.categoriesOf : {};
-  const filteredEntries = LAST ? LAST.filteredEntries : [];
-  renderDistributionChart(activities, allCategories, categoriesOf, filteredEntries);
 });
 
 if ($("shiftStart")) $("shiftStart").value = localStorage.getItem("tt_shift_start") || "6";

@@ -645,3 +645,39 @@ def test_timer_stop_when_no_timer_running():
     assert data["running"] is False
     assert data["stopped"] is None
 
+
+def test_restore_deleted_time_entry_undo():
+    ensure_seed_user()
+    client = TestClient(app)
+    token = login(client)
+
+    # 1. Create a time entry
+    create_res = client.post(
+        "/api/time-entries",
+        json={"activity_id": "test_act", "started_at": "2026-10-05T14:00:00Z", "comment": "Original"},
+        headers=auth_headers(token),
+    )
+    assert create_res.status_code == 200
+    entry_id = create_res.json()["id"]
+
+    # 2. Delete it (soft delete / tombstone)
+    del_res = client.delete(f"/api/time-entries/{entry_id}", headers=auth_headers(token))
+    assert del_res.status_code == 200
+
+    # 3. Restore it via POST /api/time-entries with the same ID (Undo behavior)
+    restore_res = client.post(
+        "/api/time-entries",
+        json={"id": entry_id, "activity_id": "test_act", "started_at": "2026-10-05T14:00:00Z", "comment": "Restored"},
+        headers=auth_headers(token),
+    )
+    assert restore_res.status_code == 200, restore_res.text
+    restored_data = restore_res.json()
+    assert restored_data["id"] == entry_id
+    assert restored_data["comment"] == "Restored"
+    assert restored_data["deleted_at"] is None
+
+    # Verify active list includes it again
+    list_res = client.get("/api/time-entries", headers=auth_headers(token))
+    active_ids = [e["id"] for e in list_res.json()]
+    assert entry_id in active_ids
+
