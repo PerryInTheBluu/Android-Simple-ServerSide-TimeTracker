@@ -349,7 +349,16 @@ class RecordsViewModel @Inject constructor(
             val (eventId, date) = parseSlotTag(tag.orEmpty(), TAG_TIME_END)
             val pending = pendingTimeChange
             if (pending != null && pending.first == eventId && pending.second == date) {
-                setSlotOverride(eventId, date, startTime = pending.third, endTime = minutesOfDay(timestamp))
+                val start = pending.third
+                val end = minutesOfDay(timestamp)
+                when {
+                    // The two picked times are treated as an unordered
+                    // range, so a slot can never end before it starts.
+                    end < start -> setSlotOverride(eventId, date, startTime = end, endTime = start)
+                    // A zero length slot is ignored.
+                    end == start -> Unit
+                    else -> setSlotOverride(eventId, date, startTime = start, endTime = end)
+                }
                 pendingTimeChange = null
             }
         }
