@@ -97,14 +97,13 @@ tr:last-child td { border-bottom: 0; }
 .timerClock { font-size: 24px; font-weight: 700; font-variant-numeric: tabular-nums; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; letter-spacing: 1px; color: var(--accent); margin-left: 10px; }
 /* 1-Click Activity Tiles (Kacheln) */
 .tilesGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; margin-top: 14px; }
-.tile { background: var(--card2); border: 1px solid var(--line); border-left: 5px solid var(--gray); border-radius: 10px; padding: 12px 14px; cursor: pointer; transition: all 0.15s ease-in-out; display: flex; flex-direction: column; justify-content: space-between; min-height: 82px; user-select: none; }
+.tile { background: var(--card2); border: 1px solid var(--line); border-left: 5px solid var(--gray); border-radius: 10px; padding: 12px 14px; cursor: pointer; transition: all 0.15s ease-in-out; display: flex; flex-direction: column; justify-content: space-between; min-height: 74px; user-select: none; }
 .tile:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.18); border-color: var(--headline); }
 .tile.active { background: rgba(123, 182, 97, 0.12); border: 2px solid var(--green); box-shadow: 0 0 14px rgba(123, 182, 97, 0.25); }
 :root[data-theme="light"] .tile.active { background: rgba(77, 138, 53, 0.12); border-color: var(--green); }
 .tileTitle { font-size: 15px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 8px; word-break: break-word; }
 .tileSub { font-size: 12px; color: var(--muted); margin-top: 8px; display: flex; justify-content: space-between; align-items: center; }
-.tileRunningBadge { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 700; color: var(--green); font-family: ui-monospace, SFMono-Regular, monospace; }
-.tileStopBtn { background: var(--red); color: #fff; border: 0; border-radius: 6px; padding: 4px 10px; font-size: 12px; font-weight: 700; cursor: pointer; }
+.tileRunningBadge { font-size: 12px; font-weight: 700; color: var(--green); font-family: ui-monospace, SFMono-Regular, monospace; }
 .quickOffsets { display: flex; align-items: center; gap: 4px; }
 .offsetChip { background: var(--chip); color: var(--muted); border: 0; border-radius: 6px; padding: 4px 8px; font-size: 12px; font-weight: 500; cursor: pointer; }
 .offsetChip.on { background: var(--accent); color: #111; font-weight: 600; }
@@ -113,29 +112,45 @@ tr:last-child td { border-bottom: 0; }
 .syncBadge { font-size: 11px; padding: 3px 9px; border-radius: 10px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; }
 .syncBadge.ok { background: rgba(123, 182, 97, 0.2); color: var(--green); }
 .syncBadge.warn { background: rgba(196, 90, 90, 0.2); color: var(--red); cursor: pointer; }
-.todayBarContainer { background: var(--card2); border-radius: 8px; height: 18px; width: 100%; display: flex; overflow: hidden; border: 1px solid var(--line); }
-.todayBarSeg { height: 100%; transition: width 0.3s; }
 .todayEntryRow { display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; border-bottom: 1px solid var(--line); font-size: 14px; }
 .todayEntryRow:last-child { border-bottom: 0; }
 .todoCheck { cursor: pointer; accent-color: var(--accent); width: 16px; height: 16px; vertical-align: middle; }
 .todoDone { text-decoration: line-through; opacity: 0.55; }
 
+/* Navigation & Tabs */
+.navBar { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 20px; flex-wrap: wrap; }
+.tabs { display: flex; gap: 6px; background: var(--card); padding: 4px; border-radius: 10px; border: 1px solid var(--line); flex-wrap: wrap; }
+.tabBtn { background: transparent; color: var(--muted); border: 0; border-radius: 7px; padding: 7px 16px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.15s ease; }
+.tabBtn:hover { color: var(--text); background: var(--card2); }
+.tabBtn.active { background: var(--accent); color: #111; }
+.tabPane { display: none; }
+.tabPane.active { display: block; }
+
 /* Day Calendar View */
-.dayCalendar { position: relative; background: var(--card2); border-radius: 10px; border: 1px solid var(--line); overflow-x: auto; overflow-y: hidden; margin-bottom: 16px; }
+.zoomControls { display: flex; align-items: center; gap: 4px; }
+.zoomBtn { background: var(--chip); color: var(--text); border: 0; border-radius: 6px; padding: 4px 9px; font-size: 12px; font-weight: 600; cursor: pointer; }
+.zoomBtn:hover { background: var(--line); }
+.dayCalendar { position: relative; background: var(--card2); border-radius: 10px; border: 1px solid var(--line); overflow-x: auto; overflow-y: auto; max-height: 580px; margin-bottom: 16px; scroll-behavior: smooth; }
 .dayCalInner { position: relative; min-width: 640px; height: 560px; }
 .dayCalGridLine { position: absolute; left: 52px; right: 0; border-top: 1px dashed var(--line); }
 .dayCalHourLabel { position: absolute; left: 6px; width: 40px; font-size: 11px; color: var(--muted); text-align: right; transform: translateY(-50%); font-variant-numeric: tabular-nums; }
-.dayCalHeaderLanes { display: flex; position: absolute; top: 0; left: 52px; right: 0; height: 26px; border-bottom: 1px solid var(--line); font-size: 11px; font-weight: 600; color: var(--muted); }
+.dayCalHeaderLanes { display: flex; position: absolute; top: 0; left: 52px; right: 0; height: 26px; border-bottom: 1px solid var(--line); font-size: 11px; font-weight: 600; color: var(--muted); background: var(--card); z-index: 15; }
 .dayCalHeaderPlan { width: 45%; padding-left: 8px; line-height: 26px; }
 .dayCalHeaderTracked { width: 55%; padding-left: 8px; line-height: 26px; }
 .dayCalPlanLane { position: absolute; left: 52px; width: 44%; top: 26px; bottom: 0; }
 .dayCalTrackLane { position: absolute; left: calc(52px + 45%); right: 8px; top: 26px; bottom: 0; }
 .dayCalSlot { position: absolute; left: 3px; right: 3px; border-radius: 6px; padding: 4px 8px; font-size: 11px; overflow: hidden; box-sizing: border-box; transition: transform 0.15s; box-shadow: 0 1px 4px rgba(0,0,0,0.15); line-height: 1.25; z-index: 2; color: #fff; }
-.dayCalSlot:hover { transform: scale(1.02); z-index: 5; }
+.dayCalSlot:hover { transform: scale(1.02); z-index: 20; }
 .dayCalSlotPlan { background: #2f3e46; border-left: 4px solid var(--blue); color: var(--text); }
 :root[data-theme="light"] .dayCalSlotPlan { background: #e8ecf1; color: #1a1a1a; }
 .dayCalNowLine { position: absolute; left: 48px; right: 0; height: 2px; background: var(--red); z-index: 10; pointer-events: none; }
 .dayCalNowDot { position: absolute; left: -4px; top: -4px; width: 10px; height: 10px; border-radius: 50%; background: var(--red); }
+
+/* Compact Slots for Short Durations */
+.dayCalSlot.compact { padding: 0 4px; overflow: hidden; }
+.dayCalSlot.compact .slotFullText { display: none; }
+.dayCalSlot.compact:hover { min-height: 48px; height: auto !important; z-index: 100; overflow: visible; box-shadow: 0 6px 18px rgba(0,0,0,0.5); padding: 4px 8px; }
+.dayCalSlot.compact:hover .slotFullText { display: block; }
 
 /* Donut Chart */
 .donutContainer { display: flex; align-items: center; justify-content: center; gap: 28px; flex-wrap: wrap; margin-top: 8px; }
@@ -144,89 +159,58 @@ tr:last-child td { border-bottom: 0; }
 .donutLegendItem { display: flex; align-items: center; justify-content: space-between; font-size: 13px; padding: 5px 8px; border-radius: 6px; cursor: default; }
 .donutLegendItem:hover { background: var(--card2); }
 
-/* Sync Button */
+/* Modals */
+.modalBackdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(3px); }
+.modalCard { background: var(--card); border-radius: 14px; padding: 24px 28px; max-width: 540px; width: 100%; border: 1px solid var(--headline); box-shadow: 0 12px 36px rgba(0,0,0,0.4); max-height: 90vh; overflow-y: auto; }
+.modalHeader { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; border-bottom: 1px solid var(--line); padding-bottom: 12px; }
+.modalClose { background: transparent; border: 0; color: var(--muted); font-size: 20px; cursor: pointer; padding: 4px 8px; border-radius: 6px; line-height: 1; }
+.modalClose:hover { color: var(--text); background: var(--card2); }
+.settingsSection { margin-bottom: 18px; }
+.settingsSection h3 { font-size: 14px; font-weight: 600; margin: 0 0 8px; color: var(--text); }
+
+/* Quick Ranges & Notes Explorer */
+.quickRanges { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.noteCard { background: var(--card2); border-radius: 8px; padding: 12px 16px; margin-bottom: 10px; border-left: 4px solid var(--accent); transition: transform 0.1s; }
+.noteCard:hover { transform: translateX(2px); }
+.historyDayGroup { margin-bottom: 12px; }
+.historyDayHeader { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: var(--card2); border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; user-select: none; border: 1px solid var(--line); }
+.historyDayHeader:hover { background: var(--chip); }
+.historyEntriesList { padding: 4px 0 8px; }
+
+/* Sync Button (Animation 1.6s) */
 .syncBtn { background: var(--accent); color: #111; border: 0; border-radius: 8px; width: 38px; height: 38px; padding: 0; font-size: 20px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
-.syncBtn.spinning { animation: spin 0.8s linear infinite; }
+.syncBtn.spinning { animation: spin 1.6s linear infinite; }
 @keyframes spin { 100% { transform: rotate(360deg); } }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <!-- Live-Tracking & Kacheln (ganz oben) -->
-  <div id="timerCard" class="card timerCard">
-    <!-- Active Timer Banner (shown when a timer is running) -->
-    <div id="runningTimerBar" class="hide" style="padding-bottom:14px;margin-bottom:14px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
-      <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
-        <div id="timerDot" class="timerDot active"></div>
-        <div>
-          <div style="font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.5px" id="timerStatusLabel">Aktiv läuft:</div>
-          <div style="font-size:18px;font-weight:700;display:flex;align-items:center;gap:10px" id="timerActivityDisplay">
-            <span>–</span>
-          </div>
-        </div>
-        <div id="timerLiveClock" class="timerClock">00:00:00</div>
-      </div>
-
-      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-        <div title="Startzeit nachträglich korrigieren (Offset)">
-          <span style="font-size:12px;color:var(--muted);margin-right:2px">Start:</span>
-          <button class="offsetBtn" id="adjMinus15" title="Start 15 Min früher (-15m)">-15m</button>
-          <button class="offsetBtn" id="adjMinus5" title="Start 5 Min früher (-5m)">-5m</button>
-          <button class="offsetBtn" id="adjPlus5" title="Start 5 Min später (+5m)">+5m</button>
-        </div>
-        <input type="text" id="runningCommentInput" placeholder="Notiz ändern…" style="width:140px;padding:6px 10px;font-size:13px">
-        <button id="saveRunningCommentBtn" class="offsetBtn" title="Notiz auf laufendem Eintrag speichern">Speichern</button>
-        <button id="timerStopBtn" title="Timer stoppen" style="background:var(--red);color:#fff;padding:8px 16px;border-radius:8px;font-weight:700;font-size:16px;line-height:1">⏹</button>
-      </div>
+  <!-- Top Navigation & Action Bar -->
+  <div class="navBar">
+    <div style="display:flex;align-items:center;gap:12px">
+      <span style="font-size:18px;font-weight:700;letter-spacing:-0.5px">TimeTracker</span>
+      <span id="syncBadge" class="syncBadge ok">✓ Synchronisiert</span>
+      <span id="conflictBadge" class="syncBadge warn hide" title="Klick für Details">⚠️ Konflikt</span>
     </div>
 
-    <!-- Activity Tiles Header -->
-    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:6px">
-      <div style="display:flex;align-items:center;gap:10px">
-        <h2 style="margin:0;font-size:16px;font-weight:600">Aktivität aufzeichnen</h2>
-        <span id="syncBadge" class="syncBadge ok">✓ Synchronisiert</span>
-        <span id="conflictBadge" class="syncBadge warn hide">⚠️ Konflikt</span>
-      </div>
-
-      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-        <div class="quickOffsets">
-          <span style="font-size:12px;color:var(--muted);margin-right:2px">Offset:</span>
-          <button class="offsetChip on" id="off0">Sofort</button>
-          <button class="offsetChip" id="off5">vor 5m</button>
-          <button class="offsetChip" id="off15">vor 15m</button>
-          <button class="offsetChip" id="off30">vor 30m</button>
-        </div>
-        <input type="text" id="tileCommentInput" placeholder="Notiz (optional)…" style="width:130px;padding:6px 10px;font-size:13px">
-      </div>
+    <!-- Navigation Tabs -->
+    <div class="tabs">
+      <button class="tabBtn active" id="tabBtnTracking" onclick="switchTab('tracking')">⏱️ Erfassen & Heute</button>
+      <button class="tabBtn" id="tabBtnAnalytics" onclick="switchTab('analytics')">📊 Auswertungen</button>
+      <button class="tabBtn" id="tabBtnUni" onclick="switchTab('uni')">🎓 Uni & Anwesenheit</button>
+      <button class="tabBtn" id="tabBtnNotes" onclick="switchTab('notes')">📝 Notizen & Verlauf</button>
     </div>
 
-    <!-- Hidden fallback controls for compatibility -->
-    <div id="timerControls" class="hide">
-      <select id="timerActivitySelect"><option value="">Aktivität wählen…</option></select>
-      <input type="text" id="timerCommentInput">
-      <button id="timerStartBtn">Starten</button>
-    </div>
-
-    <!-- The Activity Tiles Grid -->
-    <div id="activityTiles" class="tilesGrid">
-      <div class="muted small" style="padding:10px 0">Token eingeben und „↻“ klicken, um Aktivitäten anzuzeigen.</div>
+    <!-- Top Right Actions -->
+    <div style="display:flex;align-items:center;gap:8px">
+      <button id="load" class="syncBtn" title="Daten synchronisieren">↻</button>
+      <button id="settingsBtn" class="themeBtn" style="padding:8px 12px;font-size:13px;display:inline-flex;align-items:center;gap:6px" onclick="openSettingsModal()">⚙️ Einstellungen</button>
     </div>
   </div>
 
-  <div class="card" style="margin-bottom:18px">
-    <div class="row">
-      <div><label>API-Token</label><input type="text" id="token" placeholder="Token" style="width:260px"></div>
-      <div><label>Seit (lokal)</label><input type="date" id="from"></div>
-      <div><label>Bis (lokal)</label><input type="date" id="to"></div>
-      <div class="row" style="margin-left:auto;align-items:flex-end">
-        <div><button id="theme" class="themeBtn" title="Design: Automatisch / Dunkel / Hell">Design</button></div>
-        <div><button id="csv" style="background:#333;color:var(--text)">CSV</button></div>
-        <div><button id="load" class="syncBtn" title="Daten synchronisieren">↻</button></div>
-      </div>
-    </div>
-    <div id="error" class="error hide"></div>
-  </div>
+  <div id="error" class="error hide"></div>
 
+  <!-- Sync Conflicts Audit Box -->
   <div id="conflictsBox" class="card hide" style="border-left:4px solid var(--red)">
     <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:8px">
       <div>
@@ -241,91 +225,189 @@ tr:last-child td { border-bottom: 0; }
     <div id="conflictsList" class="small"></div>
   </div>
 
-  <!-- Heute-Timeline Card mit Kalender-Tagesansicht -->
-  <div id="todayCard" class="card hide">
-    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:12px">
-      <div style="display:flex;align-items:center;gap:12px">
-        <h2 style="margin:0;font-size:16px" id="todayTitle">Heute</h2>
-        <div class="small muted" id="todaySummary">0 h getrackt</div>
-      </div>
-      <div style="display:flex;align-items:center;gap:8px">
-        <span style="font-size:12px;color:var(--muted)">Schicht:</span>
-        <select id="shiftStart" style="padding:4px 8px;font-size:12px">
-          <option value="4">04:00</option>
-          <option value="5">05:00</option>
-          <option value="6" selected>06:00</option>
-          <option value="7">07:00</option>
-          <option value="8">08:00</option>
-          <option value="9">09:00</option>
-        </select>
-        <span style="font-size:12px;color:var(--muted)">bis</span>
-        <select id="shiftEnd" style="padding:4px 8px;font-size:12px">
-          <option value="20">20:00</option>
-          <option value="21">21:00</option>
-          <option value="22">22:00</option>
-          <option value="23" selected>23:00</option>
-          <option value="24">24:00</option>
-        </select>
-      </div>
-    </div>
-    <div id="dayCalendar" class="dayCalendar">
-      <div id="dayCalInner" class="dayCalInner"></div>
-    </div>
-    <div id="todayVisualBar" class="todayBarContainer" style="margin-bottom:14px"></div>
-    <div id="todayEntriesList"></div>
-  </div>
+  <!-- TAB 1: ⏱️ Erfassen & Heute (Hauptseite) -->
+  <div id="tabPaneTracking" class="tabPane active">
+    <!-- Live-Tracking & Kacheln (ganz oben) -->
+    <div id="timerCard" class="card timerCard">
+      <!-- Active Timer Banner (shown when a timer is running) -->
+      <div id="runningTimerBar" class="hide" style="padding-bottom:14px;margin-bottom:14px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+        <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+          <div id="timerDot" class="timerDot active"></div>
+          <div>
+            <div style="font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.5px" id="timerStatusLabel">Aktiv läuft:</div>
+            <div style="font-size:18px;font-weight:700;display:flex;align-items:center;gap:10px" id="timerActivityDisplay">
+              <span>–</span>
+            </div>
+          </div>
+          <div id="timerLiveClock" class="timerClock">00:00:00</div>
+        </div>
 
-  <div id="filterCard" class="card hide">
-    <h2>Filter</h2>
-    <div class="small" style="margin-bottom:10px">Klick: neutral &rarr; <span style="color:var(--green)">nur diese</span> &rarr; <span style="color:var(--red)">ohne diese</span> &rarr; neutral. Gilt für Statistiken, Stunden-Chart, Aktivitäten und Auswertungen; die Uni-Anwesenheit bleibt immer ungefiltert.</div>
-    <div class="small" id="filterHint" style="margin-bottom:6px"></div>
-    <div id="filterCats"></div>
-    <div id="filterActs" style="margin-top:6px"></div>
-  </div>
-
-  <div id="content" class="hide">
-    <div class="stats" id="stats"></div>
-
-    <div class="card">
-      <h2 style="display:flex;align-items:center;gap:14px">Getrackte Stunden
-        <span style="display:flex;gap:6px;margin-left:auto">
-          <button id="chartDay" class="modeBtn">Tag</button>
-          <button id="chartWeek" class="modeBtn">Woche</button>
-          <button id="chartMonth" class="modeBtn">Monat</button>
-        </span>
-      </h2>
-      <div id="dailyChart"></div>
-      <div class="legend" id="chartLegend"></div>
-    </div>
-
-    <div class="cols2">
-      <div class="card">
-        <h2>Zeit pro Kategorie</h2>
-        <div class="small" style="margin-bottom:10px">Vergleich unabhängig vom Filter oben.</div>
-        <table id="categories"></table>
-      </div>
-      <div class="card">
-        <h2>Termine pro Woche</h2>
-        <div class="small" style="margin-bottom:10px">Erwartete, besuchte und verpasste Termine je Kalenderwoche (Montag beginnend).</div>
-        <table id="weeks"></table>
-      </div>
-    </div>
-
-    <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:8px">
-        <h2 style="margin:0">Tageszeit-Verteilung (Starts nach Uhrzeit)</h2>
-        <div style="display:flex;align-items:center;gap:8px">
-          <label for="distributionTarget" style="margin:0;font-size:12px;color:var(--muted)">Filter:</label>
-          <select id="distributionTarget" style="font-size:13px;padding:5px 10px"></select>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <div title="Startzeit nachträglich korrigieren (Offset)">
+            <span style="font-size:12px;color:var(--muted);margin-right:2px">Start:</span>
+            <button class="offsetBtn" id="adjMinus15" title="Start 15 Min früher (-15m)">-15m</button>
+            <button class="offsetBtn" id="adjMinus5" title="Start 5 Min früher (-5m)">-5m</button>
+            <button class="offsetBtn" id="adjPlus5" title="Start 5 Min später (+5m)">+5m</button>
+          </div>
+          <input type="text" id="runningCommentInput" placeholder="Notiz ändern…" style="width:140px;padding:6px 10px;font-size:13px">
+          <button id="saveRunningCommentBtn" class="offsetBtn" title="Notiz auf laufendem Eintrag speichern">Speichern</button>
+          <button id="timerStopBtn" title="Timer stoppen" style="background:var(--red);color:#fff;padding:8px 16px;border-radius:8px;font-weight:700;font-size:16px;line-height:1">⏹</button>
         </div>
       </div>
-      <div class="small" style="margin-bottom:10px" id="distributionSub">Startzeitpunkte im Zeitraum, gruppiert nach Tagesstunde (0–23 Uhr).</div>
-      <div id="mealChart"></div>
+
+      <!-- Activity Tiles Header -->
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:6px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <h2 style="margin:0;font-size:16px;font-weight:600">Aktivität aufzeichnen</h2>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <div class="quickOffsets">
+            <span style="font-size:12px;color:var(--muted);margin-right:2px">Offset:</span>
+            <button class="offsetChip on" id="off0">Sofort</button>
+            <button class="offsetChip" id="off5">vor 5m</button>
+            <button class="offsetChip" id="off15">vor 15m</button>
+            <button class="offsetChip" id="off30">vor 30m</button>
+          </div>
+          <input type="text" id="tileCommentInput" placeholder="Notiz (optional)…" style="width:130px;padding:6px 10px;font-size:13px">
+        </div>
+      </div>
+
+      <!-- Hidden fallback controls for compatibility -->
+      <div id="timerControls" class="hide">
+        <select id="timerActivitySelect"><option value="">Aktivität wählen…</option></select>
+        <input type="text" id="timerCommentInput">
+        <button id="timerStartBtn">Starten</button>
+      </div>
+
+      <!-- The Activity Tiles Grid -->
+      <div id="activityTiles" class="tilesGrid">
+        <div class="muted small" style="padding:10px 0">Token eingeben und „↻“ klicken, um Aktivitäten anzuzeigen.</div>
+      </div>
     </div>
 
+    <!-- Heute-Timeline Card mit Kalender-Tagesansicht -->
+    <div id="todayCard" class="card hide">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:12px">
+        <div style="display:flex;align-items:center;gap:12px">
+          <h2 style="margin:0;font-size:16px" id="todayTitle">Heute</h2>
+          <div class="small muted" id="todaySummary">0 h getrackt</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+          <div class="zoomControls" title="Tagesverlauf zoomen">
+            <span style="font-size:12px;color:var(--muted)">Zoom:</span>
+            <button class="zoomBtn" onclick="zoomDayCalendar(0.25)" title="Vergrößern (mehr Details)">🔍+</button>
+            <button class="zoomBtn" onclick="zoomDayCalendar(-0.25)" title="Verkleinern (mehr Übersicht)">🔍-</button>
+            <button class="zoomBtn" onclick="zoomDayCalendar(0, true)" title="Zoom zurücksetzen">↺</button>
+          </div>
+          <div style="font-size:12px;color:var(--muted);cursor:pointer" onclick="openSettingsModal()" title="Schichtzeiten in den Einstellungen anpassen">
+            Schicht: <span id="shiftDisplay" style="color:var(--text);font-weight:600">06:00 – 23:00</span> ⚙️
+          </div>
+        </div>
+      </div>
+      <div id="dayCalendar" class="dayCalendar">
+        <div id="dayCalInner" class="dayCalInner"></div>
+      </div>
+      <div id="todayEntriesList"></div>
+    </div>
+  </div>
+
+  <!-- TAB 2: 📊 Auswertungen -->
+  <div id="tabPaneAnalytics" class="tabPane">
+    <!-- Zeitbereich zur Auswertung direkt unter dem Tagesverlauf / im Auswertungs-Tab -->
+    <div class="card" style="margin-bottom:18px">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:12px">
+        <h2 style="margin:0;font-size:16px">Auswertungs-Zeitraum</h2>
+        <div class="quickRanges">
+          <button class="offsetChip" onclick="setQuickRange('today')">Heute</button>
+          <button class="offsetChip" onclick="setQuickRange(7)">7 Tage</button>
+          <button class="offsetChip" onclick="setQuickRange(14)">14 Tage</button>
+          <button class="offsetChip" onclick="setQuickRange(30)">30 Tage</button>
+          <button class="offsetChip" onclick="setQuickRange('semester')">Semester</button>
+        </div>
+      </div>
+      <div class="row">
+        <div><label>Seit (lokal)</label><input type="date" id="from"></div>
+        <div><label>Bis (lokal)</label><input type="date" id="to"></div>
+        <div><button onclick="render()" style="padding:8px 18px">Anwenden</button></div>
+      </div>
+    </div>
+
+    <!-- Filter Card -->
+    <div id="filterCard" class="card hide">
+      <h2>Filter</h2>
+      <div class="small" style="margin-bottom:10px">Klick: neutral &rarr; <span style="color:var(--green)">nur diese</span> &rarr; <span style="color:var(--red)">ohne diese</span> &rarr; neutral. Gilt für Statistiken, Stunden-Chart, Aktivitäten und Auswertungen; die Uni-Anwesenheit bleibt immer ungefiltert.</div>
+      <div class="small" id="filterHint" style="margin-bottom:6px"></div>
+      <div id="filterCats"></div>
+      <div id="filterActs" style="margin-top:6px"></div>
+    </div>
+
+    <!-- Content Card -->
+    <div id="content" class="hide">
+      <div class="stats" id="stats"></div>
+
+      <div class="card">
+        <h2 style="display:flex;align-items:center;gap:14px">Getrackte Stunden
+          <span style="display:flex;gap:6px;margin-left:auto">
+            <button id="chartDay" class="modeBtn">Tag</button>
+            <button id="chartWeek" class="modeBtn">Woche</button>
+            <button id="chartMonth" class="modeBtn">Monat</button>
+          </span>
+        </h2>
+        <div id="dailyChart"></div>
+        <div class="legend" id="chartLegend"></div>
+      </div>
+
+      <div class="cols2">
+        <div class="card">
+          <h2>Alle Aktivitäten (im Zeitraum)</h2>
+          <div id="activitiesDonut" class="donutContainer"></div>
+          <table id="activities" class="hide"></table>
+        </div>
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:8px">
+            <h2 style="margin:0">Tageszeit-Verteilung</h2>
+            <div style="display:flex;align-items:center;gap:8px">
+              <label for="distributionTarget" style="margin:0;font-size:12px;color:var(--muted)">Filter:</label>
+              <select id="distributionTarget" style="font-size:13px;padding:5px 10px"></select>
+            </div>
+          </div>
+          <div class="small" style="margin-bottom:10px" id="distributionSub">Startzeitpunkte im Zeitraum, gruppiert nach Tagesstunde (0–23 Uhr).</div>
+          <div id="mealChart"></div>
+        </div>
+      </div>
+
+      <div class="cols2">
+        <div class="card">
+          <h2>Zeit pro Kategorie</h2>
+          <div class="small" style="margin-bottom:10px">Vergleich unabhängig vom Filter oben.</div>
+          <table id="categories"></table>
+        </div>
+        <div class="card">
+          <h2>Termine pro Woche</h2>
+          <div class="small" style="margin-bottom:10px">Erwartete, besuchte und verpasste Termine je Kalenderwoche (Montag beginnend).</div>
+          <table id="weeks"></table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 3: 🎓 Uni & Anwesenheit -->
+  <div id="tabPaneUni" class="tabPane">
     <div class="card">
-      <h2>Anwesenheit pro Veranstaltung</h2>
-      <div class="small" style="margin-bottom:10px">Grün = besucht, Rot = verpasst, Gelb umrandet = läuft gerade, Umrandet = bevorstehend. Überlappende Veranstaltungen werden unabhängig voneinander gewertet; wer eine verpasste Vorlesung als nachgearbeitet nachträgt, kann beide als besucht zählen.</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:12px">
+        <div>
+          <h2 style="margin:0">Anwesenheit pro Veranstaltung</h2>
+          <div class="small muted" style="margin-top:2px">Grün = besucht, Rot = verpasst, Gelb = läuft gerade, Umrandet = bevorstehend.</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <select id="attendanceFilterSelect" onchange="render()" style="font-size:12px;padding:5px 8px">
+            <option value="all">Alle Veranstaltungen</option>
+            <option value="missed">Nur mit verpassten Terminen</option>
+          </select>
+          <button onclick="openManualAttendanceModal()" class="themeBtn" style="font-weight:600;background:var(--accent);color:#111">➕ Anwesenheit nachtragen</button>
+        </div>
+      </div>
       <table id="attendance"></table>
     </div>
 
@@ -333,13 +415,165 @@ tr:last-child td { border-bottom: 0; }
       <div class="card">
         <h2>Stunden pro Fach</h2>
         <table id="goals"></table>
-        <h2 style="margin-top:22px">Alle Aktivitäten (im Zeitraum)</h2>
-        <div id="activitiesDonut" class="donutContainer"></div>
-        <table id="activities" class="hide"></table>
       </div>
       <div class="card">
         <h2>Vorbereitung / Nachbereitung</h2>
         <div id="todos"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 4: 📝 Notizen & Verlauf -->
+  <div id="tabPaneNotes" class="tabPane">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:14px">
+        <div>
+          <h2 style="margin:0">Notizen-Explorer</h2>
+          <div class="small muted" style="margin-top:2px">Durchsuche und analysiere alle an Zeiteinträge angehängten Notizen.</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;width:100%;max-width:380px">
+          <input type="text" id="notesSearchInput" placeholder="🔍 Notizen durchsuchen (z.B. Übungsblatt, Klausur)…" style="width:100%;padding:8px 12px" oninput="renderNotesExplorer()">
+        </div>
+      </div>
+      <div id="notesStatsBar" style="display:flex;gap:14px;margin-bottom:14px;font-size:13px;color:var(--muted)"></div>
+      <div id="notesExplorerList"></div>
+    </div>
+
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:14px">
+        <div>
+          <h2 style="margin:0">Gesamter Zeiterfassungs-Verlauf</h2>
+          <div class="small muted" style="margin-top:2px">Chronologisch nach Tagen gruppiert (auf- und zuklappbar gegen endlose Listen).</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <button class="themeBtn" onclick="toggleAllHistoryDays(true)" style="padding:4px 10px;font-size:12px">Alle aufklappen</button>
+          <button class="themeBtn" onclick="toggleAllHistoryDays(false)" style="padding:4px 10px;font-size:12px">Alle zuklappen</button>
+        </div>
+      </div>
+      <div id="historyAccordionList"></div>
+      <div style="text-align:center;margin-top:14px">
+        <button id="loadMoreHistoryBtn" class="themeBtn" onclick="loadMoreHistoryDays()" style="padding:8px 20px">Mehr Tage laden (+14 Tage)</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Einstellungen (⚙️) -->
+<div id="settingsModal" class="modalBackdrop hide">
+  <div class="modalCard">
+    <div class="modalHeader">
+      <h2 style="margin:0;font-size:18px">⚙️ Einstellungen</h2>
+      <button class="modalClose" onclick="closeSettingsModal()" title="Schließen">✕</button>
+    </div>
+
+    <div class="settingsSection">
+      <h3>API-Token</h3>
+      <div class="small muted" style="margin-bottom:6px">Bearer-Token für den Zugriff auf den Time-Tracker Server.</div>
+      <div style="display:flex;gap:8px">
+        <input type="text" id="token" placeholder="Bearer Token eingeben" style="flex:1">
+        <button onclick="saveTokenAndReload()" style="padding:8px 14px">Speichern</button>
+      </div>
+    </div>
+
+    <div class="settingsSection">
+      <h3>Design / Farbschema</h3>
+      <div class="small muted" style="margin-bottom:6px">Wähle dein bevorzugtes Farbschema.</div>
+      <div style="display:flex;gap:8px">
+        <button id="theme" class="themeBtn" style="padding:8px 16px">Design wechseln</button>
+        <button class="themeBtn" onclick="setThemeDirect('auto')">Auto (System)</button>
+        <button class="themeBtn" onclick="setThemeDirect('light')">Hell (Weiß)</button>
+        <button class="themeBtn" onclick="setThemeDirect('dark')">Dunkel</button>
+      </div>
+    </div>
+
+    <div class="settingsSection">
+      <h3>Tagesverlauf (Schichtzeiten)</h3>
+      <div class="small muted" style="margin-bottom:6px">Definiert das sichtbare Zeitfenster für den heutigen Kalender.</div>
+      <div style="display:flex;gap:12px;align-items:center">
+        <div>
+          <label>Schichtstart:</label>
+          <select id="shiftStart">
+            <option value="4">04:00</option>
+            <option value="5">05:00</option>
+            <option value="6" selected>06:00</option>
+            <option value="7">07:00</option>
+            <option value="8">08:00</option>
+            <option value="9">09:00</option>
+            <option value="10">10:00</option>
+          </select>
+        </div>
+        <div>
+          <label>Schichtende:</label>
+          <select id="shiftEnd">
+            <option value="18">18:00</option>
+            <option value="19">19:00</option>
+            <option value="20">20:00</option>
+            <option value="21">21:00</option>
+            <option value="22">22:00</option>
+            <option value="23" selected>23:00</option>
+            <option value="24">24:00</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="settingsSection">
+      <h3>Daten-Export</h3>
+      <div class="small muted" style="margin-bottom:6px">Exportiere alle berechneten Daten, Termine und Notizen als CSV.</div>
+      <button id="csv" style="background:#333;color:var(--text);padding:8px 16px">📥 CSV herunterladen</button>
+    </div>
+
+    <div class="settingsSection" style="margin-bottom:0">
+      <h3>Sync-Konflikte</h3>
+      <div class="small muted" id="settingsConflictStatus" style="margin-bottom:6px">Keine offenen Konflikte.</div>
+      <div style="display:flex;gap:8px">
+        <button class="themeBtn" onclick="closeSettingsModal();toggleConflictsModal();" style="padding:6px 12px;font-size:12px">Konflikte ansehen</button>
+        <button class="themeBtn" onclick="resetDismissedConflicts()" style="padding:6px 12px;font-size:12px">Bereinigte zurücksetzen</button>
+      </div>
+    </div>
+
+    <div style="margin-top:22px;text-align:right">
+      <button class="themeBtn" onclick="closeSettingsModal()" style="padding:8px 20px;font-weight:600">Fertig</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Anwesenheit nachtragen (➕) -->
+<div id="manualAttendanceModal" class="modalBackdrop hide">
+  <div class="modalCard">
+    <div class="modalHeader">
+      <h2 style="margin:0;font-size:18px">➕ Anwesenheit nachtragen</h2>
+      <button class="modalClose" onclick="closeManualAttendanceModal()" title="Schließen">✕</button>
+    </div>
+    <div class="small muted" style="margin-bottom:16px">Trage eine besuchte oder nachgearbeitete Vorlesung/Übung nachträglich ein, damit sie in der Anwesenheitsstatistik als besucht zählt.</div>
+
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div>
+        <label>Veranstaltung / Aktivität:</label>
+        <select id="manualAttActivitySelect" style="width:100%"></select>
+      </div>
+      <div>
+        <label>Datum:</label>
+        <input type="date" id="manualAttDateInput" style="width:100%">
+      </div>
+      <div style="display:flex;gap:12px">
+        <div style="flex:1">
+          <label>Von (Uhrzeit):</label>
+          <input type="time" id="manualAttStartTime" style="width:100%" value="08:15">
+        </div>
+        <div style="flex:1">
+          <label>Bis (Uhrzeit):</label>
+          <input type="time" id="manualAttEndTime" style="width:100%" value="09:45">
+        </div>
+      </div>
+      <div>
+        <label>Notiz (optional):</label>
+        <input type="text" id="manualAttCommentInput" placeholder="z.B. Aufzeichnung nachgearbeitet, Folien gelernt" style="width:100%">
+      </div>
+      <div id="manualAttError" class="error hide" style="margin-top:4px"></div>
+      <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:12px">
+        <button class="themeBtn" onclick="closeManualAttendanceModal()">Abbrechen</button>
+        <button id="saveManualAttBtn" onclick="submitManualAttendance()" style="background:var(--accent);color:#111;font-weight:600">Eintragen & Speichern</button>
       </div>
     </div>
   </div>
@@ -547,6 +781,20 @@ function getTodayTrackedByActivity() {
   return map;
 }
 
+function findActivity(id) {
+  if (!id) return null;
+  if (DATA && DATA.activities) {
+    const found = DATA.activities.find((a) => a.id === id);
+    if (found) return found;
+  }
+  try {
+    const cached = JSON.parse(localStorage.getItem("tt_cached_activities") || "[]");
+    const found = cached.find((a) => a.id === id);
+    if (found) return found;
+  } catch (e) {}
+  return null;
+}
+
 function renderActivityTiles(activities) {
   const container = $("activityTiles");
   if (!container) return;
@@ -575,7 +823,6 @@ function renderActivityTiles(activities) {
 
     html += "<div class=\"tile" + activeClass + "\" " + borderStyle + " onclick=\"handleTileClick('" + act.id + "')\" title=\"" + (isRunning ? "Klick zum Stoppen" : "Starten: " + escapeHtml(act.name)) + "\">";
     html += "<div class=\"tileTitle\">";
-    html += "<span style=\"display:inline-block;width:12px;height:12px;border-radius:3px;background:" + color + ";flex-shrink:0\"></span>";
     html += "<span style=\"font-size:16px;line-height:1\">" + icon + "</span>";
     html += "<span>" + escapeHtml(act.name) + "</span>";
     html += "</div>";
@@ -583,11 +830,9 @@ function renderActivityTiles(activities) {
     html += "<div class=\"tileSub\">";
     if (isRunning) {
       const elapsed = CURRENT_TIMER && CURRENT_TIMER.entry ? Math.max(0, Math.floor((Date.now() - new Date(CURRENT_TIMER.entry.started_at).getTime()) / 1000)) : 0;
-      html += "<span class=\"tileRunningBadge\" style=\"color:" + color + "\">▶ <span id=\"tileLiveClock_" + act.id + "\">" + formatElapsedSeconds(elapsed) + "</span></span>";
-      html += "<button class=\"tileStopBtn\" onclick=\"event.stopPropagation();stopTimer()\" title=\"Stoppen\">⏹</button>";
+      html += "<span class=\"tileRunningBadge\" style=\"color:" + color + "\"><span id=\"tileLiveClock_" + act.id + "\">" + formatElapsedSeconds(elapsed) + "</span></span>";
     } else {
       html += "<span>Heute: " + durText + "</span>";
-      html += "<span style=\"font-size:13px;color:var(--muted);font-weight:700\">▶</span>";
     }
     html += "</div>";
     html += "</div>";
@@ -621,6 +866,9 @@ function updateTimerClock() {
 
 function populateTimerActivities(activities) {
   renderActivityTiles(activities);
+  try {
+    if (activities) localStorage.setItem("tt_cached_activities", JSON.stringify(activities));
+  } catch (e) {}
   const select = $("timerActivitySelect");
   if (!select) return;
   const currentVal = select.value;
@@ -637,6 +885,7 @@ function renderTimerState(state) {
   CURRENT_TIMER = state;
   const dot = $("timerDot");
   const display = $("timerActivityDisplay");
+  const statusLabel = $("timerStatusLabel");
   const clock = $("timerLiveClock");
   const runningBar = $("runningTimerBar");
   const commentInput = $("runningCommentInput");
@@ -648,9 +897,11 @@ function renderTimerState(state) {
   }
 
   if (state && state.running && state.entry) {
-    const act = state.entry.activity;
+    let act = state.entry.activity || findActivity(state.entry.activity_id);
     const color = act ? (PALETTE[act.color_id] || act.color || "var(--green)") : "var(--green)";
-    const icon = getActivityIcon(act);
+    const icon = act ? getActivityIcon(act) : "⏱️";
+    const actName = act ? act.name : (state.entry.activity_id ? "Wird geladen…" : "–");
+
     if (dot) {
       dot.className = "timerDot active";
       if (dot.style) {
@@ -659,9 +910,9 @@ function renderTimerState(state) {
       }
     }
     if (card && card.style) card.style.borderLeftColor = color;
+    if (statusLabel) statusLabel.textContent = "Aktiv läuft";
     if (display) {
-      const actName = act ? act.name : "Aktivität";
-      display.innerHTML = `<span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:${color}"></span> <span style="font-size:18px;line-height:1">${icon}</span> <span>${escapeHtml(actName)}</span>` +
+      display.innerHTML = `<span style="font-size:18px;line-height:1">${icon}</span> <span style="font-weight:700">${escapeHtml(actName)}</span>` +
         (state.entry.comment ? ` <span class="muted" style="font-size:14px;font-weight:400">(${escapeHtml(state.entry.comment)})</span>` : "");
     }
     if (runningBar && runningBar.classList) runningBar.classList.remove("hide");
@@ -1128,6 +1379,26 @@ function renderConflictsList() {
   el.innerHTML = html;
 }
 
+let dayCalZoom = 1.0;
+try {
+  const z = parseFloat(localStorage.getItem("tt_day_zoom"));
+  if (!isNaN(z) && z >= 0.5 && z <= 3.0) dayCalZoom = z;
+} catch (e) {}
+
+function zoomDayCalendar(delta, reset) {
+  if (reset) dayCalZoom = 1.0;
+  else dayCalZoom = Math.max(0.5, Math.min(2.5, Math.round((dayCalZoom + delta) * 100) / 100));
+  localStorage.setItem("tt_day_zoom", dayCalZoom.toString());
+  renderTodayTimeline();
+}
+
+function updateShiftDisplay() {
+  const s = $("shiftStart") ? $("shiftStart").value : "6";
+  const e = $("shiftEnd") ? $("shiftEnd").value : "23";
+  const disp = $("shiftDisplay");
+  if (disp) disp.textContent = String(s).padStart(2, "0") + ":00 – " + String(e).padStart(2, "0") + ":00";
+}
+
 function renderDayCalendar(entries, actById) {
   const container = $("dayCalInner");
   if (!container) return;
@@ -1139,7 +1410,10 @@ function renderDayCalendar(entries, actById) {
   const totalMin = Math.max(60, endMin - startMin);
 
   const hoursCount = endHour - startHour;
-  if (container.style) container.style.height = Math.max(480, hoursCount * 36 + 32) + "px";
+  const baseHourHeight = 44;
+  const hourHeight = Math.round(baseHourHeight * dayCalZoom);
+  const calHeight = Math.max(420, hoursCount * hourHeight + 36);
+  if (container.style) container.style.height = calHeight + "px";
 
   let html = "";
   html += "<div class='dayCalHeaderLanes'>" +
@@ -1173,20 +1447,27 @@ function renderDayCalendar(entries, actById) {
     if (eMinutes > startMin && sMinutes < endMin) {
       const topPct = Math.max(0, (sMinutes - startMin) / totalMin) * 100;
       const heightPct = Math.min(100 - topPct, (eMinutes - Math.max(startMin, sMinutes)) / totalMin) * 100;
+      const slotHeightPx = (heightPct / 100) * calHeight;
+      const isCompact = slotHeightPx < 28;
+      const compactClass = isCompact ? " compact" : "";
       const act = actById[ev.activity_sync_id];
       const color = activityColor(act);
       const icon = getActivityIcon(act);
 
       const cancelStyle = isCancelled ? "text-decoration:line-through;opacity:0.65;" : "";
       const cancelTag = isCancelled ? "<span class='tag' style='color:var(--red);margin-left:4px'>Ausfall</span>" : "";
+      const hoverTitle = escapeHtml(ev.name) + " (" + fmtMin(sMinutes) + "–" + fmtMin(eMinutes) + (room ? ", " + room : "") + ")" + (isCancelled ? " · Ausfall" : "");
 
-      planHtml += "<div class='dayCalSlot dayCalSlotPlan' style='top:" + topPct.toFixed(2) + "%;height:" + Math.max(22, heightPct).toFixed(2) + "%;border-left-color:" + color + ";" + cancelStyle + "'>" +
+      planHtml += "<div class='dayCalSlot dayCalSlotPlan" + compactClass + "' style='top:" + topPct.toFixed(2) + "%;height:" + Math.max(isCompact ? 10 : 22, heightPct).toFixed(2) + "%;border-left-color:" + color + ";" + cancelStyle + "' title=\"" + hoverTitle + "\">" +
         "<div style='font-weight:600;display:flex;align-items:center;gap:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap'>" +
         "<span>" + icon + "</span>" +
-        "<span>" + escapeHtml(ev.name) + "</span>" +
-        cancelTag +
+        (isCompact ? "" : "<span>" + escapeHtml(ev.name) + "</span>" + cancelTag) +
         "</div>" +
+        "<div class='slotFullText'>" +
+        "<div style='font-weight:600'>" + escapeHtml(ev.name) + cancelTag + "</div>" +
         "<div class='small muted' style='font-size:10px'>" + fmtMin(sMinutes) + "–" + fmtMin(eMinutes) + (room ? " · " + escapeHtml(room) : "") + "</div>" +
+        "</div>" +
+        (!isCompact ? "<div class='small muted' style='font-size:10px'>" + fmtMin(sMinutes) + "–" + fmtMin(eMinutes) + (room ? " · " + escapeHtml(room) : "") + "</div>" : "") +
         "</div>";
     }
   }
@@ -1203,6 +1484,9 @@ function renderDayCalendar(entries, actById) {
     if (eMinutes > startMin && sMinutes < endMin) {
       const topPct = Math.max(0, (sMinutes - startMin) / totalMin) * 100;
       const heightPct = Math.max(2.5, Math.min(100 - topPct, (eMinutes - Math.max(startMin, sMinutes)) / totalMin) * 100);
+      const slotHeightPx = (heightPct / 100) * calHeight;
+      const isCompact = slotHeightPx < 28;
+      const compactClass = isCompact ? " compact" : "";
       const act = actById[e.activity_id];
       const color = activityColor(act);
       const icon = getActivityIcon(act);
@@ -1211,15 +1495,18 @@ function renderDayCalendar(entries, actById) {
       const eTime = e.ended_at ? end.toLocaleTimeString("de-DE", {hour: "2-digit", minute: "2-digit"}) : "jetzt";
       const durText = formatDuration(Math.max(0, (end - s) / 1000));
       const glow = isRunning ? ";box-shadow:0 0 10px " + color + ";border:2px solid #fff" : "";
+      const hoverTitle = escapeHtml(act ? act.name : "Aktivität") + " (" + sTime + "–" + eTime + ", " + durText + ")" + (e.comment ? " · " + e.comment : "");
 
-      trackHtml += "<div class='dayCalSlot' style='top:" + topPct.toFixed(2) + "%;height:" + heightPct.toFixed(2) + "%;background:" + color + glow + "'>" +
+      trackHtml += "<div class='dayCalSlot" + compactClass + "' style='top:" + topPct.toFixed(2) + "%;height:" + Math.max(isCompact ? 10 : 20, heightPct).toFixed(2) + "%;background:" + color + glow + "' title=\"" + escapeHtml(hoverTitle) + "\">" +
         "<div style='font-weight:700;display:flex;align-items:center;gap:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap'>" +
         "<span>" + icon + "</span>" +
-        "<span>" + escapeHtml(act ? act.name : "Aktivität") + "</span>" +
-        (isRunning ? "<span style='font-size:9px;background:rgba(0,0,0,0.35);padding:1px 4px;border-radius:4px;font-weight:700'>läuft</span>" : "") +
+        (isCompact ? "" : "<span>" + escapeHtml(act ? act.name : "Aktivität") + "</span>" + (isRunning ? "<span style='font-size:9px;background:rgba(0,0,0,0.35);padding:1px 4px;border-radius:4px;font-weight:700'>läuft</span>" : "")) +
         "</div>" +
-        "<div style='font-size:10px;opacity:0.95'>" + sTime + "–" + eTime + " (" + durText + ")" +
-        (e.comment ? " · " + escapeHtml(e.comment) : "") + "</div>" +
+        "<div class='slotFullText'>" +
+        "<div style='font-weight:700'>" + escapeHtml(act ? act.name : "Aktivität") + (isRunning ? " (läuft)" : "") + "</div>" +
+        "<div style='font-size:10px;opacity:0.95'>" + sTime + "–" + eTime + " (" + durText + ")" + (e.comment ? " · " + escapeHtml(e.comment) : "") + "</div>" +
+        "</div>" +
+        (!isCompact ? "<div style='font-size:10px;opacity:0.95'>" + sTime + "–" + eTime + " (" + durText + ")" + (e.comment ? " · " + escapeHtml(e.comment) : "") + "</div>" : "") +
         "</div>";
     }
   }
@@ -1235,6 +1522,15 @@ function renderDayCalendar(entries, actById) {
   }
 
   container.innerHTML = html;
+
+  const calEl = $("dayCalendar");
+  if (calEl && typeof window !== "undefined" && !calEl.dataset.scrolled) {
+    const scrollTarget = ((nowMinutes - startMin) / totalMin) * calHeight - 140;
+    if (scrollTarget > 0) {
+      calEl.scrollTop = scrollTarget;
+      calEl.dataset.scrolled = "1";
+    }
+  }
 }
 
 function renderTodayTimeline() {
@@ -1278,31 +1574,8 @@ function renderTodayTimeline() {
     summaryEl.textContent = fmtHours(totalSecsToday) + " getrackt (" + entries.length + " Einträge)";
   }
 
+  updateShiftDisplay();
   renderDayCalendar(entries, actById);
-
-  const barEl = $("todayVisualBar");
-  if (barEl) {
-    if (!entries.length) {
-      barEl.innerHTML = "<div class='small muted' style='padding:2px 8px;line-height:18px'>Noch keine Zeiteinträge heute.</div>";
-    } else {
-      let barHtml = "";
-      for (const e of entries) {
-        const act = actById[e.activity_id];
-        const color = activityColor(act);
-        const icon = getActivityIcon(act);
-        const s = new Date(e.started_at);
-        const end = e.ended_at ? new Date(e.ended_at) : now;
-        const dur = Math.max(1, (end - s) / 1000);
-        const pct = totalSecsToday > 0 ? (dur / totalSecsToday) * 100 : 0;
-        const sTime = s.toLocaleTimeString("de-DE", {hour: "2-digit", minute: "2-digit"});
-        const eTime = e.ended_at ? end.toLocaleTimeString("de-DE", {hour: "2-digit", minute: "2-digit"}) : "jetzt";
-        const title = (act ? act.name : "Aktivität") + ": " + sTime + " – " + eTime + " (" + formatDuration(dur) + ")";
-        const anim = !e.ended_at ? ";animation:pulse 2s infinite" : "";
-        barHtml += "<div class='todayBarSeg' title=\"" + escapeHtml(title) + "\" style='background:" + color + ";width:" + pct.toFixed(1) + "%" + anim + "'></div>";
-      }
-      barEl.innerHTML = barHtml;
-    }
-  }
 
   const listEl = $("todayEntriesList");
   if (listEl) {
@@ -1559,8 +1832,11 @@ function render() {
   // ---- attendance table -----------------------------------------------------
   let html = "<tr><th>Fach</th><th>Art</th><th>Termin</th><th class=num>Erwartet</th>" +
     "<th class=num>Besucht</th><th class=num>Verpasst</th><th class=num>Bevorstehend</th>" +
-    "<th>Quote</th><th>Termine</th></tr>";
+    "<th>Quote</th><th>Termine</th><th>Aktion</th></tr>";
   for (const r of rows) {
+    if ($("attendanceFilterSelect") && $("attendanceFilterSelect").value === "missed" && r.missed === 0) {
+      continue;
+    }
     const q = r.rate === null ? "–" : r.rate + " %";
     const strip = r.slots.map((s) => {
       const tip = s.status === "x"
@@ -1568,6 +1844,15 @@ function render() {
         : s.date + " " + (s.time ? s.time.toLocaleTimeString("de-DE", {hour: "2-digit", minute: "2-digit"}) : "") + (s.room ? " · " + s.room : "");
       return "<span class='cell " + s.status + "' title=\"" + tip.replace(/"/g, "&quot;") + "\"></span>";
     }).join("");
+
+    const missedSlot = r.slots.find((s) => s.status === "m");
+    const prefillDate = missedSlot ? missedSlot.date : localDateStr(new Date());
+    const prefillStart = fmtMin(r.ev.start_time);
+    const prefillEnd = fmtMin(r.ev.end_time);
+    const actionBtn = r.missed > 0
+      ? `<button class="themeBtn" style="padding:3px 8px;font-size:11px;background:rgba(196,90,90,0.2);color:var(--red);border:1px solid var(--red);font-weight:600" onclick="openManualAttendanceModal('${r.ev.activity_sync_id}','${prefillDate}','${prefillStart}','${prefillEnd}','Nachgearbeitet')" title="Verpassten Termin nachtragen">➕ Nachtragen</button>`
+      : `<button class="themeBtn" style="padding:3px 8px;font-size:11px" onclick="openManualAttendanceModal('${r.ev.activity_sync_id}','${prefillDate}','${prefillStart}','${prefillEnd}','Termin besucht')" title="Termin manuell erfassen">➕ Eintragen</button>`;
+
     html += "<tr><td class=name>" + escapeHtml(r.ev.name) + "</td>" +
       "<td>" + TYPE_LABEL[r.ev.type] + "</td>" +
       "<td class=muted>" + weekday(evDow(r)) + " " + fmtMin(r.ev.start_time) + "–" + fmtMin(r.ev.end_time) + "</td>" +
@@ -1576,7 +1861,8 @@ function render() {
       "<td class=num>" + r.missed + "</td>" +
       "<td class=num>" + r.upcoming + "</td>" +
       "<td>" + q + "</td>" +
-      "<td><div class=strip>" + (strip || "<span class=small>keine</span>") + "</div></td></tr>";
+      "<td><div class=strip>" + (strip || "<span class=small>keine</span>") + "</div></td>" +
+      "<td>" + actionBtn + "</td></tr>";
   }
   $("attendance").innerHTML = html;
 
@@ -1718,6 +2004,8 @@ function render() {
   }
   $("todos").innerHTML = t;
   renderTodayTimeline();
+  renderNotesExplorer();
+  renderHistoryAccordion();
 }
 
 /** Renders the category and activity filter chips. */
@@ -2177,15 +2465,336 @@ function copyShareLink() {
   if ($("from").value) params.push("from=" + $("from").value);
   if ($("to").value) params.push("to=" + $("to").value);
   const url = location.origin + location.pathname + "#" + params.join("&");
-  navigator.clipboard.writeText(url)
-    .then(() => { $("share").textContent = "Kopiert"; setTimeout(() => ($("share").textContent = "Link kopieren"), 1500); })
-    .catch(() => { location.hash = params.join("&"); });
+  if (navigator && navigator.clipboard) {
+    navigator.clipboard.writeText(url)
+      .then(() => { if ($("share")) { $("share").textContent = "Kopiert"; setTimeout(() => ($("share").textContent = "Link kopieren"), 1500); } })
+      .catch(() => { location.hash = params.join("&"); });
+  } else {
+    location.hash = params.join("&");
+  }
+}
+
+/* Tabs Switching */
+let currentTab = "tracking";
+function switchTab(tabId) {
+  currentTab = tabId;
+  try { localStorage.setItem("tt_active_tab", tabId); } catch (e) {}
+  const tabs = ["tracking", "analytics", "uni", "notes"];
+  for (const t of tabs) {
+    const btn = $("tabBtn" + t.charAt(0).toUpperCase() + t.slice(1));
+    const pane = $("tabPane" + t.charAt(0).toUpperCase() + t.slice(1));
+    if (btn) btn.classList.toggle("active", t === tabId);
+    if (pane) pane.classList.toggle("active", t === tabId);
+  }
+  if (tabId === "notes") {
+    renderNotesExplorer();
+    renderHistoryAccordion();
+  }
+}
+
+/* Settings Modal */
+function openSettingsModal() {
+  const modal = $("settingsModal");
+  if (!modal) return;
+  modal.classList.remove("hide");
+  const token = $("token");
+  if (token) token.value = localStorage.getItem("tt_token") || "";
+  const statusEl = $("settingsConflictStatus");
+  if (statusEl) {
+    const activeCount = getActiveConflicts().length;
+    const dismissedCount = dismissedConflictIds.size;
+    statusEl.textContent = activeCount > 0
+      ? `${activeCount} offene Konflikte (${dismissedCount} als gelöst markiert).`
+      : `Keine offenen Konflikte (${dismissedCount} als gelöst markiert).`;
+  }
+}
+
+function closeSettingsModal() {
+  const modal = $("settingsModal");
+  if (modal) modal.classList.add("hide");
+}
+
+function saveTokenAndReload() {
+  const token = $("token") ? $("token").value.trim() : "";
+  if (!token) { showError("Bitte Token eingeben."); return; }
+  localStorage.setItem("tt_token", token);
+  closeSettingsModal();
+  load();
+}
+
+function setThemeDirect(theme) {
+  setTheme(theme);
+}
+
+function resetDismissedConflicts() {
+  dismissedConflictIds.clear();
+  localStorage.removeItem("tt_dismissed_conflicts");
+  updateConflictBadge();
+  const statusEl = $("settingsConflictStatus");
+  if (statusEl) statusEl.textContent = "Bereinigte Konflikte wurden zurückgesetzt.";
+}
+
+/* Quick Date Ranges */
+function setQuickRange(daysOrMode) {
+  const now = new Date();
+  const toStr = localDateStr(now);
+  let fromStr = toStr;
+  if (typeof daysOrMode === "number") {
+    const d = new Date(now.getTime() - (daysOrMode - 1) * 86400000);
+    fromStr = localDateStr(d);
+  } else if (daysOrMode === "semester") {
+    const d = new Date(now.getTime() - 90 * 86400000);
+    fromStr = localDateStr(d);
+  } else if (daysOrMode === "today") {
+    fromStr = toStr;
+  }
+  if ($("from")) $("from").value = fromStr;
+  if ($("to")) $("to").value = toStr;
+  render();
+}
+
+/* Manual Attendance Submission (➕ Nachtragen) */
+function openManualAttendanceModal(actId, date, startTime, endTime, comment) {
+  const modal = $("manualAttendanceModal");
+  if (!modal) return;
+  modal.classList.remove("hide");
+  const actSelect = $("manualAttActivitySelect");
+  if (actSelect && DATA) {
+    const acts = active(DATA.activities).filter((a) => !a.archived).sort((a, b) => a.name.localeCompare(b.name));
+    actSelect.innerHTML = acts.map((a) => `<option value="${a.id}">${escapeHtml(a.name)}</option>`).join("");
+    if (actId) actSelect.value = actId;
+  }
+  const dateInput = $("manualAttDateInput");
+  if (dateInput) dateInput.value = date || localDateStr(new Date());
+  const startInput = $("manualAttStartTime");
+  if (startInput) startInput.value = startTime || "08:15";
+  const endInput = $("manualAttEndTime");
+  if (endInput) endInput.value = endTime || "09:45";
+  const commentInput = $("manualAttCommentInput");
+  if (commentInput) commentInput.value = comment || "Nachgearbeitet";
+  const errEl = $("manualAttError");
+  if (errEl) errEl.classList.add("hide");
+}
+
+function closeManualAttendanceModal() {
+  const modal = $("manualAttendanceModal");
+  if (modal) modal.classList.add("hide");
+}
+
+async function submitManualAttendance() {
+  const token = $("token") ? $("token").value.trim() : "";
+  if (!token) { showError("Bitte API-Token eintragen."); return; }
+  const actId = $("manualAttActivitySelect") ? $("manualAttActivitySelect").value : "";
+  const dateStr = $("manualAttDateInput") ? $("manualAttDateInput").value : "";
+  const startStr = $("manualAttStartTime") ? $("manualAttStartTime").value : "";
+  const endStr = $("manualAttEndTime") ? $("manualAttEndTime").value : "";
+  const comment = $("manualAttCommentInput") ? $("manualAttCommentInput").value.trim() : "";
+  const errEl = $("manualAttError");
+
+  if (!actId || !dateStr || !startStr || !endStr) {
+    if (errEl) { errEl.textContent = "Bitte alle Pflichtfelder ausfüllen."; errEl.classList.remove("hide"); }
+    return;
+  }
+  const startedAt = new Date(dateStr + "T" + startStr + ":00").toISOString();
+  const endedAt = new Date(dateStr + "T" + endStr + ":00").toISOString();
+  if (new Date(endedAt) <= new Date(startedAt)) {
+    if (errEl) { errEl.textContent = "Endzeit muss nach der Startzeit liegen."; errEl.classList.remove("hide"); }
+    return;
+  }
+
+  const dur = Math.max(0, Math.round((new Date(endedAt) - new Date(startedAt)) / 1000));
+  const body = {
+    activity_id: actId,
+    started_at: startedAt,
+    ended_at: endedAt,
+    duration_seconds: dur,
+    comment: comment,
+  };
+
+  try {
+    const res = await fetch("/api/time-entries", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token,
+      },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) throw new Error(res.status + " " + (await res.text()));
+    closeManualAttendanceModal();
+    await load();
+  } catch (err) {
+    if (errEl) { errEl.textContent = "Fehler beim Eintragen: " + err.message; errEl.classList.remove("hide"); }
+  }
+}
+
+/* Notes Explorer & Long-term Data Processing */
+function renderNotesExplorer() {
+  const listEl = $("notesExplorerList");
+  const statsEl = $("notesStatsBar");
+  if (!listEl || !DATA || !DATA.time_entries) return;
+
+  const query = ($("notesSearchInput") ? $("notesSearchInput").value.trim().toLowerCase() : "");
+  const activities = active(DATA.activities);
+  const actById = {};
+  for (const a of activities) actById[a.id] = a;
+
+  const allEntries = active(DATA.time_entries).sort((a, b) => new Date(b.started_at) - new Date(a.started_at));
+  const entriesWithNotes = allEntries.filter((e) => e.comment && e.comment.trim());
+  const filtered = query
+    ? entriesWithNotes.filter((e) => e.comment.toLowerCase().includes(query) || (actById[e.activity_id] && actById[e.activity_id].name.toLowerCase().includes(query)))
+    : entriesWithNotes;
+
+  if (statsEl) {
+    statsEl.innerHTML = `<span><strong>${entriesWithNotes.length}</strong> Einträge mit Notizen</span> · <span>${filtered.length} angezeigt</span>`;
+  }
+
+  if (!filtered.length) {
+    listEl.innerHTML = query
+      ? "<div class='muted small' style='padding:14px 0'>Keine Notizen gefunden, die zu „" + escapeHtml(query) + "“ passen.</div>"
+      : "<div class='muted small' style='padding:14px 0'>Noch keine Zeiteinträge mit Notizen vorhanden.</div>";
+    return;
+  }
+
+  let html = "";
+  for (const e of filtered.slice(0, 50)) {
+    const act = actById[e.activity_id];
+    const color = activityColor(act);
+    const icon = getActivityIcon(act);
+    const actName = act ? act.name : "Unbekannt";
+    const s = new Date(e.started_at);
+    const end = e.ended_at ? new Date(e.ended_at) : new Date();
+    const dur = Math.max(0, (end - s) / 1000);
+    const dateStr = s.toLocaleDateString("de-DE", {weekday: "short", day: "2-digit", month: "2-digit", year: "numeric"});
+    const timeStr = s.toLocaleTimeString("de-DE", {hour: "2-digit", minute: "2-digit"}) + " – " + (e.ended_at ? end.toLocaleTimeString("de-DE", {hour: "2-digit", minute: "2-digit"}) : "jetzt");
+
+    html += `<div class="noteCard" style="border-left-color:${color}">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;flex-wrap:wrap;gap:8px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:16px">${icon}</span>
+          <strong>${escapeHtml(actName)}</strong>
+          <span class="muted" style="font-size:12px">${dateStr} (${timeStr})</span>
+        </div>
+        <span style="font-size:12px;font-weight:600;font-variant-numeric:tabular-nums">${formatDuration(dur)}</span>
+      </div>
+      <div style="font-size:14px;color:var(--text);background:var(--card);padding:8px 12px;border-radius:6px;border:1px solid var(--line)">
+        ${escapeHtml(e.comment)}
+      </div>
+    </div>`;
+  }
+  listEl.innerHTML = html;
+}
+
+/* History Accordion (Day-by-Day grouping for growing data) */
+let historyDaysLimit = 14;
+const openHistoryDays = new Set();
+
+function renderHistoryAccordion() {
+  const container = $("historyAccordionList");
+  if (!container || !DATA || !DATA.time_entries) return;
+
+  const activities = active(DATA.activities);
+  const actById = {};
+  for (const a of activities) actById[a.id] = a;
+
+  const entries = active(DATA.time_entries).sort((a, b) => new Date(b.started_at) - new Date(a.started_at));
+  const byDay = new Map();
+  for (const e of entries) {
+    const dayKey = localDateStr(new Date(e.started_at));
+    if (!byDay.has(dayKey)) byDay.set(dayKey, []);
+    byDay.get(dayKey).push(e);
+  }
+
+  const allDays = [...byDay.keys()];
+  const visibleDays = allDays.slice(0, historyDaysLimit);
+  const moreBtn = $("loadMoreHistoryBtn");
+  if (moreBtn && moreBtn.style) moreBtn.style.display = allDays.length > historyDaysLimit ? "inline-block" : "none";
+
+  if (openHistoryDays.size === 0 && visibleDays.length > 0) {
+    openHistoryDays.add(visibleDays[0]);
+    if (visibleDays[1]) openHistoryDays.add(visibleDays[1]);
+  }
+
+  let html = "";
+  for (const dayKey of visibleDays) {
+    const dayEntries = byDay.get(dayKey);
+    const dayDate = new Date(dayKey + "T00:00:00");
+    const dayName = dayDate.toLocaleDateString("de-DE", {weekday: "long", day: "2-digit", month: "2-digit", year: "numeric"});
+    const totalSecs = dayEntries.reduce((acc, e) => {
+      const s = new Date(e.started_at);
+      const end = e.ended_at ? new Date(e.ended_at) : new Date();
+      return acc + Math.max(0, (end - s) / 1000);
+    }, 0);
+    const isOpen = openHistoryDays.has(dayKey);
+
+    html += `<div class="historyDayGroup">
+      <div class="historyDayHeader" onclick="toggleHistoryDay('${dayKey}')">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span>${isOpen ? "▼" : "▶"}</span>
+          <span>📅 ${dayName}</span>
+          <span class="muted" style="font-size:12px">(${dayEntries.length} Einträge)</span>
+        </div>
+        <span style="font-weight:700">${fmtHours(totalSecs)}</span>
+      </div>`;
+
+    if (isOpen) {
+      html += `<div class="historyEntriesList">`;
+      for (const e of dayEntries) {
+        const act = actById[e.activity_id];
+        const color = activityColor(act);
+        const icon = getActivityIcon(act);
+        const actName = act ? act.name : "Unbekannt";
+        const s = new Date(e.started_at);
+        const end = e.ended_at ? new Date(e.ended_at) : new Date();
+        const dur = Math.max(0, (end - s) / 1000);
+        const sTime = s.toLocaleTimeString("de-DE", {hour: "2-digit", minute: "2-digit"});
+        const eTime = e.ended_at ? end.toLocaleTimeString("de-DE", {hour: "2-digit", minute: "2-digit"}) : "läuft…";
+
+        html += `<div class="todayEntryRow">
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="border-left:4px solid ${color};padding-left:6px;font-size:16px">${icon}</span>
+            <strong>${escapeHtml(actName)}</strong>
+            <span class="muted" style="font-size:13px">${sTime} – ${eTime}</span>
+            ${e.comment ? `<span class="tag">${escapeHtml(e.comment)}</span>` : ""}
+          </div>
+          <div style="display:flex;align-items:center;gap:12px">
+            <span style="font-weight:600;font-variant-numeric:tabular-nums">${formatDuration(dur)}</span>
+            ${e.ended_at ? `<button style="background:transparent;color:var(--muted);border:0;padding:2px 6px;cursor:pointer;font-size:14px" onclick="deleteTimeEntry('${e.id}')" title="Löschen">✕</button>` : ""}
+          </div>
+        </div>`;
+      }
+      html += `</div>`;
+    }
+    html += `</div>`;
+  }
+  container.innerHTML = html;
+}
+
+function toggleHistoryDay(dayKey) {
+  if (openHistoryDays.has(dayKey)) openHistoryDays.delete(dayKey);
+  else openHistoryDays.add(dayKey);
+  renderHistoryAccordion();
+}
+
+function toggleAllHistoryDays(open) {
+  if (!DATA || !DATA.time_entries) return;
+  const entries = active(DATA.time_entries);
+  openHistoryDays.clear();
+  if (open) {
+    for (const e of entries) openHistoryDays.add(localDateStr(new Date(e.started_at)));
+  }
+  renderHistoryAccordion();
+}
+
+function loadMoreHistoryDays() {
+  historyDaysLimit += 14;
+  renderHistoryAccordion();
 }
 
 $("token").value = localStorage.getItem("tt_token") || "";
 $("load").addEventListener("click", load);
 $("token").addEventListener("keydown", (event) => { if (event.key === "Enter") load(); });
-// Auto load when the token is passed in the url hash: #token=...
+
 function setChartMode(mode) {
   chartMode = mode;
   localStorage.setItem("tt_chart_mode", mode);
@@ -2193,14 +2802,14 @@ function setChartMode(mode) {
   if (DATA) render();
 }
 function updateChartModeButtons() {
-  $("chartDay").className = "modeBtn" + (chartMode === "day" ? " on" : "");
-  $("chartWeek").className = "modeBtn" + (chartMode === "week" ? " on" : "");
-  $("chartMonth").className = "modeBtn" + (chartMode === "month" ? " on" : "");
+  if ($("chartDay")) $("chartDay").className = "modeBtn" + (chartMode === "day" ? " on" : "");
+  if ($("chartWeek")) $("chartWeek").className = "modeBtn" + (chartMode === "week" ? " on" : "");
+  if ($("chartMonth")) $("chartMonth").className = "modeBtn" + (chartMode === "month" ? " on" : "");
 }
-$("chartDay").addEventListener("click", () => setChartMode("day"));
-$("chartWeek").addEventListener("click", () => setChartMode("week"));
-$("chartMonth").addEventListener("click", () => setChartMode("month"));
-$("theme").addEventListener("click", nextTheme);
+if ($("chartDay")) $("chartDay").addEventListener("click", () => setChartMode("day"));
+if ($("chartWeek")) $("chartWeek").addEventListener("click", () => setChartMode("week"));
+if ($("chartMonth")) $("chartMonth").addEventListener("click", () => setChartMode("month"));
+if ($("theme")) $("theme").addEventListener("click", nextTheme);
 updateChartModeButtons();
 if ($("csv")) $("csv").addEventListener("click", exportCsv);
 if ($("share")) $("share").addEventListener("click", copyShareLink);
@@ -2225,10 +2834,12 @@ on("closeConflictsBtn", "click", toggleConflictsModal);
 on("dismissAllConflictsBtn", "click", dismissAllConflicts);
 on("shiftStart", "change", () => {
   localStorage.setItem("tt_shift_start", $("shiftStart").value);
+  updateShiftDisplay();
   renderTodayTimeline();
 });
 on("shiftEnd", "change", () => {
   localStorage.setItem("tt_shift_end", $("shiftEnd").value);
+  updateShiftDisplay();
   renderTodayTimeline();
 });
 on("distributionTarget", "change", () => {
@@ -2242,6 +2853,31 @@ on("distributionTarget", "change", () => {
 
 if ($("shiftStart")) $("shiftStart").value = localStorage.getItem("tt_shift_start") || "6";
 if ($("shiftEnd")) $("shiftEnd").value = localStorage.getItem("tt_shift_end") || "23";
+updateShiftDisplay();
+
+// Close modals on Escape key or clicking on backdrop
+if (typeof window !== "undefined") {
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      closeSettingsModal();
+      closeManualAttendanceModal();
+      const cBox = $("conflictsBox");
+      if (cBox) cBox.classList.add("hide");
+    }
+  });
+  window.addEventListener("click", (e) => {
+    if (e.target && e.target.classList && e.target.classList.contains("modalBackdrop")) {
+      closeSettingsModal();
+      closeManualAttendanceModal();
+    }
+  });
+}
+
+// Restore saved tab if available
+try {
+  const savedTab = localStorage.getItem("tt_active_tab");
+  if (savedTab) switchTab(savedTab);
+} catch (e) {}
 
 if ($("token").value.trim()) {
   startTimerPolling();

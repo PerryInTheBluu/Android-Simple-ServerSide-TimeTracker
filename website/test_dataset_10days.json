@@ -1,1158 +1,1168 @@
 {
   "time_entries": [
     {
-      "id": "15021469-1976-465d-8fd2-ba5357a1d072",
-      "activity_id": "108aa6dc-abca-4eba-907c-b4b9a600457a",
+      "id": "dad319d3-aa45-46bd-b539-e7e0b501346c",
+      "activity_id": "81f6056c-a4f9-45b6-b840-b854a6ae6e17",
       "started_at": "2026-09-26T00:00:00+02:00",
       "ended_at": "2026-09-26T07:15:00+02:00",
       "duration_seconds": 26100,
       "comment": "Gut geschlafen",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "196563ff-ed2b-4102-8436-3b6440e4a8e7",
-      "activity_id": "4664848b-f749-4f3c-82ea-14555583dc35",
+      "id": "bfc1c4ac-f63e-4c6c-b2a2-d5dace18a99f",
+      "activity_id": "9fd87c63-6b33-4d85-a61f-64a8b88ab75a",
       "started_at": "2026-09-26T07:30:00+02:00",
       "ended_at": "2026-09-26T08:00:00+02:00",
       "duration_seconds": 1800,
       "comment": "Frühstück & Kaffee",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "8f501708-2b11-4c16-92d6-f636af6163e5",
-      "activity_id": "4664848b-f749-4f3c-82ea-14555583dc35",
+      "id": "b86a1806-2e9c-4a8a-84c2-c61b6dbb9417",
+      "activity_id": "9fd87c63-6b33-4d85-a61f-64a8b88ab75a",
       "started_at": "2026-09-26T12:45:00+02:00",
       "ended_at": "2026-09-26T13:30:00+02:00",
       "duration_seconds": 2700,
       "comment": "Mensa Mittagessen",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "80b5b6ab-ff28-4cd4-a885-1bf7f2521d9f",
-      "activity_id": "f5c8d7da-7876-4010-9441-202b95b92664",
+      "id": "c7deb7c8-a132-4e1d-a711-a6ab82e54476",
+      "activity_id": "6cfe2c5c-a0fb-4869-a8ee-81eae44cb6c8",
       "started_at": "2026-09-26T15:50:00+02:00",
       "ended_at": "2026-09-26T16:15:00+02:00",
       "duration_seconds": 1500,
       "comment": "Kaffeepause",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "08375651-124d-481b-a7c1-566aef94dd0f",
-      "activity_id": "91264174-5c07-4668-a976-590e016b1146",
+      "id": "a67abb96-a1d0-4dea-9609-7f15f8774bb5",
+      "activity_id": "e5e85de2-770a-4662-9c5a-8c977c3d73e1",
       "started_at": "2026-09-26T17:00:00+02:00",
       "ended_at": "2026-09-26T18:15:00+02:00",
       "duration_seconds": 4500,
       "comment": "Gym Workout & Laufen",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "26512662-a414-48c3-b254-90b2d71f6c1f",
-      "activity_id": "4664848b-f749-4f3c-82ea-14555583dc35",
+      "id": "afd76c87-0566-4e57-9242-1aac6f1db3eb",
+      "activity_id": "9fd87c63-6b33-4d85-a61f-64a8b88ab75a",
       "started_at": "2026-09-26T19:00:00+02:00",
       "ended_at": "2026-09-26T19:45:00+02:00",
       "duration_seconds": 2700,
       "comment": "Abendessen",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "1c5d3a31-0a3f-45d8-9616-0b725e09fa67",
-      "activity_id": "ef1f4d91-2db4-4945-b674-4b67a7be283d",
+      "id": "7a59dd2b-0a8d-4672-8875-cc69c88f01fb",
+      "activity_id": "db7b7623-dbf9-42b2-a70f-344d3c144853",
       "started_at": "2026-09-26T20:30:00+02:00",
       "ended_at": "2026-09-26T22:00:00+02:00",
       "duration_seconds": 5400,
       "comment": "Feierabend",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "0b2fa62b-43f0-4627-918f-b0263917577f",
-      "activity_id": "108aa6dc-abca-4eba-907c-b4b9a600457a",
+      "id": "d12128c9-9ba3-4c62-a49a-2d377431844e",
+      "activity_id": "81f6056c-a4f9-45b6-b840-b854a6ae6e17",
       "started_at": "2026-09-27T00:00:00+02:00",
       "ended_at": "2026-09-27T07:15:00+02:00",
       "duration_seconds": 26100,
       "comment": "Gut geschlafen",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "c7621f72-cf46-41c9-a799-4ee75a94fb7e",
-      "activity_id": "4664848b-f749-4f3c-82ea-14555583dc35",
+      "id": "fc7d4acc-e08a-41aa-9b34-008375874a37",
+      "activity_id": "9fd87c63-6b33-4d85-a61f-64a8b88ab75a",
       "started_at": "2026-09-27T07:30:00+02:00",
       "ended_at": "2026-09-27T08:00:00+02:00",
       "duration_seconds": 1800,
       "comment": "Frühstück & Kaffee",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "5c6b27b1-77a4-4ed4-84c0-745b13d91d38",
-      "activity_id": "4664848b-f749-4f3c-82ea-14555583dc35",
+      "id": "88e70466-4536-448a-833d-83f57e95a706",
+      "activity_id": "9fd87c63-6b33-4d85-a61f-64a8b88ab75a",
       "started_at": "2026-09-27T12:45:00+02:00",
       "ended_at": "2026-09-27T13:30:00+02:00",
       "duration_seconds": 2700,
       "comment": "Mensa Mittagessen",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "8644d5ab-9206-466c-9c04-6fba149230de",
-      "activity_id": "f5c8d7da-7876-4010-9441-202b95b92664",
+      "id": "2ce45767-685e-4616-bfae-876bcb3bb4ad",
+      "activity_id": "6cfe2c5c-a0fb-4869-a8ee-81eae44cb6c8",
       "started_at": "2026-09-27T15:50:00+02:00",
       "ended_at": "2026-09-27T16:15:00+02:00",
       "duration_seconds": 1500,
       "comment": "Kaffeepause",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "05f27c8c-e146-4ef8-a5d3-cfe0c42ec1e1",
-      "activity_id": "4664848b-f749-4f3c-82ea-14555583dc35",
+      "id": "8996f649-6da2-4292-bf67-12eae078d483",
+      "activity_id": "9fd87c63-6b33-4d85-a61f-64a8b88ab75a",
       "started_at": "2026-09-27T19:00:00+02:00",
       "ended_at": "2026-09-27T19:45:00+02:00",
       "duration_seconds": 2700,
       "comment": "Abendessen",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "196edb07-2dd5-431e-8249-bc03e9507bef",
-      "activity_id": "be654fad-44aa-469a-8fc2-0289076e6a2b",
+      "id": "08a76c1d-6341-4157-871d-3695225409f8",
+      "activity_id": "6ff8f77d-e206-4adb-8f10-f6557816e87c",
       "started_at": "2026-09-27T20:30:00+02:00",
       "ended_at": "2026-09-27T22:00:00+02:00",
       "duration_seconds": 5400,
       "comment": "Feierabend",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "01ecffaa-b887-4d17-80d0-1868a425be6d",
-      "activity_id": "108aa6dc-abca-4eba-907c-b4b9a600457a",
+      "id": "9d03b6b4-6e35-4ce1-8ca4-7babe5d79d5f",
+      "activity_id": "81f6056c-a4f9-45b6-b840-b854a6ae6e17",
       "started_at": "2026-09-28T00:00:00+02:00",
       "ended_at": "2026-09-28T07:15:00+02:00",
       "duration_seconds": 26100,
       "comment": "Gut geschlafen",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "3bb396bd-7d5e-4ed9-9aeb-50c2ff82db50",
-      "activity_id": "4664848b-f749-4f3c-82ea-14555583dc35",
+      "id": "51451b8f-d0a4-4e35-ba3f-856917c3e257",
+      "activity_id": "9fd87c63-6b33-4d85-a61f-64a8b88ab75a",
       "started_at": "2026-09-28T07:30:00+02:00",
       "ended_at": "2026-09-28T08:00:00+02:00",
       "duration_seconds": 1800,
       "comment": "Frühstück & Kaffee",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "cee77e23-5827-43bf-a00b-0089e3d2a8da",
-      "activity_id": "b315a0da-d951-4488-9bc0-2a6a1d30a257",
+      "id": "a29bb357-1da7-49e8-9293-00f0d8320471",
+      "activity_id": "54034e0a-7697-4176-9a1c-aef9cc98f83b",
       "started_at": "2026-09-28T08:15:00+02:00",
       "ended_at": "2026-09-28T09:45:00+02:00",
       "duration_seconds": 5400,
       "comment": "HS 1 Vorlesung",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "ec106991-0788-48df-a7e4-2d49a7f82d1c",
-      "activity_id": "7d0d4aca-83ab-4376-a898-86936ad01436",
+      "id": "176b2c6e-81cf-4f22-9fda-90bad0cedacc",
+      "activity_id": "5729efea-7c09-4ca2-bce0-4152789726cd",
       "started_at": "2026-09-28T10:15:00+02:00",
       "ended_at": "2026-09-28T11:45:00+02:00",
       "duration_seconds": 5400,
       "comment": "HS 2 Folgen & Reihen",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "16b5da10-8c01-4792-bbfc-8b440ebcb005",
-      "activity_id": "fe8d1fee-7404-4a7b-bfc0-7b0443a0fb8b",
+      "id": "7b77c4ce-38db-4f3c-862a-35afb2d04b36",
+      "activity_id": "6d2d0473-01eb-4487-9cd0-0ada99399824",
       "started_at": "2026-09-28T14:15:00+02:00",
       "ended_at": "2026-09-28T15:45:00+02:00",
       "duration_seconds": 5400,
       "comment": "Streams & Lambdas",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "ee6c783e-9d81-4ac5-9f1d-abbef94115dc",
-      "activity_id": "4664848b-f749-4f3c-82ea-14555583dc35",
+      "id": "c059e91d-24e5-4b09-9c7b-b3b7d448f74c",
+      "activity_id": "9fd87c63-6b33-4d85-a61f-64a8b88ab75a",
       "started_at": "2026-09-28T12:45:00+02:00",
       "ended_at": "2026-09-28T13:30:00+02:00",
       "duration_seconds": 2700,
       "comment": "Mensa Mittagessen",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "a2a03c33-fe1f-4418-833b-fdfa348466c4",
-      "activity_id": "f5c8d7da-7876-4010-9441-202b95b92664",
+      "id": "02da70bd-e630-4f8f-9753-06c9b2057939",
+      "activity_id": "6cfe2c5c-a0fb-4869-a8ee-81eae44cb6c8",
       "started_at": "2026-09-28T15:50:00+02:00",
       "ended_at": "2026-09-28T16:15:00+02:00",
       "duration_seconds": 1500,
       "comment": "Kaffeepause",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "d5c161bd-eacc-430b-877b-1b925ab513e1",
-      "activity_id": "91264174-5c07-4668-a976-590e016b1146",
+      "id": "513ab856-4139-4fa8-814a-164dc670b3fc",
+      "activity_id": "e5e85de2-770a-4662-9c5a-8c977c3d73e1",
       "started_at": "2026-09-28T17:00:00+02:00",
       "ended_at": "2026-09-28T18:15:00+02:00",
       "duration_seconds": 4500,
       "comment": "Gym Workout & Laufen",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "3697b9ed-74f4-4adf-99ea-1c18eaacfcc4",
-      "activity_id": "4664848b-f749-4f3c-82ea-14555583dc35",
+      "id": "b334dbea-9afa-4bee-9d4a-87ca89dba207",
+      "activity_id": "9fd87c63-6b33-4d85-a61f-64a8b88ab75a",
       "started_at": "2026-09-28T19:00:00+02:00",
       "ended_at": "2026-09-28T19:45:00+02:00",
       "duration_seconds": 2700,
       "comment": "Abendessen",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "61d35127-e4ae-4ea5-8416-b65b6abb120a",
-      "activity_id": "ef1f4d91-2db4-4945-b674-4b67a7be283d",
+      "id": "1fa21b41-5729-45bf-8de3-c07ada0d587e",
+      "activity_id": "db7b7623-dbf9-42b2-a70f-344d3c144853",
       "started_at": "2026-09-28T20:30:00+02:00",
       "ended_at": "2026-09-28T22:00:00+02:00",
       "duration_seconds": 5400,
       "comment": "Feierabend",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "e73262a5-44e3-483f-9180-f0bb884925e7",
-      "activity_id": "108aa6dc-abca-4eba-907c-b4b9a600457a",
+      "id": "a3fd8f03-484e-447d-8cee-9a3f95f4820d",
+      "activity_id": "81f6056c-a4f9-45b6-b840-b854a6ae6e17",
       "started_at": "2026-09-29T00:00:00+02:00",
       "ended_at": "2026-09-29T07:15:00+02:00",
       "duration_seconds": 26100,
       "comment": "Gut geschlafen",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "dbbe69dd-7dc4-413c-a086-b40339ba1346",
-      "activity_id": "4664848b-f749-4f3c-82ea-14555583dc35",
+      "id": "01583ccf-8b78-4b99-8a01-5d9e98d1556c",
+      "activity_id": "9fd87c63-6b33-4d85-a61f-64a8b88ab75a",
       "started_at": "2026-09-29T07:30:00+02:00",
       "ended_at": "2026-09-29T08:00:00+02:00",
       "duration_seconds": 1800,
       "comment": "Frühstück & Kaffee",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "a7c50399-0c1f-475a-845b-99d707b11a90",
-      "activity_id": "fe8d1fee-7404-4a7b-bfc0-7b0443a0fb8b",
+      "id": "16c55705-958e-4340-bedc-4d88d84eaf59",
+      "activity_id": "6d2d0473-01eb-4487-9cd0-0ada99399824",
       "started_at": "2026-09-29T08:15:00+02:00",
       "ended_at": "2026-09-29T09:45:00+02:00",
       "duration_seconds": 5400,
       "comment": "Übungszettel Besprechung",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "c9f7a25d-3b09-40a3-b48d-68cbdcd911fb",
-      "activity_id": "4664848b-f749-4f3c-82ea-14555583dc35",
+      "id": "0e96ed38-fb19-4dfe-902e-9cc7d365100b",
+      "activity_id": "9fd87c63-6b33-4d85-a61f-64a8b88ab75a",
       "started_at": "2026-09-29T12:45:00+02:00",
       "ended_at": "2026-09-29T13:30:00+02:00",
       "duration_seconds": 2700,
       "comment": "Mensa Mittagessen",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "068a8ffb-6118-414d-a6c9-aecf5d291015",
-      "activity_id": "f5c8d7da-7876-4010-9441-202b95b92664",
+      "id": "7b244ab6-de98-4920-9725-198b4e5bde00",
+      "activity_id": "6cfe2c5c-a0fb-4869-a8ee-81eae44cb6c8",
       "started_at": "2026-09-29T15:50:00+02:00",
       "ended_at": "2026-09-29T16:15:00+02:00",
       "duration_seconds": 1500,
       "comment": "Kaffeepause",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "15b488ce-24c2-45d1-bbe8-fb386eb9fc98",
-      "activity_id": "4664848b-f749-4f3c-82ea-14555583dc35",
+      "id": "a939fb0f-c724-40cf-92af-fafb7a2dfb69",
+      "activity_id": "9fd87c63-6b33-4d85-a61f-64a8b88ab75a",
       "started_at": "2026-09-29T19:00:00+02:00",
       "ended_at": "2026-09-29T19:45:00+02:00",
       "duration_seconds": 2700,
       "comment": "Abendessen",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "a52fc489-1202-4137-939e-4714353f1268",
-      "activity_id": "be654fad-44aa-469a-8fc2-0289076e6a2b",
+      "id": "5893402d-3f99-4f37-9ae3-ea4de14375e9",
+      "activity_id": "6ff8f77d-e206-4adb-8f10-f6557816e87c",
       "started_at": "2026-09-29T20:30:00+02:00",
       "ended_at": "2026-09-29T22:00:00+02:00",
       "duration_seconds": 5400,
       "comment": "Feierabend",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "932286a2-37e8-4152-a2f9-5094980378c8",
-      "activity_id": "108aa6dc-abca-4eba-907c-b4b9a600457a",
+      "id": "cf97e012-73f3-44fe-ae4b-ebd12b16c942",
+      "activity_id": "81f6056c-a4f9-45b6-b840-b854a6ae6e17",
       "started_at": "2026-09-30T00:00:00+02:00",
       "ended_at": "2026-09-30T07:15:00+02:00",
       "duration_seconds": 26100,
       "comment": "Gut geschlafen",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "a6c07338-6b76-4145-ac5a-272bbb9884bd",
-      "activity_id": "4664848b-f749-4f3c-82ea-14555583dc35",
+      "id": "361c9dd5-9355-4bb3-91e0-bae5fc41dd52",
+      "activity_id": "9fd87c63-6b33-4d85-a61f-64a8b88ab75a",
       "started_at": "2026-09-30T07:30:00+02:00",
       "ended_at": "2026-09-30T08:00:00+02:00",
       "duration_seconds": 1800,
       "comment": "Frühstück & Kaffee",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "7bdcaa93-835b-448d-bca0-96bef6648707",
-      "activity_id": "eadde886-8669-411b-873d-7d95b2b373fd",
+      "id": "850c671e-f7a3-4a14-a868-2ce0f656dedf",
+      "activity_id": "f1a84718-db34-4acc-8684-849bf5f1f400",
       "started_at": "2026-09-30T09:15:00+02:00",
       "ended_at": "2026-09-30T10:45:00+02:00",
       "duration_seconds": 5400,
       "comment": "DFA & NFA",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "689bac84-48f0-42cf-b0fe-1f1010e5a129",
-      "activity_id": "7d0d4aca-83ab-4376-a898-86936ad01436",
+      "id": "327c6831-810b-49d4-86ab-d473f1288fb2",
+      "activity_id": "5729efea-7c09-4ca2-bce0-4152789726cd",
       "started_at": "2026-09-30T11:15:00+02:00",
       "ended_at": "2026-09-30T12:45:00+02:00",
       "duration_seconds": 5400,
       "comment": "Audimax Übung",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "b7144de1-f327-4534-86bf-66fa9505729c",
-      "activity_id": "4664848b-f749-4f3c-82ea-14555583dc35",
+      "id": "3da072ca-fabf-42c4-a24a-61339c5e8306",
+      "activity_id": "9fd87c63-6b33-4d85-a61f-64a8b88ab75a",
       "started_at": "2026-09-30T12:45:00+02:00",
       "ended_at": "2026-09-30T13:30:00+02:00",
       "duration_seconds": 2700,
       "comment": "Mensa Mittagessen",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "204a9601-918a-4ae3-89f0-939810148a93",
-      "activity_id": "f5c8d7da-7876-4010-9441-202b95b92664",
+      "id": "06f19c59-b22f-48a4-aa00-96267ec321fe",
+      "activity_id": "6cfe2c5c-a0fb-4869-a8ee-81eae44cb6c8",
       "started_at": "2026-09-30T15:50:00+02:00",
       "ended_at": "2026-09-30T16:15:00+02:00",
       "duration_seconds": 1500,
       "comment": "Kaffeepause",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "3f2b7fe4-4d44-4dbe-8db1-fbc4e69bd3ee",
-      "activity_id": "91264174-5c07-4668-a976-590e016b1146",
+      "id": "9b7af4aa-2f1b-4b88-a429-26f2719ea42c",
+      "activity_id": "e5e85de2-770a-4662-9c5a-8c977c3d73e1",
       "started_at": "2026-09-30T17:00:00+02:00",
       "ended_at": "2026-09-30T18:15:00+02:00",
       "duration_seconds": 4500,
       "comment": "Gym Workout & Laufen",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "6a78cf2e-50d7-468b-8e44-922a0daefdcf",
-      "activity_id": "4664848b-f749-4f3c-82ea-14555583dc35",
+      "id": "d2c2f5c8-9967-4640-a050-301ec3faaada",
+      "activity_id": "9fd87c63-6b33-4d85-a61f-64a8b88ab75a",
       "started_at": "2026-09-30T19:00:00+02:00",
       "ended_at": "2026-09-30T19:45:00+02:00",
       "duration_seconds": 2700,
       "comment": "Abendessen",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "bb611bce-8726-4064-9365-df2aec7362ad",
-      "activity_id": "ef1f4d91-2db4-4945-b674-4b67a7be283d",
+      "id": "6b2afdc6-eb6a-469c-a10a-f24c66b629f4",
+      "activity_id": "db7b7623-dbf9-42b2-a70f-344d3c144853",
       "started_at": "2026-09-30T20:30:00+02:00",
       "ended_at": "2026-09-30T22:00:00+02:00",
       "duration_seconds": 5400,
       "comment": "Feierabend",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "3d10c656-4b93-4fe5-8e68-83c8b6fa1d91",
-      "activity_id": "108aa6dc-abca-4eba-907c-b4b9a600457a",
+      "id": "2bd45ff4-9022-4174-991d-a8599bc9aafd",
+      "activity_id": "81f6056c-a4f9-45b6-b840-b854a6ae6e17",
       "started_at": "2026-10-01T00:00:00+02:00",
       "ended_at": "2026-10-01T07:15:00+02:00",
       "duration_seconds": 26100,
       "comment": "Gut geschlafen",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "22552883-480b-40e5-8074-60a42a9f2501",
-      "activity_id": "4664848b-f749-4f3c-82ea-14555583dc35",
+      "id": "83039d9b-7d8a-4b1f-95bf-8c2cc2bb28d3",
+      "activity_id": "9fd87c63-6b33-4d85-a61f-64a8b88ab75a",
       "started_at": "2026-10-01T07:30:00+02:00",
       "ended_at": "2026-10-01T08:00:00+02:00",
       "duration_seconds": 1800,
       "comment": "Frühstück & Kaffee",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "755cb192-af1a-4bff-8253-392242c2f740",
-      "activity_id": "b315a0da-d951-4488-9bc0-2a6a1d30a257",
+      "id": "4391fefc-44bb-4f74-a642-e2b0ef7641b9",
+      "activity_id": "54034e0a-7697-4176-9a1c-aef9cc98f83b",
       "started_at": "2026-10-01T08:15:00+02:00",
       "ended_at": "2026-10-01T09:45:00+02:00",
       "duration_seconds": 5400,
       "comment": "Hauptsätze",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "e7f6c547-7e8b-4f14-93d4-b211ecf58e83",
-      "activity_id": "eadde886-8669-411b-873d-7d95b2b373fd",
+      "id": "79c75c99-6a14-462d-a83a-a1fd299912c6",
+      "activity_id": "f1a84718-db34-4acc-8684-849bf5f1f400",
       "started_at": "2026-10-01T14:15:00+02:00",
       "ended_at": "2026-10-01T15:45:00+02:00",
       "duration_seconds": 5400,
       "comment": "Pumping Lemma",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "634583be-bccb-4d0e-bf73-883400a84295",
-      "activity_id": "4664848b-f749-4f3c-82ea-14555583dc35",
+      "id": "7c9c4d86-9da7-45fa-921d-a27a379046ae",
+      "activity_id": "9fd87c63-6b33-4d85-a61f-64a8b88ab75a",
       "started_at": "2026-10-01T12:45:00+02:00",
       "ended_at": "2026-10-01T13:30:00+02:00",
       "duration_seconds": 2700,
       "comment": "Mensa Mittagessen",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "3e0527b3-14f9-4d05-9a32-66a767b1c008",
-      "activity_id": "f5c8d7da-7876-4010-9441-202b95b92664",
+      "id": "cc9f369c-284e-4ff1-8c6b-0918ea65531a",
+      "activity_id": "6cfe2c5c-a0fb-4869-a8ee-81eae44cb6c8",
       "started_at": "2026-10-01T15:50:00+02:00",
       "ended_at": "2026-10-01T16:15:00+02:00",
       "duration_seconds": 1500,
       "comment": "Kaffeepause",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "0ea1a277-b33f-44cc-aebf-a55d6631b878",
-      "activity_id": "4664848b-f749-4f3c-82ea-14555583dc35",
+      "id": "037ee9a4-1d21-40b9-9ae6-d7c88b44fc1e",
+      "activity_id": "9fd87c63-6b33-4d85-a61f-64a8b88ab75a",
       "started_at": "2026-10-01T19:00:00+02:00",
       "ended_at": "2026-10-01T19:45:00+02:00",
       "duration_seconds": 2700,
       "comment": "Abendessen",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "f71c80f9-b19d-4ed3-a459-8344d84b5598",
-      "activity_id": "be654fad-44aa-469a-8fc2-0289076e6a2b",
+      "id": "e31609bf-a2a2-4327-beee-5fe370e82bf3",
+      "activity_id": "6ff8f77d-e206-4adb-8f10-f6557816e87c",
       "started_at": "2026-10-01T20:30:00+02:00",
       "ended_at": "2026-10-01T22:00:00+02:00",
       "duration_seconds": 5400,
       "comment": "Feierabend",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "0c3933f8-fd0c-4261-b1c3-d28758c3042d",
-      "activity_id": "108aa6dc-abca-4eba-907c-b4b9a600457a",
+      "id": "1e8c0c96-f566-44f1-ae58-3228f9404091",
+      "activity_id": "81f6056c-a4f9-45b6-b840-b854a6ae6e17",
       "started_at": "2026-10-02T00:00:00+02:00",
       "ended_at": "2026-10-02T07:15:00+02:00",
       "duration_seconds": 26100,
       "comment": "Gut geschlafen",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "996aa09e-8727-4865-9d0f-364cd9c2ea79",
-      "activity_id": "4664848b-f749-4f3c-82ea-14555583dc35",
+      "id": "624bff46-0d7d-4c6d-9a50-993f67dbd592",
+      "activity_id": "9fd87c63-6b33-4d85-a61f-64a8b88ab75a",
       "started_at": "2026-10-02T07:30:00+02:00",
       "ended_at": "2026-10-02T08:00:00+02:00",
       "duration_seconds": 1800,
       "comment": "Frühstück & Kaffee",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "8424c104-5d2e-4176-aad4-93c32d7ce889",
-      "activity_id": "7d0d4aca-83ab-4376-a898-86936ad01436",
+      "id": "fc2ccb83-0df2-4d7d-b386-931fd4df2a73",
+      "activity_id": "5729efea-7c09-4ca2-bce0-4152789726cd",
       "started_at": "2026-10-02T10:15:00+02:00",
       "ended_at": "2026-10-02T11:45:00+02:00",
       "duration_seconds": 5400,
       "comment": "Stetigkeit",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "1de72cfd-175a-455b-aeb4-d06e7158b76b",
-      "activity_id": "fe8d1fee-7404-4a7b-bfc0-7b0443a0fb8b",
+      "id": "4d2d853b-ddfc-44a1-891c-f5143d4eaa46",
+      "activity_id": "6d2d0473-01eb-4487-9cd0-0ada99399824",
       "started_at": "2026-10-02T13:00:00+02:00",
       "ended_at": "2026-10-02T14:30:00+02:00",
       "duration_seconds": 5400,
       "comment": "Tutorium",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "4c3dd06f-7810-43d7-8902-ad2dbdc248a1",
-      "activity_id": "4664848b-f749-4f3c-82ea-14555583dc35",
+      "id": "3c3474b0-8558-45e5-87a1-09236a0e1a1f",
+      "activity_id": "9fd87c63-6b33-4d85-a61f-64a8b88ab75a",
       "started_at": "2026-10-02T12:45:00+02:00",
       "ended_at": "2026-10-02T13:30:00+02:00",
       "duration_seconds": 2700,
       "comment": "Mensa Mittagessen",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "30cdcdd4-722d-43c3-876e-17683be96ff4",
-      "activity_id": "f5c8d7da-7876-4010-9441-202b95b92664",
+      "id": "d0cbb1dc-d22d-4404-b92d-4dae8e3431ca",
+      "activity_id": "6cfe2c5c-a0fb-4869-a8ee-81eae44cb6c8",
       "started_at": "2026-10-02T15:50:00+02:00",
       "ended_at": "2026-10-02T16:15:00+02:00",
       "duration_seconds": 1500,
       "comment": "Kaffeepause",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "82a09ddd-27ec-49dc-8e93-b0c1aa934b21",
-      "activity_id": "91264174-5c07-4668-a976-590e016b1146",
+      "id": "5336a899-1978-41cb-a8ec-7346346960e4",
+      "activity_id": "e5e85de2-770a-4662-9c5a-8c977c3d73e1",
       "started_at": "2026-10-02T17:00:00+02:00",
       "ended_at": "2026-10-02T18:15:00+02:00",
       "duration_seconds": 4500,
       "comment": "Gym Workout & Laufen",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "78fbf0f9-80a7-4d8f-977e-04a2f1e0b3ff",
-      "activity_id": "4664848b-f749-4f3c-82ea-14555583dc35",
+      "id": "3c7ea476-7b8c-49c4-9478-c6ea5227d7ff",
+      "activity_id": "9fd87c63-6b33-4d85-a61f-64a8b88ab75a",
       "started_at": "2026-10-02T19:00:00+02:00",
       "ended_at": "2026-10-02T19:45:00+02:00",
       "duration_seconds": 2700,
       "comment": "Abendessen",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "86ecdbc9-aa61-45ba-bab6-7c6a0d618db4",
-      "activity_id": "ef1f4d91-2db4-4945-b674-4b67a7be283d",
+      "id": "8295dbce-9bad-47be-8c3b-0492dfb5074f",
+      "activity_id": "db7b7623-dbf9-42b2-a70f-344d3c144853",
       "started_at": "2026-10-02T20:30:00+02:00",
       "ended_at": "2026-10-02T22:00:00+02:00",
       "duration_seconds": 5400,
       "comment": "Feierabend",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "f198bb46-3652-41fc-831a-82aa51f3dfe5",
-      "activity_id": "108aa6dc-abca-4eba-907c-b4b9a600457a",
+      "id": "3a10dfb5-6785-4a88-aeac-d5f6f75b3cf9",
+      "activity_id": "81f6056c-a4f9-45b6-b840-b854a6ae6e17",
       "started_at": "2026-10-03T00:00:00+02:00",
       "ended_at": "2026-10-03T07:15:00+02:00",
       "duration_seconds": 26100,
       "comment": "Gut geschlafen",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "a304a9f9-83a9-4afa-b929-82795b04882b",
-      "activity_id": "4664848b-f749-4f3c-82ea-14555583dc35",
+      "id": "d3acb673-aa47-4bef-989a-d17e700666d1",
+      "activity_id": "9fd87c63-6b33-4d85-a61f-64a8b88ab75a",
       "started_at": "2026-10-03T07:30:00+02:00",
       "ended_at": "2026-10-03T08:00:00+02:00",
       "duration_seconds": 1800,
       "comment": "Frühstück & Kaffee",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "55134b41-9af0-45eb-b21e-7486746d9487",
-      "activity_id": "4664848b-f749-4f3c-82ea-14555583dc35",
+      "id": "eb28630f-bb3d-45a8-ad8a-558f39badf36",
+      "activity_id": "9fd87c63-6b33-4d85-a61f-64a8b88ab75a",
       "started_at": "2026-10-03T12:45:00+02:00",
       "ended_at": "2026-10-03T13:30:00+02:00",
       "duration_seconds": 2700,
       "comment": "Mensa Mittagessen",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "9b088139-2eea-4ecc-9e16-8e06f4579fdc",
-      "activity_id": "f5c8d7da-7876-4010-9441-202b95b92664",
+      "id": "cd2e626c-a68b-4e58-85a0-a665defaa8b0",
+      "activity_id": "6cfe2c5c-a0fb-4869-a8ee-81eae44cb6c8",
       "started_at": "2026-10-03T15:50:00+02:00",
       "ended_at": "2026-10-03T16:15:00+02:00",
       "duration_seconds": 1500,
       "comment": "Kaffeepause",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "e6886d16-37d5-40f2-b4fe-d4b5d187fe9d",
-      "activity_id": "4664848b-f749-4f3c-82ea-14555583dc35",
+      "id": "4d6eec63-c6cc-4f20-8054-6ccc98f17833",
+      "activity_id": "9fd87c63-6b33-4d85-a61f-64a8b88ab75a",
       "started_at": "2026-10-03T19:00:00+02:00",
       "ended_at": "2026-10-03T19:45:00+02:00",
       "duration_seconds": 2700,
       "comment": "Abendessen",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "efed0ee6-154b-49f9-bc62-f17646a89dd7",
-      "activity_id": "be654fad-44aa-469a-8fc2-0289076e6a2b",
+      "id": "b1528dab-4338-4704-bbdd-a8cdfc1f27ff",
+      "activity_id": "6ff8f77d-e206-4adb-8f10-f6557816e87c",
       "started_at": "2026-10-03T20:30:00+02:00",
       "ended_at": "2026-10-03T22:00:00+02:00",
       "duration_seconds": 5400,
       "comment": "Feierabend",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "762a2911-ae87-4a5f-868b-f5c2323e11ce",
-      "activity_id": "108aa6dc-abca-4eba-907c-b4b9a600457a",
+      "id": "3079dbd9-8116-4884-b0aa-1c8c2895d7b2",
+      "activity_id": "81f6056c-a4f9-45b6-b840-b854a6ae6e17",
       "started_at": "2026-10-04T00:00:00+02:00",
       "ended_at": "2026-10-04T07:15:00+02:00",
       "duration_seconds": 26100,
       "comment": "Gut geschlafen",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "61dff564-deb0-4048-83f7-3864db1366cf",
-      "activity_id": "4664848b-f749-4f3c-82ea-14555583dc35",
+      "id": "c0a28ded-2a23-46f2-8f05-511efdfb364e",
+      "activity_id": "9fd87c63-6b33-4d85-a61f-64a8b88ab75a",
       "started_at": "2026-10-04T07:30:00+02:00",
       "ended_at": "2026-10-04T08:00:00+02:00",
       "duration_seconds": 1800,
       "comment": "Frühstück & Kaffee",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "826efaf7-ccdc-4aae-8a62-f081a5ff3319",
-      "activity_id": "4664848b-f749-4f3c-82ea-14555583dc35",
+      "id": "d7f00454-9479-4f3d-97d1-5e0d8cbaee6a",
+      "activity_id": "9fd87c63-6b33-4d85-a61f-64a8b88ab75a",
       "started_at": "2026-10-04T12:45:00+02:00",
       "ended_at": "2026-10-04T13:30:00+02:00",
       "duration_seconds": 2700,
       "comment": "Mensa Mittagessen",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "b6b9fb4b-0910-4143-b810-d74d76775fe9",
-      "activity_id": "f5c8d7da-7876-4010-9441-202b95b92664",
+      "id": "bfa26af1-f750-4aa7-a1dd-0a6626434790",
+      "activity_id": "6cfe2c5c-a0fb-4869-a8ee-81eae44cb6c8",
       "started_at": "2026-10-04T15:50:00+02:00",
       "ended_at": "2026-10-04T16:15:00+02:00",
       "duration_seconds": 1500,
       "comment": "Kaffeepause",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "b5dc05a9-a2ca-4b74-9563-3ce583b0e74c",
-      "activity_id": "91264174-5c07-4668-a976-590e016b1146",
+      "id": "3ac92f11-cf47-4a28-9af1-4697921fef34",
+      "activity_id": "e5e85de2-770a-4662-9c5a-8c977c3d73e1",
       "started_at": "2026-10-04T17:00:00+02:00",
       "ended_at": "2026-10-04T18:15:00+02:00",
       "duration_seconds": 4500,
       "comment": "Gym Workout & Laufen",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "a3bbbd2f-d4ef-467d-8fdd-6f84f4b5c7d9",
-      "activity_id": "4664848b-f749-4f3c-82ea-14555583dc35",
+      "id": "30d61edf-634e-4bac-af7a-6b779cf30377",
+      "activity_id": "9fd87c63-6b33-4d85-a61f-64a8b88ab75a",
       "started_at": "2026-10-04T19:00:00+02:00",
       "ended_at": "2026-10-04T19:45:00+02:00",
       "duration_seconds": 2700,
       "comment": "Abendessen",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "8e59c671-c3e9-4623-bac5-4bd14c0e45a9",
-      "activity_id": "ef1f4d91-2db4-4945-b674-4b67a7be283d",
+      "id": "d48a3320-9d35-4711-a068-7580af21dc4d",
+      "activity_id": "db7b7623-dbf9-42b2-a70f-344d3c144853",
       "started_at": "2026-10-04T20:30:00+02:00",
       "ended_at": "2026-10-04T22:00:00+02:00",
       "duration_seconds": 5400,
       "comment": "Feierabend",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "d1e57491-73ba-4675-865a-48f1a84f36dc",
-      "activity_id": "108aa6dc-abca-4eba-907c-b4b9a600457a",
+      "id": "7ac61a83-0392-4c53-9168-21c424a3f052",
+      "activity_id": "81f6056c-a4f9-45b6-b840-b854a6ae6e17",
       "started_at": "2026-10-05T00:00:00+02:00",
       "ended_at": "2026-10-05T07:15:00+02:00",
       "duration_seconds": 26100,
       "comment": "Gut geschlafen",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "fd8af12a-0908-4347-9361-35ad7277e60f",
-      "activity_id": "4664848b-f749-4f3c-82ea-14555583dc35",
+      "id": "e833d9d5-6bcf-47ee-9029-97177321c6af",
+      "activity_id": "9fd87c63-6b33-4d85-a61f-64a8b88ab75a",
       "started_at": "2026-10-05T07:30:00+02:00",
       "ended_at": "2026-10-05T08:00:00+02:00",
       "duration_seconds": 1800,
       "comment": "Frühstück & Kaffee",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "b00266b3-28db-40e7-ab3a-78c79693f8df",
-      "activity_id": "b315a0da-d951-4488-9bc0-2a6a1d30a257",
+      "id": "38993e72-24e7-4bd1-b6be-2b6ade78ac44",
+      "activity_id": "54034e0a-7697-4176-9a1c-aef9cc98f83b",
       "started_at": "2026-10-05T08:15:00+02:00",
       "ended_at": "2026-10-05T09:45:00+02:00",
       "duration_seconds": 5400,
       "comment": "HS 1 Vorlesung",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "77f33179-280c-4fbd-8a2a-b23aa0933df3",
-      "activity_id": "7d0d4aca-83ab-4376-a898-86936ad01436",
+      "id": "328e0889-faa4-4e16-bd0d-57785ac26b12",
+      "activity_id": "5729efea-7c09-4ca2-bce0-4152789726cd",
       "started_at": "2026-10-05T10:15:00+02:00",
       "ended_at": "2026-10-05T11:45:00+02:00",
       "duration_seconds": 5400,
       "comment": "HS 2 Folgen & Reihen",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "5c1f79d1-2473-4651-9068-f36806005828",
-      "activity_id": "fe8d1fee-7404-4a7b-bfc0-7b0443a0fb8b",
+      "id": "30070e39-7c89-404e-b275-c99cbab88300",
+      "activity_id": "6d2d0473-01eb-4487-9cd0-0ada99399824",
       "started_at": "2026-10-05T14:15:00+02:00",
       "ended_at": "2026-10-05T15:45:00+02:00",
       "duration_seconds": 5400,
       "comment": "Streams & Lambdas",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "f725b0c3-b231-4e4e-81ad-7dc2be055d2b",
-      "activity_id": "4664848b-f749-4f3c-82ea-14555583dc35",
+      "id": "0cc1cd18-7de6-45a0-bd3c-c9fc2a8a88f1",
+      "activity_id": "9fd87c63-6b33-4d85-a61f-64a8b88ab75a",
       "started_at": "2026-10-05T12:45:00+02:00",
       "ended_at": "2026-10-05T13:30:00+02:00",
       "duration_seconds": 2700,
       "comment": "Mensa Mittagessen",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "7a7891bd-3eaf-4f89-806e-960e373f1575",
-      "activity_id": "f5c8d7da-7876-4010-9441-202b95b92664",
+      "id": "61a46ec0-b2c8-4ea1-ae0f-317fbf778b9f",
+      "activity_id": "6cfe2c5c-a0fb-4869-a8ee-81eae44cb6c8",
       "started_at": "2026-10-05T15:50:00+02:00",
       "ended_at": "2026-10-05T16:15:00+02:00",
       "duration_seconds": 1500,
       "comment": "Kaffeepause",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "c16313a8-60d0-4bdc-808f-75e1b822d0d3",
-      "activity_id": "4664848b-f749-4f3c-82ea-14555583dc35",
+      "id": "a58c0f91-2a08-40a1-a919-ced2cb8e9d5b",
+      "activity_id": "9fd87c63-6b33-4d85-a61f-64a8b88ab75a",
       "started_at": "2026-10-05T19:00:00+02:00",
       "ended_at": "2026-10-05T19:45:00+02:00",
       "duration_seconds": 2700,
       "comment": "Abendessen",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "72df45c5-5a7c-4873-a4ec-03322dd03a89",
-      "activity_id": "7d0d4aca-83ab-4376-a898-86936ad01436",
-      "started_at": "2026-10-05T21:18:29.735494+02:00",
+      "id": "d3213f6f-fc04-43f5-9f6d-d99b12b79f25",
+      "activity_id": "6ff8f77d-e206-4adb-8f10-f6557816e87c",
+      "started_at": "2026-10-05T20:30:00+02:00",
+      "ended_at": "2026-10-05T22:00:00+02:00",
+      "duration_seconds": 5400,
+      "comment": "Feierabend",
+      "tags": "",
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
+    },
+    {
+      "id": "9b1b6335-f99f-46e4-afe0-70b246d3338d",
+      "activity_id": "5729efea-7c09-4ca2-bce0-4152789726cd",
+      "started_at": "2026-10-05T22:06:49.831322+02:00",
       "ended_at": null,
       "duration_seconds": 0,
       "comment": "Übungsblatt 4 lösen",
       "tags": "",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     }
   ],
   "activities": [
     {
-      "id": "7d0d4aca-83ab-4376-a898-86936ad01436",
+      "id": "5729efea-7c09-4ca2-bce0-4152789726cd",
       "name": "Analysis",
       "icon": "Analysis",
       "color_id": 10,
-      "category": "[\"4b6f1364-032d-4644-b7a1-df518f23f935\"]",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "category": "[\"68ac9ec3-a33e-41be-b3d5-4895bcafb421\"]",
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "b315a0da-d951-4488-9bc0-2a6a1d30a257",
+      "id": "54034e0a-7697-4176-9a1c-aef9cc98f83b",
       "name": "Thermodynamik",
       "icon": "Thermo",
       "color_id": 9,
-      "category": "[\"4b6f1364-032d-4644-b7a1-df518f23f935\"]",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "category": "[\"68ac9ec3-a33e-41be-b3d5-4895bcafb421\"]",
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "fe8d1fee-7404-4a7b-bfc0-7b0443a0fb8b",
+      "id": "6d2d0473-01eb-4487-9cd0-0ada99399824",
       "name": "Java",
       "icon": "Java",
       "color_id": 11,
-      "category": "[\"4b6f1364-032d-4644-b7a1-df518f23f935\"]",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "category": "[\"68ac9ec3-a33e-41be-b3d5-4895bcafb421\"]",
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "eadde886-8669-411b-873d-7d95b2b373fd",
+      "id": "f1a84718-db34-4acc-8684-849bf5f1f400",
       "name": "TheoInfo",
       "icon": "TheoInfo",
       "color_id": 12,
-      "category": "[\"4b6f1364-032d-4644-b7a1-df518f23f935\"]",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "category": "[\"68ac9ec3-a33e-41be-b3d5-4895bcafb421\"]",
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "4664848b-f749-4f3c-82ea-14555583dc35",
+      "id": "9fd87c63-6b33-4d85-a61f-64a8b88ab75a",
       "name": "Essen",
       "icon": "ic_restaurant_24px",
       "color_id": 15,
-      "category": "[\"164a5fdc-7ba0-493b-930f-bbf36ff4438e\"]",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "category": "[\"0dd2af04-ce5a-4a0d-b9bb-b8e83e61fa74\"]",
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "f5c8d7da-7876-4010-9441-202b95b92664",
+      "id": "6cfe2c5c-a0fb-4869-a8ee-81eae44cb6c8",
       "name": "Pause",
       "icon": "ic_free_breakfast_24px",
       "color_id": 14,
-      "category": "[\"164a5fdc-7ba0-493b-930f-bbf36ff4438e\"]",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "category": "[\"0dd2af04-ce5a-4a0d-b9bb-b8e83e61fa74\"]",
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "108aa6dc-abca-4eba-907c-b4b9a600457a",
+      "id": "81f6056c-a4f9-45b6-b840-b854a6ae6e17",
       "name": "Schlafen",
       "icon": "ic_single_bed_24px",
       "color_id": 1,
-      "category": "[\"164a5fdc-7ba0-493b-930f-bbf36ff4438e\"]",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "category": "[\"0dd2af04-ce5a-4a0d-b9bb-b8e83e61fa74\"]",
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "3074ac88-c3b0-4241-869f-e1c426243be1",
+      "id": "a54e77c1-aceb-4a40-b420-e3c85eaa0b13",
       "name": "Haushalt",
       "icon": "ic_cleaning_services_24px",
       "color_id": 17,
-      "category": "[\"164a5fdc-7ba0-493b-930f-bbf36ff4438e\"]",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "category": "[\"0dd2af04-ce5a-4a0d-b9bb-b8e83e61fa74\"]",
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "4c83c0c5-7297-4fb9-b62f-460c972c062f",
+      "id": "87cfaf54-b444-417f-b671-7f6ce632d4d7",
       "name": "Einkaufen",
       "icon": "ic_shopping_cart_24px",
       "color_id": 8,
-      "category": "[\"164a5fdc-7ba0-493b-930f-bbf36ff4438e\"]",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "category": "[\"0dd2af04-ce5a-4a0d-b9bb-b8e83e61fa74\"]",
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "91264174-5c07-4668-a976-590e016b1146",
+      "id": "e5e85de2-770a-4662-9c5a-8c977c3d73e1",
       "name": "Sport",
       "icon": "ic_fitness_center_24px",
       "color_id": 4,
-      "category": "[\"e4e7b968-0fb5-4bb8-8c92-b34ad3b5340b\"]",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "category": "[\"2f4a69d0-6362-47cc-a457-f7a9ed089a4d\"]",
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "be654fad-44aa-469a-8fc2-0289076e6a2b",
+      "id": "6ff8f77d-e206-4adb-8f10-f6557816e87c",
       "name": "Lesen",
       "icon": "ic_menu_book_24px",
       "color_id": 5,
-      "category": "[\"e4e7b968-0fb5-4bb8-8c92-b34ad3b5340b\"]",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "category": "[\"2f4a69d0-6362-47cc-a457-f7a9ed089a4d\"]",
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "ef1f4d91-2db4-4945-b674-4b67a7be283d",
+      "id": "db7b7623-dbf9-42b2-a70f-344d3c144853",
       "name": "Gaming",
       "icon": "ic_sports_esports_24px",
       "color_id": 3,
-      "category": "[\"e4e7b968-0fb5-4bb8-8c92-b34ad3b5340b\"]",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "category": "[\"2f4a69d0-6362-47cc-a457-f7a9ed089a4d\"]",
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     }
   ],
   "categories": [
     {
-      "id": "4b6f1364-032d-4644-b7a1-df518f23f935",
+      "id": "68ac9ec3-a33e-41be-b3d5-4895bcafb421",
       "name": "Uni",
       "color_id": 10,
       "note": "Vorlesungen, Übungen, Lernen",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "164a5fdc-7ba0-493b-930f-bbf36ff4438e",
+      "id": "0dd2af04-ce5a-4a0d-b9bb-b8e83e61fa74",
       "name": "Alltag",
       "color_id": 15,
       "note": "Schlaf, Mahlzeiten, Haushalt",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "e4e7b968-0fb5-4bb8-8c92-b34ad3b5340b",
+      "id": "2f4a69d0-6362-47cc-a457-f7a9ed089a4d",
       "name": "Freizeit",
       "color_id": 4,
       "note": "Sport, Lesen, Gaming",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     }
   ],
   "timetable_events": [
     {
-      "id": "f4780b69-53ba-4f8a-a5ae-695d35c5f6c2",
+      "id": "01bf22b3-8824-4107-a608-9c465986f249",
       "name": "Thermodynamik",
       "day_of_week": 1,
       "start_time": 495,
       "end_time": 585,
       "room": "HS 1",
       "type": 0,
-      "activity_sync_id": "b315a0da-d951-4488-9bc0-2a6a1d30a257",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "activity_sync_id": "54034e0a-7697-4176-9a1c-aef9cc98f83b",
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "b239f8a9-dfe6-4286-a621-3728a33ea75a",
+      "id": "f7ebb707-63da-4a1f-8b2c-2f21ff621a0c",
       "name": "Analysis",
       "day_of_week": 1,
       "start_time": 615,
       "end_time": 705,
       "room": "HS 2",
       "type": 0,
-      "activity_sync_id": "7d0d4aca-83ab-4376-a898-86936ad01436",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "activity_sync_id": "5729efea-7c09-4ca2-bce0-4152789726cd",
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "d2722002-06a3-47b5-9f13-4a0459df0f5e",
+      "id": "73ee658d-720b-4341-b3b3-3223571e8e9f",
       "name": "Java",
       "day_of_week": 1,
       "start_time": 855,
       "end_time": 945,
       "room": "HS 3",
       "type": 0,
-      "activity_sync_id": "fe8d1fee-7404-4a7b-bfc0-7b0443a0fb8b",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "activity_sync_id": "6d2d0473-01eb-4487-9cd0-0ada99399824",
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "82d633fd-bc1b-4fa6-844f-d1abe06d523f",
+      "id": "7a32a138-0ad7-422a-bee2-f6e950ade6f5",
       "name": "Java",
       "day_of_week": 2,
       "start_time": 495,
       "end_time": 585,
       "room": "R 0.014",
       "type": 1,
-      "activity_sync_id": "fe8d1fee-7404-4a7b-bfc0-7b0443a0fb8b",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "activity_sync_id": "6d2d0473-01eb-4487-9cd0-0ada99399824",
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "a51e21b4-11f8-4868-86aa-5d498a72b692",
+      "id": "da519cb3-4866-4b3d-964d-14e653b4f4c5",
       "name": "Thermodynamik",
       "day_of_week": 2,
       "start_time": 720,
       "end_time": 810,
       "room": "R 2.104",
       "type": 1,
-      "activity_sync_id": "b315a0da-d951-4488-9bc0-2a6a1d30a257",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "activity_sync_id": "54034e0a-7697-4176-9a1c-aef9cc98f83b",
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "f474820e-a660-4efe-a165-793e60ace83e",
+      "id": "d50ef049-496f-4f40-9832-01a7ae631485",
       "name": "TheoInfo",
       "day_of_week": 3,
       "start_time": 555,
       "end_time": 645,
       "room": "HS 1",
       "type": 0,
-      "activity_sync_id": "eadde886-8669-411b-873d-7d95b2b373fd",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "activity_sync_id": "f1a84718-db34-4acc-8684-849bf5f1f400",
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "8c4a401a-b8aa-4c98-a23d-4c7f2f18ee61",
+      "id": "844611e8-c073-49f1-9368-1bacc75e62ba",
       "name": "Analysis",
       "day_of_week": 3,
       "start_time": 675,
       "end_time": 765,
       "room": "R 1.05",
       "type": 1,
-      "activity_sync_id": "7d0d4aca-83ab-4376-a898-86936ad01436",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "activity_sync_id": "5729efea-7c09-4ca2-bce0-4152789726cd",
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "5a02835b-b2c5-4cd9-9439-0171fd354554",
+      "id": "84a834dd-4924-419f-963a-8a64925dfb78",
       "name": "Thermodynamik",
       "day_of_week": 4,
       "start_time": 495,
       "end_time": 585,
       "room": "HS 1",
       "type": 0,
-      "activity_sync_id": "b315a0da-d951-4488-9bc0-2a6a1d30a257",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "activity_sync_id": "54034e0a-7697-4176-9a1c-aef9cc98f83b",
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "8af5cb2f-4af7-4e3d-bc26-ebb488ce6031",
+      "id": "fe1bf004-7896-41a8-a869-72bc4949206b",
       "name": "TheoInfo",
       "day_of_week": 4,
       "start_time": 855,
       "end_time": 945,
       "room": "R 2.201",
       "type": 1,
-      "activity_sync_id": "eadde886-8669-411b-873d-7d95b2b373fd",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "activity_sync_id": "f1a84718-db34-4acc-8684-849bf5f1f400",
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "09101116-efb0-4b46-bf7c-427373867369",
+      "id": "748144ae-d285-4b31-878d-56303d4c3399",
       "name": "Analysis",
       "day_of_week": 5,
       "start_time": 615,
       "end_time": 705,
       "room": "HS 2",
       "type": 0,
-      "activity_sync_id": "7d0d4aca-83ab-4376-a898-86936ad01436",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "activity_sync_id": "5729efea-7c09-4ca2-bce0-4152789726cd",
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "c2532c15-2267-4bf0-8a1d-22476e120768",
+      "id": "f105bdb9-09f5-436c-bb38-7287c1bb765f",
       "name": "Java",
       "day_of_week": 5,
       "start_time": 780,
       "end_time": 870,
       "room": "R 0.014",
       "type": 2,
-      "activity_sync_id": "fe8d1fee-7404-4a7b-bfc0-7b0443a0fb8b",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "activity_sync_id": "6d2d0473-01eb-4487-9cd0-0ada99399824",
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     }
   ],
   "timetable_overrides": [
     {
-      "id": "245ccb78-ef5b-4edd-949b-8c46f21edb60",
-      "event_sync_id": "a51e21b4-11f8-4868-86aa-5d498a72b692",
+      "id": "ce36b681-6584-4a44-b978-e24255eb6fbf",
+      "event_sync_id": "da519cb3-4866-4b3d-964d-14e653b4f4c5",
       "date": "2026-09-28",
       "cancelled": true,
       "comment": "Dozent krank",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "4ae26946-1316-44f9-afb1-828682513570",
-      "event_sync_id": "8c4a401a-b8aa-4c98-a23d-4c7f2f18ee61",
+      "id": "70299c66-a771-46d0-bd88-3d00fcdec3db",
+      "event_sync_id": "844611e8-c073-49f1-9368-1bacc75e62ba",
       "date": "2026-09-29",
       "cancelled": false,
       "room": "Audimax",
       "comment": "Raumverlegung",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     }
   ],
   "timetable_days": [
     {
-      "id": "cfc9a869-11e2-4775-9476-307e44508786",
+      "id": "e60397b0-8910-49af-9040-cec3c725e2e7",
       "date": "2026-10-03",
       "free_day": false,
       "name": "Semestertag",
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     }
   ],
   "timetable_todos": [
     {
-      "id": "08639364-a87f-4b0b-8f5c-70499287e5b4",
-      "event_sync_id": "b239f8a9-dfe6-4286-a621-3728a33ea75a",
+      "id": "33455b7b-3ef3-4dcd-bcee-85d2011df75a",
+      "event_sync_id": "f7ebb707-63da-4a1f-8b2c-2f21ff621a0c",
       "date": "2026-09-27",
       "text": "Skript Kapitel 3 lesen",
       "type": 0,
       "done": true,
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "346eb4ed-ab17-44a2-89a0-2dd5605559c5",
-      "event_sync_id": "f4780b69-53ba-4f8a-a5ae-695d35c5f6c2",
+      "id": "1ad15b30-b4a7-432e-b9ca-5265e34f1e7a",
+      "event_sync_id": "01bf22b3-8824-4107-a608-9c465986f249",
       "date": "2026-09-27",
       "text": "Übungsblatt 2 Aufgaben 1-3 vorbereiten",
       "type": 0,
       "done": true,
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "431fcaea-3dea-4ce3-9acd-ead3fa82bddc",
-      "event_sync_id": "d2722002-06a3-47b5-9f13-4a0459df0f5e",
+      "id": "2123b5d6-85a3-4d07-9df2-4c57a647a9e5",
+      "event_sync_id": "73ee658d-720b-4341-b3b3-3223571e8e9f",
       "date": "2026-09-27",
       "text": "JDK 21 Setup verifizieren",
       "type": 0,
       "done": true,
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "ed217fcf-c9f4-4323-87cb-711e1d10aeb1",
-      "event_sync_id": "f474820e-a660-4efe-a165-793e60ace83e",
+      "id": "e465ad63-4d6e-4e21-b4aa-79e6946e0768",
+      "event_sync_id": "d50ef049-496f-4f40-9832-01a7ae631485",
       "date": "2026-09-29",
       "text": "Automaten-Beispiele nacharbeiten",
       "type": 1,
       "done": true,
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "17bc375e-4804-4c1e-8cd6-10172d11418b",
-      "event_sync_id": "8c4a401a-b8aa-4c98-a23d-4c7f2f18ee61",
+      "id": "320c0d9d-2dff-4159-978a-64cb494a5431",
+      "event_sync_id": "844611e8-c073-49f1-9368-1bacc75e62ba",
       "date": "2026-09-29",
       "text": "Beweis Satz 4.2 rekapitulieren",
       "type": 1,
       "done": false,
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "92f96689-314f-430e-85f7-0077d6d77ebf",
-      "event_sync_id": "5a02835b-b2c5-4cd9-9439-0171fd354554",
+      "id": "41ea4809-8ea8-47ee-9cb4-a50207360dcd",
+      "event_sync_id": "84a834dd-4924-419f-963a-8a64925dfb78",
       "date": "2026-09-30",
       "text": "Formelsammlung Thermodynamik drucken",
       "type": 2,
       "done": true,
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "1147c0ae-6e39-4826-9179-6d3fe0333baa",
-      "event_sync_id": "c2532c15-2267-4bf0-8a1d-22476e120768",
+      "id": "518ef1cf-d5d8-483f-a42f-4e1174c288ed",
+      "event_sync_id": "f105bdb9-09f5-436c-bb38-7287c1bb765f",
       "date": "2026-10-05",
       "text": "Git Push für Übungsaufgabe 3",
       "type": 2,
       "done": false,
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "31c70de5-3ff7-4039-8318-40c6a80a730a",
-      "event_sync_id": "09101116-efb0-4b46-bf7c-427373867369",
+      "id": "8d057384-df4b-4f44-af86-ef29cdcae34d",
+      "event_sync_id": "748144ae-d285-4b31-878d-56303d4c3399",
       "date": "2026-10-05",
       "text": "Klausuranmeldung im Portal prüfen",
       "type": 2,
       "done": false,
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     }
   ],
   "subject_goals": [
     {
-      "id": "0d426f2e-9445-440a-a4e3-4ddb878f9163",
-      "activity_sync_id": "7d0d4aca-83ab-4376-a898-86936ad01436",
+      "id": "71ccbcaf-cb43-474d-8beb-1aceecaeb515",
+      "activity_sync_id": "5729efea-7c09-4ca2-bce0-4152789726cd",
       "target_seconds": 540000,
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "aea372a5-cdfb-4114-ac49-e3a2919aa0ea",
-      "activity_sync_id": "b315a0da-d951-4488-9bc0-2a6a1d30a257",
+      "id": "ba848a0e-ba5e-4c34-8e1b-e81b1e9400de",
+      "activity_sync_id": "54034e0a-7697-4176-9a1c-aef9cc98f83b",
       "target_seconds": 540000,
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "76837e3b-6458-489b-a567-4f5d10f40900",
-      "activity_sync_id": "fe8d1fee-7404-4a7b-bfc0-7b0443a0fb8b",
+      "id": "8f13f1b9-d943-4866-8216-e8dcda0ffc9b",
+      "activity_sync_id": "6d2d0473-01eb-4487-9cd0-0ada99399824",
       "target_seconds": 540000,
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     },
     {
-      "id": "d72febde-1b86-4844-9518-32860294b497",
-      "activity_sync_id": "eadde886-8669-411b-873d-7d95b2b373fd",
+      "id": "deb3ffe7-ea18-46bd-969f-6c6585c52dd7",
+      "activity_sync_id": "f1a84718-db34-4acc-8684-849bf5f1f400",
       "target_seconds": 540000,
-      "updated_at": "2026-10-05T21:56:29.735494+02:00"
+      "updated_at": "2026-10-05T22:44:49.831322+02:00"
     }
   ],
   "tags": [],
-  "server_time": "2026-10-05T21:56:29.735494+02:00"
+  "server_time": "2026-10-05T22:44:49.831322+02:00"
 }

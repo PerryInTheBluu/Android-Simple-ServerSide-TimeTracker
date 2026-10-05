@@ -123,7 +123,14 @@ class Handler(BaseHTTPRequestHandler):
                 entries = upstream_req("/api/time-entries")
                 running = [e for e in entries if not e.get("ended_at") and not e.get("deleted_at")]
                 if running:
-                    return 200, json.dumps({"running": True, "entry": running[0]}).encode()
+                    entry = dict(running[0])
+                    try:
+                        acts = upstream_req("/api/activities")
+                        act = next((a for a in acts if a.get("id") == entry.get("activity_id")), None)
+                        entry["activity"] = act
+                    except Exception:
+                        pass
+                    return 200, json.dumps({"running": True, "entry": entry}).encode()
                 return 200, json.dumps({"running": False, "entry": None}).encode()
 
             elif self.path == "/api/timer/start" and method == "POST":
@@ -151,6 +158,12 @@ class Handler(BaseHTTPRequestHandler):
                     "comment": comment,
                 }
                 new_entry = upstream_req("/api/time-entries", "POST", json.dumps(create_data).encode())
+                try:
+                    acts = upstream_req("/api/activities")
+                    act = next((a for a in acts if a.get("id") == new_entry.get("activity_id")), None)
+                    new_entry["activity"] = act
+                except Exception:
+                    pass
                 return 200, json.dumps({"running": True, "entry": new_entry}).encode()
 
             elif self.path == "/api/timer/stop" and method == "POST":
