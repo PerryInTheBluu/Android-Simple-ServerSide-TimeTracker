@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.example.util.simpletimetracker.data_local.base.delegate
 import com.example.util.simpletimetracker.data_local.base.logPrefsDataAccess
-import com.example.util.simpletimetracker.domain.daysOfWeek.model.DaysInCalendar
 import com.example.util.simpletimetracker.domain.widget.model.StatisticsWidgetData
 import com.example.util.simpletimetracker.domain.statistics.model.ChartFilterType
 import com.example.util.simpletimetracker.domain.widget.model.QuickSettingsWidgetType
@@ -29,10 +28,11 @@ class PrefsRepoImpl @Inject constructor(
     }
 
     // On tablets the week overview is the more useful calendar
-    // default; phones keep the single day default.
+    // default; phones keep the single day default. The value is the
+    // stored preference value, not the enum ordinal.
     private val daysInCalendarDefault: Int by lazy {
         val isTablet = context.resources.configuration.smallestScreenWidthDp >= TABLET_SMALLEST_WIDTH_DP
-        if (isTablet) DaysInCalendar.WEEK.ordinal else DaysInCalendar.ONE.ordinal
+        if (isTablet) DAYS_IN_CALENDAR_WEEK else DAYS_IN_CALENDAR_DEFAULT
     }
 
     override var recordTypesFilteredOnList: Set<String> by prefs.delegate(
@@ -811,6 +811,10 @@ class PrefsRepoImpl @Inject constructor(
         const val KEY_SHOW_RECORDS_CALENDAR = "showRecordsCalendar"
         const val KEY_REVERSE_ORDER_IN_CALENDAR = "reverseOrderInCalendar"
         const val KEY_DAYS_IN_CALENDAR = "daysInCalendar"
+
+        // 0 is treated as the not set single day default.
+        private const val DAYS_IN_CALENDAR_DEFAULT = 0
+        private const val DAYS_IN_CALENDAR_WEEK = 8
         private const val TABLET_SMALLEST_WIDTH_DP = 600
         const val KEY_SHOW_ACTIVITY_FILTERS = "showActivityFilters"
         const val KEY_IS_ACTIVITY_FILTERS_COLLAPSED = "isActivityFiltersCollapsed"
