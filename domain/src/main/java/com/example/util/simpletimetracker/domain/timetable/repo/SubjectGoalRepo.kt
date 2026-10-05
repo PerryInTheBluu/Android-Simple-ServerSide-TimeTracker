@@ -11,4 +11,6 @@ interface SubjectGoalRepo {
     suspend fun set(goal: SubjectGoal)
 
     suspend fun remove(activityTypeId: Long)
+
+    suspend fun clear()
 }

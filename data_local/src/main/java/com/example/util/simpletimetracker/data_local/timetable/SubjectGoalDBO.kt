@@ -39,4 +39,7 @@ interface SubjectGoalDao {
 
     @Query("DELETE FROM subjectGoals WHERE activity_type_id = :activityTypeId")
     suspend fun delete(activityTypeId: Long)
+
+    @Query("DELETE FROM subjectGoals")
+    suspend fun clear()
 }

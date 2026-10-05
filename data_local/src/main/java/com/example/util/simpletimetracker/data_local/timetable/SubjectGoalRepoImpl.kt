@@ -42,6 +42,11 @@ class SubjectGoalRepoImpl @Inject constructor(
         accessSource = { subjectGoalDao.delete(activityTypeId) },
     )
 
+    override suspend fun clear() = mutex.withLockedCache(
+        logMessage = "clear",
+        accessSource = { subjectGoalDao.clear() },
+    )
+
     private fun map(dbo: SubjectGoalDBO): SubjectGoal {
         return SubjectGoal(
             activityTypeId = dbo.activityTypeId,

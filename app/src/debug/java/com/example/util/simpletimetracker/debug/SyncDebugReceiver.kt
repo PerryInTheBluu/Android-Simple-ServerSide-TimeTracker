@@ -87,6 +87,9 @@ class SyncDebugReceiver : BroadcastReceiver() {
     lateinit var icsImportInteractor: com.example.util.simpletimetracker.domain.timetable.ics.IcsImportInteractor
 
     @Inject
+    lateinit var subjectGoalRepo: com.example.util.simpletimetracker.domain.timetable.repo.SubjectGoalRepo
+
+    @Inject
     lateinit var timetableNotificationInteractor: com.example.util.simpletimetracker.domain.timetable.notification.TimetableNotificationInteractor
 
     override fun onReceive(context: Context, intent: Intent) {
@@ -151,6 +154,7 @@ class SyncDebugReceiver : BroadcastReceiver() {
                     ACTION_SEED_TIMETABLE -> seedTimetable()
                     ACTION_IMPORT_ICS -> importIcs(intent.getStringExtra(EXTRA_PATH).orEmpty())
                     ACTION_RESCHEDULE_TIMETABLE -> rescheduleTimetable()
+                    ACTION_RESET_TIMETABLE_MIRROR -> resetTimetableMirror()
                     ACTION_TIMETABLE_TODO_DONE -> {
                         val eventId = intent.getLongExtra(EXTRA_EVENT_ID, 0L)
                         val date = intent.getStringExtra(EXTRA_DATE).orEmpty()
@@ -179,6 +183,9 @@ class SyncDebugReceiver : BroadcastReceiver() {
                             "enablePomodoroMode" -> prefsInteractor.setEnablePomodoroMode(value)
                             "enableRepeatButton" -> prefsInteractor.setEnableRepeatButton(value)
                             "reverseOrderInCalendar" -> prefsInteractor.setReverseOrderInCalendar(value)
+                            "showGoalsSeparately" -> prefsInteractor.setShowGoalsSeparately(value)
+                            "showRecordsCalendar" -> prefsInteractor.setShowRecordsCalendar(value)
+                            "showUniTab" -> prefsInteractor.setShowUniTab(value)
                             else -> Timber.w("DebugReceiver: unknown pref %s", key)
                         }
                         Timber.i("DebugReceiver: set %s=%b", key, value)
@@ -198,6 +205,7 @@ class SyncDebugReceiver : BroadcastReceiver() {
         categoryRepo.clear()
         recordTypeCategoryRepo.clear()
         timetableRepo.clearAll()
+        subjectGoalRepo.clear()
         syncIdMapDao.clear()
         syncStateDao.clear()
         // Reset the pull marker so the next sync imports the full
@@ -379,6 +387,20 @@ class SyncDebugReceiver : BroadcastReceiver() {
         Timber.i("DebugReceiver: started %s (id=%d)", name, type.id)
     }
 
+    private suspend fun resetTimetableMirror() {
+        val timetableTypes = listOf(
+            "timetable_event",
+            "timetable_override",
+            "timetable_day",
+            "timetable_todo",
+            "subject_goal",
+        )
+        syncStateDao.getAll()
+            .filter { it.entityType in timetableTypes }
+            .forEach { syncStateDao.remove(it.entityType, it.entityId) }
+        Timber.i("DebugReceiver: timetable mirror reset, next sync re-pushes")
+    }
+
     private suspend fun rescheduleTimetable() {
         timetableNotificationInteractor.rescheduleAll()
         Timber.i("DebugReceiver: timetable notifications rescheduled")
@@ -460,6 +482,7 @@ class SyncDebugReceiver : BroadcastReceiver() {
         const val ACTION_SEED_TIMETABLE = "de.piusdischinger.timetracker.debug.SEED_TIMETABLE"
         const val ACTION_IMPORT_ICS = "de.piusdischinger.timetracker.debug.IMPORT_ICS"
         const val ACTION_RESCHEDULE_TIMETABLE = "de.piusdischinger.timetracker.debug.RESCHEDULE_TIMETABLE"
+        const val ACTION_RESET_TIMETABLE_MIRROR = "de.piusdischinger.timetracker.debug.RESET_TIMETABLE_MIRROR"
         const val ACTION_TIMETABLE_TODO_DONE = "de.piusdischinger.timetracker.debug.TIMETABLE_TODO_DONE"
         const val ACTION_WIPE_ALL = "de.piusdischinger.timetracker.debug.WIPE_ALL"
         const val ACTION_SET_PREF_BOOL = "de.piusdischinger.timetracker.debug.SET_PREF_BOOL"

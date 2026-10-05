@@ -170,6 +170,11 @@ class SyncEngine @Inject constructor(
         if (delta.upserts.isEmpty() && delta.tombstones.isEmpty()) return
 
         val items = buildPushItems(delta)
+        // Entities the server did not understand (for example timetable
+        // types on a server version that predates them) must stay out of
+        // the mirror so the next sync pushes them again, instead of
+        // silently marking them as synced.
+        val retryKeys = mutableSetOf<String>()
         items.chunked(PUSH_BATCH).forEach { batch ->
             val response = syncApi.push(SyncPushRequest(items = batch))
             response.conflicts.forEach { conflict ->
@@ -182,6 +187,9 @@ class SyncEngine @Inject constructor(
                         createdAt = System.currentTimeMillis(),
                     ),
                 )
+                if (conflict.resolution == CONFLICT_UNKNOWN_TYPE) {
+                    retryKeys.add(deltaCalculator.key(conflict.entity_type, conflict.id))
+                }
             }
         }
         // The tombstoned entities no longer exist locally; drop their
@@ -189,7 +197,8 @@ class SyncEngine @Inject constructor(
         delta.tombstones.forEach {
             syncIdMapDao.removeBySyncId(it.entityType, it.entityId)
         }
-        replaceMirror(candidates)
+        val accepted = candidates.filterNot { deltaCalculator.key(it.entityType, it.entityId) in retryKeys }
+        replaceMirror(accepted)
     }
 
     private fun buildPushItems(delta: SyncDeltaCalculator.Delta): List<SyncPushItem> {
@@ -395,15 +404,15 @@ class SyncEngine @Inject constructor(
         // Categories and tags first: activities and entries reference them.
         pulled.categories.forEach { data -> applyServerCategory(data, mappings) }
         pulled.tags.forEach { data -> applyServerTag(data, mappings) }
-        // Timetable entities in dependency order: events before their
-        // overrides and todos, activities before subject goals.
+        pulled.activities.forEach { activity -> applyServerActivity(activity, mirror, mappings) }
+        pulled.time_entries.forEach { entry -> applyServerEntry(entry, mirror, mappings) }
+        // Timetable entities after their referenced activities and in
+        // dependency order: events before their overrides and todos.
         pulled.timetable_events.forEach { data -> applyServerTimetableEvent(data, mappings) }
         pulled.timetable_days.forEach { data -> applyServerTimetableDay(data, mappings) }
         pulled.timetable_overrides.forEach { data -> applyServerTimetableOverride(data, mappings) }
         pulled.timetable_todos.forEach { data -> applyServerTimetableTodo(data, mappings) }
         pulled.subject_goals.forEach { data -> applyServerSubjectGoal(data, mappings) }
-        pulled.activities.forEach { activity -> applyServerActivity(activity, mirror, mappings) }
-        pulled.time_entries.forEach { entry -> applyServerEntry(entry, mirror, mappings) }
         credentialStore.lastSyncMarker = pulled.server_time ?: nowIso()
     }
 
@@ -1361,6 +1370,7 @@ class SyncEngine @Inject constructor(
         private const val ENTITY_TIMETABLE_DAY = "timetable_day"
         private const val ENTITY_TIMETABLE_TODO = "timetable_todo"
         private const val ENTITY_SUBJECT_GOAL = "subject_goal"
+        private const val CONFLICT_UNKNOWN_TYPE = "unknown_type"
         private const val RESOLUTION_LOCAL_KEPT_NAME = "local_kept_name"
         private const val RESOLUTION_LOCAL_KEPT_START = "local_kept_start_time"
 
