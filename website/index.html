@@ -62,7 +62,7 @@ tr:last-child td { border-bottom: 0; }
 .bar > i { display: block; height: 100%; background: var(--accent); border-radius: 6px; }
 .strip { display: flex; gap: 3px; flex-wrap: wrap; }
 .cell { width: 15px; height: 15px; border-radius: 3px; cursor: default; }
-.cell.a { background: var(--green); } .cell.m { background: var(--red); }
+.cell.a { background: var(--green); } .cell.n { background: var(--blue); } .cell.m { background: var(--red); }
 .cell.u { background: transparent; border: 1px solid var(--gray); }
 .cell.x { background: var(--chip); }
 .cols2 { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
@@ -152,7 +152,12 @@ tr:last-child td { border-bottom: 0; }
 .dayCalPlanLane { position: absolute; left: 48px; width: 44%; top: 26px; bottom: 0; }
 .dayCalTrackLane { position: absolute; left: calc(48px + 45%); right: 8px; top: 26px; bottom: 0; }
 .dayCalSlot { position: absolute; border-radius: 6px; padding: 3px 6px; font-size: 11px; overflow: hidden; box-sizing: border-box; transition: transform 0.12s, box-shadow 0.12s; box-shadow: 0 1px 4px rgba(0,0,0,0.18); line-height: 1.25; z-index: 3; color: #fff; cursor: pointer; }
-.dayCalSlot:hover { transform: scale(1.02); z-index: 30; box-shadow: 0 4px 12px rgba(0,0,0,0.35); }
+.dayCalSlot:hover { transform: scale(1.02); z-index: 100 !important; box-shadow: 0 6px 18px rgba(0,0,0,0.5); min-width: 140px; height: auto !important; min-height: 38px; overflow: visible !important; }
+.dayCalSlot:hover div { white-space: normal !important; overflow: visible !important; }
+.monoIcon { display: inline-block; vertical-align: -2px; width: 15px; height: 15px; fill: currentColor; flex-shrink: 0; }
+.undoToast { position: fixed; bottom: 24px; right: 24px; background: var(--card); color: var(--text); border: 1px solid var(--accent); border-left: 5px solid var(--accent); box-shadow: 0 8px 24px rgba(0,0,0,0.45); border-radius: 8px; padding: 12px 18px; z-index: 9999; font-size: 13px; display: none; min-width: 280px; animation: slideUp 0.2s ease-out; }
+.undoToast.show { display: block; }
+@keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 .dayCalSlotPlan { background: #2f3e46; border-left: 4px solid var(--blue); color: var(--text); cursor: default; }
 :root[data-theme="light"] .dayCalSlotPlan { background: #e8ecf1; color: #1a1a1a; }
 .dayCalSlotMissed { background: rgba(196, 90, 90, 0.22) !important; border: 2px dashed var(--red) !important; color: var(--red) !important; cursor: default; }
@@ -230,6 +235,7 @@ tr:last-child td { border-bottom: 0; }
 
     <!-- Top Right Actions -->
     <div style="display:flex;align-items:center;gap:8px">
+      <button id="undoBtn" class="themeBtn hide" style="background:rgba(229,169,59,0.15);color:var(--accent);font-weight:700;border:1px solid var(--accent);padding:7px 12px;font-size:13px" onclick="performUndo()" title="Letzte Aktion rückgängig machen">↩ Rückgängig</button>
       <button id="load" class="syncBtn" title="Daten synchronisieren">↻</button>
       <button id="settingsBtn" class="themeBtn" style="padding:8px 10px;font-size:16px;line-height:1" onclick="openSettingsModal()" title="Einstellungen">⚙️</button>
     </div>
@@ -660,7 +666,7 @@ tr:last-child td { border-bottom: 0; }
 <script>
 "use strict";
 const $ = (id) => document.getElementById(id);
-const TYPE_LABEL = {0: "Vorlesung", 1: "Übung", 2: "Tutorium"};
+const TYPE_LABEL = {0: "Vorlesung", 1: "Übung", 2: "Tutorium", 3: "Selbststudium"};
 const TODO_LABEL = {0: "Vorbereitung", 1: "Nachbereitung", 2: "Todo"};
 const ECTS_SECONDS = 108000;
 
@@ -715,35 +721,75 @@ const DRAWABLE_ICON_MAP = {
   "ic_wc_24px": "🚻",
 };
 
+const MONO_SVGS = {
+  // Uni: Diploma Hat (Graduation Cap / Mortarboard)
+  diploma: '<svg class="monoIcon" viewBox="0 0 24 24"><path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3zm0 8.55L4.47 9 12 4.89 19.53 9 12 11.55zM5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82z"/></svg>',
+  // Sleep / Schlafen
+  sleep: '<svg class="monoIcon" viewBox="0 0 24 24"><path d="M19 7h-8v8H3V5H1v15h2v-3h18v3h2v-9a4 4 0 0 0-4-4zm1 8h-6v-6h6a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2zM7 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/></svg>',
+  // Bio / Hygiene / Bad
+  bio: '<svg class="monoIcon" viewBox="0 0 24 24"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>',
+  // Chores / Haushalt
+  chores: '<svg class="monoIcon" viewBox="0 0 24 24"><path d="M19.36 2.72l1.42 1.42-3.8 3.8 1.41 1.41-1.41 1.42-4.25-4.25 1.42-1.41 1.41 1.41 3.81-3.8zM4 21h12l-1.5-6h-9L4 21z"/></svg>',
+  // Commute / Pendeln
+  commute: '<svg class="monoIcon" viewBox="0 0 24 24"><path d="M12 2c-4 0-8 .5-8 4v9.5C4 17.43 5.57 19 7.5 19L6 20.5v.5h12v-.5L16.5 19c1.93 0 3.5-1.57 3.5-3.5V6c0-3.5-3.58-4-8-4zm0 2c3.71 0 5.13.46 5.76 1H6.24C6.87 4.46 8.29 4 12 4zm6 11.5c0 .83-.67 1.5-1.5 1.5h-9A1.5 1.5 0 0 1 6 15.5V12h12v3.5zm0-5.5H6V7h12v3z"/><circle cx="8.5" cy="14.5" r="1.5"/><circle cx="15.5" cy="14.5" r="1.5"/></svg>',
+  // Pause
+  pause: '<svg class="monoIcon" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>',
+  // Cooking
+  cooking: '<svg class="monoIcon" viewBox="0 0 24 24"><path d="M19 9V7a2 2 0 0 0-2-2h-3V3h-2v2H7a2 2 0 0 0-2 2v2H3v2h2v7a3 3 0 0 0 3 3h8a3 3 0 0 0 3-3v-7h2V9h-2zm-4 9H9a1 1 0 0 1-1-1v-6h8v6a1 1 0 0 1-1 1z"/></svg>',
+  // Breakfast
+  breakfast: '<svg class="monoIcon" viewBox="0 0 24 24"><path d="M20 3H4v10c0 2.21 1.79 4 4 4h6c2.21 0 4-1.79 4-4v-3h2c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 5h-2V5h2v3zM4 19h16v2H4z"/></svg>',
+  // Lunch
+  lunch: '<svg class="monoIcon" viewBox="0 0 24 24"><path d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm5-7v8h2.5v12h2.5V2c-2.76 0-5 2.24-5 5z"/></svg>',
+  // Dinner
+  dinner: '<svg class="monoIcon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14a6 6 0 1 0 0 12 6 6 0 0 0 0-12z"/></svg>',
+  // Youtube
+  youtube: '<svg class="monoIcon" viewBox="0 0 24 24"><path d="M21.58 7.19a2.5 2.5 0 0 0-1.77-1.77C18.25 5 12 5 12 5s-6.25 0-7.81.42a2.5 2.5 0 0 0-1.77 1.77C2 8.75 2 12 2 12s0 3.25.42 4.81a2.5 2.5 0 0 0 1.77 1.77C5.75 19 12 19 12 19s6.25 0 7.81-.42a2.5 2.5 0 0 0 1.77-1.77C22 15.25 22 12 22 12s0-3.25-.42-4.81zM10 15V9l5.2 3L10 15z"/></svg>',
+  // Games
+  games: '<svg class="monoIcon" viewBox="0 0 24 24"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2zm4.5 2c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm3-3c-.83 0-1.5-.67-1.5-1.5S17.67 9 18.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>',
+  // Social
+  social: '<svg class="monoIcon" viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>',
+  // Tinkering
+  tinkering: '<svg class="monoIcon" viewBox="0 0 24 24"><path d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.6C.5 7 .9 10 2.9 12c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.3z"/></svg>',
+  // Exercise / Sport
+  exercise: '<svg class="monoIcon" viewBox="0 0 24 24"><path d="M20.57 14.86L22 13.43 20.57 12 17 15.57 8.43 7 12 3.43 10.57 2 9.14 3.43 7.71 2 5.57 4.14 4.14 2.71 2.71 4.14l1.43 1.43L2 7.71l1.43 1.43L2 10.57 3.43 12 7 8.43 15.57 17 12 20.57 13.43 22l1.43-1.43L16.29 22l2.14-2.14 1.43 1.43 1.43-1.43-1.43-1.43L22 16.29z"/></svg>',
+  // Egitarre / Musik
+  egitarre: '<svg class="monoIcon" viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>',
+  // Read / Lesen
+  read: '<svg class="monoIcon" viewBox="0 0 24 24"><path d="M21 5c-1.11-.35-2.33-.5-3.5-.5-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5S2.45 4.9 1 6v14.65c0 .25.25.5.5.5.1 0 .15-.05.25-.05C3.1 20.45 5.05 20 6.5 20c1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.3 4.75 1.05.1.05.15.05.25.05.25 0 .5-.25.5-.5V6c-.6-.45-1.25-.75-2-1zm-1 14c-1.1-.35-2.3-.5-3.5-.5-1.7 0-4.15.65-5.5 1.5V8c1.35-.85 3.8-1.5 5.5-1.5 1.2 0 2.4.15 3.5.5v12z"/></svg>',
+  // Oma / Familie
+  oma: '<svg class="monoIcon" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>',
+  // Default / Stopwatch
+  default: '<svg class="monoIcon" viewBox="0 0 24 24"><circle cx="12" cy="13" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 9v4l2.5 2.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M10 2h4v2h-4z"/></svg>',
+};
+
 function getActivityIcon(activity) {
-  if (!activity) return "⏱️";
-  const raw = (activity.icon || "").trim();
-  if (DRAWABLE_ICON_MAP[raw]) return DRAWABLE_ICON_MAP[raw];
-  if (raw === "Thermo") return "🌡️";
-  if (raw === "Analysis") return "📐";
-  if (raw === "Java") return "☕";
-  if (raw === "TheoInfo") return "💡";
-  if (/\p{Emoji}/u.test(raw) && raw.length <= 4) return raw;
-  const name = (activity.name || "").toLowerCase();
-  if (/pause|kaffee|break/i.test(name)) return "☕";
-  if (/ess|mahlzeit|mittag|abendbrot|dinner|lunch/i.test(name)) return "🍴";
-  if (/schlaf|bett|sleep/i.test(name)) return "🛏️";
-  if (/sport|fitness|gym|workout|lauf|joggen/i.test(name)) return "🏋️";
-  if (/les|buch|reading/i.test(name)) return "📖";
-  if (/thermo/i.test(name)) return "🌡️";
-  if (/analysis|mathe/i.test(name)) return "📐";
-  if (/java|code|programm|dev/i.test(name)) return "💻";
-  if (/theoinfo|info/i.test(name)) return "💡";
-  if (/lern|stud|vorlesung|uni|klausur/i.test(name)) return "📚";
-  if (/arbeit|job|work/i.test(name)) return "💼";
-  if (/haushalt|putz|clean/i.test(name)) return "🧹";
-  if (/spiel|game|gaming/i.test(name)) return "🎮";
-  if (/serie|film|tv|movie/i.test(name)) return "📺";
-  if (/musik|music/i.test(name)) return "🎵";
-  if (/einkauf|shop/i.test(name)) return "🛒";
-  if (/pendel|bahn|bus|zug/i.test(name)) return "🚌";
-  if (raw && raw.length <= 4) return raw;
-  return "⏱️";
+  if (!activity) return MONO_SVGS.default;
+  const raw = (activity.icon || "").toLowerCase().trim();
+  const name = (activity.name || "").toLowerCase().trim();
+
+  // Uni subjects ALWAYS get the Diploma Hat!
+  if (raw === "diploma" || /thermo|analysis|java|theoinfo|get2|ente|wust|strömi|stromi|mess|uni|vorlesung|studium|klausur/i.test(name)) {
+    return MONO_SVGS.diploma;
+  }
+  if (raw === "sleep" || /schlaf|bett|sleep/i.test(name)) return MONO_SVGS.sleep;
+  if (raw === "bio" || /bio|bad|dusche|hygiene/i.test(name)) return MONO_SVGS.bio;
+  if (raw === "chores" || /haushalt|putz|clean|chores/i.test(name)) return MONO_SVGS.chores;
+  if (raw === "commute" || /pendel|bahn|bus|zug|commute/i.test(name)) return MONO_SVGS.commute;
+  if (raw === "pause" || /pause|kaffee|break/i.test(name)) return MONO_SVGS.pause;
+  if (raw === "cooking" || /kochen|cook/i.test(name)) return MONO_SVGS.cooking;
+  if (raw === "breakfast" || /frühstück|breakfast/i.test(name)) return MONO_SVGS.breakfast;
+  if (raw === "lunch" || /mittag|lunch|mensa/i.test(name)) return MONO_SVGS.lunch;
+  if (raw === "dinner" || /abend|dinner/i.test(name)) return MONO_SVGS.dinner;
+  if (raw === "youtube" || /youtube|video|stream/i.test(name)) return MONO_SVGS.youtube;
+  if (raw === "games" || /spiel|game|gaming/i.test(name)) return MONO_SVGS.games;
+  if (raw === "social" || /social|freunde|treffen/i.test(name)) return MONO_SVGS.social;
+  if (raw === "tinkering" || /basteln|tinker|löten|diy/i.test(name)) return MONO_SVGS.tinkering;
+  if (raw === "exercise" || /sport|fitness|gym|workout|lauf|joggen|exercise/i.test(name)) return MONO_SVGS.exercise;
+  if (raw === "egitarre" || /gitarre|musik|music/i.test(name)) return MONO_SVGS.egitarre;
+  if (raw === "read" || /les|buch|reading|read/i.test(name)) return MONO_SVGS.read;
+  if (raw === "oma" || /oma/i.test(name)) return MONO_SVGS.oma;
+
+  return MONO_SVGS[raw] || MONO_SVGS.default;
 }
 
 let DATA = null;
@@ -1300,16 +1346,120 @@ async function saveRunningComment() {
   }
 }
 
+let UNDO_STACK = [];
+
+function updateUndoUI() {
+  const btn = $("undoBtn");
+  if (btn) {
+    if (UNDO_STACK.length > 0) {
+      btn.classList.remove("hide");
+      btn.textContent = "↩ Rückgängig (" + UNDO_STACK.length + ")";
+      btn.title = "Letzte Aktion rückgängig machen: " + (UNDO_STACK[UNDO_STACK.length - 1].desc || "");
+    } else {
+      btn.classList.add("hide");
+    }
+  }
+}
+
+function showUndoToast(msg, canUndo) {
+  let toast = $("undoToast");
+  if (!toast) {
+    toast = document.createElement("div");
+    toast.id = "undoToast";
+    toast.className = "undoToast";
+    document.body.appendChild(toast);
+  }
+  toast.innerHTML = "<div style='display:flex;align-items:center;justify-content:space-between;gap:12px'>" +
+    "<span>" + escapeHtml(msg) + "</span>" +
+    (canUndo ? "<button class='themeBtn' style='background:var(--accent);color:#111;font-weight:700;padding:4px 10px;font-size:12px' onclick='performUndo()'>↩ Rückgängig</button>" : "") +
+    "<button style='background:transparent;border:0;color:var(--muted);cursor:pointer;font-size:14px;padding:0 4px' onclick='hideUndoToast()'>✕</button>" +
+    "</div>";
+  toast.classList.add("show");
+  if (window._undoToastTimer) clearTimeout(window._undoToastTimer);
+  window._undoToastTimer = setTimeout(hideUndoToast, 12000);
+  updateUndoUI();
+}
+
+function hideUndoToast() {
+  const toast = $("undoToast");
+  if (toast) toast.classList.remove("show");
+}
+
+async function performUndo() {
+  if (!UNDO_STACK.length) return;
+  const item = UNDO_STACK.pop();
+  updateUndoUI();
+  hideUndoToast();
+  const token = $("token") ? $("token").value.trim() : "";
+
+  if (item.type === "delete") {
+    // Recreate deleted entry
+    try {
+      const e = item.entry;
+      const res = await fetch("/api/time-entries", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
+        body: JSON.stringify({
+          id: e.id,
+          activity_id: e.activity_id,
+          started_at: e.started_at,
+          ended_at: e.ended_at,
+          comment: e.comment || "",
+          tags: e.tags || "",
+        }),
+      });
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      showUndoToast("Eintrag wiederhergestellt: " + (item.desc || ""), false);
+      if (DATA) await load();
+    } catch (err) {
+      showError("Wiederherstellen fehlgeschlagen: " + err.message);
+    }
+  } else if (item.type === "create") {
+    // Delete retro / accidentally added entry
+    try {
+      const res = await fetch("/api/time-entries/" + encodeURIComponent(item.entryId), {
+        method: "DELETE",
+        headers: { Authorization: "Bearer " + token },
+      });
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      showUndoToast("Erfassung rückgängig gemacht: " + (item.desc || ""), false);
+      if (DATA) await load();
+    } catch (err) {
+      showError("Rückgängig fehlgeschlagen: " + err.message);
+    }
+  }
+}
+
 async function deleteTimeEntry(entryId) {
-  if (typeof window !== "undefined" && !confirm("Diesen Zeiteintrag wirklich löschen?")) return;
   const token = $("token") ? $("token").value.trim() : "";
   if (!token) return;
+
+  const entry = DATA && DATA.time_entries ? DATA.time_entries.find((e) => e.id === entryId) : null;
+  const act = entry && DATA && DATA.activities ? DATA.activities.find((a) => a.id === entry.activity_id) : null;
+  const actName = act ? act.name : "Zeiteintrag";
+
+  if (entry) {
+    UNDO_STACK.push({
+      type: "delete",
+      entry: JSON.parse(JSON.stringify(entry)),
+      desc: actName,
+    });
+    updateUndoUI();
+  }
+
+  // Optimistic local removal
+  if (DATA && DATA.time_entries) {
+    DATA.time_entries = DATA.time_entries.filter((e) => e.id !== entryId);
+    render();
+  }
+
   try {
     const res = await fetch("/api/time-entries/" + encodeURIComponent(entryId), {
       method: "DELETE",
-      headers: {Authorization: "Bearer " + token},
+      headers: { Authorization: "Bearer " + token },
     });
-    if (!res.ok) throw new Error(res.status + " " + (await res.text()));
+    if (!res.ok && res.status !== 404) throw new Error(res.status + " " + (await res.text()));
+    showUndoToast("Eintrag gelöscht (" + actName + ").", true);
     if (DATA) load();
   } catch (err) {
     showError("Eintrag löschen fehlgeschlagen: " + err.message);
@@ -1619,11 +1769,6 @@ function renderDayCalendar(entries, actById) {
     // 1-TAGES-ANSICHT (Plan links, Track rechts)
     // -------------------------------------------------------------------------
     let html = "";
-    html += "<div class='dayCalHeaderLanes'>" +
-      "<div class='dayCalHeaderPlan'>Plan</div>" +
-      "<div class='dayCalHeaderTracked'>Track</div>" +
-      "</div>";
-
     // Hour markings & grid lines (Pixel-exact)
     for (let h = startHour; h <= endHour; h++) {
       const y = 26 + (h - startHour) * hourHeight;
@@ -1667,16 +1812,15 @@ function renderDayCalendar(entries, actById) {
         const ovTag = (ov && ov.room) ? "<span class='tag' style='color:var(--accent);margin-left:4px'>Raum: " + escapeHtml(ov.room) + "</span>" : "";
         const hoverTitle = escapeHtml(ev.name) + " (" + fmtMin(sMinutes) + "–" + fmtMin(eMinutes) + (room ? ", " + room : "") + ")" + (isCancelled ? " · Ausfall" : "");
 
-        planHtml += "<div class='dayCalSlot dayCalSlotPlan" + compactClass + "' style='top:" + topPx.toFixed(1) + "px;height:" + boxHeight.toFixed(1) + "px;border-left-color:" + color + ";" + cancelStyle + "' title=\"" + hoverTitle + "\">" +
+        const isPastOrMissed = calDateStr < todayStr || (calDateStr === todayStr && eMinutes <= nowMinutes);
+        planHtml += "<div class='dayCalSlot dayCalSlotPlan" + compactClass + "' style='top:" + topPx.toFixed(1) + "px;height:" + boxHeight.toFixed(1) + "px;border-left-color:" + color + ";" + cancelStyle + "cursor:pointer;' onclick=\"openManualAttendanceModal('" + ev.activity_sync_id + "','" + calDateStr + "','" + fmtMin(sMinutes) + "','" + fmtMin(eMinutes) + "','" + (isPastOrMissed ? "Nachgearbeitet" : "Termin besucht") + "')\" title=\"" + hoverTitle + "\">" +
           "<div style='font-weight:600;display:flex;align-items:center;gap:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap'>" +
           "<span>" + icon + "</span>" +
-          (isCompact ? "" : "<span>" + escapeHtml(ev.name) + "</span>" + cancelTag + ovTag) +
+          "<span>" + escapeHtml(ev.name) + "</span>" + cancelTag + ovTag +
           "</div>" +
-          "<div class='slotFullText'>" +
-          "<div style='font-weight:600'>" + escapeHtml(ev.name) + cancelTag + ovTag + "</div>" +
-          "<div class='small muted' style='font-size:10px'>" + fmtMin(sMinutes) + "–" + fmtMin(eMinutes) + (room ? " · " + escapeHtml(room) : "") + "</div>" +
+          "<div class='small muted' style='font-size:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap'>" +
+          fmtMin(sMinutes) + "–" + fmtMin(eMinutes) + (room ? " · " + escapeHtml(room) : "") +
           "</div>" +
-          (!isCompact ? "<div class='small muted' style='font-size:10px'>" + fmtMin(sMinutes) + "–" + fmtMin(eMinutes) + (room ? " · " + escapeHtml(room) : "") + "</div>" : "") +
           "</div>";
       }
     }
@@ -1735,13 +1879,12 @@ function renderDayCalendar(entries, actById) {
       trackHtml += "<div class='dayCalSlot" + compactClass + "' style='top:" + topPx.toFixed(1) + "px;height:" + boxHeight.toFixed(1) + "px;" + leftStyle + "background:" + color + glow + "' onclick=\"openEditEntryModal('" + e.id + "')\" title=\"" + escapeHtml(hoverTitle) + "\">" +
         "<div style='font-weight:700;display:flex;align-items:center;gap:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap'>" +
         "<span>" + icon + "</span>" +
-        (isCompact ? "" : "<span>" + escapeHtml(act ? act.name : "Aktivität") + "</span>" + (isRunning ? "<span style='font-size:9px;background:rgba(0,0,0,0.35);padding:1px 4px;border-radius:4px;font-weight:700'>läuft</span>" : "")) +
+        "<span>" + escapeHtml(act ? act.name : "Aktivität") + "</span>" +
+        (isRunning ? "<span style='font-size:9px;background:rgba(0,0,0,0.35);padding:1px 4px;border-radius:4px;font-weight:700;margin-left:2px'>läuft</span>" : "") +
         "</div>" +
-        "<div class='slotFullText'>" +
-        "<div style='font-weight:700'>" + escapeHtml(act ? act.name : "Aktivität") + (isRunning ? " (läuft)" : "") + "</div>" +
-        "<div style='font-size:10px;opacity:0.95'>" + sTime + "–" + eTime + " (" + durText + ")" + (e.comment ? " · " + escapeHtml(e.comment) : "") + "</div>" +
+        "<div class='small' style='font-size:10px;opacity:0.95;overflow:hidden;text-overflow:ellipsis;white-space:nowrap'>" +
+        sTime + "–" + eTime + " (" + durText + ")" + (e.comment ? " · " + escapeHtml(e.comment) : "") +
         "</div>" +
-        (!isCompact ? "<div style='font-size:10px;opacity:0.95'>" + sTime + "–" + eTime + " (" + durText + ")" + (e.comment ? " · " + escapeHtml(e.comment) : "") + "</div>" : "") +
         "</div>";
     }
     trackHtml += "</div>";
@@ -1944,14 +2087,14 @@ function renderDayCalendar(entries, actById) {
           const ev = slot.ev;
           const act = actById[ev.activity_sync_id];
           const icon = getActivityIcon(act);
-          const hoverTitle = escapeHtml(ev.name) + " (" + fmtMin(slot.sMinutes) + "–" + fmtMin(slot.eMinutes) + ") · Nicht besucht";
+          const hoverTitle = escapeHtml(ev.name) + " (" + fmtMin(slot.sMinutes) + "–" + fmtMin(slot.eMinutes) + ") · Nicht besucht — Klick zum Nachtragen";
 
-          html += "<div class='dayCalSlot dayCalSlotMissed" + compactClass + "' style='top:" + topPx.toFixed(1) + "px;height:" + boxHeight.toFixed(1) + "px;" + leftStyle + "' title=\"" + hoverTitle + "\">" +
+          html += "<div class='dayCalSlot dayCalSlotMissed" + compactClass + "' style='top:" + topPx.toFixed(1) + "px;height:" + boxHeight.toFixed(1) + "px;" + leftStyle + "cursor:pointer;' onclick=\"openManualAttendanceModal('" + ev.activity_sync_id + "','" + dStr + "','" + fmtMin(slot.sMinutes) + "','" + fmtMin(slot.eMinutes) + "','Nachgearbeitet')\" title=\"" + hoverTitle + "\">" +
             "<div style='font-weight:700;display:flex;align-items:center;gap:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap'>" +
             "<span class='tag' style='background:var(--red);color:#fff;font-size:9px;padding:1px 3px'>Verpasst</span>" +
-            (isCompact ? "" : "<span>" + escapeHtml(ev.name) + "</span>") +
+            "<span>" + escapeHtml(ev.name) + "</span>" +
             "</div>" +
-            (!isCompact ? "<div style='font-size:10px'>" + fmtMin(slot.sMinutes) + "–" + fmtMin(slot.eMinutes) + "</div>" : "") +
+            (!isCompact ? "<div style='font-size:10px'>" + fmtMin(slot.sMinutes) + "–" + fmtMin(slot.eMinutes) + " · ➕ Nachtragen</div>" : "") +
             "</div>";
         } else if (slot.type === "plan") {
           const ev = slot.ev;
@@ -2176,10 +2319,8 @@ async function saveEditEntry() {
 async function deleteEditEntry() {
   const id = $("editEntryId").value;
   if (!id) return;
-  if (!confirm("Diesen Zeiteintrag wirklich löschen?")) return;
-  await deleteTimeEntry(id);
   closeEditEntryModal();
-  await load();
+  await deleteTimeEntry(id);
 }
 
 function startTimerPolling() {
@@ -2290,7 +2431,13 @@ function render() {
 
   // entries of the window, with a resolved end (running records end "now")
   const windowEntries = entries
-    .map((e) => ({start: new Date(e.started_at), end: e.ended_at ? new Date(e.ended_at) : now, act: e.activity_id, dur: e.duration_seconds || 0}))
+    .map((e) => ({
+      start: new Date(e.started_at),
+      end: e.ended_at ? new Date(e.ended_at) : now,
+      act: e.activity_id,
+      dur: e.duration_seconds || 0,
+      raw: e,
+    }))
     .filter((e) => e.start < to && e.end > from);
 
   const filteredEntries = windowEntries.filter((e) => passesFilter(e, categoriesOf));
@@ -2318,29 +2465,73 @@ function render() {
         } else {
           const s = atMinutes(dateStr, startMin(ov));
           const e = atMinutes(dateStr, endMin(ov));
-          const attended = windowEntries.some(
+          const hit = windowEntries.find(
             (en) => en.act === ev.activity_sync_id && en.start < e && en.end > s
           );
-          const status = attended ? "a" : (e < now ? "m" : (s <= now ? "r" : "u"));
+          let status;
+          if (hit) {
+            // Check created_at: if created > ended + 45 min, it was nachgetragen/retroactive!
+            const isRetro = hit.raw && hit.raw.created_at && (new Date(hit.raw.created_at) - hit.end > 45 * 60 * 1000);
+            status = isRetro ? "n" : "a";
+          } else {
+            status = e < now ? "m" : (s <= now ? "r" : "u");
+          }
           slots.push({date: dateStr, status: status, time: s, room: (ov && ov.room) || ev.room});
         }
       }
       cursor.setDate(cursor.getDate() + 1);
     }
-    const attended = slots.filter((s) => s.status === "a").length;
+    const attendedLive = slots.filter((s) => s.status === "a").length;
+    const nachgetragen = slots.filter((s) => s.status === "n").length;
+    const attended = attendedLive + nachgetragen;
     const missed = slots.filter((s) => s.status === "m").length;
     const upcoming = slots.filter((s) => s.status === "u").length;
     const cancelled = slots.filter((s) => s.status === "x").length;
     const rate = attended + missed > 0 ? Math.round((attended / (attended + missed)) * 100) : null;
-    rows.push({ev, slots, attended, missed, upcoming, cancelled, rate});
+    rows.push({ev, slots, attended, attendedLive, nachgetragen, missed, upcoming, cancelled, rate, isSelfStudy: false});
   }
   rows.sort((a, b) =>
     (a.ev.day_of_week - b.ev.day_of_week) || (a.ev.start_time - b.ev.start_time));
 
+  // Add subjects with goals but without timetable events (e.g. Strömi / Selbststudium)
+  const subjectsWithEvents = new Set(events.map((e) => e.activity_sync_id));
+  const actsByIdMap = {};
+  for (const a of activities) actsByIdMap[a.id] = a;
+  for (const goal of goals) {
+    if (!subjectsWithEvents.has(goal.activity_sync_id)) {
+      const act = actsByIdMap[goal.activity_sync_id];
+      if (!act) continue;
+      const selfStudyEntries = windowEntries.filter((en) => en.act === act.id);
+      const retroCount = selfStudyEntries.filter((en) => en.raw && en.raw.created_at && (new Date(en.raw.created_at) - en.end > 45 * 60 * 1000)).length;
+      const liveCount = selfStudyEntries.length - retroCount;
+      rows.push({
+        ev: {
+          id: "goal_" + act.id,
+          name: act.name,
+          type: 3, // Selbststudium
+          day_of_week: 8,
+          start_time: 0,
+          end_time: 0,
+          room: "",
+          activity_sync_id: act.id,
+        },
+        slots: [],
+        attended: selfStudyEntries.length,
+        attendedLive: liveCount,
+        nachgetragen: retroCount,
+        missed: 0,
+        upcoming: 0,
+        cancelled: 0,
+        rate: null,
+        isSelfStudy: true,
+      });
+    }
+  }
+
   // ---- global stats ---------------------------------------------------------
   const totalTracked = filteredEntries.reduce((sum, e) => sum + Math.max(0, (e.end - e.start) / 1000), 0);
-  const sumAtt = rows.reduce((s, r) => s + r.attended, 0);
-  const sumMiss = rows.reduce((s, r) => s + r.missed, 0);
+  const sumAtt = rows.filter((r) => !r.isSelfStudy).reduce((s, r) => s + r.attended, 0);
+  const sumMiss = rows.filter((r) => !r.isSelfStudy).reduce((s, r) => s + r.missed, 0);
   const attRate = sumAtt + sumMiss > 0 ? Math.round((sumAtt / (sumAtt + sumMiss)) * 100) + " %" : "–";
   const prepOpen = todos.filter((t) => t.type === 0 && !t.done).length;
   const prepDone = todos.filter((t) => t.type === 0 && t.done).length;
@@ -2398,17 +2589,41 @@ function render() {
 
   // ---- attendance table -----------------------------------------------------
   let html = "<tr><th>Fach</th><th>Art</th><th>Termin</th><th class=num>Erwartet</th>" +
-    "<th class=num>Besucht</th><th class=num>Verpasst</th><th class=num>Bevorstehend</th>" +
+    "<th class=num title='Live während des Termins getrackt'>Besucht</th>" +
+    "<th class=num title='Nachträglich erfasste Präsenzzeit'>Nachgetragen</th>" +
+    "<th class=num>Verpasst</th><th class=num>Bevorstehend</th>" +
     "<th>Quote</th><th>Termine</th><th>Aktion</th></tr>";
   for (const r of rows) {
     if ($("attendanceFilterSelect") && $("attendanceFilterSelect").value === "missed" && r.missed === 0) {
       continue;
     }
     const q = r.rate === null ? "–" : r.rate + " %";
+    const act = activitiesById[r.ev.activity_sync_id];
+    const icon = getActivityIcon(act);
+
+    if (r.isSelfStudy) {
+      const actionBtn = `<button class="themeBtn" style="padding:3px 8px;font-size:11px" onclick="openManualAttendanceModal('${r.ev.activity_sync_id}','${localDateStr(new Date())}','09:00','11:00','Selbststudium')" title="Lerneinheit eintragen">➕ Eintragen</button>`;
+      html += "<tr><td class=name>" +
+        "<span style='font-size:15px;margin-right:6px;vertical-align:middle'>" + icon + "</span>" +
+        escapeHtml(r.ev.name) + "</td>" +
+        "<td>" + (TYPE_LABEL[r.ev.type] || "Selbststudium") + "</td>" +
+        "<td class=muted>Individuell</td>" +
+        "<td class=num>–</td>" +
+        "<td class=num>" + (r.attendedLive > 0 ? r.attendedLive : "–") + "</td>" +
+        "<td class=num>" + (r.nachgetragen > 0 ? r.nachgetragen : "–") + "</td>" +
+        "<td class=num>0</td>" +
+        "<td class=num>–</td>" +
+        "<td>–</td>" +
+        "<td><div class=strip><span class='small muted'>Reines Selbststudium" + (r.attended > 0 ? " (" + r.attended + " Einheiten)" : "") + "</span></div></td>" +
+        "<td>" + actionBtn + "</td></tr>";
+      continue;
+    }
+
     const strip = r.slots.map((s) => {
+      const isRetro = s.status === "n";
       const tip = s.status === "x"
         ? s.date + " fällt aus"
-        : s.date + " " + (s.time ? s.time.toLocaleTimeString("de-DE", {hour: "2-digit", minute: "2-digit"}) : "") + (s.room ? " · " + s.room : "");
+        : s.date + " " + (s.time ? s.time.toLocaleTimeString("de-DE", {hour: "2-digit", minute: "2-digit"}) : "") + (s.room ? " · " + s.room : "") + (isRetro ? " (Nachgetragen)" : "");
       return "<span class='cell " + s.status + "' title=\"" + tip.replace(/"/g, "&quot;") + "\"></span>";
     }).join("");
 
@@ -2420,11 +2635,14 @@ function render() {
       ? `<button class="themeBtn" style="padding:3px 8px;font-size:11px;background:rgba(196,90,90,0.2);color:var(--red);border:1px solid var(--red);font-weight:600" onclick="openManualAttendanceModal('${r.ev.activity_sync_id}','${prefillDate}','${prefillStart}','${prefillEnd}','Nachgearbeitet')" title="Verpassten Termin nachtragen">➕ Nachtragen</button>`
       : `<button class="themeBtn" style="padding:3px 8px;font-size:11px" onclick="openManualAttendanceModal('${r.ev.activity_sync_id}','${prefillDate}','${prefillStart}','${prefillEnd}','Termin besucht')" title="Termin manuell erfassen">➕ Eintragen</button>`;
 
-    html += "<tr><td class=name>" + escapeHtml(r.ev.name) + "</td>" +
+    html += "<tr><td class=name>" +
+      "<span style='font-size:15px;margin-right:6px;vertical-align:middle'>" + icon + "</span>" +
+      escapeHtml(r.ev.name) + "</td>" +
       "<td>" + TYPE_LABEL[r.ev.type] + "</td>" +
       "<td class=muted>" + weekday(evDow(r)) + " " + fmtMin(r.ev.start_time) + "–" + fmtMin(r.ev.end_time) + "</td>" +
       "<td class=num>" + (r.slots.length - r.cancelled) + "</td>" +
-      "<td class=num>" + r.attended + "</td>" +
+      "<td class=num>" + r.attendedLive + "</td>" +
+      "<td class=num>" + r.nachgetragen + "</td>" +
       "<td class=num>" + r.missed + "</td>" +
       "<td class=num>" + r.upcoming + "</td>" +
       "<td>" + q + "</td>" +
@@ -2513,7 +2731,7 @@ function render() {
         const key = localDateStr(date);
         const w = weeks.get(key) || {expected: 0, attended: 0, missed: 0, upcoming: 0};
         w.expected++;
-        if (sl.status === "a") w.attended++;
+        if (sl.status === "a" || sl.status === "n") w.attended++;
         else if (sl.status === "m") w.missed++;
         else w.upcoming++;
         weeks.set(key, w);
@@ -2543,27 +2761,49 @@ function render() {
 
 
   // ---- todos -------------------------------------------------------------------
+  function getTodoEventLabel(todo) {
+    const ev = events.find((e) => e.id === todo.event_sync_id);
+    if (!ev) return "";
+    const typeLabel = TYPE_LABEL[ev.type] ? " (" + TYPE_LABEL[ev.type] + ")" : "";
+    return ev.name + typeLabel;
+  }
+
+  function renderTodoRow(todo) {
+    const evLabel = getTodoEventLabel(todo);
+    const checked = todo.done ? "checked" : "";
+    const strike = todo.done ? " class='todoDone'" : "";
+    return "<tr><td style='width:28px'><input type='checkbox' class='todoCheck' " + checked + " onchange=\"toggleTodo('" + todo.id + "')\"></td>" +
+      "<td class=muted style='width:95px'>" + (todo.date || "–") + "</td><td style='font-weight:600'>" +
+      escapeHtml(evLabel) + "</td><td" + strike + ">" + escapeHtml(todo.text || "–") + "</td></tr>";
+  }
+
   let t = ""; 
   for (const type of [0, 1, 2]) {
     const list = todos.filter((x) => x.type === type);
-    const done = list.filter((x) => x.done).length;
-    const pct = list.length ? Math.round((done / list.length) * 100) : 0;
+    const doneList = list.filter((x) => x.done);
+    const openList = list.filter((x) => !x.done);
+    openList.sort((a, b) => (a.date || "9999-99-99").localeCompare(b.date || "9999-99-99"));
+    const pct = list.length ? Math.round((doneList.length / list.length) * 100) : 0;
     const color = type === 0 ? "var(--green)" : type === 1 ? "var(--blue)" : "var(--pink)";
     t += "<div class=donut><span style='display:inline-block;width:14px;height:14px;border-radius:3px;background:" + color + "'></span>" +
       "<span class=lbl style=flex:1>" + TODO_LABEL[type] + "</span>" +
-      "<span class=lbl>" + done + " / " + list.length + " erledigt (" + pct + " %)</span></div>";
-    if (list.length) {
-      t += "<table style=margin-bottom:16px>";
-      for (const todo of list.slice(0, 16)) {
-        const evName = events.find((e) => e.id === todo.event_sync_id);
-        const checked = todo.done ? "checked" : "";
-        const strike = todo.done ? " class='todoDone'" : "";
-        t += "<tr><td style='width:28px'><input type='checkbox' class='todoCheck' " + checked + " onchange=\"toggleTodo('" + todo.id + "')\"></td>" +
-          "<td class=muted style='width:95px'>" + (todo.date || "") + "</td><td>" +
-          escapeHtml(evName ? evName.name : "") + "</td><td" + strike + ">" + escapeHtml(todo.text || "–") + "</td></tr>";
-      }
-      t += "</table>";
-      if (list.length > 16) t += "<div class=small>… und " + (list.length - 16) + " weitere Einträge</div>";
+      "<span class=lbl>" + doneList.length + " / " + list.length + " erledigt (" + pct + " %)</span></div>";
+
+    if (openList.length) {
+      t += "<table style='margin-bottom:12px'>" +
+        openList.slice(0, 20).map(renderTodoRow).join("") +
+        "</table>";
+      if (openList.length > 20) t += "<div class='small muted' style='margin-bottom:12px'>… und " + (openList.length - 20) + " weitere offene Aufgaben</div>";
+    } else if (!doneList.length) {
+      t += "<div class='small muted' style='margin-bottom:12px'>Keine Aufgaben vorhanden.</div>";
+    }
+
+    if (doneList.length) {
+      t += "<details style='margin-bottom:16px;background:var(--card2);border-radius:8px;padding:8px 12px;border:1px solid var(--line)'>" +
+        "<summary style='cursor:pointer;font-size:12px;color:var(--muted);font-weight:600;user-select:none'>Erledigte Aufgaben (" + doneList.length + ") anzeigen</summary>" +
+        "<table style='margin-top:8px'>" +
+        doneList.map(renderTodoRow).join("") +
+        "</table></details>";
     }
   }
   $("todos").innerHTML = t;
@@ -2922,12 +3162,15 @@ function buildCsv() {
   lines.push(line(["Stundenplan-Auswertung", LAST.from, "bis", LAST.to]));
   lines.push("");
   lines.push(line(["Anwesenheit pro Veranstaltung"]));
-  lines.push(line(["Fach", "Art", "Termin", "Erwartet", "Besucht", "Verpasst", "Bevorstehend", "Quote %"]));
+  lines.push(line(["Fach", "Art", "Termin", "Erwartet", "Besucht (Live)", "Nachgetragen", "Verpasst", "Bevorstehend", "Quote %"]));
   for (const r of LAST.rows) {
     lines.push(line([
       r.ev.name, TYPE_LABEL[r.ev.type],
-      weekday(r.ev.day_of_week) + " " + fmtMin(r.ev.start_time) + "-" + fmtMin(r.ev.end_time),
-      r.slots.length - r.cancelled, r.attended, r.missed, r.upcoming,
+      r.isSelfStudy ? "Individuell" : weekday(r.ev.day_of_week) + " " + fmtMin(r.ev.start_time) + "-" + fmtMin(r.ev.end_time),
+      r.isSelfStudy ? "–" : r.slots.length - r.cancelled,
+      r.attendedLive != null ? r.attendedLive : r.attended,
+      r.nachgetragen != null ? r.nachgetragen : 0,
+      r.missed, r.upcoming,
       r.rate === null ? "" : r.rate,
     ]));
   }
@@ -3161,7 +3404,21 @@ async function submitManualAttendance() {
       body: JSON.stringify(body),
     });
     if (!res.ok) throw new Error(res.status + " " + (await res.text()));
+    const createdData = await res.json().catch(() => ({}));
+    const newId = createdData.id || createdData.entry_id;
+    const act = DATA && DATA.activities ? DATA.activities.find((a) => a.id === actId) : null;
+    const actName = act ? act.name : "Zeiteintrag";
+
+    if (newId) {
+      UNDO_STACK.push({
+        type: "create",
+        entryId: newId,
+        desc: actName + " (" + (comment || "Erfasst") + ")",
+      });
+      updateUndoUI();
+    }
     closeManualAttendanceModal();
+    showUndoToast("Zeiteintrag erfasst (" + actName + ").", true);
     await load();
   } catch (err) {
     if (errEl) { errEl.textContent = "Fehler beim Eintragen: " + err.message; errEl.classList.remove("hide"); }
