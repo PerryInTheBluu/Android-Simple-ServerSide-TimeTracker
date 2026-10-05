@@ -757,6 +757,9 @@ Example:<br/>
     <string name="subject_goal_unit_hours">Hours</string>
     <string name="todos_tab_name">Todos</string>
     <string name="todos_empty_hint">No open todos. Preparation and follow-up questions appear here.</string>
+    <string name="todos_add_button">Add todo</string>
+    <string name="todos_add_title">New todo</string>
+    <string name="todos_add_hint">e.g. Hand in problem set 3</string>
     <string name="timetable_action_cancel">Cancelled on this date</string>
     <string name="timetable_action_restore">Remove this date exception</string>
     <string name="timetable_action_restore_slot">Restore %1$s on this date</string>

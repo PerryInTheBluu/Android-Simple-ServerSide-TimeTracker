@@ -49,7 +49,7 @@ class TodosViewDataInteractor @Inject constructor(
                     id = todo.id,
                     name = event.name,
                     dateText = todo.date?.let(::formatDate).orEmpty(),
-                    typeLabel = typeLabel(todo.type),
+                    typeLabel = typeLabel(todo),
                     done = todo.done,
                 )
             }
@@ -62,11 +62,35 @@ class TodosViewDataInteractor @Inject constructor(
         LocalDataChangedBus.publish()
     }
 
-    private fun typeLabel(type: TimetableTodo.Type): String {
-        return when (type) {
-            TimetableTodo.Type.PREPARATION -> resourceRepo.getString(R.string.timetable_todo_preparation)
-            TimetableTodo.Type.FOLLOW_UP -> resourceRepo.getString(R.string.timetable_todo_follow_up)
-            TimetableTodo.Type.GENERAL -> resourceRepo.getString(R.string.timetable_todo_general)
+    /**
+     * Creates a manually added general todo; the text is shown on the
+     * todo card. Blank text is ignored.
+     */
+    suspend fun addGeneralTodo(eventId: Long, text: String) {
+        val trimmed = text.trim()
+        if (trimmed.isEmpty()) return
+        timetableRepo.addTodo(
+            TimetableTodo(
+                eventId = eventId,
+                date = LocalDate.now().toString(),
+                text = trimmed,
+                done = false,
+                type = TimetableTodo.Type.GENERAL,
+            ),
+        )
+        LocalDataChangedBus.publish()
+    }
+
+    private fun typeLabel(todo: TimetableTodo): String {
+        return when (todo.type) {
+            TimetableTodo.Type.PREPARATION ->
+                resourceRepo.getString(R.string.timetable_todo_preparation)
+            TimetableTodo.Type.FOLLOW_UP ->
+                resourceRepo.getString(R.string.timetable_todo_follow_up)
+            // Manually created todos show their text instead of the
+            // generic label.
+            TimetableTodo.Type.GENERAL ->
+                todo.text.ifEmpty { resourceRepo.getString(R.string.timetable_todo_general) }
         }
     }
 

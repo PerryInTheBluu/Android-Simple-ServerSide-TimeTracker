@@ -92,6 +92,7 @@ class TextInputDialogFragment : BaseBottomSheetFragment<Binding>() {
 
     private fun onSave(data: Pair<String, String?>) {
         listeners.forEach { it.onTextInput(data.first, data.second ?: params.tag) }
+        dismiss()
     }
 
     companion object {

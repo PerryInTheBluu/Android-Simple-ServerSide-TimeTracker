@@ -741,6 +741,9 @@ Beispiel:<br/>
     <string name="subject_goal_unit_hours">Stunden</string>
     <string name="todos_tab_name">Todos</string>
     <string name="todos_empty_hint">Keine offenen Todos. Vorbereitungs- und Nachbereitungsfragen erscheinen hier.</string>
+    <string name="todos_add_button">Todo hinzufügen</string>
+    <string name="todos_add_title">Neues Todo</string>
+    <string name="todos_add_hint">z.B. Übungszettel 3 abgeben</string>
     <string name="timetable_action_cancel">Fällt an diesem Datum aus</string>
     <string name="timetable_action_restore">Ausnahme für dieses Datum aufheben</string>
     <string name="timetable_action_restore_slot">%1$s an diesem Datum wiederherstellen</string>
