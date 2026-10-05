@@ -28,6 +28,12 @@ class TimetableNotificationInteractorImpl @Inject constructor(
     override suspend fun rescheduleAll() {
         val events = timetableRepo.getAllEvents()
         if (events.isEmpty()) return
+        // Vacation mode pauses the timetable: cancel everything, also
+        // inexact alarms that are still queued from before.
+        if (prefsInteractor.getVacationMode()) {
+            alarmScheduler.cancelAll(events = events, days = SCHEDULE_DAYS.toInt())
+            return
+        }
         val freeDays = timetableRepo.getDays().filter { it.freeDay }.map { it.date }.toSet()
         val zone = ZoneId.systemDefault()
         val now = System.currentTimeMillis()
@@ -70,6 +76,7 @@ class TimetableNotificationInteractorImpl @Inject constructor(
     }
 
     override suspend fun onPreparationDue(eventId: Long, date: String) {
+        if (prefsInteractor.getVacationMode()) return
         val event = getEvent(eventId) ?: return
         ensureTodo(eventId, date, TimetableTodo.Type.PREPARATION)
         val startTime = parseDate(date)
@@ -90,6 +97,7 @@ class TimetableNotificationInteractorImpl @Inject constructor(
     }
 
     override suspend fun onFollowUpDue(eventId: Long, date: String) {
+        if (prefsInteractor.getVacationMode()) return
         val event = getEvent(eventId) ?: return
         ensureTodo(eventId, date, TimetableTodo.Type.FOLLOW_UP)
         val endTime = parseDate(date)

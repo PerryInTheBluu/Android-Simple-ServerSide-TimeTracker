@@ -141,6 +141,14 @@ class SettingsMainViewDataInteractor @Inject constructor(
             text = resourceRepo.getString(R.string.settings_timetable_prep_lead_hint_value, prepLeadValue),
             topSpaceIsVisible = false,
         )
+        result += SettingsCheckboxViewData(
+            block = SettingsBlock.AdditionalVacationMode,
+            title = resourceRepo.getString(R.string.settings_vacation_mode),
+            subtitle = "",
+            isChecked = prefsInteractor.getVacationMode(),
+            bottomSpaceIsVisible = true,
+            dividerIsVisible = false,
+        )
         result += SettingsBottomViewData(
             block = SettingsBlock.MainBottom,
         )

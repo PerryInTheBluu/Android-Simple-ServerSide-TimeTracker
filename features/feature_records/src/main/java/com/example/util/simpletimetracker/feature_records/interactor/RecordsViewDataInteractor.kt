@@ -448,6 +448,8 @@ class RecordsViewDataInteractor @Inject constructor(
     ): List<RecordHolder<Data>> {
         val dayTimestamp = range.timeStarted + startOfDayShiftSafe()
         val date = timetableViewDataMapper.dateString(dayTimestamp)
+        // Vacation mode pauses the timetable globally.
+        if (prefsInteractor.getVacationMode()) return emptyList()
         if (timetableRepo.getDays().any { it.date == date && it.freeDay }) return emptyList()
 
         val isoDay = timetableViewDataMapper.isoDayOfWeek(dayTimestamp)
@@ -525,6 +527,8 @@ class RecordsViewDataInteractor @Inject constructor(
     ): List<RecordsCalendarViewData.Slot> {
         val dayTimestamp = range.timeStarted + startOfDayShiftSafe()
         val date = timetableViewDataMapper.dateString(dayTimestamp)
+        // Vacation mode pauses the timetable globally.
+        if (prefsInteractor.getVacationMode()) return emptyList()
         if (timetableRepo.getDays().any { it.date == date && it.freeDay }) return emptyList()
 
         val isoDay = timetableViewDataMapper.isoDayOfWeek(dayTimestamp)

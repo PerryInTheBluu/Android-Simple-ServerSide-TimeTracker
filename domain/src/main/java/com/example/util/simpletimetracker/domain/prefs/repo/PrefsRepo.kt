@@ -64,6 +64,10 @@ interface PrefsRepo {
     // question pops up.
     var timetablePrepLead: Long
 
+    // Vacation mode: the timetable is paused globally, no slots are
+    // shown and no preparation or follow up notifications fire.
+    var vacationMode: Boolean
+
     var showUntrackedInRecords: Boolean
 
     var showUntrackedInStatistics: Boolean

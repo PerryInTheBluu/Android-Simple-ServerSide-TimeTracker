@@ -186,6 +186,7 @@ class SyncDebugReceiver : BroadcastReceiver() {
                             "showGoalsSeparately" -> prefsInteractor.setShowGoalsSeparately(value)
                             "showRecordsCalendar" -> prefsInteractor.setShowRecordsCalendar(value)
                             "showUniTab" -> prefsInteractor.setShowUniTab(value)
+                            "vacationMode" -> prefsInteractor.setVacationMode(value)
                             else -> Timber.w("DebugReceiver: unknown pref %s", key)
                         }
                         Timber.i("DebugReceiver: set %s=%b", key, value)

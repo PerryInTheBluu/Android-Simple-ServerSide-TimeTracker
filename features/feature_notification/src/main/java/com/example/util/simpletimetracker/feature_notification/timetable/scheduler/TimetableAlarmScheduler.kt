@@ -6,6 +6,9 @@ import android.content.Intent
 import androidx.core.net.toUri
 import com.example.util.simpletimetracker.core.utils.PendingIntents
 import com.example.util.simpletimetracker.domain.timetable.model.TimetableTodo
+import com.example.util.simpletimetracker.domain.timetable.model.TimetableEvent
+import java.time.LocalDate
+import java.time.ZoneId
 import com.example.util.simpletimetracker.feature_notification.core.AlarmManagerController
 import com.example.util.simpletimetracker.feature_notification.recevier.NotificationReceiver
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -15,6 +18,41 @@ class TimetableAlarmScheduler @Inject constructor(
     @ApplicationContext private val context: Context,
     private val alarmManagerController: AlarmManagerController,
 ) {
+
+    /**
+     * Cancels all timetable alarms of the scheduling window; used by the
+     * vacation mode to pause the timetable.
+     */
+    fun cancelAll(
+        events: List<TimetableEvent>,
+        days: Int,
+    ) {
+        val zone = ZoneId.systemDefault()
+        val today = LocalDate.now(zone)
+        for (dayOffset in 0..days) {
+            val date = today.plusDays(dayOffset.toLong()).toString()
+            events.forEach { event ->
+                TimetableTodo.Type.entries.forEach { type ->
+                    alarmManagerController.cancelSchedule(
+                        pendingIntent = getPendingIntent(
+                            action = actionOf(type),
+                            type = type,
+                            eventId = event.id,
+                            date = date,
+                        ),
+                    )
+                }
+            }
+        }
+    }
+
+    private fun actionOf(type: TimetableTodo.Type): String {
+        return when (type) {
+            TimetableTodo.Type.PREPARATION -> NotificationReceiver.ACTION_TIMETABLE_PREP_DUE
+            TimetableTodo.Type.FOLLOW_UP -> NotificationReceiver.ACTION_TIMETABLE_FOLLOWUP_DUE
+            TimetableTodo.Type.GENERAL -> NotificationReceiver.ACTION_TIMETABLE_PREP_DUE
+        }
+    }
 
     fun schedulePreparation(
         eventId: Long,

@@ -345,6 +345,14 @@ class PrefsInteractor @Inject constructor(
         prefsRepo.timetablePrepLead = lead
     }
 
+    suspend fun getVacationMode(): Boolean = withContext(Dispatchers.IO) {
+        prefsRepo.vacationMode
+    }
+
+    suspend fun setVacationMode(isEnabled: Boolean) = withContext(Dispatchers.IO) {
+        prefsRepo.vacationMode = isEnabled
+    }
+
     suspend fun setStartOfDayShift(startOfDay: Long) = withContext(Dispatchers.IO) {
         prefsRepo.startOfDayShift = startOfDay
     }

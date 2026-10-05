@@ -9,6 +9,8 @@ import com.example.util.simpletimetracker.domain.extension.flip
 import com.example.util.simpletimetracker.domain.prefs.interactor.PrefsInteractor
 import com.example.util.simpletimetracker.domain.notifications.interactor.UpdateExternalViewsInteractor
 import com.example.util.simpletimetracker.domain.record.interactor.RecordsContainerUpdateInteractor
+import com.example.util.simpletimetracker.domain.record.interactor.RecordsUpdateInteractor
+import com.example.util.simpletimetracker.domain.timetable.notification.TimetableNotificationInteractor
 import com.example.util.simpletimetracker.feature_settings.R
 import com.example.util.simpletimetracker.feature_settings.api.OnSettingChangedInteractor
 import com.example.util.simpletimetracker.feature_settings.api.SettingsBlock
@@ -37,6 +39,8 @@ class SettingsAdditionalViewModelDelegate @Inject constructor(
     private val onSettingChangedInteractor: OnSettingChangedInteractor,
     private val externalViewsInteractor: UpdateExternalViewsInteractor,
     private val recordsContainerUpdateInteractor: RecordsContainerUpdateInteractor,
+    private val recordsUpdateInteractor: RecordsUpdateInteractor,
+    private val timetableNotificationInteractor: TimetableNotificationInteractor,
 ) : SettingsDelegate, ViewModelDelegate() {
 
     val keepScreenOnCheckbox: LiveData<Boolean>
@@ -64,6 +68,7 @@ class SettingsAdditionalViewModelDelegate @Inject constructor(
             SettingsBlock.AdditionalShiftStartOfDayButton -> onStartOfDaySignClicked()
             SettingsBlock.AdditionalShiftEndOfDay -> onEndOfDayClicked()
             SettingsBlock.AdditionalTimetablePrepLead -> onPrepLeadClicked()
+            SettingsBlock.AdditionalVacationMode -> onVacationModeClicked()
             SettingsBlock.AdditionalAutomatedTracking -> onAutomatedTrackingHelpClick()
             SettingsBlock.AdditionalShowTagSelection -> onShowRecordTagSelectionClicked()
             SettingsBlock.AdditionalCloseAfterOneTag -> onRecordTagSelectionCloseClicked()
@@ -171,6 +176,18 @@ class SettingsAdditionalViewModelDelegate @Inject constructor(
                 ),
                 showSeconds = false,
             ).let(router::navigate)
+        }
+    }
+
+    private fun onVacationModeClicked() {
+        delegateScope.launch {
+            val newValue = !prefsInteractor.getVacationMode()
+            prefsInteractor.setVacationMode(newValue)
+            // Pause or resume the timetable: cancels or re-schedules all
+            // preparation and follow up alarms.
+            timetableNotificationInteractor.rescheduleAll()
+            recordsUpdateInteractor.send()
+            parent?.updateContent()
         }
     }
 
