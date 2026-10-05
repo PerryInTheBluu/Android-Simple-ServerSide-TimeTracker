@@ -55,6 +55,7 @@ for ev in events:
                 )
                 if hit: attended += 1; detail.append((ds, "a"))
                 elif e < now: missed += 1; detail.append((ds, "m"))
+                elif s <= now: upcoming += 1; detail.append((ds, "r"))
                 else: upcoming += 1; detail.append((ds, "u"))
         cursor += timedelta(days=1)
     rows.append((ev["name"], attended, missed, upcoming, cancelled, detail))
@@ -78,3 +79,43 @@ for g in goals:
     aid = g["activity_sync_id"]
     print(f"goal {name.get(aid, aid[:8])}: tracked={per.get(aid,0)/3600:.1f}h target={g['target_seconds']/3600:.0f}h pct={100*per.get(aid,0)/g['target_seconds']:.0f}%")
 print("todos:", {t: (sum(1 for x in todos if x["type"]==t and x["done"]), sum(1 for x in todos if x["type"]==t)) for t in (0,1,2)})
+
+# hours per activity category
+cats = active(data.get("categories"))
+cat_name = {c["id"]: c["name"] for c in cats}
+act_cats = {}
+for a in acts:
+    try: act_cats[a["id"]] = [c for c in json.loads(a.get("category") or "[]") if c in cat_name]
+    except Exception: act_cats[a["id"]] = []
+per_cat = {}
+for e in entries:
+    st = parse(e["started_at"]); en = parse(e["ended_at"]) if e.get("ended_at") else now
+    if st < to and en > frm:
+        secs = max(0, (en - st).total_seconds())
+        for c in (act_cats.get(e["activity_id"]) or ["none"]):
+            per_cat[c] = per_cat.get(c, 0) + secs
+print("per category:")
+for cid, secs in sorted(per_cat.items(), key=lambda x: -x[1]):
+    print(f"  {cat_name.get(cid, 'Ohne Kategorie'):15s} {secs/3600:6.1f} h  {100*secs/total:3.0f}%")
+
+# attendance per calendar week (monday based)
+weeks = {}
+for r in rows:
+    for ds, status in r[5]:
+        if status == "x": continue
+        d = date.fromisoformat(ds)
+        monday = d - timedelta(days=d.weekday())
+        w = weeks.setdefault(monday, {"expected": 0, "attended": 0, "missed": 0, "upcoming": 0})
+        w["expected"] += 1
+        if status == "a": w["attended"] += 1
+        elif status == "m": w["missed"] += 1
+        else: w["upcoming"] += 1
+print("per week:")
+for monday in sorted(weeks):
+    w = weeks[monday]
+    rate = f"{100*w['attended']/(w['attended']+w['missed']):.0f}%" if w["attended"]+w["missed"] else "-"
+    print(f"  {monday} KW{monday.isocalendar()[1]:02d}: expected={w['expected']} attended={w['attended']} missed={w['missed']} upcoming={w['upcoming']} rate={rate}")
+
+# running slots right now
+running = [(r[0], ds) for r in rows for ds, st in r[5] if st == "r"]
+print("running slots:", running)

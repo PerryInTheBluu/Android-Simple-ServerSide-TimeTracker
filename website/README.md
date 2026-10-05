@@ -28,7 +28,7 @@ Server nötig. Nur Python-Standardbibliothek, keine Abhängigkeiten.
 - **Anwesenheit pro Veranstaltung**: erwartete / besuchte / verpasste /
   bevorstehende Termine je Stundenplan-Eintrag, mit Terminstreifen pro
   Datum (grün besucht, rot verpasst, grau umrandet bevorstehend,
-  dunkel ausgefallen/vorlesungsfrei). Überlappende Veranstaltungen
+  gelb umrandet läuft gerade, dunkel ausgefallen/vorlesungsfrei). Überlappende Veranstaltungen
   werden unabhängig voneinander gewertet — zwei parallel nachgetragene
   Veranstaltungen zählen beide als besucht.
 - **Stunden pro Fach**: getrackte Stunden je Aktivität im Zeitraum mit
@@ -41,11 +41,26 @@ Server nötig. Nur Python-Standardbibliothek, keine Abhängigkeiten.
   Zeitraums mit Stunden-Achse — ein Segment je Aktivität in der Farbe
   der Aktivität (gleiche Palette wie in der App), Tooltip pro Tag mit
   Aufteilung; Einträge über Mitternacht werden sauber aufgeteilt.
-  Die Aktivitäts- und Zieltabellen zeigen passende Farbpunkte. Umschalter
-  Tag/Woche (Kalenderwoche Mo–So), Auswahl bleibt gespeichert.
+  Die Aktivitäts- und Zieltabellen zeigen passende Farbpunkte, unter dem
+  Chart gibt es eine Farb-Legende. Umschalter Tag/Woche (Kalenderwoche
+  Mo–So)/Monat, Auswahl bleibt gespeichert.
+- **Filter**: Kategorie- und Aktivitäts-Chips mit drei Zuständen —
+  neutral, „nur diese" (grün) und „ohne diese" (rot). Der Filter wirkt
+  auf Statistiken, Stunden-Chart, Aktivitäten-Tabelle und Essenszeiten
+  (z. B. „nicht Uni" oder „nur eine Kategorie"); die Uni-Anwesenheit
+  bleibt immer ungefiltert. Auswahl bleibt gespeichert.
+- **Zeit pro Kategorie**: Stunden und Anteil je Kategorie inklusive
+  „Ohne Kategorie" — der Uni-vs-Rest-Vergleich, unabhängig vom Filter.
+- **Termine pro Woche**: erwartete, besuchte, verpasste und bevorstehende
+  Termine je Kalenderwoche (Montag beginnend) mit Quote.
+- **Essenszeiten**: Histogramm der Startzeitpunkte von Essen-Aktivitäten
+  nach Stunde; typische Fenster (6–10, 11–14, 17–20) sind farblich
+  hervorgehoben.
+- **Design hell/dunkel**: folgt automatisch dem Geräte-Design
+  (prefers-color-scheme), per Knopf manuell umschaltbar.
 - **CSV-Export**: lädt die Kennzahlen (Anwesenheit pro Veranstaltung,
-  Stunden pro Tag, Gesamtsumme) als Excel-kompatible Semikolon-CSV mit
-  BOM herunter.
+  Stunden pro Tag, Zeit pro Kategorie, Termine pro Woche, Gesamtsumme)
+  als Excel-kompatible Semikolon-CSV mit BOM herunter.
 - **Link kopieren**: erzeugt eine URL mit Token und Zeitraum im Hash
   (`#token=…&from=…&to=…`), die die Seite beim Öffen direkt lädt —
   praktisch als Lesezeichen. Der Token steht dabei in der URL, also

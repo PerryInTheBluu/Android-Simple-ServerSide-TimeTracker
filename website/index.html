@@ -9,6 +9,23 @@
   --bg: #121212; --card: #1e1e1e; --card2: #232323; --text: #e0e0e0;
   --muted: #9a9a9a; --green: #7bb661; --red: #c45a5a; --gray: #4a4a4a;
   --accent: #8ab661; --pink: #c44d7a; --blue: #5a8fc4;
+  --line: #2a2a2a; --headline: #333; --chip: #2c2c2c; --chartline: #2c2c2c;
+}
+/* Light theme: used when the theme is set to light, or auto with a
+   light system preference. */
+:root[data-theme="light"] {
+  --bg: #f2f3f5; --card: #ffffff; --card2: #ececec; --text: #1a1a1a;
+  --muted: #666666; --green: #4d8a35; --red: #b04343; --gray: #9a9a9a;
+  --accent: #5d8a3d; --pink: #b04068; --blue: #3d6f9e;
+  --line: #e2e2e2; --headline: #d5d5d5; --chip: #e4e4e4; --chartline: #d8d8d8;
+}
+@media (prefers-color-scheme: light) {
+  :root[data-theme="auto"] {
+    --bg: #f2f3f5; --card: #ffffff; --card2: #ececec; --text: #1a1a1a;
+    --muted: #666666; --green: #4d8a35; --red: #b04343; --gray: #9a9a9a;
+    --accent: #5d8a35; --pink: #b04068; --blue: #3d6f9e;
+    --line: #e2e2e2; --headline: #d5d5d5; --chip: #e4e4e4; --chartline: #d8d8d8;
+  }
 }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); color: var(--text);
@@ -21,7 +38,7 @@ h2 { font-size: 17px; font-weight: 600; margin: 0 0 14px; color: var(--text); }
 .row { display: flex; gap: 22px; flex-wrap: wrap; align-items: flex-end; }
 label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 4px; }
 input[type=text], input[type=date] { background: var(--card2); color: var(--text);
-  border: 1px solid #333; border-radius: 8px; padding: 8px 10px; font-size: 14px; }
+  border: 1px solid var(--headline); border-radius: 8px; padding: 8px 10px; font-size: 14px; }
 input[type=text] { width: 340px; }
 button { background: var(--accent); color: #111; border: 0; border-radius: 8px;
   padding: 9px 22px; font-size: 14px; font-weight: 600; cursor: pointer; }
@@ -33,28 +50,45 @@ button:disabled { opacity: .5; cursor: default; }
 .stat .s { color: var(--muted); font-size: 12px; margin-top: 2px; }
 table { border-collapse: collapse; width: 100%; }
 th { text-align: left; font-size: 12px; color: var(--muted); font-weight: 600;
-  padding: 8px 10px; border-bottom: 1px solid #333; white-space: nowrap; }
-td { padding: 10px; border-bottom: 1px solid #2a2a2a; vertical-align: middle; }
+  padding: 8px 10px; border-bottom: 1px solid var(--headline); white-space: nowrap; }
+td { padding: 10px; border-bottom: 1px solid var(--line); vertical-align: middle; }
 tr:last-child td { border-bottom: 0; }
 .num { text-align: right; font-variant-numeric: tabular-nums; }
 .name { font-weight: 600; white-space: nowrap; }
 .muted { color: var(--muted); }
 .tag { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 10px;
-  background: #2c2c2c; color: #bbb; margin-left: 8px; }
-.bar { background: #2c2c2c; border-radius: 6px; height: 14px; position: relative; overflow: hidden; min-width: 160px; }
+  background: var(--chip); color: var(--muted); margin-left: 8px; }
+.bar { background: var(--chip); border-radius: 6px; height: 14px; position: relative; overflow: hidden; min-width: 160px; }
 .bar > i { display: block; height: 100%; background: var(--accent); border-radius: 6px; }
 .strip { display: flex; gap: 3px; flex-wrap: wrap; }
 .cell { width: 15px; height: 15px; border-radius: 3px; cursor: default; }
 .cell.a { background: var(--green); } .cell.m { background: var(--red); }
 .cell.u { background: transparent; border: 1px solid var(--gray); }
-.cell.x { background: #2c2c2c; }
+.cell.x { background: var(--chip); }
 .cols2 { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
 @media (max-width: 1100px) { .cols2 { grid-template-columns: 1fr; } }
 .donut { display: flex; align-items: center; gap: 14px; margin-bottom: 10px; }
 .donut .lbl { font-size: 13px; }
 .small { font-size: 12px; color: var(--muted); }
+.cell.r { background: #454030; box-shadow: inset 0 0 0 1px var(--gray); }
+.chip { display: inline-flex; align-items: center; gap: 6px; border: 0; border-radius: 14px;
+  padding: 6px 14px; font-size: 13px; font-weight: 500; cursor: pointer; margin: 0 6px 6px 0;
+  background: var(--chip); color: var(--text); }
+.chip .dot { display: inline-block; width: 10px; height: 10px; border-radius: 3px; }
+.chip.inc { background: #2f4526; color: var(--green); }
+.chip.exc { background: #4a2a2a; color: var(--red); }
+:root[data-theme="light"] .chip.inc { background: #dcf0d0; }
+:root[data-theme="light"] .chip.exc { background: #f5dcdc; }
+@media (prefers-color-scheme: light) {
+  :root[data-theme="auto"] .chip.inc { background: #dcf0d0; }
+  :root[data-theme="auto"] .chip.exc { background: #f5dcdc; }
+}
+.legend { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-top: 10px; }
+.legend span { font-size: 12px; color: var(--muted); display: inline-flex; align-items: center; gap: 6px; }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; }
+.themeBtn { background: var(--chip); color: var(--text); padding: 8px 14px; font-size: 13px; }
 .hide { display: none; }
-.modeBtn { background: #2c2c2c; color: var(--muted); padding: 5px 14px; font-size: 12px; font-weight: 500; }
+.modeBtn { background: var(--chip); color: var(--muted); padding: 5px 14px; font-size: 12px; font-weight: 500; }
 .modeBtn.on { background: #3a4a2e; color: var(--accent); }
 </style>
 </head>
@@ -69,12 +103,21 @@ tr:last-child td { border-bottom: 0; }
       <div><label>Seit (lokal)</label><input type="date" id="from"></div>
       <div><label>Bis (lokal)</label><input type="date" id="to"></div>
     <div class="row" style="margin-left:auto">
+      <div><button id="theme" class="themeBtn" title="Design: Automatisch / Dunkel / Hell">Design</button></div>
       <div><button id="share" title="Link mit Token und Zeitraum kopieren">Link kopieren</button></div>
       <div><button id="csv" style="background:#333;color:var(--text)">CSV</button></div>
       <div><button id="load">Laden</button></div>
     </div>
     </div>
     <div id="error" class="error hide"></div>
+  </div>
+
+  <div id="filterCard" class="card hide">
+    <h2>Filter</h2>
+    <div class="small" style="margin-bottom:10px">Klick: neutral &rarr; <span style="color:var(--green)">nur diese</span> &rarr; <span style="color:var(--red)">ohne diese</span> &rarr; neutral. Gilt für Statistiken, Stunden-Chart, Aktivitäten und Essenszeiten; die Uni-Anwesenheit bleibt immer ungefiltert.</div>
+    <div class="small" id="filterHint" style="margin-bottom:6px"></div>
+    <div id="filterCats"></div>
+    <div id="filterActs" style="margin-top:6px"></div>
   </div>
 
   <div id="content" class="hide">
@@ -85,14 +128,35 @@ tr:last-child td { border-bottom: 0; }
         <span style="display:flex;gap:6px;margin-left:auto">
           <button id="chartDay" class="modeBtn">Tag</button>
           <button id="chartWeek" class="modeBtn">Woche</button>
+          <button id="chartMonth" class="modeBtn">Monat</button>
         </span>
       </h2>
       <div id="dailyChart"></div>
+      <div class="legend" id="chartLegend"></div>
+    </div>
+
+    <div class="cols2">
+      <div class="card">
+        <h2>Zeit pro Kategorie</h2>
+        <div class="small" style="margin-bottom:10px">Vergleich unabhängig vom Filter oben.</div>
+        <table id="categories"></table>
+      </div>
+      <div class="card">
+        <h2>Termine pro Woche</h2>
+        <div class="small" style="margin-bottom:10px">Erwartete, besuchte und verpasste Termine je Kalenderwoche (Montag beginnend).</div>
+        <table id="weeks"></table>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Essenszeiten</h2>
+      <div class="small" style="margin-bottom:10px">Startzeitpunkte von Essen-Aktivit&auml;ten im Zeitraum, gruppiert nach Stunde. Typische Fenster: 6&ndash;10 (Fr&uuml;hst&uuml;ck), 11&ndash;14 (Mittag), 17&ndash;20 (Abend).</div>
+      <div id="mealChart"></div>
     </div>
 
     <div class="card">
       <h2>Anwesenheit pro Veranstaltung</h2>
-      <div class="small" style="margin-bottom:10px">Grün = besucht, Rot = verpasst, Umrandet = bevorstehend. Überlappende Veranstaltungen werden unabhängig voneinander gewertet; wer eine verpasste Vorlesung als nachgearbeitet nachträgt, kann beide als besucht zählen.</div>
+      <div class="small" style="margin-bottom:10px">Grün = besucht, Rot = verpasst, Gelb umrandet = läuft gerade, Umrandet = bevorstehend. Überlappende Veranstaltungen werden unabhängig voneinander gewertet; wer eine verpasste Vorlesung als nachgearbeitet nachträgt, kann beide als besucht zählen.</div>
       <table id="attendance"></table>
     </div>
 
@@ -135,6 +199,55 @@ function activityColor(activity) {
 let DATA = null;
 let LAST = null; // computed analysis of the last render, reused by csv export
 let chartMode = localStorage.getItem("tt_chart_mode") || "day";
+
+// Theme: auto follows the system, dark and light are manual.
+let theme = localStorage.getItem("tt_theme") || "auto";
+function applyTheme() {
+  document.documentElement.setAttribute("data-theme", theme);
+  $("theme").textContent = theme === "auto" ? "Design: Auto" : theme === "dark" ? "Design: Dunkel" : "Design: Hell";
+}
+function nextTheme() {
+  theme = theme === "auto" ? "dark" : theme === "dark" ? "light" : "auto";
+  localStorage.setItem("tt_theme", theme);
+  applyTheme();
+}
+applyTheme();
+
+// Activity and category filter: chips cycle through neutral, include
+// ("nur diese") and exclude ("ohne diese"). An entry matches a chip
+// through its activity or, for a category chip, the activity category.
+let FILTER = null;
+try { FILTER = JSON.parse(localStorage.getItem("tt_filter") || "null"); } catch (e) { FILTER = null; }
+if (!FILTER || typeof FILTER !== "object") FILTER = {cats: {}, acts: {}};
+function saveFilter() { localStorage.setItem("tt_filter", JSON.stringify(FILTER)); }
+function cycleFilter(map, id) {
+  map[id] = map[id] === "inc" ? "exc" : map[id] === "exc" ? "" : "inc";
+  if (!map[id]) delete map[id];
+  saveFilter();
+  render();
+}
+function activityCategoryIds(activity) {
+  // The sync payload stores the category ids as a json string.
+  try { return JSON.parse(activity.category || "[]"); } catch (e) { return []; }
+}
+function matchesFilterChip(entry, kind, id, categoriesOf) {
+  if (kind === "act") return entry.act === id;
+  return (categoriesOf[entry.act] || []).includes(id);
+}
+function passesFilter(entry, categoriesOf) {
+  const includes = [];
+  for (const id of Object.keys(FILTER.cats)) if (FILTER.cats[id] === "inc") includes.push(["cat", id]);
+  for (const id of Object.keys(FILTER.acts)) if (FILTER.acts[id] === "inc") includes.push(["act", id]);
+  const excludes = [];
+  for (const id of Object.keys(FILTER.cats)) if (FILTER.cats[id] === "exc") excludes.push(["cat", id]);
+  for (const id of Object.keys(FILTER.acts)) if (FILTER.acts[id] === "exc") excludes.push(["act", id]);
+  if (includes.length && !includes.some(([k, id]) => matchesFilterChip(entry, k, id, categoriesOf))) return false;
+  if (excludes.length && excludes.some(([k, id]) => matchesFilterChip(entry, k, id, categoriesOf))) return false;
+  return true;
+}
+function filterActive() {
+  return Object.keys(FILTER.cats).length + Object.keys(FILTER.acts).length > 0;
+}
 
 function showError(msg) {
   const el = $("error");
@@ -200,6 +313,16 @@ function render() {
   const todos = active(DATA.timetable_todos);
   const goals = active(DATA.subject_goals);
   const activities = active(DATA.activities).filter((a) => !a.archived);
+  const allCategories = active(DATA.categories);
+  const categoriesById = {};
+  for (const c of allCategories) categoriesById[c.id] = c;
+  const categoriesOf = {};
+  for (const a of activities) {
+    categoriesOf[a.id] = activityCategoryIds(a).filter((id) => categoriesById[id]);
+  }
+  const activityName0 = {};
+  for (const a of activities) activityName0[a.id] = a.name;
+  renderFilterChips(activities, allCategories, categoriesOf);
 
   // ---- window -------------------------------------------------------------
   let fromStr = $("from").value;
@@ -225,6 +348,8 @@ function render() {
   const windowEntries = entries
     .map((e) => ({start: new Date(e.started_at), end: e.ended_at ? new Date(e.ended_at) : now, act: e.activity_id, dur: e.duration_seconds || 0}))
     .filter((e) => e.start < to && e.end > from);
+
+  const filteredEntries = windowEntries.filter((e) => passesFilter(e, categoriesOf));
 
   const freeDays = new Set(days.filter((d) => d.free_day).map((d) => d.date));
   const overrideOf = (eventId, date) =>
@@ -252,7 +377,7 @@ function render() {
           const attended = windowEntries.some(
             (en) => en.act === ev.activity_sync_id && en.start < e && en.end > s
           );
-          const status = attended ? "a" : (e < now ? "m" : "u");
+          const status = attended ? "a" : (e < now ? "m" : (s <= now ? "r" : "u"));
           slots.push({date: dateStr, status: status, time: s, room: (ov && ov.room) || ev.room});
         }
       }
@@ -269,21 +394,21 @@ function render() {
     (a.ev.day_of_week - b.ev.day_of_week) || (a.ev.start_time - b.ev.start_time));
 
   // ---- global stats ---------------------------------------------------------
-  const totalTracked = windowEntries.reduce((sum, e) => sum + Math.max(0, (e.end - e.start) / 1000), 0);
+  const totalTracked = filteredEntries.reduce((sum, e) => sum + Math.max(0, (e.end - e.start) / 1000), 0);
   const sumAtt = rows.reduce((s, r) => s + r.attended, 0);
   const sumMiss = rows.reduce((s, r) => s + r.missed, 0);
   const attRate = sumAtt + sumMiss > 0 ? Math.round((sumAtt / (sumAtt + sumMiss)) * 100) + " %" : "–";
   const prepOpen = todos.filter((t) => t.type === 0 && !t.done).length;
   const prepDone = todos.filter((t) => t.type === 0 && t.done).length;
   $("stats").innerHTML = [
-    statCard(fmtHours(totalTracked), "Getrackt im Zeitraum"),
+    statCard(fmtHours(totalTracked), filterActive() ? "Getrackt (gefiltert)" : "Getrackt im Zeitraum"),
     statCard(attRate, "Anwesenheit (vergangene Termine)"),
     statCard(sumAtt + " / " + (sumAtt + sumMiss), "Besuchte / vergangene Termine"),
     statCard(prepDone + " / " + (prepDone + prepOpen), "Vorbereitungen erledigt"),
   ].join("");
 
   const perActivity = {};
-  for (const e of windowEntries) {
+  for (const e of filteredEntries) {
     perActivity[e.act] = (perActivity[e.act] || 0) + Math.max(0, (e.end - e.start) / 1000);
   }
 
@@ -291,7 +416,7 @@ function render() {
   const daily = [];
   {
     const byDay = new Map();
-    for (const e of windowEntries) {
+    for (const e of filteredEntries) {
       let cursor = new Date(Math.max(e.start, from));
       while (cursor < e.end && cursor < to) {
         const dayKey = localDateStr(cursor);
@@ -319,9 +444,13 @@ function render() {
     .sort((x, y) => y[1] - x[1])
     .map(([id]) => id);
   renderDailyChart(buildBuckets(daily, chartMode), activityOrder, activitiesById);
+  renderChartLegend(activityOrder, activitiesById);
 
   // keep the computed analysis for the csv export
-  LAST = {rows, from: fromStr, to: toStr, totalTracked, daily};
+  const catNames = {};
+  for (const id of Object.keys(categoriesById)) catNames[id] = categoriesById[id].name;
+  LAST = {rows, from: fromStr, to: toStr, totalTracked, daily, filteredEntries, windowEntries,
+    categoriesOf, catNames, filterActive: filterActive()};
 
   // ---- attendance table -----------------------------------------------------
   let html = "<tr><th>Fach</th><th>Art</th><th>Termin</th><th class=num>Erwartet</th>" +
@@ -382,8 +511,87 @@ function render() {
   }
   $("activities").innerHTML = a;
 
+  // ---- hours per category (independent of the filter) --------------------------
+  {
+    const total = windowEntries.reduce((sum, e) => sum + Math.max(0, (e.end - e.start) / 1000), 0);
+    const perCat = new Map(); // categoryId or null -> seconds
+    const withoutCat = "___none___";
+    for (const e of windowEntries) {
+      const seconds = Math.max(0, (e.end - e.start) / 1000);
+      const cats = categoriesOf[e.act] && categoriesOf[e.act].length ? categoriesOf[e.act] : [withoutCat];
+      for (const c of cats) perCat.set(c, (perCat.get(c) || 0) + seconds);
+    }
+    const entries = [...perCat.entries()].sort((x, y) => y[1] - x[1]);
+    let html = "<tr><th>Kategorie</th><th style=min-width:180px>Anteil</th><th class=num>Stunden</th></tr>";
+    for (const [id, seconds] of entries) {
+      const isNone = id === withoutCat;
+      const cat = isNone ? null : categoriesById[id];
+      const name = cat ? cat.name : "Ohne Kategorie";
+      const share = total > 0 ? Math.round((seconds / total) * 100) : 0;
+      const color = cat ? (PALETTE[cat.color_id] || FALLBACK_COLOR) : "var(--gray)";
+      html += "<tr><td class=name><span style='display:inline-block;width:12px;height:12px;border-radius:3px;" +
+        "background:" + color + ";margin-right:8px;vertical-align:middle'></span>" + escapeHtml(name) +
+        "</td><td><div class=bar><i style=width:" + share + "%></i></div><div class=small>" + share + " %</div></td>" +
+        "<td class=num>" + fmtHours(seconds) + "</td></tr>";
+    }
+    if (!entries.length) html += "<tr><td colspan=3 class=small>Keine getrackte Zeit im Zeitraum.</td></tr>";
+    $("categories").innerHTML = html;
+  }
+
+  // ---- attendance per week ------------------------------------------------------
+  {
+    const weeks = new Map(); // monday dateStr -> {expected, attended, missed, upcoming}
+    for (const r of rows) {
+      for (const sl of r.slots) {
+        if (sl.status === "x") continue;
+        const date = new Date(sl.date + "T00:00:00");
+        const dow = (date.getDay() + 6) % 7; // 0 = Monday
+        date.setDate(date.getDate() - dow);
+        const key = localDateStr(date);
+        const w = weeks.get(key) || {expected: 0, attended: 0, missed: 0, upcoming: 0};
+        w.expected++;
+        if (sl.status === "a") w.attended++;
+        else if (sl.status === "m") w.missed++;
+        else w.upcoming++;
+        weeks.set(key, w);
+      }
+    }
+    let html = "<tr><th>KW ab</th><th class=num>Termine</th><th class=num>Besucht</th>" +
+      "<th class=num>Verpasst</th><th class=num>Bevorstehend</th><th>Quote</th></tr>";
+    const keys = [...weeks.keys()].sort();
+    for (const key of keys) {
+      const w = weeks.get(key);
+      // ISO calendar week number
+      const monday = new Date(key + "T00:00:00");
+      const thursday = new Date(monday);
+      thursday.setDate(thursday.getDate() + 3);
+      const jan4 = new Date(thursday.getFullYear(), 0, 4);
+      const cw = 1 + Math.round(((thursday - jan4) / 86400000 - 3 + ((jan4.getDay() + 6) % 7)) / 7);
+      const rate = w.attended + w.missed > 0 ? Math.round((w.attended / (w.attended + w.missed)) * 100) + " %" : "–";
+      html += "<tr><td class=name>" + key.slice(8, 10) + "." + key.slice(5, 7) + "." +
+        " <span class=muted>(KW " + cw + ")</span></td>" +
+        "<td class=num>" + w.expected + "</td><td class=num>" + w.attended + "</td>" +
+        "<td class=num>" + w.missed + "</td><td class=num>" + w.upcoming + "</td>" +
+        "<td>" + rate + "</td></tr>";
+    }
+    if (!keys.length) html += "<tr><td colspan=6 class=small>Keine Termine im Zeitraum.</td></tr>";
+    $("weeks").innerHTML = html;
+  }
+
+  // ---- meal times ----------------------------------------------------------------
+  {
+    const mealActivities = activities.filter((a) => /ess|fr\u00fc|hauptmahl/i.test(a.name));
+    const mealIds = new Set(mealActivities.map((a) => a.id));
+    const perHour = new Array(24).fill(0);
+    for (const e of filteredEntries) {
+      if (!mealIds.has(e.act)) continue;
+      perHour[e.start.getHours()]++;
+    }
+    renderMealChart(perHour, mealActivities);
+  }
+
   // ---- todos -------------------------------------------------------------------
-  let t = "";
+  let t = ""; 
   for (const type of [0, 1, 2]) {
     const list = todos.filter((x) => x.type === type);
     const done = list.filter((x) => x.done).length;
@@ -407,6 +615,97 @@ function render() {
   $("todos").innerHTML = t;
 }
 
+/** Renders the category and activity filter chips. */
+function renderFilterChips(activities, categories, categoriesOf) {
+  $("filterCard").classList.remove("hide");
+  const usedCatIds = new Set();
+  for (const a of activities) for (const c of categoriesOf[a.id] || []) usedCatIds.add(c);
+  const catChips = categories
+    .filter((c) => usedCatIds.has(c.id))
+    .map((c) => {
+      const state = FILTER.cats[c.id] || "";
+      const color = PALETTE[c.color_id] || FALLBACK_COLOR;
+      return "<button class='chip " + (state === "inc" ? "inc" : state === "exc" ? "exc" : "") +
+        "' data-kind=cat data-id='" + c.id + "'><span class=dot style='background:" + color + "'></span>" +
+        escapeHtml(c.name) + "</button>";
+    }).join("");
+  $("filterCats").innerHTML = catChips || "";
+  const actChips = activities
+    .map((a) => {
+      const state = FILTER.acts[a.id] || "";
+      return "<button class='chip " + (state === "inc" ? "inc" : state === "exc" ? "exc" : "") +
+        "' data-kind=act data-id='" + a.id + "'><span class=dot style='background:" + activityColor(a) + "'></span>" +
+        escapeHtml(a.name) + "</button>";
+    }).join("");
+  $("filterActs").innerHTML = actChips;
+  $("filterHint").textContent = filterActive()
+    ? "Filter aktiv."
+    : "";
+  const handler = (event) => {
+    const btn = event.target.closest(".chip");
+    if (!btn) return;
+    if (btn.dataset.kind === "cat") cycleFilter(FILTER.cats, btn.dataset.id);
+    else cycleFilter(FILTER.acts, btn.dataset.id);
+  };
+  $("filterCats").onclick = handler;
+  $("filterActs").onclick = handler;
+}
+
+/** Small colored legend of the activities of the last chart render. */
+function renderChartLegend(activityOrder, activitiesById) {
+  const parts = [];
+  for (const id of activityOrder) {
+    const a = activitiesById[id];
+    if (!a) continue;
+    parts.push("<span><i style='background:" + activityColor(a) + "'></i>" + escapeHtml(a.name) + "</span>");
+  }
+  $("chartLegend").innerHTML = parts.join("");
+}
+
+/** Horizontal bar chart of meal start times per hour of day. */
+function renderMealChart(perHour, mealActivities) {
+  const el = $("mealChart");
+  if (!mealActivities.length) {
+    el.innerHTML = "<div class=small>Keine Aktivit&auml;t mit Essen im Namen gefunden.</div>";
+    return;
+  }
+  const names = mealActivities.map((a) => a.name).join(", ");
+  const total = perHour.reduce((a, b) => a + b, 0);
+  if (!total) {
+    el.innerHTML = "<div class=small>Keine Starts im Zeitraum (" + escapeHtml(names) + ").</div>";
+    return;
+  }
+  const width = 1520;
+  const barH = 22;
+  const labelW = 40;
+  const gap = 4;
+  const height = 24 * (barH + gap) + 10;
+  let svg = "<svg viewBox=\"0 0 " + width + " " + height + "\" style=\"width:100%;height:auto\">";
+  const max = Math.max(1, ...perHour);
+  const barW = width - labelW - 60;
+  const typical = (h) => (h >= 6 && h < 10) || (h >= 11 && h < 14) || (h >= 17 && h < 20);
+  for (let h = 0; h < 24; h++) {
+    const y = h * (barH + gap) + 6;
+    const w = (perHour[h] / max) * barW;
+    svg += "<text x=\"34\" y=\"" + (y + 15) + "\" text-anchor=\"end\" fill=\"var(--muted)\" font-size=\"11\">" +
+      String(h).padStart(2, "0") + "</text>";
+    svg += "<rect x=\"" + labelW + "\" y=\"" + y + "\" width=\"" + barW + "\" height=\"" + barH +
+      "\" fill=\"var(--chip)\" rx=\"4\"/>";
+    if (perHour[h] > 0) {
+      svg += "<rect x=\"" + labelW + "\" y=\"" + y + "\" width=\"" + w.toFixed(1) + "\" height=\"" + barH +
+        "\" fill=\"" + (typical(h) ? "var(--accent)" : "var(--blue)") + "\" rx=\"4\"><title>" +
+        perHour[h] + " Starts um " + String(h).padStart(2, "0") + ":00</title></rect>";
+    }
+    if (perHour[h] > 0) {
+      svg += "<text x=\"" + (labelW + w + 8).toFixed(1) + "\" y=\"" + (y + 15) +
+        "\" fill=\"var(--muted)\" font-size=\"11\">" + perHour[h] + "</text>";
+    }
+  }
+  svg += "</svg>";
+  el.innerHTML = "<div class=small style=margin-bottom:6px>Aktivit&auml;ten: " + escapeHtml(names) +
+    " &middot; " + total + " Starts</div>" + svg;
+}
+
 function statCard(value, label) {
   return "<div class=stat><div class=small>" + label + "</div><div class=v>" + value + "</div></div>";
 }
@@ -423,8 +722,26 @@ function escapeHtml(text) {
     ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"})[c]);
 }
 
-/** Groups the days into day or calendar week (Mo-So) buckets. */
+/** Groups the days into day, calendar week (Mo-So) or month buckets. */
 function buildBuckets(daily, mode) {
+  if (mode === "month") {
+    const months = [];
+    const index = new Map();
+    for (const d of daily) {
+      const key = d.date.slice(0, 7);
+      if (!index.has(key)) {
+        const label = new Date(d.date + "T00:00:00").toLocaleDateString("de-DE", {month: "short", year: "2-digit"});
+        index.set(key, {key: key, label: label, seconds: 0, perAct: {}});
+        months.push(index.get(key));
+      }
+      const m = index.get(key);
+      m.seconds += d.seconds;
+      for (const [id, sec] of Object.entries(d.perAct)) {
+        m.perAct[id] = (m.perAct[id] || 0) + sec;
+      }
+    }
+    return months;
+  }
   if (mode !== "week") {
     return daily.map((d) => ({
       key: d.date,
@@ -542,6 +859,51 @@ function buildCsv() {
     lines.push(line([d.date, (Math.round(d.seconds / 360) / 10).toLocaleString("de-DE")]));
   }
   lines.push("");
+  if (LAST.filterActive) lines.push(line(["Hinweis: Stunden und Kategorien ber\u00fccksichtigen den aktivierten Filter."]));
+  lines.push(line(["Zeit pro Kategorie"]));
+  lines.push(line(["Kategorie", "Stunden", "Anteil %"]));
+  {
+    const total = LAST.windowEntries.reduce((sum, e) => sum + Math.max(0, (e.end - e.start) / 1000), 0);
+    const perCat = new Map();
+    const withoutCat = "Ohne Kategorie";
+    for (const e of LAST.windowEntries) {
+      const seconds = Math.max(0, (e.end - e.start) / 1000);
+      const cats = (LAST.categoriesOf[e.act] || []).length ? (LAST.categoriesOf[e.act]) : [withoutCat];
+      for (const c of cats) perCat.set(c, (perCat.get(c) || 0) + seconds);
+    }
+    for (const [id, seconds] of [...perCat.entries()].sort((x, y) => y[1] - x[1])) {
+      const name = id === withoutCat ? withoutCat : (LAST.catNames[id] || id);
+      lines.push(line([name, (Math.round(seconds / 360) / 10).toLocaleString("de-DE"),
+        total > 0 ? Math.round((seconds / total) * 100) : 0]));
+    }
+  }
+  lines.push("");
+  lines.push(line(["Termine pro Woche"]));
+  lines.push(line(["Woche ab", "Termine", "Besucht", "Verpasst", "Bevorstehend", "Quote %"]));
+  {
+    const weeks = new Map();
+    for (const r of LAST.rows) {
+      for (const sl of r.slots) {
+        if (sl.status === "x") continue;
+        const date = new Date(sl.date + "T00:00:00");
+        const dow = (date.getDay() + 6) % 7;
+        date.setDate(date.getDate() - dow);
+        const key = localDateStr(date);
+        const w = weeks.get(key) || {expected: 0, attended: 0, missed: 0, upcoming: 0};
+        w.expected++;
+        if (sl.status === "a") w.attended++;
+        else if (sl.status === "m") w.missed++;
+        else w.upcoming++;
+        weeks.set(key, w);
+      }
+    }
+    for (const key of [...weeks.keys()].sort()) {
+      const w = weeks.get(key);
+      const rate = w.attended + w.missed > 0 ? Math.round((w.attended / (w.attended + w.missed)) * 100) : "";
+      lines.push(line([key, w.expected, w.attended, w.missed, w.upcoming, rate]));
+    }
+  }
+  lines.push("");
   lines.push(line(["Gesamt getrackt", (Math.round(LAST.totalTracked / 360) / 10).toLocaleString("de-DE") + " h"]));
   return "\ufeff" + lines.join("\r\n");
 }
@@ -582,9 +944,12 @@ function setChartMode(mode) {
 function updateChartModeButtons() {
   $("chartDay").className = "modeBtn" + (chartMode === "day" ? " on" : "");
   $("chartWeek").className = "modeBtn" + (chartMode === "week" ? " on" : "");
+  $("chartMonth").className = "modeBtn" + (chartMode === "month" ? " on" : "");
 }
 $("chartDay").addEventListener("click", () => setChartMode("day"));
 $("chartWeek").addEventListener("click", () => setChartMode("week"));
+$("chartMonth").addEventListener("click", () => setChartMode("month"));
+$("theme").addEventListener("click", nextTheme);
 updateChartModeButtons();
 $("csv").addEventListener("click", exportCsv);
 $("share").addEventListener("click", copyShareLink);

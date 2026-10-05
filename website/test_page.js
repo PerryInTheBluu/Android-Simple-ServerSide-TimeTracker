@@ -22,7 +22,8 @@ function makeEl(id) {
   return elements[id];
 }
 
-global.document = { getElementById: makeEl, createElement: () => ({ style: {} }) };
+global.document = { getElementById: makeEl, createElement: () => ({ style: {} }),
+  documentElement: { setAttribute() {} } };
 global.localStorage = { getItem: () => "", setItem: () => {} };
 global.location = { hash: "", origin: "http://x", pathname: "/" };
 const pullData = JSON.parse(fs.readFileSync(process.argv[2], "utf8"));
@@ -56,9 +57,36 @@ vm.runInThisContext(script);
   console.log(elements["dailyChart"].innerHTML);
   console.log("=== csv ===");
   console.log(buildCsv());
+  console.log("=== categories table ===");
+  console.log(elements["categories"].innerHTML.replace(/></g, ">\n<"));
+  console.log("=== weeks table ===");
+  console.log(elements["weeks"].innerHTML.replace(/></g, ">\n<"));
+  console.log("=== meal chart ===");
+  console.log(elements["mealChart"].innerHTML);
+  console.log("=== chart legend ===");
+  console.log(elements["chartLegend"].innerHTML);
   chartMode = "week";
   render();
   console.log("=== week chart titles ===");
   const titles = elements["dailyChart"].innerHTML.match(/<title>[^<]+<\/title>/g) || [];
   titles.forEach((t) => console.log(t.replace(/<\/?title>/g, "")));
+  chartMode = "month";
+  render();
+  console.log("=== month chart titles ===");
+  (elements["dailyChart"].innerHTML.match(/<title>[^<]+<\/title>/g) || [])
+    .forEach((t) => console.log(t.replace(/<\/?title>/g, "")));
+  // Exclude the Uni category everywhere and check that the stats shrink.
+  const uniCat = (pullData.categories || []).find((c) => !c.deleted_at && c.name === "Uni");
+  if (uniCat) {
+    chartMode = "day";
+    FILTER.cats[uniCat.id] = "exc";
+    render();
+    console.log("=== stats with Uni excluded ===");
+    console.log(elements["stats"].innerHTML.replace(/></g, ">\n<"));
+    console.log("=== activities with Uni excluded ===");
+    console.log(elements["activities"].innerHTML.replace(/></g, ">\n<"));
+    console.log("=== csv with filter (category section) ===");
+    console.log(buildCsv().split("\r\n").filter((l) => l.includes("Hinweis")).join("\n"));
+  }
+
 })();
