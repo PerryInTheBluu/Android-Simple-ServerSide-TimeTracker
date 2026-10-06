@@ -1,9 +1,10 @@
 #!/usr/bin/env fish
 
 set -l REPO ~/Projekte/Android-Simple-ServerSide-TimeTracker
-set -l PKG de.piusdischinger.timetracker.debug
+set -l PKG de.piusdischinger.timetracker.dev
 set -l APK app/build/outputs/apk/base/debug/app-base-debug.apk
 set -l BRANCH $argv[1]
+set -g ADB_SERIAL $argv[2]
 set -g LOGDIR
 
 function fail
@@ -21,6 +22,14 @@ function fail
     exit 1
 end
 
+function adb_cmd
+    if test -n "$ADB_SERIAL"
+        adb -s $ADB_SERIAL $argv
+    else
+        adb $argv
+    end
+end
+
 function collect_logs
     if test -z "$LOGDIR"
         return
@@ -28,8 +37,8 @@ function collect_logs
 
     mkdir -p $LOGDIR
 
-    adb logcat -d -v threadtime -b main -b system -b crash > $LOGDIR/logcat-full.log 2>&1
-    adb logcat -d -v long -b crash > $LOGDIR/crash-buffer.log 2>&1
+    adb_cmd logcat -d -v threadtime -b main -b system -b crash > $LOGDIR/logcat-full.log 2>&1
+    adb_cmd logcat -d -v long -b crash > $LOGDIR/crash-buffer.log 2>&1
 
     grep -n -E \
         'FATAL EXCEPTION|AndroidRuntime|Process:|Caused by:|Exception|Error:|IllegalArgumentException|Unresolved reference|error\.NonExistentClass|KSP|Hilt|Dagger' \
@@ -70,9 +79,10 @@ function run_gradle
     end
 end
 
-if test (count $argv) -ne 1
-    echo "Verwendung: fish scripts/test-pr-branch.fish <Remote-Branch>"
-    echo "Beispiel:  fish scripts/test-pr-branch.fish vibe/fix-sync-offline-startup"
+if test (count $argv) -lt 1 -o (count $argv) -gt 2
+    echo "Verwendung: fish scripts/test-pr-branch.fish <Remote-Branch> [Geräte-Serial]"
+    echo "Beispiel:  fish scripts/test-pr-branch.fish feat/timetable-subscription-and-overrides"
+    echo "Beispiel:  fish scripts/test-pr-branch.fish feat/timetable-subscription-and-overrides R52R30N99VW"
     exit 2
 end
 
@@ -128,15 +138,23 @@ echo
 echo "==> Verbundene ADB-Geräte"
 adb devices | tee $LOGDIR/adb-devices.txt
 
-set -l device_count (adb devices | string match -r '^[^\s]+\s+device$' | count)
+set -l devices (adb devices | string match -r '^[^\s]+(?=\s+device$)')
+set -l device_count (count $devices)
 
-if test $device_count -ne 1
-    fail "Genau ein autorisiertes ADB-Gerät erwartet, gefunden: $device_count"
+if test -n "$ADB_SERIAL"
+    if not contains $ADB_SERIAL $devices
+        fail "Angegebenes Gerät '$ADB_SERIAL' nicht gefunden oder nicht autorisiert."
+    end
+else if test $device_count -eq 1
+    set -g ADB_SERIAL $devices[1]
+    echo "Verwende einziges verbundenes Gerät: $ADB_SERIAL"
+else
+    fail "Gefundene Geräte: $device_count. Bitte Geräte-Serial als 2. Argument übergeben: ./scripts/test-pr-branch.fish <branch> <serial>"
 end
 
 echo
-echo "==> Installiere Debug-APK"
-adb install -r $APK 2>&1 | tee $LOGDIR/adb-install.log
+echo "==> Installiere Debug-APK auf Gerät: $ADB_SERIAL"
+adb_cmd install -r $APK 2>&1 | tee $LOGDIR/adb-install.log
 
 if test $pipestatus[1] -ne 0
     fail "APK-Installation fehlgeschlagen."
@@ -144,10 +162,10 @@ end
 
 echo
 echo "==> Bereinige Logcat und starte App kalt"
-adb logcat -c; or fail "Logcat konnte nicht geleert werden."
-adb shell am force-stop $PKG; or fail "App konnte nicht gestoppt werden."
+adb_cmd logcat -c; or fail "Logcat konnte nicht geleert werden."
+adb_cmd shell am force-stop $PKG; or fail "App konnte nicht gestoppt werden."
 
-adb shell monkey -p $PKG -c android.intent.category.LAUNCHER 1 \
+adb_cmd shell monkey -p $PKG -c android.intent.category.LAUNCHER 1 \
     2>&1 | tee $LOGDIR/adb-launch.log
 
 if test $pipestatus[1] -ne 0
@@ -159,7 +177,7 @@ sleep 3
 
 echo
 echo "==> Prüfe App-Prozess"
-adb shell pidof $PKG | tee $LOGDIR/pid.txt
+adb_cmd shell pidof $PKG | tee $LOGDIR/pid.txt
 set -l pid_status $pipestatus[1]
 
 collect_logs
