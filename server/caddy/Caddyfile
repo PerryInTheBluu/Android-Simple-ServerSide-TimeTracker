@@ -1,0 +1,39 @@
+# Caddy Configuration for TimeTracker
+# Domain: time.ts.piusdischinger.com
+# Architecture:
+#   - Caddy is the Tailscale Node on the host/CT
+#   - API runs in Docker container on 127.0.0.1:8080
+#   - Static website is served directly by Caddy for maximum performance
+
+time.ts.piusdischinger.com {
+    # Tailscale TLS certificate (or automatic TLS)
+    tls {
+        get_certificate tailscale
+    }
+
+    # Enable compression for faster mobile and web loading
+    encode gzip zstd
+
+    # Route 1: Forward all API calls to the FastAPI backend
+    handle /api/* {
+        reverse_proxy 127.0.0.1:8080 {
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Forwarded-Proto {scheme}
+        }
+    }
+
+    # Route 2: Serve the static Single Page Application (HTML, JS, CSS)
+    handle {
+        root * /var/www/timetracker
+        file_server
+        try_files {path} /index.html
+    }
+
+    # Security headers
+    header {
+        X-Content-Type-Options nosniff
+        X-Frame-Options SAMEORIGIN
+        Referrer-Policy strict-origin-when-cross-origin
+    }
+}
