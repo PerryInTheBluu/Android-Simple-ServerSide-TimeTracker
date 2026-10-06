@@ -1,7 +1,9 @@
 """API routes for the time tracker server."""
 import csv
+import difflib
 import io
 import json
+import re
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 
@@ -424,7 +426,8 @@ def delete_time_entry(entry_id: str, db: Session = Depends(get_db), user_id: str
 # ---------------------------------------------------------------------------
 
 class TimerStartIn(BaseModel):
-    activity_id: str
+    activity_id: Optional[str] = None
+    activity_name: Optional[str] = None
     comment: Optional[str] = ""
     tags: Optional[str] = ""
     started_at: Optional[str] = None
@@ -433,6 +436,19 @@ class TimerStartIn(BaseModel):
 class TimerStopIn(BaseModel):
     entry_id: Optional[str] = None
     ended_at: Optional[str] = None
+
+
+class AssistIn(BaseModel):
+    text: str
+
+
+class AssistOut(BaseModel):
+    intent: str  # "start", "stop", "status", "unknown"
+    response: str
+    running: bool
+    activity_name: Optional[str] = None
+    duration_seconds: Optional[int] = None
+    entry: Optional[dict] = None
 
 
 @api_router.get("/timer/current")
@@ -460,9 +476,43 @@ def get_current_timer(db: Session = Depends(get_db), user_id: str = Depends(requ
 
 @api_router.post("/timer/start")
 def start_timer(body: TimerStartIn, db: Session = Depends(get_db), user_id: str = Depends(require_user)):
-    activity = db.query(Activity).filter(Activity.id == body.activity_id, Activity.user_id == user_id).first()
+    activity = None
+    if body.activity_id:
+        activity = db.query(Activity).filter(Activity.id == body.activity_id, Activity.user_id == user_id).first()
+    elif body.activity_name:
+        name_clean = body.activity_name.strip()
+        # 1. Exact match (case-insensitive)
+        activity = (
+            db.query(Activity)
+            .filter(
+                Activity.user_id == user_id,
+                Activity.deleted_at.is_(None),
+                func.lower(Activity.name) == name_clean.lower(),
+            )
+            .first()
+        )
+        if not activity:
+            all_acts = (
+                db.query(Activity)
+                .filter(Activity.user_id == user_id, Activity.deleted_at.is_(None), Activity.archived.is_(False))
+                .all()
+            )
+            # 2. Substring or prefix match
+            activity = next(
+                (a for a in all_acts if name_clean.lower() in a.name.lower() or a.name.lower() in name_clean.lower()),
+                None,
+            )
+            # 3. Fuzzy match
+            if not activity:
+                matches = difflib.get_close_matches(name_clean.lower(), [a.name.lower() for a in all_acts], n=1, cutoff=0.5)
+                if matches:
+                    activity = next((a for a in all_acts if a.name.lower() == matches[0]), None)
+    else:
+        raise HTTPException(status_code=400, detail="Either activity_id or activity_name must be provided")
+
     if activity is None:
         raise HTTPException(status_code=404, detail="Activity not found")
+
     now = utcnow()
     start_dt = parse_dt(body.started_at) if body.started_at else now
 
@@ -529,10 +579,161 @@ def stop_timer(body: Optional[TimerStopIn] = Body(default=None), db: Session = D
         entry.duration_seconds = max(0, int((_aware(stop_dt) - _aware(entry.started_at)).total_seconds()))
         entry.updated_at = now
         entry.sync_status = "synced"
-        stopped_entries.append(entry_out(entry))
+        data = entry_out(entry)
+        act = db.query(Activity).filter(Activity.id == entry.activity_id).first()
+        if act:
+            data["activity_name"] = act.name
+            data["activity"] = activity_out(act)
+        stopped_entries.append(data)
 
     db.commit()
     return {"running": False, "stopped": stopped_entries[0] if stopped_entries else None}
+
+
+# ---------------------------------------------------------------------------
+# Home Assistant Assist / Voice Control & Sensor
+# ---------------------------------------------------------------------------
+
+@api_router.get("/assist/status")
+def assist_status(db: Session = Depends(get_db), user_id: str = Depends(require_user)):
+    """Convenient endpoint for Home Assistant REST sensors."""
+    curr = get_current_timer(db=db, user_id=user_id)
+    if curr.get("running") and curr.get("entry"):
+        entry = curr["entry"]
+        act = entry.get("activity")
+        act_name = act.get("name") if act else "Aktiv"
+        dur_sec = entry.get("duration_seconds", 0)
+        return {
+            "running": True,
+            "state": "tracking",
+            "activity": act_name,
+            "duration_seconds": dur_sec,
+            "duration_minutes": max(0, dur_sec // 60),
+            "started_at": entry.get("started_at"),
+            "entry_id": entry.get("id"),
+        }
+    return {
+        "running": False,
+        "state": "idle",
+        "activity": None,
+        "duration_seconds": 0,
+        "duration_minutes": 0,
+        "started_at": None,
+        "entry_id": None,
+    }
+
+
+@api_router.post("/assist/process", response_model=AssistOut)
+def assist_process(body: AssistIn, db: Session = Depends(get_db), user_id: str = Depends(require_user)):
+    """Processes natural language voice/assist commands with fuzzy activity matching."""
+    raw = body.text.strip()
+    low = raw.lower()
+
+    # 1. Stop Intent
+    stop_triggers = ["stopp", "stop", "beende", "anhalt", "fertig", "aus", "pause beenden", "aufhören", "halt an"]
+    if any(t in low for t in stop_triggers) and not any(t in low for t in ["was ", "status", "wie lange"]):
+        stop_res = stop_timer(body=None, db=db, user_id=user_id)
+        stopped = stop_res.get("stopped")
+        if stopped:
+            act_name = stopped.get("activity_name") or "Aktivität"
+            dur_sec = stopped.get("duration_seconds") or 0
+            dur_min = max(1, dur_sec // 60)
+            return AssistOut(
+                intent="stop",
+                response=f"Tracking für {act_name} nach {dur_min} Minuten beendet.",
+                running=False,
+                activity_name=act_name,
+                duration_seconds=dur_sec,
+                entry=stopped,
+            )
+        return AssistOut(
+            intent="stop",
+            response="Aktuell läuft keine aktive Zeiterfassung zum Stoppen.",
+            running=False,
+        )
+
+    # 2. Status / Query Intent
+    query_triggers = ["was läuft", "was tracke", "status", "wie lange", "läuft gerade", "was mache ich", "aktuelle aktivität"]
+    if any(t in low for t in query_triggers) or low in ["was", "läuft was", "läuft noch was"]:
+        curr = get_current_timer(db=db, user_id=user_id)
+        if curr.get("running") and curr.get("entry"):
+            entry = curr["entry"]
+            act = entry.get("activity")
+            act_name = act.get("name") if act else "Unbekannt"
+            dur_sec = entry.get("duration_seconds", 0)
+            dur_min = max(0, dur_sec // 60)
+            return AssistOut(
+                intent="status",
+                response=f"Aktuell läuft seit {dur_min} Minuten die Aktivität {act_name}.",
+                running=True,
+                activity_name=act_name,
+                duration_seconds=dur_sec,
+                entry=entry,
+            )
+        return AssistOut(
+            intent="status",
+            response="Aktuell läuft keine Zeiterfassung.",
+            running=False,
+        )
+
+    # 3. Start Intent: Extract candidate activity text
+    candidate = re.sub(
+        r"^(bitte\s+)?(starte|tracke|beginne|logge|erfasse|mache|nimm|start|track)\s+(mal\s+)?(das\s+|die\s+|den\s+|ein\s+|eine\s+)?(tracking\s+(von|für)\s+|zeiterfassung\s+(von|für)\s+)?",
+        "",
+        low,
+        flags=re.IGNORECASE,
+    ).strip()
+    candidate = re.sub(r"^(die|das|der|den|ein|eine|für|von)\s+", "", candidate).strip()
+    candidate = candidate.rstrip(".!?,")
+
+    if not candidate:
+        return AssistOut(
+            intent="unknown",
+            response="Welche Aktivität möchtest du starten?",
+            running=False,
+        )
+
+    all_acts = (
+        db.query(Activity)
+        .filter(Activity.user_id == user_id, Activity.deleted_at.is_(None), Activity.archived.is_(False))
+        .all()
+    )
+    if not all_acts:
+        return AssistOut(
+            intent="unknown",
+            response="Es sind noch keine Aktivitäten im TimeTracker angelegt.",
+            running=False,
+        )
+
+    # A) Exact or case-insensitive match
+    matched = next((a for a in all_acts if a.name.lower() == candidate), None)
+
+    # B) Substring / prefix match
+    if not matched:
+        matched = next((a for a in all_acts if candidate in a.name.lower() or a.name.lower() in candidate), None)
+
+    # C) Fuzzy match using difflib
+    if not matched:
+        matches = difflib.get_close_matches(candidate, [a.name.lower() for a in all_acts], n=1, cutoff=0.45)
+        if matches:
+            matched = next((a for a in all_acts if a.name.lower() == matches[0]), None)
+
+    if matched:
+        start_res = start_timer(body=TimerStartIn(activity_id=matched.id), db=db, user_id=user_id)
+        return AssistOut(
+            intent="start",
+            response=f"Tracking für {matched.name} gestartet.",
+            running=True,
+            activity_name=matched.name,
+            entry=start_res.get("entry"),
+        )
+    else:
+        top_names = ", ".join(a.name for a in all_acts[:4])
+        return AssistOut(
+            intent="unknown",
+            response=f"Aktivität '{candidate}' wurde nicht gefunden. Verfügbar sind z. B.: {top_names}.",
+            running=False,
+        )
 
 
 

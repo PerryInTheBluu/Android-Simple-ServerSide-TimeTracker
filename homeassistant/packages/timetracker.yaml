@@ -1,0 +1,68 @@
+# Home Assistant TimeTracker Package
+# Speicherort in Home Assistant: config/packages/timetracker.yaml
+# Voraussetzung: In configuration.yaml muss 'homeassistant: packages: !include_dir_named packages' aktiviert sein.
+
+# ---------------------------------------------------------------------------
+# REST Sensoren (Aktueller Tracking-Status)
+# ---------------------------------------------------------------------------
+rest:
+  - resource: "https://time.ts.piusdischinger.com/api/assist/status"
+    scan_interval: 30
+    headers:
+      Authorization: !secret timetracker_token
+    sensor:
+      - name: "TimeTracker Status"
+        unique_id: timetracker_status
+        value_template: "{{ value_json.state }}"
+        icon: >
+          {% if value_json.running %}
+            mdi:timer-play-outline
+          {% else %}
+            mdi:timer-stop-outline
+          {% endif %}
+        attributes:
+          running: "{{ value_json.running }}"
+          activity: "{{ value_json.activity }}"
+          duration_minutes: "{{ value_json.duration_minutes }}"
+          duration_seconds: "{{ value_json.duration_seconds }}"
+          started_at: "{{ value_json.started_at }}"
+
+      - name: "TimeTracker Aktive Aktivität"
+        unique_id: timetracker_active_activity
+        value_template: "{{ value_json.activity | default('Keine', true) }}"
+        icon: mdi:briefcase-clock-outline
+
+      - name: "TimeTracker Laufzeit Minuten"
+        unique_id: timetracker_duration_minutes
+        value_template: "{{ value_json.duration_minutes | default(0, true) }}"
+        unit_of_measurement: "min"
+        icon: mdi:clock-outline
+
+# ---------------------------------------------------------------------------
+# REST Commands (Befehle an Server)
+# ---------------------------------------------------------------------------
+rest_command:
+  timetracker_process_voice:
+    url: "https://time.ts.piusdischinger.com/api/assist/process"
+    method: POST
+    headers:
+      Authorization: !secret timetracker_token
+      Content-Type: "application/json"
+    payload: >
+      {"text": "{{ text }}"}
+
+# ---------------------------------------------------------------------------
+# Intent Script (Sprachverarbeitung & TTS Antwort für Assist)
+# ---------------------------------------------------------------------------
+intent_script:
+  TimeTrackerAssist:
+    speech:
+      text: "{{ action_response['response'] }}"
+    action:
+      - service: rest_command.timetracker_process_voice
+        data:
+          text: "{{ command | default(trigger.sentence) }}"
+        response_variable: action_response
+      - service: homeassistant.update_entity
+        target:
+          entity_id: sensor.timetracker_status

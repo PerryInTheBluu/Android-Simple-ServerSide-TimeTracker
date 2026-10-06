@@ -1,0 +1,19 @@
+# Home Assistant Assist — TimeTracker Satzmuster (Deutsch)
+# Speicherort in Home Assistant: config/custom_sentences/de/timetracker.yaml
+
+language: "de"
+intents:
+  TimeTrackerAssist:
+    data:
+      - sentences:
+          - "[bitte] [starte|beginne] [das] [tracking|die zeiterfassung] [für|von] {command}"
+          - "[bitte] tracke [mal] [die|das|den] {command}"
+          - "[bitte] stoppe [das] [tracking|die zeiterfassung|die aktivität]"
+          - "[bitte] beende [das] [tracking|die zeiterfassung|die pause]"
+          - "was [läuft|wird] gerade [getrackt]?"
+          - "was läuft aktuell?"
+          - "wie lange läuft [das|die zeiterfassung] schon?"
+          - "status zeiterfassung"
+lists:
+  command:
+    wildcard: true
