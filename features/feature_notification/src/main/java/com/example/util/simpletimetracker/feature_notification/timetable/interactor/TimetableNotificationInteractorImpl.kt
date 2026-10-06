@@ -66,9 +66,14 @@ class TimetableNotificationInteractorImpl @Inject constructor(
                     if (override?.cancelled == true) return@forEach
                     val startMinutes = override?.startTime?.takeIf { it != 0 } ?: event.startTime
                     val endMinutes = override?.endTime?.takeIf { it != 0 } ?: event.endTime
-                    val midnight = day.atStartOfDay(zone).toInstant().toEpochMilli()
-                    val startTimestamp = midnight + startMinutes * MINUTE_MILLIS
-                    val endTimestamp = midnight + endMinutes * MINUTE_MILLIS
+                    val startTimestamp = day.atTime(startMinutes / 60, startMinutes % 60)
+                        .atZone(zone)
+                        .toInstant()
+                        .toEpochMilli()
+                    val endTimestamp = day.atTime(endMinutes / 60, endMinutes % 60)
+                        .atZone(zone)
+                        .toInstant()
+                        .toEpochMilli()
 
                     val preparationTrigger = startTimestamp - prepLead
                     if (preparationTrigger > now) {
@@ -115,9 +120,10 @@ class TimetableNotificationInteractorImpl @Inject constructor(
         val event = getEvent(eventId) ?: return
         ensureTodo(eventId, date, TimetableTodo.Type.PREPARATION)
         val startTime = parseDate(date)
-            .atStartOfDay(ZoneId.systemDefault())
+            .atTime(event.startTime / 60, event.startTime % 60)
+            .atZone(ZoneId.systemDefault())
             .toInstant()
-            .toEpochMilli() + event.startTime * MINUTE_MILLIS
+            .toEpochMilli()
         notificationManager.show(
             tag = notificationTag(TimetableTodo.Type.PREPARATION, eventId, date),
             title = resourceRepo.getString(R.string.timetable_notification_prep_title, event.name),
@@ -136,9 +142,10 @@ class TimetableNotificationInteractorImpl @Inject constructor(
         val event = getEvent(eventId) ?: return
         ensureTodo(eventId, date, TimetableTodo.Type.FOLLOW_UP)
         val endTime = parseDate(date)
-            .atStartOfDay(ZoneId.systemDefault())
+            .atTime(event.endTime / 60, event.endTime % 60)
+            .atZone(ZoneId.systemDefault())
             .toInstant()
-            .toEpochMilli() + event.endTime * MINUTE_MILLIS
+            .toEpochMilli()
         notificationManager.show(
             tag = notificationTag(TimetableTodo.Type.FOLLOW_UP, eventId, date),
             title = resourceRepo.getString(R.string.timetable_notification_follow_title, event.name),

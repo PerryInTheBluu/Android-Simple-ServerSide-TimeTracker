@@ -54,6 +54,20 @@ class TimetableViewDataMapper @Inject constructor() {
         return calendar.timeInMillis
     }
 
+    /**
+     * Converts minute of day (0..1439) on the day of the given midnight into an absolute
+     * timestamp, taking daylight saving time (DST) transitions into account.
+     */
+    fun timestampOf(midnight: Long, minutesOfDay: Int): Long {
+        val calendar = Calendar.getInstance()
+        calendar.timeInMillis = midnight
+        calendar.set(Calendar.HOUR_OF_DAY, minutesOfDay / 60)
+        calendar.set(Calendar.MINUTE, minutesOfDay % 60)
+        calendar.set(Calendar.SECOND, 0)
+        calendar.set(Calendar.MILLISECOND, 0)
+        return calendar.timeInMillis
+    }
+
     fun dateString(timestamp: Long): String {
         return SimpleDateFormat("yyyy-MM-dd", Locale.US).format(Date(timestamp))
     }

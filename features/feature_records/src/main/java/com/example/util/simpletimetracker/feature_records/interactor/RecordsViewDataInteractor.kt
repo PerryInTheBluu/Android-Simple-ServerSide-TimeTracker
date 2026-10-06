@@ -556,9 +556,9 @@ class RecordsViewDataInteractor @Inject constructor(
                     isDarkTheme,
                 )
 
-            // Absolute timestamps for the attendance check.
-            val slotStartAbs = midnight + startTime * minuteInMillis
-            val slotEndAbs = midnight + endTime * minuteInMillis
+            // Absolute timestamps for the attendance check (DST-safe).
+            val slotStartAbs = timetableViewDataMapper.timestampOf(midnight, startTime)
+            val slotEndAbs = timetableViewDataMapper.timestampOf(midnight, endTime)
             val attended = event.activityTypeId != null && (
                 records.any { record ->
                     record.typeId == event.activityTypeId &&

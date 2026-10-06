@@ -463,13 +463,19 @@ class RecordsViewModel @Inject constructor(
             pendingTimeChange?.third?.plus(60)
                 ?: (existing?.endTime?.takeIf { it != 0 } ?: event.endTime)
         }
-        val base = LocalDate.parse(date).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
+        val hour = (minutes / 60).coerceIn(0, 23)
+        val min = (minutes % 60).coerceIn(0, 59)
+        val timestamp = LocalDate.parse(date)
+            .atTime(hour, min)
+            .atZone(ZoneId.systemDefault())
+            .toInstant()
+            .toEpochMilli()
         val tag = (if (isStart) TAG_TIME_START else TAG_TIME_END) + eventId + "_" + date
         router.navigate(
             DateTimeDialogParams(
                 tag = tag,
                 type = DateTimeDialogType.TIME,
-                timestamp = base + minutes * 60_000L,
+                timestamp = timestamp,
                 useMilitaryTime = prefsInteractor.getUseMilitaryTimeFormat(),
             ),
         )
