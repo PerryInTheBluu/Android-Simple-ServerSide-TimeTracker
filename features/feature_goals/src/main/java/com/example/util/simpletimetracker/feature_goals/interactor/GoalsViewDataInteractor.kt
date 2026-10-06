@@ -155,9 +155,20 @@ class GoalsViewDataInteractor @Inject constructor(
     private suspend fun getSubjectGoalRows(): List<ViewHolderType> {
         val rows = subjectGoalsViewDataInteractor.getSubjectGoals()
         if (rows.isEmpty()) return emptyList()
-        return listOf(
-            HintViewData(resourceRepo.getString(R.string.subject_goals_title)) as ViewHolderType,
-        ) + rows
+        val summary = subjectGoalsViewDataInteractor.getSemesterSummary()
+        val titleRow = HintViewData(resourceRepo.getString(R.string.subject_goals_title)) as ViewHolderType
+        val summaryRows = if (summary != null) {
+            listOf(
+                HintBigViewData(
+                    text = summary,
+                    infoIconVisible = true,
+                    closeIconVisible = false,
+                ) as ViewHolderType,
+            )
+        } else {
+            emptyList()
+        }
+        return listOf(titleRow) + summaryRows + rows
     }
 
     private suspend fun getViewDataForRange(

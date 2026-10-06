@@ -72,6 +72,52 @@ class SubjectGoalsViewDataInteractor @Inject constructor(
         }
     }
 
+    suspend fun getSemesterSummary(): String? {
+        val uniTypeIds = getUniTypeIds()
+        if (uniTypeIds.isEmpty()) return null
+
+        val goals = subjectGoalRepo.getAll().filter { it.activityTypeId in uniTypeIds && it.targetSeconds > 0 }
+        if (goals.isEmpty()) return null
+
+        var totalTargetSeconds = 0L
+        var totalTrackedSeconds = 0L
+        var totalTargetEcts = 0.0
+        var totalAchievedEcts = 0.0
+
+        goals.forEach { goal ->
+            totalTargetSeconds += goal.targetSeconds
+            val tracked = trackedSeconds(goal.activityTypeId)
+            totalTrackedSeconds += tracked
+            val ects = goal.ects ?: (goal.targetSeconds / (ECTS_HOURS_PER_POINT * 3600.0))
+            totalTargetEcts += ects
+            val fraction = (tracked.toDouble() / goal.targetSeconds).coerceIn(0.0, 1.0)
+            totalAchievedEcts += ects * fraction
+        }
+
+        if (totalTargetSeconds <= 0L) return null
+
+        val totalPercent = (totalTrackedSeconds * 100 / totalTargetSeconds).toInt().coerceIn(0, 100)
+        val achievedEctsFormatted = if (totalAchievedEcts == Math.floor(totalAchievedEcts)) {
+            totalAchievedEcts.toLong().toString()
+        } else {
+            String.format(Locale.US, "%.1f", totalAchievedEcts)
+        }
+        val targetEctsFormatted = if (totalTargetEcts == Math.floor(totalTargetEcts)) {
+            totalTargetEcts.toLong().toString()
+        } else {
+            String.format(Locale.US, "%.1f", totalTargetEcts)
+        }
+
+        return resourceRepo.getString(
+            R.string.semester_ects_summary,
+            achievedEctsFormatted,
+            targetEctsFormatted,
+            totalPercent,
+            formatHours(totalTrackedSeconds),
+            formatHours(totalTargetSeconds),
+        )
+    }
+
     suspend fun getSubjectGoal(activityTypeId: Long): SubjectGoal? {
         return subjectGoalRepo.get(activityTypeId)
     }

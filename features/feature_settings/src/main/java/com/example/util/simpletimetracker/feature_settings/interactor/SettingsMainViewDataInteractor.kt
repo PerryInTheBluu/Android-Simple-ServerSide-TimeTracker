@@ -87,8 +87,39 @@ class SettingsMainViewDataInteractor @Inject constructor(
             block = SettingsBlock.TimetableImport,
             title = resourceRepo.getString(R.string.settings_timetable_import),
             subtitle = resourceRepo.getString(R.string.settings_timetable_import_description),
-            dividerIsVisible = false,
+            dividerIsVisible = true,
         )
+
+        val subscriptions = prefsInteractor.getCalendarSubscriptions()
+        val activeSub = subscriptions.firstOrNull { it.enabled }
+        val subscriptionSubtitle = if (activeSub != null) {
+            val lastSyncedText = if (activeSub.lastFetched > 0L) {
+                timeMapper.formatDateTime(activeSub.lastFetched, prefsInteractor.getUseMilitaryTimeFormat(), false)
+            } else ""
+            if (lastSyncedText.isNotEmpty()) {
+                "${activeSub.name} ($lastSyncedText)"
+            } else {
+                activeSub.name
+            }
+        } else {
+            resourceRepo.getString(R.string.settings_timetable_subscription_none)
+        }
+
+        result += SettingsTextViewData(
+            block = SettingsBlock.TimetableSubscription,
+            title = resourceRepo.getString(R.string.settings_timetable_subscription_title),
+            subtitle = subscriptionSubtitle,
+            dividerIsVisible = activeSub != null,
+        )
+
+        if (activeSub != null) {
+            result += SettingsTextViewData(
+                block = SettingsBlock.TimetableSubscriptionSyncNow,
+                title = resourceRepo.getString(R.string.settings_timetable_subscription_sync_now),
+                subtitle = "",
+                dividerIsVisible = false,
+            )
+        }
 
         val firstDayOfWeekViewData = loadFirstDayOfWeekViewData()
         result += SettingsSpinnerViewData(

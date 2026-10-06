@@ -5,6 +5,7 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.example.util.simpletimetracker.data_sync.engine.SyncEngine
+import com.example.util.simpletimetracker.domain.timetable.interactor.CalendarSubscriptionSyncInteractor
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 
@@ -18,11 +19,15 @@ class SyncWorker @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted workerParams: WorkerParameters,
     private val syncEngine: SyncEngine,
+    private val calendarSubscriptionSyncInteractor: CalendarSubscriptionSyncInteractor,
 ) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result {
         return try {
             syncEngine.syncNow()
+            runCatching {
+                calendarSubscriptionSyncInteractor.syncAll()
+            }
             Result.success()
         } catch (e: Exception) {
             if (runAttemptCount < MAX_RETRIES) Result.retry() else Result.failure()

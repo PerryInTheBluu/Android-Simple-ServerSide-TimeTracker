@@ -8,6 +8,8 @@ enum class SettingsBlock {
     Categories,
     Archive,
     TimetableImport,
+    TimetableSubscription,
+    TimetableSubscriptionSyncNow,
     MainBottom,
     SyncTop,
     SyncServer,

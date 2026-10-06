@@ -71,6 +71,14 @@ class SettingsViewModel @Inject constructor(
         syncDelegate.onSyncServerSaved(url, username, password)
     }
 
+    fun onCalendarSubscriptionSaved(id: String, name: String, url: String, color: String, enabled: Boolean) = viewModelScope.launch {
+        mainDelegate.onCalendarSubscriptionSaved(id, name, url, color, enabled)
+    }
+
+    fun onCalendarSubscriptionDeleted(id: String) = viewModelScope.launch {
+        mainDelegate.onCalendarSubscriptionDeleted(id)
+    }
+
     fun onCustomRangeSelected(range: Range) = viewModelScope.launch {
         additionalDelegate.onCustomRangeSelected(range)
     }

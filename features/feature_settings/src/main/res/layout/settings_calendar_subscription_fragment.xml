@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?appDialogBackground"
+    android:orientation="vertical">
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="8dp"
+        android:src="@drawable/dialog_arrow"
+        android:tint="?appContrastColor" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        style="@style/DialogTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="10dp"
+        android:text="@string/settings_calendar_subscription_dialog_title" />
+
+    <View
+        style="@style/EditScreenDivider"
+        android:layout_width="match_parent"
+        android:layout_marginTop="8dp" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/inputCalendarSubscriptionName"
+        style="@style/ChangeItemInputField"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="10dp"
+        android:layout_marginTop="8dp"
+        android:hint="@string/settings_calendar_subscription_name">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etCalendarSubscriptionName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:imeOptions="actionNext"
+            android:inputType="textCapWords"
+            android:maxLines="1"
+            android:textColor="?appTextPrimaryColor"
+            tools:text="Uni Stundenplan" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/inputCalendarSubscriptionUrl"
+        style="@style/ChangeItemInputField"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="10dp"
+        android:layout_marginTop="8dp"
+        android:hint="@string/settings_calendar_subscription_url"
+        app:errorIconDrawable="@null">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etCalendarSubscriptionUrl"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:imeOptions="actionDone"
+            android:inputType="textUri"
+            android:maxLines="1"
+            android:textColor="?appTextPrimaryColor"
+            tools:text="https://cloud.uni.de/remote.php/dav/calendars/stundenplan.ics" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <androidx.appcompat.widget.AppCompatCheckBox
+        android:id="@+id/cbCalendarSubscriptionEnabled"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="10dp"
+        android:layout_marginTop="8dp"
+        android:checked="true"
+        android:text="@string/settings_calendar_subscription_enabled"
+        android:textColor="?appTextPrimaryColor" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnCalendarSubscriptionSave"
+        style="@style/AppButtonActive"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="8dp"
+        android:layout_marginTop="12dp"
+        android:paddingHorizontal="0dp"
+        android:text="@string/settings_calendar_subscription_save" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnCalendarSubscriptionDelete"
+        style="@style/AppButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="8dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="8dp"
+        android:paddingHorizontal="0dp"
+        android:text="@string/settings_calendar_subscription_delete"
+        android:visibility="gone"
+        tools:visibility="visible" />
+
+</androidx.appcompat.widget.LinearLayoutCompat>

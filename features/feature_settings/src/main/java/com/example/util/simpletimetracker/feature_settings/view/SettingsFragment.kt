@@ -25,6 +25,7 @@ import com.example.util.simpletimetracker.feature_base_adapter.dayOfWeek.DayOfWe
 import com.example.util.simpletimetracker.feature_settings.api.SettingsBlock
 import com.example.util.simpletimetracker.feature_settings.model.SettingsOptionsBlockClickListener
 import com.example.util.simpletimetracker.feature_settings.syncServer.model.SyncServerDialogListener
+import com.example.util.simpletimetracker.feature_settings.calendarSubscription.model.CalendarSubscriptionDialogListener
 import com.example.util.simpletimetracker.feature_settings.viewModel.SettingsViewModel
 import com.example.util.simpletimetracker.feature_settings.views.getSettingsAdapterDelegates
 import com.example.util.simpletimetracker.navigation.params.screen.DataExportSettingsResult
@@ -44,7 +45,8 @@ class SettingsFragment :
     TypesSelectionDialogListener,
     OptionsListDialogListener,
     SettingsOptionsBlockClickListener,
-    SyncServerDialogListener {
+    SyncServerDialogListener,
+    CalendarSubscriptionDialogListener {
 
     override val inflater: (LayoutInflater, ViewGroup?, Boolean) -> Binding =
         Binding::inflate
@@ -138,6 +140,14 @@ class SettingsFragment :
 
     override fun onSyncServerSaved(url: String, username: String, password: String) {
         viewModel.onSyncServerSaved(url, username, password)
+    }
+
+    override fun onCalendarSubscriptionSaved(id: String, name: String, url: String, color: String, enabled: Boolean) {
+        viewModel.onCalendarSubscriptionSaved(id, name, url, color, enabled)
+    }
+
+    override fun onCalendarSubscriptionDeleted(id: String) {
+        viewModel.onCalendarSubscriptionDeleted(id)
     }
 
     override fun getOptionsContent(): LiveData<List<ViewHolderType>> {

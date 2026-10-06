@@ -16,6 +16,11 @@ import com.example.util.simpletimetracker.navigation.Router
 import com.example.util.simpletimetracker.navigation.params.screen.ArchiveParams
 import com.example.util.simpletimetracker.navigation.params.screen.CategoriesParams
 import com.example.util.simpletimetracker.navigation.params.screen.StandardDialogParams
+import com.example.util.simpletimetracker.domain.timetable.interactor.CalendarSubscriptionSyncInteractor
+import com.example.util.simpletimetracker.domain.timetable.model.CalendarSubscription
+import com.example.util.simpletimetracker.domain.notifications.interactor.LocalDataChangedBus
+import com.example.util.simpletimetracker.navigation.params.screen.CalendarSubscriptionDialogParams
+import com.example.util.simpletimetracker.navigation.params.notification.ToastParams
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -29,6 +34,7 @@ class SettingsMainViewModelDelegate @Inject constructor(
     private val settingsMainViewDataInteractor: SettingsMainViewDataInteractor,
     private val settingsOptionsUpdateInteractor: SettingsOptionsUpdateInteractor,
     private val settingsFileWorkDelegate: SettingsFileWorkDelegate,
+    private val calendarSubscriptionSyncInteractor: CalendarSubscriptionSyncInteractor,
     private val resourceRepo: ResourceRepo,
 ) : SettingsDelegate, ViewModelDelegate() {
 
@@ -53,6 +59,8 @@ class SettingsMainViewModelDelegate @Inject constructor(
             SettingsBlock.Archive -> onArchiveClick()
             SettingsBlock.AllowMultitasking -> onAllowMultitaskingClicked()
             SettingsBlock.TimetableImport -> onTimetableImportClick()
+            SettingsBlock.TimetableSubscription -> onTimetableSubscriptionClick()
+            SettingsBlock.TimetableSubscriptionSyncNow -> onTimetableSubscriptionSyncNow()
             else -> {
                 // Do nothing
             }
@@ -125,6 +133,90 @@ class SettingsMainViewModelDelegate @Inject constructor(
             languageInteractor.setLanguage(newLanguage)
             parent?.updateContent()
             router.restartApp()
+        }
+    }
+
+    private fun onTimetableSubscriptionClick() {
+        delegateScope.launch {
+            val subscriptions = prefsInteractor.getCalendarSubscriptions()
+            val active = subscriptions.firstOrNull { it.enabled } ?: subscriptions.firstOrNull()
+            router.navigate(
+                CalendarSubscriptionDialogParams(
+                    id = active?.id.orEmpty(),
+                    initialName = active?.name.orEmpty(),
+                    initialUrl = active?.url.orEmpty(),
+                    initialColor = active?.color.orEmpty(),
+                    isEnabled = active?.enabled ?: true,
+                ),
+            )
+        }
+    }
+
+    private fun onTimetableSubscriptionSyncNow() {
+        delegateScope.launch {
+            val results = calendarSubscriptionSyncInteractor.syncAll()
+            val firstSuccess = results.filterIsInstance<CalendarSubscriptionSyncInteractor.SyncResult.Success>().firstOrNull()
+            val firstError = results.filterIsInstance<CalendarSubscriptionSyncInteractor.SyncResult.Error>().firstOrNull()
+
+            if (firstSuccess != null) {
+                router.show(
+                    ToastParams(
+                        message = resourceRepo.getString(
+                            R.string.settings_timetable_subscription_sync_success,
+                            firstSuccess.importResult.eventsAdded,
+                            firstSuccess.importResult.overridesAdded,
+                        ),
+                    ),
+                )
+                LocalDataChangedBus.publish()
+            } else if (firstError != null) {
+                router.show(
+                    ToastParams(
+                        message = resourceRepo.getString(
+                            R.string.settings_timetable_subscription_sync_error,
+                            firstError.error,
+                        ),
+                    ),
+                )
+            }
+            parent?.updateContent()
+        }
+    }
+
+    fun onCalendarSubscriptionSaved(id: String, name: String, url: String, color: String, enabled: Boolean) {
+        delegateScope.launch {
+            val sub = CalendarSubscription(
+                id = id,
+                name = name,
+                url = url,
+                color = color,
+                enabled = enabled,
+            )
+            prefsInteractor.addCalendarSubscription(sub)
+            if (enabled) {
+                val result = calendarSubscriptionSyncInteractor.syncSubscription(sub, clearExisting = false)
+                if (result is CalendarSubscriptionSyncInteractor.SyncResult.Success) {
+                    router.show(
+                        ToastParams(
+                            message = resourceRepo.getString(
+                                R.string.settings_timetable_subscription_sync_success,
+                                result.importResult.eventsAdded,
+                                result.importResult.overridesAdded,
+                            ),
+                        ),
+                    )
+                }
+                LocalDataChangedBus.publish()
+            }
+            parent?.updateContent()
+        }
+    }
+
+    fun onCalendarSubscriptionDeleted(id: String) {
+        delegateScope.launch {
+            prefsInteractor.removeCalendarSubscription(id)
+            LocalDataChangedBus.publish()
+            parent?.updateContent()
         }
     }
 

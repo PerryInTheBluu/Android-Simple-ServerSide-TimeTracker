@@ -472,6 +472,11 @@
         android:label="SyncServerDialogFragment"
         tools:layout="@layout/settings_sync_server_fragment" />
     <dialog
+        android:id="@+id/calendarSubscriptionDialogFragment"
+        android:name="com.example.util.simpletimetracker.feature_settings.calendarSubscription.view.CalendarSubscriptionDialogFragment"
+        android:label="CalendarSubscriptionDialogFragment"
+        tools:layout="@layout/settings_calendar_subscription_fragment" />
+    <dialog
         android:id="@+id/optionsListDialogFragment"
         android:name="com.example.util.simpletimetracker.feature_dialogs.optionsDialog.OptionsListDialogFragment"
         android:label="OptionsListDialogFragment"

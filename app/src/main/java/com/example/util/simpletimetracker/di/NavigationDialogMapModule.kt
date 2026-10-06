@@ -26,12 +26,14 @@ import com.example.util.simpletimetracker.feature_settings.customizeOptionsMenu.
 import com.example.util.simpletimetracker.feature_settings.partialRestoreSelection.model.PartialRestoreSelectionDialogParams
 import com.example.util.simpletimetracker.feature_settings.partialRestoreSelection.view.PartialRestoreSelectionFragment
 import com.example.util.simpletimetracker.feature_settings.syncServer.view.SyncServerDialogFragment
+import com.example.util.simpletimetracker.feature_settings.calendarSubscription.view.CalendarSubscriptionDialogFragment
 import com.example.util.simpletimetracker.feature_statistics_detail.settings.view.StatisticsTagValuesSettingsDialogFragment
 import com.example.util.simpletimetracker.navigation.NavigationData
 import com.example.util.simpletimetracker.navigation.bundleCreator.BundleCreator
 import com.example.util.simpletimetracker.navigation.bundleCreator.bundleCreatorDelegate
 import com.example.util.simpletimetracker.navigation.params.screen.ArchiveDialogParams
 import com.example.util.simpletimetracker.navigation.params.screen.BackupOptionsParams
+import com.example.util.simpletimetracker.navigation.params.screen.CalendarSubscriptionDialogParams
 import com.example.util.simpletimetracker.navigation.params.screen.CardOrderDialogParams
 import com.example.util.simpletimetracker.navigation.params.screen.CardSizeDialogParams
 import com.example.util.simpletimetracker.navigation.params.screen.ChartFilterDialogParams
@@ -88,6 +90,16 @@ class NavigationDialogMapModule {
         return NavigationData(
             R.id.syncServerDialogFragment,
             bundleCreatorDelegate(SyncServerDialogFragment::createBundle),
+        )
+    }
+
+    @IntoMap
+    @Provides
+    @ScreenKey(CalendarSubscriptionDialogParams::class)
+    fun calendarSubscriptionDialog(): NavigationData {
+        return NavigationData(
+            R.id.calendarSubscriptionDialogFragment,
+            bundleCreatorDelegate(CalendarSubscriptionDialogFragment::createBundle),
         )
     }
 

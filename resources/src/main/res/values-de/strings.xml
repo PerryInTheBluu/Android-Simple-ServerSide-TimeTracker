@@ -808,4 +808,19 @@ Beispiel:<br/>
     <string name="wear_settings_title">Einstellungen</string>
     <string name="wear_settings_title_show_compact_list">Kompakte Liste anzeigen</string>
 
+    <!--  Calendar Subscriptions  -->
+    <string name="settings_timetable_subscription_title">Kalender-Abonnement (WebDAV / ICS)</string>
+    <string name="settings_timetable_subscription_none">Kein Abonnement eingerichtet</string>
+    <string name="settings_timetable_subscription_sync_now">Kalender-Abo jetzt synchronisieren</string>
+    <string name="settings_timetable_subscription_sync_success">Kalender synchronisiert: %1$d Termine, %2$d Ausnahmen</string>
+    <string name="settings_timetable_subscription_sync_error">Kalender-Synchronisation fehlgeschlagen: %s</string>
+    <string name="settings_calendar_subscription_dialog_title">WebDAV / ICS Kalender-Abo</string>
+    <string name="settings_calendar_subscription_name">Bezeichnung (z. B. Uni Stundenplan)</string>
+    <string name="settings_calendar_subscription_url">Kalender-URL (WebDAV, Nextcloud oder webcal)</string>
+    <string name="settings_calendar_subscription_enabled">Abonnement aktiv</string>
+    <string name="settings_calendar_subscription_save">Speichern</string>
+    <string name="settings_calendar_subscription_delete">Löschen</string>
+    <string name="settings_calendar_subscription_invalid_url">Ungültige URL (muss mit http, https oder webcal beginnen)</string>
+    <string name="semester_ects_summary">Semester-Fortschritt: %1$s / %2$s ECTS (%3$d%%) • %4$s / %5$s</string>
+
 </resources>
