@@ -25,6 +25,12 @@ class Handler(BaseHTTPRequestHandler):
     def log_message(self, fmt, *args):  # quieter console
         pass
 
+    def do_HEAD(self):
+        if self.path.startswith("/api/"):
+            self.proxy("HEAD")
+        else:
+            self.serve_file(self.path, write_body=False)
+
     def do_GET(self):
         if self.path.startswith("/api/"):
             self.proxy("GET")
@@ -49,8 +55,7 @@ class Handler(BaseHTTPRequestHandler):
         else:
             self.send_error(404)
 
-
-    def serve_file(self, path):
+    def serve_file(self, path, write_body=True):
         if path in ("/", "/index.html"):
             name = "index.html"
         else:
@@ -67,7 +72,8 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("Content-Length", str(len(body)))
         self.send_header("Cache-Control", "no-store")
         self.end_headers()
-        self.wfile.write(body)
+        if write_body:
+            self.wfile.write(body)
 
     def proxy(self, method):
         length = int(self.headers.get("Content-Length") or 0)
