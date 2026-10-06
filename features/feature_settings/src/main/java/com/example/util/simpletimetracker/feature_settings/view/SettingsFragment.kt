@@ -46,7 +46,8 @@ class SettingsFragment :
     OptionsListDialogListener,
     SettingsOptionsBlockClickListener,
     SyncServerDialogListener,
-    CalendarSubscriptionDialogListener {
+    CalendarSubscriptionDialogListener,
+    com.example.util.simpletimetracker.feature_settings.syncConflicts.model.SyncConflictsDialogListener {
 
     override val inflater: (LayoutInflater, ViewGroup?, Boolean) -> Binding =
         Binding::inflate
@@ -148,6 +149,10 @@ class SettingsFragment :
 
     override fun onCalendarSubscriptionDeleted(id: String) {
         viewModel.onCalendarSubscriptionDeleted(id)
+    }
+
+    override fun onSyncConflictsCleared() {
+        viewModel.onSyncConflictsCleared()
     }
 
     override fun getOptionsContent(): LiveData<List<ViewHolderType>> {

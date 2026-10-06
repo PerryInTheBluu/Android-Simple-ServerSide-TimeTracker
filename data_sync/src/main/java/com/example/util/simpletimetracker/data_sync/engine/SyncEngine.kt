@@ -160,6 +160,10 @@ class SyncEngine @Inject constructor(
 
     suspend fun clearConflicts() = syncConflictDao.clear()
 
+    suspend fun getConflicts(): List<SyncConflictDBO> = syncConflictDao.getAll()
+
+    suspend fun getConflictsCount(): Int = syncConflictDao.count()
+
     private suspend fun pushLocalChanges() {
         val mappings = loadMappings()
         val candidates = buildCandidates(mappings)

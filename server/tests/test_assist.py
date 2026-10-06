@@ -107,3 +107,52 @@ def test_assist_nlp_flow():
     assert res.status_code == 200
     assert res.json()["running"] is False
     assert res.json()["state"] == "idle"
+
+
+def test_assist_mqtt_discovery():
+    client = TestClient(app)
+    token = get_token(client)
+    headers = {"Authorization": f"Bearer {token}"}
+
+    res = client.get("/api/assist/mqtt_discovery", headers=headers)
+    assert res.status_code == 200
+    data = res.json()
+    assert "device" in data
+    assert data["device"]["identifiers"] == ["timetracker_server"]
+    assert "configs" in data
+    configs = data["configs"]
+    assert "homeassistant/sensor/timetracker_status/config" in configs
+    assert "homeassistant/sensor/timetracker_activity/config" in configs
+    assert "homeassistant/sensor/timetracker_duration_minutes/config" in configs
+    assert data["state_topic"] == "timetracker/state"
+
+
+def test_websocket_events():
+    client = TestClient(app)
+    token = get_token(client)
+
+    # 1. Reject without token
+    try:
+        with client.websocket_connect("/api/ws") as ws:
+            pass
+        assert False, "Should have been closed without token"
+    except Exception:
+        pass  # Expected 4003 or connection refused
+
+    # 2. Connect with token
+    with client.websocket_connect(f"/api/ws?token={token}") as ws:
+        # Initial greeting event
+        init_data = ws.receive_json()
+        assert init_data["event"] == "connected"
+        assert "status" in init_data
+
+        # Ping-pong test
+        ws.send_text('{"action": "ping"}')
+        pong_data = ws.receive_json()
+        assert pong_data["event"] == "pong"
+
+        # Query status
+        ws.send_text('{"action": "status"}')
+        status_data = ws.receive_json()
+        assert status_data["event"] == "status"
+        assert "running" in status_data["data"]

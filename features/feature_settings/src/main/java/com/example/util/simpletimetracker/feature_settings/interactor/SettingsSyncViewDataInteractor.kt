@@ -1,6 +1,7 @@
 package com.example.util.simpletimetracker.feature_settings.interactor
 
 import com.example.util.simpletimetracker.core.repo.ResourceRepo
+import com.example.util.simpletimetracker.data_sync.db.SyncConflictDao
 import com.example.util.simpletimetracker.data_sync.engine.SyncStatus
 import com.example.util.simpletimetracker.data_sync.keystore.SyncCredentialStore
 import com.example.util.simpletimetracker.feature_base_adapter.ViewHolderType
@@ -18,6 +19,7 @@ import javax.inject.Inject
 class SettingsSyncViewDataInteractor @Inject constructor(
     private val resourceRepo: ResourceRepo,
     private val credentialStore: SyncCredentialStore,
+    private val syncConflictDao: SyncConflictDao,
 ) {
 
     suspend fun execute(status: SyncStatus): List<ViewHolderType> = withContext(Dispatchers.IO) {
@@ -94,11 +96,18 @@ class SettingsSyncViewDataInteractor @Inject constructor(
             textColor = SettingsTextColor.Success,
         )
 
+        val conflictsCount = syncConflictDao.count()
+        val conflictsSubtitle = if (conflictsCount > 0) {
+            resourceRepo.getString(resourcesR.string.settings_sync_conflicts_count, conflictsCount)
+        } else {
+            resourceRepo.getString(resourcesR.string.settings_sync_conflicts_none)
+        }
+
         result += SettingsTextViewData(
             block = SettingsBlock.SyncConflicts,
             title = resourceRepo.getString(resourcesR.string.settings_sync_conflicts),
-            subtitle = resourceRepo.getString(resourcesR.string.settings_sync_conflicts_unavailable),
-            layoutIsClickable = false,
+            subtitle = conflictsSubtitle,
+            layoutIsClickable = true,
         )
 
         result += SettingsBottomViewData(

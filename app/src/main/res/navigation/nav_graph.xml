@@ -477,6 +477,11 @@
         android:label="CalendarSubscriptionDialogFragment"
         tools:layout="@layout/settings_calendar_subscription_fragment" />
     <dialog
+        android:id="@+id/syncConflictsDialogFragment"
+        android:name="com.example.util.simpletimetracker.feature_settings.syncConflicts.view.SyncConflictsDialogFragment"
+        android:label="SyncConflictsDialogFragment"
+        tools:layout="@layout/settings_sync_conflicts_fragment" />
+    <dialog
         android:id="@+id/optionsListDialogFragment"
         android:name="com.example.util.simpletimetracker.feature_dialogs.optionsDialog.OptionsListDialogFragment"
         android:label="OptionsListDialogFragment"

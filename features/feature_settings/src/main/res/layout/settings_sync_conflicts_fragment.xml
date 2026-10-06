@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?appDialogBackground"
+    android:orientation="vertical">
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="8dp"
+        android:src="@drawable/dialog_arrow"
+        android:tint="?appContrastColor" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        style="@style/DialogTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="10dp"
+        android:text="@string/settings_sync_conflicts_title" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="10dp"
+        android:layout_marginTop="2dp"
+        android:text="@string/settings_sync_conflicts_subtitle"
+        android:textColor="?appContrastColor"
+        android:textSize="12sp" />
+
+    <View
+        style="@style/EditScreenDivider"
+        android:layout_width="match_parent"
+        android:layout_marginTop="8dp" />
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
+
+        <androidx.appcompat.widget.LinearLayoutCompat
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingVertical="8dp">
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvSyncConflictsEmpty"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginVertical="32dp"
+                android:gravity="center"
+                android:text="@string/settings_sync_conflicts_empty"
+                android:textColor="?appTextHintColor"
+                android:textSize="14sp"
+                android:visibility="gone"
+                tools:visibility="visible" />
+
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:id="@+id/llSyncConflictsList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+
+        </androidx.appcompat.widget.LinearLayoutCompat>
+
+    </androidx.core.widget.NestedScrollView>
+
+    <View
+        style="@style/EditScreenDivider"
+        android:layout_width="match_parent"
+        android:layout_marginVertical="4dp" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnSyncConflictsClear"
+        style="@style/AppButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="8dp"
+        android:layout_marginTop="4dp"
+        android:paddingHorizontal="0dp"
+        android:text="@string/settings_sync_conflicts_clear" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnSyncConflictsClose"
+        style="@style/AppButtonActive"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="8dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="8dp"
+        android:paddingHorizontal="0dp"
+        android:text="@string/settings_sync_conflicts_close" />
+
+</androidx.appcompat.widget.LinearLayoutCompat>

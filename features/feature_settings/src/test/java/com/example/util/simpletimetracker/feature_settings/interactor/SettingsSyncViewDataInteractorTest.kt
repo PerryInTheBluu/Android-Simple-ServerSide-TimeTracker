@@ -21,19 +21,22 @@ class SettingsSyncViewDataInteractorTest {
 
     private val resourceRepo: ResourceRepo = mock()
     private val credentialStore: SyncCredentialStore = mock()
+    private val syncConflictDao: com.example.util.simpletimetracker.data_sync.db.SyncConflictDao = mock()
 
     private val interactor = SettingsSyncViewDataInteractor(
         resourceRepo = resourceRepo,
         credentialStore = credentialStore,
+        syncConflictDao = syncConflictDao,
     )
 
     private val readThreads = mutableSetOf<String>()
 
     @Before
-    fun setUp() {
+    fun setUp() = runTest {
         Dispatchers.setMain(Dispatchers.Unconfined)
         whenever(resourceRepo.getString(any<Int>())).thenReturn("")
         whenever(resourceRepo.getString(any<Int>(), any())).thenReturn("")
+        whenever(syncConflictDao.count()).thenReturn(0)
         whenever(credentialStore.serverUrl).thenAnswer {
             readThreads.add(Thread.currentThread().name)
             ""
@@ -81,5 +84,18 @@ class SettingsSyncViewDataInteractorTest {
         val syncNowBlock = data.filterIsInstance<SettingsTextViewData>()
             .first { it.block == com.example.util.simpletimetracker.feature_settings.api.SettingsBlock.SyncNow }
         assertEquals(false, syncNowBlock.layoutIsClickable)
+    }
+
+    @Test
+    fun viewDataContainsClickableConflictsBlock() = runTest {
+        whenever(syncConflictDao.count()).thenReturn(3)
+        whenever(resourceRepo.getString(any<Int>(), any())).thenReturn("3 Konflikte aufgezeichnet")
+
+        val data = interactor.execute(SyncStatus.SYNCED)
+
+        val conflictsBlock = data.filterIsInstance<SettingsTextViewData>()
+            .first { it.block == com.example.util.simpletimetracker.feature_settings.api.SettingsBlock.SyncConflicts }
+        assertEquals(true, conflictsBlock.layoutIsClickable)
+        assertEquals("3 Konflikte aufgezeichnet", conflictsBlock.subtitle)
     }
 }

@@ -66,3 +66,25 @@ intent_script:
       - service: homeassistant.update_entity
         target:
           entity_id: sensor.timetracker_status
+
+# ---------------------------------------------------------------------------
+# Optional: MQTT Integration (Sofortiger Push via Mosquitto statt Polling)
+# ---------------------------------------------------------------------------
+# Wenn MQTT Discovery aktiv ist, werden die Sensoren automatisch erkannt.
+# Alternativ können sie hier direkt abonniert werden:
+# mqtt:
+#   sensor:
+#     - name: "TimeTracker MQTT Status"
+#       state_topic: "timetracker/state"
+#       value_template: "{{ value_json.state }}"
+#       icon: mdi:timer-outline
+#     - name: "TimeTracker MQTT Aktivität"
+#       state_topic: "timetracker/state"
+#       value_template: "{{ value_json.activity | default('Keine', true) }}"
+#       icon: mdi:briefcase-clock-outline
+#     - name: "TimeTracker MQTT Laufzeit Minuten"
+#       state_topic: "timetracker/state"
+#       value_template: "{{ value_json.duration_minutes | default(0, true) }}"
+#       unit_of_measurement: "min"
+#       icon: mdi:clock-outline
+

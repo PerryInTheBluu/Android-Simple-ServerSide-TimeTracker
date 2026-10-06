@@ -7,7 +7,17 @@ import re
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 
-from fastapi import APIRouter, Body, Depends, HTTPException, Query, Request, Response
+from fastapi import (
+    APIRouter,
+    Body,
+    Depends,
+    HTTPException,
+    Query,
+    Request,
+    Response,
+    WebSocket,
+    WebSocketDisconnect,
+)
 from pydantic import BaseModel, Field
 from sqlalchemy import func
 from sqlalchemy.orm import Session
@@ -17,6 +27,7 @@ from app.db import (
     Activity,
     ConflictLog,
     Goal,
+    SessionLocal,
     SyncCategory,
     SyncLog,
     SyncTag,
@@ -26,7 +37,15 @@ from app.db import (
     new_id,
     utcnow,
 )
+from app.events import manager
+from app.mqtt import (
+    MQTT_TOPIC_PREFIX,
+    get_ha_device_info,
+    get_ha_discovery_payloads,
+    publish_discovery_and_state,
+)
 from app.security import (
+    authenticate_token,
     create_api_token,
     create_refresh_token,
     get_db,
@@ -474,6 +493,34 @@ def get_current_timer(db: Session = Depends(get_db), user_id: str = Depends(requ
     return {"running": True, "entry": data}
 
 
+def get_tracking_status(db: Session, user_id: str) -> dict:
+    """Helper to return standardized status dictionary for Home Assistant and WebSockets."""
+    curr = get_current_timer(db=db, user_id=user_id)
+    if curr.get("running") and curr.get("entry"):
+        entry = curr["entry"]
+        act = entry.get("activity")
+        act_name = act.get("name") if act else "Aktiv"
+        dur_sec = entry.get("duration_seconds", 0)
+        return {
+            "running": True,
+            "state": "tracking",
+            "activity": act_name,
+            "duration_seconds": dur_sec,
+            "duration_minutes": max(0, dur_sec // 60),
+            "started_at": entry.get("started_at"),
+            "entry_id": entry.get("id"),
+        }
+    return {
+        "running": False,
+        "state": "idle",
+        "activity": None,
+        "duration_seconds": 0,
+        "duration_minutes": 0,
+        "started_at": None,
+        "entry_id": None,
+    }
+
+
 @api_router.post("/timer/start")
 def start_timer(body: TimerStartIn, db: Session = Depends(get_db), user_id: str = Depends(require_user)):
     activity = None
@@ -552,6 +599,15 @@ def start_timer(body: TimerStartIn, db: Session = Depends(get_db), user_id: str 
     data = entry_out(entry)
     data["activity"] = activity_out(activity)
     data["duration_seconds"] = max(0, int((now - _aware(entry.started_at)).total_seconds()))
+
+    st = get_tracking_status(db=db, user_id=user_id)
+    manager.broadcast_sync(user_id, {"event": "timer_started", "data": st})
+    publish_discovery_and_state(
+        running=True,
+        activity_name=activity.name,
+        duration_seconds=data["duration_seconds"],
+        started_at=iso(entry.started_at),
+    )
     return {"running": True, "entry": data}
 
 
@@ -587,6 +643,15 @@ def stop_timer(body: Optional[TimerStopIn] = Body(default=None), db: Session = D
         stopped_entries.append(data)
 
     db.commit()
+
+    st = get_tracking_status(db=db, user_id=user_id)
+    manager.broadcast_sync(user_id, {"event": "timer_stopped", "data": st})
+    publish_discovery_and_state(
+        running=False,
+        activity_name=None,
+        duration_seconds=0,
+        started_at=None,
+    )
     return {"running": False, "stopped": stopped_entries[0] if stopped_entries else None}
 
 
@@ -597,30 +662,7 @@ def stop_timer(body: Optional[TimerStopIn] = Body(default=None), db: Session = D
 @api_router.get("/assist/status")
 def assist_status(db: Session = Depends(get_db), user_id: str = Depends(require_user)):
     """Convenient endpoint for Home Assistant REST sensors."""
-    curr = get_current_timer(db=db, user_id=user_id)
-    if curr.get("running") and curr.get("entry"):
-        entry = curr["entry"]
-        act = entry.get("activity")
-        act_name = act.get("name") if act else "Aktiv"
-        dur_sec = entry.get("duration_seconds", 0)
-        return {
-            "running": True,
-            "state": "tracking",
-            "activity": act_name,
-            "duration_seconds": dur_sec,
-            "duration_minutes": max(0, dur_sec // 60),
-            "started_at": entry.get("started_at"),
-            "entry_id": entry.get("id"),
-        }
-    return {
-        "running": False,
-        "state": "idle",
-        "activity": None,
-        "duration_seconds": 0,
-        "duration_minutes": 0,
-        "started_at": None,
-        "entry_id": None,
-    }
+    return get_tracking_status(db=db, user_id=user_id)
 
 
 @api_router.post("/assist/process", response_model=AssistOut)
@@ -734,6 +776,60 @@ def assist_process(body: AssistIn, db: Session = Depends(get_db), user_id: str =
             response=f"Aktivität '{candidate}' wurde nicht gefunden. Verfügbar sind z. B.: {top_names}.",
             running=False,
         )
+
+
+@api_router.get("/assist/mqtt_discovery")
+def assist_mqtt_discovery(user_id: str = Depends(require_user)):
+    """Returns Home Assistant MQTT Autodiscovery configurations and state topics."""
+    return {
+        "device": get_ha_device_info(),
+        "configs": get_ha_discovery_payloads(),
+        "state_topic": f"{MQTT_TOPIC_PREFIX}/state",
+    }
+
+
+@api_router.websocket("/ws")
+async def websocket_events(websocket: WebSocket, token: Optional[str] = Query(None)):
+    """Real-time event stream over WebSocket for Web dashboards and Home Assistant."""
+    db = SessionLocal()
+    user_id = None
+    try:
+        if token:
+            user_id = authenticate_token(token, db)
+        if not user_id:
+            await websocket.close(code=4003)
+            return
+
+        await manager.connect(user_id, websocket)
+
+        # Immediately send current state snapshot
+        status = assist_status(db=db, user_id=user_id)
+        await websocket.send_json({
+            "event": "connected",
+            "server_time": iso(utcnow()),
+            "status": status,
+        })
+
+        while True:
+            msg = await websocket.receive_text()
+            try:
+                data = json.loads(msg)
+                action = data.get("action")
+                if action == "status":
+                    st = assist_status(db=db, user_id=user_id)
+                    await websocket.send_json({"event": "status", "data": st})
+                elif action == "ping":
+                    await websocket.send_json({"event": "pong", "time": iso(utcnow())})
+            except Exception:
+                pass
+    except WebSocketDisconnect:
+        if user_id:
+            await manager.disconnect(user_id, websocket)
+    except Exception:
+        if user_id:
+            await manager.disconnect(user_id, websocket)
+    finally:
+        db.close()
 
 
 
@@ -1127,6 +1223,7 @@ def sync_push(body: SyncPushRequest, db: Session = Depends(get_db), user_id: str
             ),
         )
     db.commit()
+    manager.broadcast_sync(user_id, {"event": "sync_completed", "data": {"applied": applied, "conflicts": len(conflicts)}})
     return {"applied": applied, "conflicts": conflicts, "server_time": iso(utcnow())}
 
 

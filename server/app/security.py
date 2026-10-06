@@ -96,11 +96,12 @@ def _aware(value: datetime) -> datetime:
     return value
 
 
-def authenticate_request(request: Request, db: Session) -> Optional[str]:
-    """Return user_id if a valid API token or refresh token is present."""
-    token = _bearer_token(request)
+def authenticate_token(token: Optional[str], db: Session) -> Optional[str]:
+    """Return user_id if a valid API token or refresh token string is present."""
     if not token:
         return None
+    if token.startswith("Bearer "):
+        token = token[len("Bearer "):].strip()
     hashed = token_hash(token)
     api_token = (
         db.query(ApiToken)
@@ -121,6 +122,12 @@ def authenticate_request(request: Request, db: Session) -> Optional[str]:
     if refresh_token is not None and _aware(refresh_token.expires_at) >= utcnow():
         return refresh_token.user_id
     return None
+
+
+def authenticate_request(request: Request, db: Session) -> Optional[str]:
+    """Return user_id if a valid API token or refresh token is present in the request."""
+    token = _bearer_token(request)
+    return authenticate_token(token, db)
 
 
 def require_user(request: Request, db: Session = Depends(get_db)) -> str:

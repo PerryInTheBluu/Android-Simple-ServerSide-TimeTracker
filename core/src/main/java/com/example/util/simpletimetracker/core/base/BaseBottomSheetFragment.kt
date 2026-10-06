@@ -16,16 +16,17 @@ import com.example.util.simpletimetracker.core.utils.applyNavBarInsets
 import com.example.util.simpletimetracker.core.utils.doOnApplyWindowInsetsListener
 import com.example.util.simpletimetracker.core.utils.getStatusBarInsetsTop
 import com.example.util.simpletimetracker.navigation.Router
+import com.example.util.simpletimetracker.navigation.RouterProvider
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
-import javax.inject.Inject
 
 abstract class BaseBottomSheetFragment<T : ViewBinding> : BottomSheetDialogFragment(), Throttler {
 
-    @Inject
-    lateinit var router: Router
+    protected val router: Router
+        get() = (activity as? RouterProvider)?.router
+            ?: error("Activity must implement RouterProvider")
 
     abstract val inflater: (LayoutInflater, ViewGroup?, Boolean) -> T
     override var throttleJob: Job? = null

@@ -71,6 +71,10 @@ class SettingsViewModel @Inject constructor(
         syncDelegate.onSyncServerSaved(url, username, password)
     }
 
+    fun onSyncConflictsCleared() = viewModelScope.launch {
+        syncDelegate.onSyncConflictsCleared()
+    }
+
     fun onCalendarSubscriptionSaved(id: String, name: String, url: String, color: String, enabled: Boolean) = viewModelScope.launch {
         mainDelegate.onCalendarSubscriptionSaved(id, name, url, color, enabled)
     }

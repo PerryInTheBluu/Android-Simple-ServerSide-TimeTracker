@@ -7,12 +7,13 @@ import com.example.util.simpletimetracker.core.manager.ThemeManager
 import com.example.util.simpletimetracker.core.provider.ContextProvider
 import com.example.util.simpletimetracker.feature_views.extension.visible
 import com.example.util.simpletimetracker.navigation.Router
+import com.example.util.simpletimetracker.navigation.RouterProvider
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import com.example.util.simpletimetracker.databinding.MainActivityBinding as Binding
 
 @AndroidEntryPoint
-class MainActivity : BaseActivity<Binding>() {
+class MainActivity : BaseActivity<Binding>(), RouterProvider {
 
     override val inflater: (LayoutInflater) -> Binding = Binding::inflate
 
@@ -23,7 +24,7 @@ class MainActivity : BaseActivity<Binding>() {
     override lateinit var contextProvider: ContextProvider
 
     @Inject
-    lateinit var router: Router
+    override lateinit var router: Router
 
     private val viewModel: MainActivityViewModel by viewModels()
 

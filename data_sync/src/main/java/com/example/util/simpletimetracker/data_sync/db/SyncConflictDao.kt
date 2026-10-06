@@ -53,6 +53,12 @@ interface SyncConflictDao {
     @Query("SELECT * FROM sync_conflict_log ORDER BY created_at DESC LIMIT 100")
     fun getAllFlow(): Flow<List<SyncConflictDBO>>
 
+    @Query("SELECT * FROM sync_conflict_log ORDER BY created_at DESC LIMIT 100")
+    suspend fun getAll(): List<SyncConflictDBO>
+
+    @Query("SELECT COUNT(*) FROM sync_conflict_log")
+    suspend fun count(): Int
+
     @Insert
     suspend fun insert(conflict: SyncConflictDBO)
 

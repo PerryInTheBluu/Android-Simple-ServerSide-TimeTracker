@@ -24,7 +24,7 @@ class SettingsSyncViewModelDelegate @Inject constructor(
     private val credentialStore: SyncCredentialStore,
     private val syncLoginInteractor: SyncLoginInteractor,
     private val resourceRepo: ResourceRepo,
-) : SettingsDelegate, ViewModelDelegate() {
+) : SettingsDelegate, ViewModelDelegate(), com.example.util.simpletimetracker.feature_settings.syncConflicts.model.SyncConflictsDialogListener {
 
     private var parent: SettingsParent? = null
 
@@ -48,10 +48,9 @@ class SettingsSyncViewModelDelegate @Inject constructor(
                 }
             }
             SettingsBlock.SyncConflicts -> {
-                delegateScope.launch {
-                    syncEngine.clearConflicts()
-                    parent?.updateContent()
-                }
+                router.navigate(
+                    com.example.util.simpletimetracker.navigation.params.screen.SyncConflictsDialogParams.Empty,
+                )
             }
             SettingsBlock.SyncServer -> {
                 router.navigate(
@@ -87,6 +86,12 @@ class SettingsSyncViewModelDelegate @Inject constructor(
                     ToastParams(message = resourceRepo.getString(messageRes)),
                 )
             }
+            parent?.updateContent()
+        }
+    }
+
+    override fun onSyncConflictsCleared() {
+        delegateScope.launch {
             parent?.updateContent()
         }
     }

@@ -27,6 +27,7 @@ import com.example.util.simpletimetracker.feature_settings.partialRestoreSelecti
 import com.example.util.simpletimetracker.feature_settings.partialRestoreSelection.view.PartialRestoreSelectionFragment
 import com.example.util.simpletimetracker.feature_settings.syncServer.view.SyncServerDialogFragment
 import com.example.util.simpletimetracker.feature_settings.calendarSubscription.view.CalendarSubscriptionDialogFragment
+import com.example.util.simpletimetracker.feature_settings.syncConflicts.view.SyncConflictsDialogFragment
 import com.example.util.simpletimetracker.feature_statistics_detail.settings.view.StatisticsTagValuesSettingsDialogFragment
 import com.example.util.simpletimetracker.navigation.NavigationData
 import com.example.util.simpletimetracker.navigation.bundleCreator.BundleCreator
@@ -61,6 +62,7 @@ import com.example.util.simpletimetracker.navigation.params.screen.StatisticsTag
 import com.example.util.simpletimetracker.navigation.params.screen.StandardDialogParams
 import com.example.util.simpletimetracker.navigation.params.screen.TextInputDialogParams
 import com.example.util.simpletimetracker.navigation.params.screen.SyncServerDialogParams
+import com.example.util.simpletimetracker.navigation.params.screen.SyncConflictsDialogParams
 import com.example.util.simpletimetracker.navigation.params.screen.SettingsOptionsParams
 import com.example.util.simpletimetracker.navigation.params.screen.TypesSelectionDialogParams
 import dagger.Module
@@ -100,6 +102,16 @@ class NavigationDialogMapModule {
         return NavigationData(
             R.id.calendarSubscriptionDialogFragment,
             bundleCreatorDelegate(CalendarSubscriptionDialogFragment::createBundle),
+        )
+    }
+
+    @IntoMap
+    @Provides
+    @ScreenKey(SyncConflictsDialogParams::class)
+    fun syncConflictsDialog(): NavigationData {
+        return NavigationData(
+            R.id.syncConflictsDialogFragment,
+            bundleCreatorDelegate(SyncConflictsDialogFragment::createBundle),
         )
     }
 

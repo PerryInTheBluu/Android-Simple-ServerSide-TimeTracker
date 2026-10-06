@@ -60,3 +60,25 @@ In Home Assistant unter **Entwicklerwerkzeuge** ➔ **YAML-Konfiguration neu lad
 - `sensor.timetracker_status`: Zustand (`tracking` oder `idle`)
 - `sensor.timetracker_active_activity`: Name der aktuell aktiven Aktivität (z. B. `Pause`, `Thermodynamik`, `Keine`)
 - `sensor.timetracker_duration_minutes`: Bisherige Laufzeit in Minuten
+
+---
+
+## 5. MQTT Autodiscovery & WebSocket Event Push
+
+Neben dem klassischen REST-Polling (alle 30s) unterstützt der TimeTracker-Server jetzt auch echten Echtzeit-Push:
+
+### A) MQTT Autodiscovery
+Wenn du einen MQTT-Broker (z. B. Mosquitto Add-on in Home Assistant) nutzt:
+1. Rufe die Autodiscovery-Konfigurationen ab: `GET /api/assist/mqtt_discovery`
+2. Konfiguriere in der Umgebung des TimeTracker-Servers:
+   - `MQTT_HOST`: IP/Hostname deines MQTT-Brokers (z. B. `192.168.1.10` oder Tailnet-IP)
+   - `MQTT_PORT`: 1883
+   - `MQTT_USER`: Optionaler Benutzername
+   - `MQTT_PASSWORD`: Optionales Passwort
+3. Der Server publiziert Statusänderungen sofort auf Topic `timetracker/state` mit retained Status, und Home Assistant registriert die Sensoren automatisch!
+
+### B) WebSocket Event-Push (`/api/ws`)
+Web-Clients, Dashboards und Drittanwendungen können sich direkt per WebSocket verbinden:
+- URL: `wss://time.ts.piusdischinger.com/api/ws?token=DEIN_TOKEN`
+- Empfängt sofort beim Verbinden das Event `connected` mit dem aktuellen Timer-Status.
+- Sendet Live-Events `timer_started`, `timer_stopped` und `sync_completed` ohne jede Verzögerung.
