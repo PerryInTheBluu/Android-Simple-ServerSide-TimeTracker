@@ -595,7 +595,7 @@ class RecordsCalendarView @JvmOverloads constructor(
         val maxTextWidth = bounds.width() - 2 * (recordHorizontalPadding + legendTextPadding) - symbolSpace
         if (maxTextWidth <= 0) return
 
-        val fullText = "${'$'}{slot.name} ${'$'}{slot.typeLabel}"
+        val fullText = "${slot.name} ${slot.typeLabel}".trim()
         var text = ellipsize(fullText, maxTextWidth)
         if (text.isEmpty()) return
 
