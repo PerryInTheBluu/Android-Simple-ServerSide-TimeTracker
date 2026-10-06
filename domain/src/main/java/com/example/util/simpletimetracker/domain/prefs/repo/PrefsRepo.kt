@@ -72,6 +72,9 @@ interface PrefsRepo {
     // and end date; serialized by VacationPeriod.
     var vacationPeriods: String
 
+    // Calendar subscriptions (e.g. WebDAV/Nextcloud URLs); serialized by CalendarSubscription.
+    var calendarSubscriptions: String
+
     var showUntrackedInRecords: Boolean
 
     var showUntrackedInStatistics: Boolean

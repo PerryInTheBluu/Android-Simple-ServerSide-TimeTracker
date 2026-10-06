@@ -193,6 +193,10 @@ class PrefsRepoImpl @Inject constructor(
         KEY_VACATION_PERIODS, "",
     )
 
+    override var calendarSubscriptions: String by prefs.delegate(
+        KEY_CALENDAR_SUBSCRIPTIONS, "",
+    )
+
     override var showUntrackedInRecords: Boolean by prefs.delegate(
         KEY_SHOW_UNTRACKED_IN_RECORDS, false,
     )
@@ -806,6 +810,7 @@ class PrefsRepoImpl @Inject constructor(
         const val KEY_TIMETABLE_PREP_LEAD = "timetablePrepLead"
         const val KEY_VACATION_MODE = "vacationMode"
         const val KEY_VACATION_PERIODS = "vacationPeriods"
+        const val KEY_CALENDAR_SUBSCRIPTIONS = "calendarSubscriptions"
         const val KEY_SHOW_UNTRACKED_IN_RECORDS = "showUntrackedInRecords"
         const val KEY_SHOW_UNTRACKED_IN_STATISTICS = "showUntrackedInStatistics"
         const val KEY_SHOW_RECORDS_CALENDAR = "showRecordsCalendar"

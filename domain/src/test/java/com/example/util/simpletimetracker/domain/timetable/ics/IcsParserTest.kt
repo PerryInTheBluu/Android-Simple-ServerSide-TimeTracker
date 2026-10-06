@@ -236,4 +236,71 @@ class IcsParserTest {
         // worked and the times are consistent.
         assertEquals(events[0].endTime - events[0].startTime, 60)
     }
+
+    @Test
+    fun parsesUidOnRecurringEvent() {
+        val ics = """
+            BEGIN:VCALENDAR
+            BEGIN:VEVENT
+            UID:series-42@campo.fau.de
+            SUMMARY:Thermodynamik
+            DTSTART:20261013T101500
+            DTEND:20261013T115500
+            RRULE:FREQ=WEEKLY;BYDAY=TU
+            END:VEVENT
+            END:VCALENDAR
+        """.trimIndent()
+
+        val result = parser.parse(ics)
+
+        assertEquals(1, result.size)
+        assertEquals("series-42@campo.fau.de", result[0].uid)
+    }
+
+    @Test
+    fun parsesRecurrenceIdExceptionOverride() {
+        val ics = """
+            BEGIN:VCALENDAR
+            BEGIN:VEVENT
+            UID:series-42@campo.fau.de
+            SUMMARY:Thermodynamik
+            DTSTART:20261013T101500
+            DTEND:20261013T115500
+            RRULE:FREQ=WEEKLY;BYDAY=TU
+            END:VEVENT
+            BEGIN:VEVENT
+            UID:series-42@campo.fau.de
+            RECURRENCE-ID;TZID=Europe/Berlin:20261020T101500
+            SUMMARY:Thermodynamik Raumänderung
+            LOCATION:H11
+            DTSTART:20261020T103000
+            DTEND:20261020T120000
+            END:VEVENT
+            BEGIN:VEVENT
+            UID:series-42@campo.fau.de
+            RECURRENCE-ID;TZID=Europe/Berlin:20261027T101500
+            STATUS:CANCELLED
+            SUMMARY:Thermodynamik Entfällt
+            END:VEVENT
+            END:VCALENDAR
+        """.trimIndent()
+
+        val result = parser.parse(ics)
+
+        assertEquals(1, result.events.size)
+        assertEquals(2, result.overrides.size)
+
+        val roomChange = result.overrides[0]
+        assertEquals("series-42@campo.fau.de", roomChange.uid)
+        assertEquals("2026-10-20", roomChange.recurrenceDate)
+        assertEquals("H11", roomChange.room)
+        assertEquals(630, roomChange.startTime) // 10:30 = 630 min
+        assertEquals(720, roomChange.endTime) // 12:00 = 720 min
+        assertEquals(false, roomChange.cancelled)
+
+        val cancelled = result.overrides[1]
+        assertEquals("series-42@campo.fau.de", cancelled.uid)
+        assertEquals("2026-10-27", cancelled.recurrenceDate)
+        assertEquals(true, cancelled.cancelled)
+    }
 }

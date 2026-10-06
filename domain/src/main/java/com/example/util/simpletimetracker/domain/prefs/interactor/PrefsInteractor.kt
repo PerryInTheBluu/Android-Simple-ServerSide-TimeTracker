@@ -25,6 +25,7 @@ import com.example.util.simpletimetracker.domain.widget.model.GridWidgetData
 import com.example.util.simpletimetracker.domain.widget.model.StatisticsWidgetData
 import com.example.util.simpletimetracker.domain.widget.model.QuickSettingsWidgetType
 import com.example.util.simpletimetracker.domain.timetable.model.VacationPeriod
+import com.example.util.simpletimetracker.domain.timetable.model.CalendarSubscription
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -361,6 +362,24 @@ class PrefsInteractor @Inject constructor(
 
     suspend fun setVacationPeriods(periods: List<VacationPeriod>) = withContext(Dispatchers.IO) {
         prefsRepo.vacationPeriods = VacationPeriod.serialize(periods)
+    }
+
+    suspend fun getCalendarSubscriptions(): List<CalendarSubscription> = withContext(Dispatchers.IO) {
+        CalendarSubscription.deserialize(prefsRepo.calendarSubscriptions)
+    }
+
+    suspend fun setCalendarSubscriptions(subscriptions: List<CalendarSubscription>) = withContext(Dispatchers.IO) {
+        prefsRepo.calendarSubscriptions = CalendarSubscription.serialize(subscriptions)
+    }
+
+    suspend fun addCalendarSubscription(subscription: CalendarSubscription) = withContext(Dispatchers.IO) {
+        val current = getCalendarSubscriptions().filter { it.id != subscription.id }
+        setCalendarSubscriptions(current + subscription)
+    }
+
+    suspend fun removeCalendarSubscription(id: String) = withContext(Dispatchers.IO) {
+        val current = getCalendarSubscriptions().filter { it.id != id }
+        setCalendarSubscriptions(current)
     }
 
     // The vacation mode toggle and the planned periods pause the

@@ -159,6 +159,7 @@ class SyncDebugReceiver : BroadcastReceiver() {
                     ACTION_DUMP_RECORDS -> dumpRecords()
                     ACTION_SEED_TIMETABLE -> seedTimetable()
                     ACTION_IMPORT_ICS -> importIcs(intent.getStringExtra(EXTRA_PATH).orEmpty())
+                    ACTION_DUMP_TIMETABLE -> dumpTimetable()
                     ACTION_RESCHEDULE_TIMETABLE -> rescheduleTimetable()
                     ACTION_RESET_TIMETABLE_MIRROR -> resetTimetableMirror()
                     ACTION_TIMETABLE_TODO_DONE -> {
@@ -448,6 +449,18 @@ class SyncDebugReceiver : BroadcastReceiver() {
         )
     }
 
+    private suspend fun dumpTimetable() {
+        val events = timetableRepo.getAllEvents()
+        val overrides = timetableRepo.getAllOverrides()
+        Timber.i("DebugReceiver: %d timetable events, %d overrides", events.size, overrides.size)
+        events.forEach {
+            Timber.i("  Event: id=%d %s day=%d %d..%d room=%s typeId=%s", it.id, it.name, it.dayOfWeek, it.startTime, it.endTime, it.room, it.activityTypeId)
+        }
+        overrides.forEach {
+            Timber.i("  Override: id=%d date=%s eventId=%d room=%s %d..%d cancelled=%b", it.id, it.date, it.eventId, it.room, it.startTime, it.endTime, it.cancelled)
+        }
+    }
+
     private suspend fun stopAllTimers() {
         val running = runningRecordRepo.getAll()
         running.forEach { runningRecordRepo.remove(it.id) }
@@ -529,6 +542,7 @@ class SyncDebugReceiver : BroadcastReceiver() {
         const val ACTION_DUMP_RECORDS = "de.piusdischinger.timetracker.debug.DUMP_RECORDS"
         const val ACTION_SEED_TIMETABLE = "de.piusdischinger.timetracker.debug.SEED_TIMETABLE"
         const val ACTION_IMPORT_ICS = "de.piusdischinger.timetracker.debug.IMPORT_ICS"
+        const val ACTION_DUMP_TIMETABLE = "de.piusdischinger.timetracker.debug.DUMP_TIMETABLE"
         const val ACTION_RESCHEDULE_TIMETABLE = "de.piusdischinger.timetracker.debug.RESCHEDULE_TIMETABLE"
         const val ACTION_RESET_TIMETABLE_MIRROR = "de.piusdischinger.timetracker.debug.RESET_TIMETABLE_MIRROR"
         const val ACTION_TIMETABLE_TODO_DONE = "de.piusdischinger.timetracker.debug.TIMETABLE_TODO_DONE"
