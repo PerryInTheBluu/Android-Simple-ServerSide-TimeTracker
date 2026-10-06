@@ -32,6 +32,8 @@ import com.example.util.simpletimetracker.navigation.Router
 import com.example.util.simpletimetracker.navigation.params.screen.DateTimeDialogParams
 import com.example.util.simpletimetracker.navigation.params.screen.DateTimeDialogType
 import com.example.util.simpletimetracker.navigation.params.screen.OptionsListParams
+import com.example.util.simpletimetracker.domain.notifications.interactor.LocalDataChangedBus
+import com.example.util.simpletimetracker.domain.record.interactor.RunningRecordInteractor
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -50,6 +52,7 @@ class GoalsViewModel @Inject constructor(
     private val goalsOptionsListMapper: GoalsOptionsListMapper,
     private val subjectGoalsViewDataInteractor: SubjectGoalsViewDataInteractor,
     private val resourceRepo: com.example.util.simpletimetracker.core.repo.ResourceRepo,
+    private val runningRecordInteractor: RunningRecordInteractor,
     val dateSelectorViewModelDelegate: DateSelectorViewModelDelegate,
 ) : ViewModel() {
 
@@ -57,6 +60,7 @@ class GoalsViewModel @Inject constructor(
 
     init {
         dateSelectorViewModelDelegate.attach(getDateSelectorDelegateParent())
+        subscribeToUpdates()
     }
 
     val goals: LiveData<List<ViewHolderType>> by lazy {
@@ -241,12 +245,23 @@ class GoalsViewModel @Inject constructor(
         return goalsViewDataInteractor.getViewData(currentShift)
     }
 
+    private fun subscribeToUpdates() {
+        viewModelScope.launch {
+            LocalDataChangedBus.events.collect {
+                if (isVisible) updateStatistics()
+            }
+        }
+    }
+
     private fun startUpdate() {
         timerJob?.cancel()
         timerJob = viewModelScope.launch {
+            updateStatistics()
             while (isActive) {
-                updateStatistics()
                 delay(TIMER_UPDATE)
+                if (runningRecordInteractor.getAll().isNotEmpty()) {
+                    updateStatistics()
+                }
             }
         }
     }
@@ -295,7 +310,7 @@ class GoalsViewModel @Inject constructor(
 
     companion object {
         private const val DATE_TAG = "goals_date_tag"
-        private const val TIMER_UPDATE = 1000L
+        private const val TIMER_UPDATE = 30_000L
         private const val SUBJECT_GOAL_HOURS_TAG = "subject_goal_hours_"
         private const val SUBJECT_GOAL_ECTS_TAG = "subject_goal_ects_"
     }

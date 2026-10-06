@@ -60,6 +60,9 @@ import com.example.util.simpletimetracker.navigation.params.screen.DefaultTypesS
 import com.example.util.simpletimetracker.navigation.params.screen.PomodoroParams
 import com.example.util.simpletimetracker.navigation.params.screen.RecordTagSelectionParams
 import com.example.util.simpletimetracker.navigation.params.screen.StandardDialogParams
+import com.example.util.simpletimetracker.domain.base.DurationFormat
+import com.example.util.simpletimetracker.domain.recordTag.model.RecordTag
+import com.example.util.simpletimetracker.domain.recordType.model.RecordTypeGoal
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -112,6 +115,23 @@ class RunningRecordsViewModel @Inject constructor(
     private var completeTypeIds: Set<Long> = emptySet()
     private var navBarHeightDp: Int = 0
     private var searchText: String = ""
+
+    // Performance: cache metadata during 1-second ticks so we avoid hitting Room DB & SharedPreferences every 1000ms
+    private var cachedRecordTypes: Map<Long, RecordType>? = null
+    private var cachedRecordTags: List<RecordTag>? = null
+    private var cachedGoals: Map<Long, List<RecordTypeGoal>>? = null
+    private var cachedIsDarkTheme: Boolean = false
+    private var cachedUseMilitaryTime: Boolean = false
+    private var cachedDurationFormat: DurationFormat = DurationFormat.MINUTES
+    private var cachedShowSeconds: Boolean = true
+    private var cachedPrefsLoaded: Boolean = false
+
+    private fun invalidateTickCache() {
+        cachedRecordTypes = null
+        cachedRecordTags = null
+        cachedGoals = null
+        cachedPrefsLoaded = false
+    }
 
     init {
         subscribeToUpdates()
@@ -567,6 +587,7 @@ class RunningRecordsViewModel @Inject constructor(
     private fun updateRunningRecords(
         fromValueChange: Boolean = false,
     ) {
+        invalidateTickCache()
         updateJob?.cancel()
         updateJob = viewModelScope.launch {
             val data = loadRunningRecordsViewData(fromValueChange)
@@ -594,6 +615,7 @@ class RunningRecordsViewModel @Inject constructor(
     private fun subscribeToDataChanges() {
         viewModelScope.launch {
             LocalDataChangedBus.events.collect {
+                invalidateTickCache()
                 dataChangeJob?.cancel()
                 dataChangeJob = viewModelScope.launch {
                     delay(DATA_CHANGE_DEBOUNCE_MS)
@@ -627,15 +649,23 @@ class RunningRecordsViewModel @Inject constructor(
         val runningRecords = runningRecordInteractor.getAll()
         if (runningRecords.isEmpty()) return
 
-        val isDarkTheme = prefsInteractor.getDarkMode()
-        val useMilitaryTime = prefsInteractor.getUseMilitaryTimeFormat()
-        val durationFormat = prefsInteractor.getDurationFormat()
-        val showSeconds = prefsInteractor.getShowSeconds()
-        val recordTypes = recordTypeInteractor.getAll().associateBy(RecordType::id)
-        val recordTags = recordTagInteractor.getAll()
-        val goals = filterGoalsByDayOfWeekInteractor
-            .execute(recordTypeGoalInteractor.getAllTypeGoals())
-            .groupBy { it.idData.value }
+        if (!cachedPrefsLoaded) {
+            cachedIsDarkTheme = prefsInteractor.getDarkMode()
+            cachedUseMilitaryTime = prefsInteractor.getUseMilitaryTimeFormat()
+            cachedDurationFormat = prefsInteractor.getDurationFormat()
+            cachedShowSeconds = prefsInteractor.getShowSeconds()
+            cachedPrefsLoaded = true
+        }
+
+        val recordTypes = cachedRecordTypes
+            ?: recordTypeInteractor.getAll().associateBy(RecordType::id).also { cachedRecordTypes = it }
+        val recordTags = cachedRecordTags
+            ?: recordTagInteractor.getAll().also { cachedRecordTags = it }
+        val goals = cachedGoals
+            ?: filterGoalsByDayOfWeekInteractor
+                .execute(recordTypeGoalInteractor.getAllTypeGoals())
+                .groupBy { it.idData.value }
+                .also { cachedGoals = it }
 
         runningRecords.forEach { runningRecord ->
             val type = recordTypes[runningRecord.id] ?: return@forEach
@@ -647,10 +677,10 @@ class RunningRecordsViewModel @Inject constructor(
                 nowIconVisible = false,
                 goalsVisible = true,
                 totalDurationVisible = true,
-                isDarkTheme = isDarkTheme,
-                useMilitaryTime = useMilitaryTime,
-                durationFormat = durationFormat,
-                showSeconds = showSeconds,
+                isDarkTheme = cachedIsDarkTheme,
+                useMilitaryTime = cachedUseMilitaryTime,
+                durationFormat = cachedDurationFormat,
+                showSeconds = cachedShowSeconds,
             )
             previewUpdate.set(
                 UpdateRunningRecordsInteractor.Update(

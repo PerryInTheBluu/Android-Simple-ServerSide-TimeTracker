@@ -676,6 +676,9 @@ class RecordsViewModel @Inject constructor(
         viewModelScope.launch {
             themeChangedInteractor.themeChanged.collect { updateRecords() }
         }
+        viewModelScope.launch {
+            LocalDataChangedBus.events.collect { if (isVisible) updateRecords() }
+        }
     }
 
     private fun onUpdateReceived(
@@ -773,7 +776,7 @@ class RecordsViewModel @Inject constructor(
                     // its current time line only moves once a minute,
                     // so a full rebuild is only needed on a minute change.
                     val minute = System.currentTimeMillis() / MILLIS_PER_MINUTE
-                    if (!isCalendarMode || minute != lastMinute) {
+                    if (minute != lastMinute) {
                         lastMinute = minute
                         updateRecords()
                     }

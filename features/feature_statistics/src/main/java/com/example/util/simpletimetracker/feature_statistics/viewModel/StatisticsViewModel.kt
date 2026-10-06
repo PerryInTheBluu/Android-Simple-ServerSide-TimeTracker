@@ -13,6 +13,8 @@ import com.example.util.simpletimetracker.domain.darkMode.interactor.ThemeChange
 import com.example.util.simpletimetracker.domain.extension.orZero
 import com.example.util.simpletimetracker.domain.prefs.interactor.PrefsInteractor
 import com.example.util.simpletimetracker.domain.record.interactor.StatisticsUpdateInteractor
+import com.example.util.simpletimetracker.domain.notifications.interactor.LocalDataChangedBus
+import com.example.util.simpletimetracker.domain.record.interactor.RunningRecordInteractor
 import com.example.util.simpletimetracker.domain.statistics.model.ChartFilterType
 import com.example.util.simpletimetracker.feature_base_adapter.ViewHolderType
 import com.example.util.simpletimetracker.feature_base_adapter.loader.LoaderViewData
@@ -40,6 +42,7 @@ class StatisticsViewModel @Inject constructor(
     private val statisticsDetailTotalNavigator: StatisticsDetailTotalNavigator,
     private val themeChangedInteractor: ThemeChangedInteractor,
     private val statisticsUpdateInteractor: StatisticsUpdateInteractor,
+    private val runningRecordInteractor: RunningRecordInteractor,
 ) : ViewModel() {
 
     var extra: StatisticsExtra? = null
@@ -180,6 +183,9 @@ class StatisticsViewModel @Inject constructor(
                 updateAnimateChartParticles()
             }
         }
+        viewModelScope.launch {
+            LocalDataChangedBus.events.collect { if (isVisible) updateStatistics() }
+        }
     }
 
     private fun onFilterClick() = viewModelScope.launch {
@@ -228,15 +234,15 @@ class StatisticsViewModel @Inject constructor(
     private fun startUpdate() {
         timerJob?.cancel()
         timerJob = viewModelScope.launch {
+            updateStatistics()
             if (shift != 0) {
-                updateStatistics()
                 return@launch
             }
             while (isActive) {
-                // Just in case update takes longer than timer period,
-                // otherwise will be canceled every tick.
-                if (updateJob?.isCompleted != false) updateStatistics()
                 delay(TIMER_UPDATE)
+                if (runningRecordInteractor.getAll().isNotEmpty()) {
+                    if (updateJob?.isCompleted != false) updateStatistics()
+                }
             }
         }
     }
@@ -247,7 +253,7 @@ class StatisticsViewModel @Inject constructor(
     }
 
     companion object {
-        private const val TIMER_UPDATE = 1000L
+        private const val TIMER_UPDATE = 30_000L
         private const val SHARING_NAME = "stt_statistics"
     }
 }
