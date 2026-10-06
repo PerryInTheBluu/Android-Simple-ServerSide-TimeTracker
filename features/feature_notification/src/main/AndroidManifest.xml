@@ -39,6 +39,7 @@
                 <action android:name="de.piusdischinger.timetracker.ACTION_EXTERNAL_AUTOMATIC_EXPORT" />
                 <action android:name="de.piusdischinger.timetracker.ACTION_QUERY_ACTIVITIES" />
                 <action android:name="de.piusdischinger.timetracker.ACTION_QUERY_RUNNING" />
+                <action android:name="de.piusdischinger.timetracker.ACTION_RESCUE_RECORD" />
             </intent-filter>
         </receiver>
 

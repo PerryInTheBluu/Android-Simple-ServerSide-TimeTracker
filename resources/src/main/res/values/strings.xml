@@ -477,7 +477,10 @@ If <b>\"%s\"</b> setting is enabled, app will respond with data to query broadca
     <string name="settings_automated_tracking_extras_description">Description:</string>
     <string name="settings_automated_tracking_extra_name">with activity name that should be started or stopped.</string>
     <string name="settings_automated_tracking_extra_tag">with the name of a record tag. Or list of tag names separated by comma.</string>
-    <string name="settings_automated_tracking_extra_time">in the format \"yyyy-MM-dd HH:mm:ss\" or UTC timestamp.</string>
+    <string name="settings_automated_tracking_extra_time">in format \"yyyy-MM-dd HH:mm:ss\", \"HH:mm\", UTC timestamp, or relative minutes (e.g. \"-15\", \"15m\").</string>
+    <string name="settings_automated_tracking_extra_duration_minutes">duration of the record in minutes.</string>
+    <string name="settings_automated_tracking_extra_offset_minutes">retroactive offset in minutes before now (e.g. 15 for 15 minutes ago).</string>
+    <string name="settings_automated_tracking_extra_minutes">duration or offset in minutes.</string>
     <string name="settings_automated_tracking_find_record_mode">selects which record to change.</string>
     <string name="settings_automated_tracking_comment_mode">selects how to change comment of the selected record.</string>
     <string name="settings_automated_tracking_find_with_activity">additionally selects record by activity name, if there are several current or last records.</string>

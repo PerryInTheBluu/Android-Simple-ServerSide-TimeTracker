@@ -17,6 +17,7 @@ import com.example.util.simpletimetracker.core.utils.ACTION_EXTERNAL_CHANGE_RECO
 import com.example.util.simpletimetracker.core.utils.ACTION_EXTERNAL_CREATE_RECORD_TAG
 import com.example.util.simpletimetracker.core.utils.ACTION_EXTERNAL_QUERY_ACTIVITIES
 import com.example.util.simpletimetracker.core.utils.ACTION_EXTERNAL_QUERY_RUNNING
+import com.example.util.simpletimetracker.core.utils.ACTION_EXTERNAL_RESCUE_RECORD
 import com.example.util.simpletimetracker.core.utils.ACTION_EXTERNAL_RESPONSE_ACTIVITIES
 import com.example.util.simpletimetracker.core.utils.ACTION_EXTERNAL_RESPONSE_RUNNING
 import com.example.util.simpletimetracker.core.utils.ACTION_EXTERNAL_RESTART_ACTIVITY
@@ -38,6 +39,9 @@ import com.example.util.simpletimetracker.core.utils.EXTRA_GOAL_TYPE
 import com.example.util.simpletimetracker.core.utils.EXTRA_GOAL_VALUE
 import com.example.util.simpletimetracker.core.utils.EXTRA_RECORD_COMMENT
 import com.example.util.simpletimetracker.core.utils.EXTRA_RECORD_COMMENT_MODE
+import com.example.util.simpletimetracker.core.utils.EXTRA_RECORD_DURATION_MINUTES
+import com.example.util.simpletimetracker.core.utils.EXTRA_RECORD_MINUTES
+import com.example.util.simpletimetracker.core.utils.EXTRA_RECORD_OFFSET_MINUTES
 import com.example.util.simpletimetracker.core.utils.EXTRA_RECORD_TAG_NAME
 import com.example.util.simpletimetracker.core.utils.EXTRA_RECORD_TIME_ENDED
 import com.example.util.simpletimetracker.core.utils.EXTRA_RECORD_TIME_STARTED
@@ -100,6 +104,7 @@ class SettingsAutomatedTrackingMapper @Inject constructor(
                         EXTRA_RECORD_COMMENT,
                         EXTRA_RECORD_TAG_NAME,
                         EXTRA_RECORD_TIME_STARTED,
+                        EXTRA_RECORD_OFFSET_MINUTES,
                     ),
                 ),
                 AvailableAction(
@@ -107,6 +112,8 @@ class SettingsAutomatedTrackingMapper @Inject constructor(
                     extras = listOf(EXTRA_ACTIVITY_NAME),
                     optional = listOf(
                         EXTRA_RECORD_TIME_ENDED,
+                        EXTRA_RECORD_OFFSET_MINUTES,
+                        EXTRA_RECORD_DURATION_MINUTES,
                     ),
                 ),
                 AvailableAction(
@@ -133,10 +140,23 @@ class SettingsAutomatedTrackingMapper @Inject constructor(
                     action = ACTION_EXTERNAL_ADD_RECORD,
                     extras = listOf(
                         EXTRA_ACTIVITY_NAME,
-                        EXTRA_RECORD_TIME_STARTED,
-                        EXTRA_RECORD_TIME_ENDED,
                     ),
                     optional = listOf(
+                        EXTRA_RECORD_TIME_STARTED,
+                        EXTRA_RECORD_TIME_ENDED,
+                        EXTRA_RECORD_DURATION_MINUTES,
+                        EXTRA_RECORD_OFFSET_MINUTES,
+                        EXTRA_RECORD_COMMENT,
+                        EXTRA_RECORD_TAG_NAME,
+                    ),
+                ),
+                AvailableAction(
+                    action = ACTION_EXTERNAL_RESCUE_RECORD,
+                    extras = emptyList(),
+                    optional = listOf(
+                        EXTRA_ACTIVITY_NAME,
+                        EXTRA_RECORD_MINUTES,
+                        EXTRA_RECORD_DURATION_MINUTES,
                         EXTRA_RECORD_COMMENT,
                         EXTRA_RECORD_TAG_NAME,
                     ),
@@ -257,6 +277,21 @@ class SettingsAutomatedTrackingMapper @Inject constructor(
                 ExtraDescription(
                     extra = EXTRA_RECORD_TIME_ENDED,
                     description = resourceRepo.getString(R.string.settings_automated_tracking_extra_time),
+                    values = emptyList(),
+                ),
+                ExtraDescription(
+                    extra = EXTRA_RECORD_DURATION_MINUTES,
+                    description = resourceRepo.getString(R.string.settings_automated_tracking_extra_duration_minutes),
+                    values = emptyList(),
+                ),
+                ExtraDescription(
+                    extra = EXTRA_RECORD_OFFSET_MINUTES,
+                    description = resourceRepo.getString(R.string.settings_automated_tracking_extra_offset_minutes),
+                    values = emptyList(),
+                ),
+                ExtraDescription(
+                    extra = EXTRA_RECORD_MINUTES,
+                    description = resourceRepo.getString(R.string.settings_automated_tracking_extra_minutes),
                     values = emptyList(),
                 ),
                 ExtraDescription(

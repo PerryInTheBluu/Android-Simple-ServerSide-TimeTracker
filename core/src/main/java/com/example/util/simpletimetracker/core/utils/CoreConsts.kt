@@ -20,6 +20,7 @@ const val ACTION_EXTERNAL_AUTOMATIC_BACKUP = "de.piusdischinger.timetracker.ACTI
 const val ACTION_EXTERNAL_AUTOMATIC_EXPORT = "de.piusdischinger.timetracker.ACTION_EXTERNAL_AUTOMATIC_EXPORT"
 const val ACTION_EXTERNAL_QUERY_ACTIVITIES = "de.piusdischinger.timetracker.ACTION_QUERY_ACTIVITIES"
 const val ACTION_EXTERNAL_QUERY_RUNNING = "de.piusdischinger.timetracker.ACTION_QUERY_RUNNING"
+const val ACTION_EXTERNAL_RESCUE_RECORD = "de.piusdischinger.timetracker.ACTION_RESCUE_RECORD"
 
 // Sent by the app in response to ACTION_EXTERNAL_QUERY_ACTIVITIES / ACTION_EXTERNAL_QUERY_RUNNING.
 const val ACTION_EXTERNAL_RESPONSE_ACTIVITIES = "de.piusdischinger.timetracker.ACTION_RESPONSE_ACTIVITIES"
@@ -37,6 +38,9 @@ const val EXTRA_RECORD_TYPE_NOTE = "extra_record_type_note"
 const val EXTRA_RECORD_TYPE_ICON = "extra_record_type_icon"
 const val EXTRA_RECORD_TIME_STARTED = "extra_record_time_started"
 const val EXTRA_RECORD_TIME_ENDED = "extra_record_time_ended"
+const val EXTRA_RECORD_DURATION_MINUTES = "extra_record_duration_minutes"
+const val EXTRA_RECORD_OFFSET_MINUTES = "extra_record_offset_minutes"
+const val EXTRA_RECORD_MINUTES = "extra_record_minutes"
 const val EXTRA_RECORD_COMMENT_MODE = "extra_record_comment_mode" // set, append, prefix
 const val EXTRA_FIND_RECORD_MODE = "extra_find_record_mode" // current_or_last, current, last
 const val EXTRA_FIND_RECORD_WITH_ACTIVITY_NAME = "extra_find_record_with_activity_name"

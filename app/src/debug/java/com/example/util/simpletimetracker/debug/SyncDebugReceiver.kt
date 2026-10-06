@@ -156,6 +156,7 @@ class SyncDebugReceiver : BroadcastReceiver() {
                     ACTION_STOP_ALL_TIMERS -> stopAllTimers()
                     ACTION_QS_TILE_REPEAT -> qsTileRepeat()
                     ACTION_DUMP_RUNNING -> dumpRunning()
+                    ACTION_DUMP_RECORDS -> dumpRecords()
                     ACTION_SEED_TIMETABLE -> seedTimetable()
                     ACTION_IMPORT_ICS -> importIcs(intent.getStringExtra(EXTRA_PATH).orEmpty())
                     ACTION_RESCHEDULE_TIMETABLE -> rescheduleTimetable()
@@ -461,11 +462,23 @@ class SyncDebugReceiver : BroadcastReceiver() {
 
     private suspend fun dumpRunning() {
         val running = runningRecordRepo.getAll()
-        val names = mutableListOf<String>()
+        val now = System.currentTimeMillis()
+        Timber.i("DebugReceiver: running=%d", running.size)
         running.forEach { r ->
-            names.add(recordTypeRepo.get(r.id)?.name ?: "?")
+            val name = recordTypeRepo.get(r.id)?.name ?: "?"
+            val durationMin = (now - r.timeStarted) / 60000
+            Timber.i("  running '%s' started=%d (%d min ago)", name, r.timeStarted, durationMin)
         }
-        Timber.i("DebugReceiver: running=%d [%s]", running.size, names.joinToString())
+    }
+
+    private suspend fun dumpRecords() {
+        val records = recordRepo.getAll().sortedByDescending { it.timeEnded }.take(5)
+        Timber.i("DebugReceiver: latest %d records:", records.size)
+        records.forEach { r ->
+            val name = recordTypeRepo.get(r.typeId)?.name ?: "?"
+            val durMin = (r.timeEnded - r.timeStarted) / 60000
+            Timber.i("  record '%s' start=%d end=%d (%d min)", name, r.timeStarted, r.timeEnded, durMin)
+        }
     }
 
     private suspend fun addUniTestData() {
@@ -513,6 +526,7 @@ class SyncDebugReceiver : BroadcastReceiver() {
         const val ACTION_STOP_ALL_TIMERS = "de.piusdischinger.timetracker.debug.STOP_ALL_TIMERS"
         const val ACTION_QS_TILE_REPEAT = "de.piusdischinger.timetracker.debug.QS_TILE_REPEAT"
         const val ACTION_DUMP_RUNNING = "de.piusdischinger.timetracker.debug.DUMP_RUNNING"
+        const val ACTION_DUMP_RECORDS = "de.piusdischinger.timetracker.debug.DUMP_RECORDS"
         const val ACTION_SEED_TIMETABLE = "de.piusdischinger.timetracker.debug.SEED_TIMETABLE"
         const val ACTION_IMPORT_ICS = "de.piusdischinger.timetracker.debug.IMPORT_ICS"
         const val ACTION_RESCHEDULE_TIMETABLE = "de.piusdischinger.timetracker.debug.RESCHEDULE_TIMETABLE"

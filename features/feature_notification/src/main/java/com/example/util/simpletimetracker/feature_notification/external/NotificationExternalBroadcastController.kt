@@ -18,6 +18,7 @@ class NotificationExternalBroadcastController @Inject constructor(
         comment: String?,
         tagNames: List<String>,
         timeStarted: String?,
+        offsetMinutes: Long? = null,
     ) {
         name ?: return
         mutex.withLock {
@@ -26,6 +27,7 @@ class NotificationExternalBroadcastController @Inject constructor(
                 comment = comment,
                 tagNames = tagNames,
                 timeStarted = timeStarted,
+                offsetMinutes = offsetMinutes,
             )
         }
     }
@@ -33,12 +35,16 @@ class NotificationExternalBroadcastController @Inject constructor(
     suspend fun onActionExternalActivityStop(
         name: String?,
         timeEnded: String?,
+        offsetMinutes: Long? = null,
+        durationMinutes: Long? = null,
     ) {
         name ?: return
         mutex.withLock {
             externalBroadcastInteractor.onActionActivityStopByName(
                 name = name,
                 timeEnded = timeEnded,
+                offsetMinutes = offsetMinutes,
+                durationMinutes = durationMinutes,
             )
         }
     }
@@ -76,17 +82,35 @@ class NotificationExternalBroadcastController @Inject constructor(
         name: String?,
         timeStarted: String?,
         timeEnded: String?,
+        durationMinutes: Long? = null,
+        offsetMinutes: Long? = null,
         comment: String?,
         tagNames: List<String>,
     ) {
         name ?: return
-        timeStarted ?: return
-        timeEnded ?: return
         mutex.withLock {
             externalBroadcastInteractor.onRecordAdd(
                 name = name,
                 timeStarted = timeStarted,
                 timeEnded = timeEnded,
+                durationMinutes = durationMinutes,
+                offsetMinutes = offsetMinutes,
+                comment = comment,
+                tagNames = tagNames,
+            )
+        }
+    }
+
+    suspend fun onActionExternalRescueRecord(
+        name: String?,
+        minutes: Long?,
+        comment: String?,
+        tagNames: List<String>,
+    ) {
+        mutex.withLock {
+            externalBroadcastInteractor.onRecordRescue(
+                name = name,
+                minutes = minutes,
                 comment = comment,
                 tagNames = tagNames,
             )
